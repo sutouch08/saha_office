@@ -1,6 +1,9 @@
 <?php
-class Quotation_model extends CI_Model
+class Sales_order_model extends CI_Model
 {
+  public $tb = "ORDR";
+  public $td = "RDR1";
+
   public function __construct()
   {
     parent::__construct();
@@ -11,7 +14,7 @@ class Quotation_model extends CI_Model
     $rs = $this->mc
     ->select('U_WEBORDER, CardCode, CardName, F_WebDate, F_SapDate, F_Sap, Message')
     ->where('U_WEBORDER', $code)
-    ->get('OQUT');
+    ->get('ORDR');
 
     if($rs->num_rows() > 0)
     {
@@ -24,7 +27,7 @@ class Quotation_model extends CI_Model
 
   public function get_temp_status($code)
   {
-    $rs = $this->mc->select('F_Sap, F_SapDate, Message')->where('U_WEBORDER', $code)->get('OQUT');
+    $rs = $this->mc->select('F_Sap, F_SapDate, Message')->where('U_WEBORDER', $code)->get('ORDR');
     if($rs->num_rows() === 1)
     {
       return $rs->row();
@@ -34,9 +37,9 @@ class Quotation_model extends CI_Model
   }
 
 
-  public function get_non_sq_code($limit = 20)
+  public function get_non_so_code($limit = 20)
   {
-    $rs = $this->db->select('code, BeginStr')->where('DocNum IS NULL', NULL, FALSE)->limit($limit)->get('quotation');
+    $rs = $this->db->select('code, BeginStr')->where('DocNum IS NULL', NULL, FALSE)->limit($limit)->get('sales_order');
     if($rs->num_rows() > 0)
     {
       return $rs->result();
@@ -48,7 +51,7 @@ class Quotation_model extends CI_Model
 
   public function get_sap_doc_num($code)
   {
-    $rs = $this->ms->select('DocNum')->where('U_WEBORDER', $code)->where('CANCELED', 'N')->get('OQUT');
+    $rs = $this->ms->select('DocNum')->where('U_WEBORDER', $code)->where('CANCELED', 'N')->get('ORDR');
 
     if($rs->num_rows() === 1)
     {
@@ -63,7 +66,7 @@ class Quotation_model extends CI_Model
 
   public function get($code)
   {
-    $rs = $this->db->where('code', $code)->get('quotation');
+    $rs = $this->db->where('code', $code)->get('sales_order');
     if($rs->num_rows() === 1)
     {
       return $rs->row();
@@ -75,7 +78,7 @@ class Quotation_model extends CI_Model
 
   public function get_details($code)
   {
-    $rs = $this->db->where('quotation_code', $code)->get('quotation_detail');
+    $rs = $this->db->where('sales_order_code', $code)->get('sales_order_detail');
     if($rs->num_rows() > 0)
     {
       return $rs->result();
@@ -87,7 +90,7 @@ class Quotation_model extends CI_Model
 
   public function drop_details($code)
   {
-    return $this->db->where('quotation_code', $code)->delete('quotation_detail');
+    return $this->db->where('sales_order_code', $code)->delete('sales_order_detail');
   }
 
 
@@ -96,7 +99,7 @@ class Quotation_model extends CI_Model
   {
     if(!empty($ds))
     {
-      return $this->db->insert('quotation', $ds);
+      return $this->db->insert('sales_order', $ds);
     }
 
     return FALSE;
@@ -107,7 +110,7 @@ class Quotation_model extends CI_Model
   {
     if(!empty($ds))
     {
-      return $this->db->insert('quotation_detail', $ds);
+      return $this->db->insert('sales_order_detail', $ds);
     }
 
     return FALSE;
@@ -121,7 +124,7 @@ class Quotation_model extends CI_Model
     {
       $this->db->where('code', $code);
 
-      return $this->db->update('quotation', $ds);
+      return $this->db->update('sales_order', $ds);
     }
 
     return FALSE;
@@ -130,7 +133,7 @@ class Quotation_model extends CI_Model
   //---- get sum of all line total (after discount)
   public function sum_line_total($code)
   {
-    $rs = $this->db->select_sum('LineTotal')->where('quotation_code', $code)->get('quotation_detail');
+    $rs = $this->db->select_sum('LineTotal')->where('sales_order_code', $code)->get('sales_order_detail');
     if($rs->num_rows() === 1)
     {
       return $rs->row()->LineTotal;
@@ -203,7 +206,7 @@ class Quotation_model extends CI_Model
       }
     }
 
-    return $this->db->count_all_results('quotation');
+    return $this->db->count_all_results('sales_order');
   }
 
 
@@ -277,7 +280,7 @@ class Quotation_model extends CI_Model
 
     $this->db->order_by($order_by, $sort_by)->limit($perpage, $offset);
 
-    $rs = $this->db->get('quotation');
+    $rs = $this->db->get('sales_order');
 
     if($rs->num_rows() > 0)
     {
@@ -407,7 +410,7 @@ class Quotation_model extends CI_Model
 
     $rs = $this->ms
     ->select('Series AS code, SeriesName AS name, BeginStr AS prefix')
-    ->where('ObjectCode', 23)
+    ->where('ObjectCode', 17)
     ->where('Indicator', $month)
     ->order_by('Series', 'ASC')
     ->get('NNM1');
@@ -415,6 +418,27 @@ class Quotation_model extends CI_Model
     if($rs->num_rows() > 0)
     {
       return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+  //---- get series by config DEFAULT_SALES_ORDER_SERIES (BeginStr)
+  public function get_default_series_by_prefix($prefix)
+  {
+    $month = date('Y-m');
+    $rs = $this->ms
+    ->select('Series AS code, SeriesName AS name, BeginStr AS prefix')
+    ->where('ObjectCode', 17)
+    ->where('Indicator', $month)
+    ->where('BeginStr', $prefix)
+    ->order_by('Series', 'ASC')
+    ->get('NNM1');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row();
     }
 
     return NULL;
@@ -436,7 +460,7 @@ class Quotation_model extends CI_Model
 
   public function get_prefix($series)
   {
-    $rs = $this->ms->select('BeginStr AS prefix')->where('ObjectCode', 23)->where('Series', $series)->get('NNM1');
+    $rs = $this->ms->select('BeginStr AS prefix')->where('ObjectCode', 17)->where('Series', $series)->get('NNM1');
 
     if($rs->num_rows() === 1)
     {
@@ -502,7 +526,7 @@ class Quotation_model extends CI_Model
     ->select_max('code')
     ->like('code', $pre, 'after')
     ->order_by('code', 'DESC')
-    ->get('quotation');
+    ->get('sales_order');
 
     return $rs->row()->code;
   }
@@ -510,7 +534,7 @@ class Quotation_model extends CI_Model
 
   public function get_max_line_disc($code)
   {
-    $rs = $this->db->select_max('DiscPrcnt')->where('quotation_code', $code)->get('quotation_detail');
+    $rs = $this->db->select_max('DiscPrcnt')->where('sales_order_code', $code)->get('sales_order_detail');
 
     if($rs->num_rows() === 1)
     {
@@ -541,25 +565,6 @@ class Quotation_model extends CI_Model
     return FALSE;
   }
 
-  // public function can_approve($uname, $sale_team, $gp)
-  // {
-  //   $rs = $this->db
-  //   ->where('uname', $uname)
-  //   ->group_start()
-  //   ->where('sale_team', $sale_team)
-  //   ->or_where('sale_team', 'all')
-  //   ->group_end()
-  //   ->where('min_gp <=',$gp, FALSE)
-  //   ->where('status', 1)
-  //   ->count_all_results('quotation_approver');
-  //
-  //   if($rs > 0)
-  //   {
-  //     return TRUE;
-  //   }
-  //
-  //   return FALSE;
-  // }
 
 
   public function is_exists_rule($sale_team, $discount)
@@ -582,11 +587,11 @@ class Quotation_model extends CI_Model
   }
 
 
-  public function add_sap_quotation(array $ds = array())
+  public function add_sap_sales_order(array $ds = array())
   {
     if(!empty($ds))
     {
-      $rs = $this->mc->insert('OQUT', $ds);
+      $rs = $this->mc->insert('ORDR', $ds);
       if($rs)
       {
         return $this->mc->insert_id();
@@ -597,22 +602,22 @@ class Quotation_model extends CI_Model
   }
 
 
-  public function add_sap_quotation_row(array $ds = array())
+  public function add_sap_sales_order_row(array $ds = array())
   {
     if(!empty($ds))
     {
-      return $this->mc->insert('QUT1', $ds);
+      return $this->mc->insert('RDR1', $ds);
     }
 
     return FALSE;
   }
 
 
-  public function add_sap_quotation_text_row(array $ds = array())
+  public function add_sap_sales_order_text_row(array $ds = array())
   {
     if(!empty($ds))
     {
-      return $this->mc->insert('QUT10', $ds);
+      return $this->mc->insert('RDR10', $ds);
     }
 
     return FALSE;
@@ -624,7 +629,7 @@ class Quotation_model extends CI_Model
     $rs = $this->ms
     ->where('U_WEBORDER', $code)
     ->where('CANCELED', 'N')
-    ->count_all_results('OQUT');
+    ->count_all_results('ORDR');
 
     if($rs > 0)
     {
@@ -638,7 +643,7 @@ class Quotation_model extends CI_Model
   public function is_sap_exists_draft($code)
   {
     $rs = $this->ms
-    ->where('ObjType', 23)
+    ->where('ObjType', 17)
     ->where('U_WEBORDER', $code)
     ->where('CANCELED', 'N')
     ->count_all_results('ODRF');
@@ -652,13 +657,13 @@ class Quotation_model extends CI_Model
   }
 
 
-  public function get_sap_quotation($code)
+  public function get_sap_sales_order($code)
   {
     $rs = $this->ms
     ->select('DocEntry, DocStatus')
     ->where('U_WEBORDER', $code)
     ->where('CANCELED', 'N')
-    ->get('OQUT');
+    ->get('ORDR');
     if($rs->num_rows() > 0)
     {
       return $rs->result();
@@ -668,11 +673,11 @@ class Quotation_model extends CI_Model
   }
 
 
-  public function get_sap_quotation_draft($code)
+  public function get_sap_sales_order_draft($code)
   {
     $rs = $this->ms
     ->select('DocEntry, DocStatus')
-    ->where('ObjType', 23)
+    ->where('ObjType', 17)
     ->where('U_WEBORDER', $code)
     ->where('CANCELED', 'N')
     ->get('ODRF');
@@ -685,7 +690,7 @@ class Quotation_model extends CI_Model
     return NULL;
   }
 
-  public function get_temp_quotations($code)
+  public function get_temp_sales_order($code)
   {
     $rs = $this->mc
     ->select('DocEntry')
@@ -694,7 +699,7 @@ class Quotation_model extends CI_Model
     ->where('F_Sap', 'N')
     ->or_where('F_Sap IS NULL', NULL, FALSE)
     ->group_end()
-    ->get('OQUT');
+    ->get('ORDR');
 
     if($rs->num_rows() > 0)
     {
@@ -706,9 +711,9 @@ class Quotation_model extends CI_Model
 
 
 
-  public function sap_exists_quotation_details($code)
+  public function sap_exists_sales_order_details($code)
   {
-    $row = $this->mc->where('U_WEBORDER', $code)->count_all_results('QUT1');
+    $row = $this->mc->where('U_WEBORDER', $code)->count_all_results('RDR1');
     if($row > 0)
     {
       return TRUE;
@@ -718,9 +723,9 @@ class Quotation_model extends CI_Model
   }
 
 
-  public function sap_exists_quotation_text_row($code)
+  public function sap_exists_sales_order_text_row($code)
   {
-    $row = $this->mc->where('U_WEBORDER', $code)->count_all_results('QUT10');
+    $row = $this->mc->where('U_WEBORDER', $code)->count_all_results('RDR10');
     if($row > 0)
     {
       return TRUE;
@@ -732,12 +737,12 @@ class Quotation_model extends CI_Model
 
 
   //--- ลบรายการที่ค้างใน middle ที่ยังไม่ได้เอาเข้า SAP ออก
-  public function drop_quotation_temp_data($docEntry)
+  public function drop_sales_order_temp_data($docEntry)
   {
     $this->mc->trans_start();
-    $this->mc->where('DocEntry', $docEntry)->delete('QUT10');
-    $this->mc->where('DocEntry', $docEntry)->delete('QUT1');
-    $this->mc->where('DocEntry', $docEntry)->delete('OQUT');
+    $this->mc->where('DocEntry', $docEntry)->delete('RDR10');
+    $this->mc->where('DocEntry', $docEntry)->delete('RDR1');
+    $this->mc->where('DocEntry', $docEntry)->delete('ORDR');
     $this->mc->trans_complete();
     return $this->mc->trans_status();
   }
@@ -748,9 +753,9 @@ class Quotation_model extends CI_Model
   public function drop_temp_exists_data($code)
   {
     $this->mc->trans_start();
-    $this->mc->where('U_WEBORDER', $code)->delete('QUT10');
+    $this->mc->where('U_WEBORDER', $code)->delete('RDR10');
     $this->mc->where('U_WEBORDER', $code)->delete('QUT1');
-    $this->mc->where('U_WEBORDER', $code)->delete('OQUT');
+    $this->mc->where('U_WEBORDER', $code)->delete('ORDR');
     $this->mc->trans_complete();
     return $this->mc->trans_status();
   }

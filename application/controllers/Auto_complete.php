@@ -304,6 +304,38 @@ class Auto_complete extends PS_Controller
   }
 
 
+  public function get_warehouse_code_and_name()
+  {
+    $sc = array();
+    $txt = $_REQUEST['term'];
+
+    $qr  = "SELECT WhsCode AS code, WhsName AS name FROM OWHS ";
+
+    if($txt !== '*')
+    {
+      $qr .= "WHERE WhsCode LIKE N'%{$txt}%' OR WhsName LIKE N'%{$txt}%' ";
+    }
+
+    $qr .= "ORDER BY WhsCode ASC OFFSET 0 ROWS FETCH NEXT 20 ROWS ONLY";
+
+    $qs = $this->ms->query($qr);
+
+    if($qs->num_rows() > 0)
+    {
+      foreach($qs->result() as $rs)
+      {
+        $sc[] = $rs->code.' | '.$rs->name;
+      }
+    }
+    else
+    {
+      $sc[] = 'Not found';
+    }
+
+    echo json_encode($sc);    
+  }
+
+
   public function get_tax_code_and_name()
   {
     $sc = array();

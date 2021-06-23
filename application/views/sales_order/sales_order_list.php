@@ -12,7 +12,7 @@
     </div>
     <div class="col-sm-6 col-xs-6 padding-5">
     	<p class="pull-right top-p">
-        <button type="button" class="btn btn-sm btn-success" onclick="goAdd()"><i class="fa fa-plus"></i> Add Sales Quotation</button>
+        <button type="button" class="btn btn-sm btn-success" onclick="goAdd()"><i class="fa fa-plus"></i> Add Sales Order</button>
       </p>
     </div>
 </div><!-- End Row -->
@@ -25,7 +25,7 @@
   </div>
 
 	<div class="col-sm-1 col-xs-6 padding-5">
-    <label class="search-label">SQ No.</label>
+    <label class="search-label">SO No.</label>
     <input type="text" class="form-control input-sm text-center search-box" name="DocNum" value="<?php echo $DocNum; ?>" />
   </div>
 
@@ -108,7 +108,7 @@
 				<tr style="font-size:10px;">
 					<th style="width:20px;" class="middle text-center">#</th>
 					<th style="width:100px;" class="middle sorting <?php echo $sort_WebCode; ?>" id="sort_code" onclick="sort('code')">Web Order</th>
-					<th style="width:100px;" class="middle sorting <?php echo $sort_DocNum; ?>" id="sort_DocNum" onclick="sort('DocNum')">Quotation No.</th>
+					<th style="width:100px;" class="middle sorting <?php echo $sort_DocNum; ?>" id="sort_DocNum" onclick="sort('DocNum')">SalesOrder No.</th>
 					<th style="width:100px;" class="middle sorting <?php echo $sort_PostingDate; ?>" id="sort_DocDate" onclick="sort('DocDate')">Posting Date</th>
 					<th style="width:80px;" class="middle sorting <?php echo $sort_CardCode; ?>" id="sort_CardCode" onclick="sort('CardCode')">Cust. Code</th>
 					<th style="width:150x;" class="middle sorting <?php echo $sort_CardName; ?>" id="sort_CardName" onclick="sort('CardName')">Cust. Name</th>
@@ -166,7 +166,10 @@
 							<?php if($rs->Status != 2 && $rs->Status != 4 && $rs->Approved !== 'A' ) : ?>
 							<button type="button" class="btn btn-minier btn-warning" title="Edit" onclick="goEdit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil"></i></button>
 							<?php endif; ?>
+							<button type="button" class="btn btn-minier btn-info" title="Print" onclick="printSalesOrder('<?php echo $rs->code; ?>')"><i class="fa fa-print"></i></button>
+							<!--
 							<button type="button" class="btn btn-minier btn-info" title="Print" onclick="chooseLayout('<?php echo $rs->code; ?>')"><i class="fa fa-print"></i></button>
+						-->
 						</td>
 					</tr>
 					<?php $no++; ?>
@@ -199,8 +202,8 @@
             <div class="row">
               <div class="col-sm-12 col-xs-12 text-center">
 								<input type="hidden" id="sq-code" value="" />
-								<button type="button" class="btn btn-sm btn-primary" onclick="printQuotation('normal')">ใบเสนอราคา</button>
-								<button type="button" class="btn btn-sm btn-primary" onclick="printQuotation('nodiscount')">ใบเสนอราคา(ไม่โชว์ส่วนลด)</button>
+								<button type="button" class="btn btn-sm btn-primary" onclick="printSalesOrder('normal')">ใบเสนอราคา</button>
+								<button type="button" class="btn btn-sm btn-primary" onclick="printSalesOrder('nodiscount')">ใบเสนอราคา(ไม่โชว์ส่วนลด)</button>
             </div>
         </div>
     </div>
@@ -213,7 +216,7 @@
         <div class="modal-content">
             <div class="modal-header" style="padding-bottom:0px;">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" style="font-size: 24px; font-weight: bold; padding-bottom: 10px; color:#428bca; border-bottom:solid 2px #428bca">Sales Quotation Temp Status</h4>
+                <h4 class="modal-title" style="font-size: 24px; font-weight: bold; padding-bottom: 10px; color:#428bca; border-bottom:solid 2px #428bca">Sales Sales Order Temp Status</h4>
             </div>
             <div class="modal-body" style="padding-top:5px;">
             <div class="row">
@@ -264,6 +267,6 @@
 		}, 1000*60*5); //--- reload every 5 minutes
 	});
 </script>
-<script src="<?php echo base_url(); ?>scripts/quotation/quotation.js?v=<?php echo date('YmdH'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/sales_order/sales_order.js?v=<?php echo date('YmdH'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

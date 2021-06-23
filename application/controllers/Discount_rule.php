@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Discount_rule extends PS_Controller{
 	public $menu_code = 'DISCRULE';
-	public $menu_group_code = 'SC'; //--- System security
+	public $menu_group_code = 'AD'; //--- System security
 	public $title = 'Discount Rule';
 
   public function __construct()

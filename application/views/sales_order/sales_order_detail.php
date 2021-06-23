@@ -19,14 +19,8 @@
     <div class="col-sm-8 col-xs-12 padding-5">
     	<p class="pull-right top-p">
         <button type="button" class="btn btn-xs btn-default" onclick="goBack()"><i class="fa fa-arrow-left"></i> &nbsp; Back</button>
-				<button type="button" class="btn btn-xs btn-info" onclick="printQuotation('normal')"><i class="fa fa-print"></i> ใบเสนอราคา</button>
-				<!--
-				<button type="button" class="btn btn-xs btn-info" onclick="printQuotation('nodiscount')"><i class="fa fa-print"></i> ใบเสนอราคา(ไม่แสดงส่วนลด)</button>
-			-->
-				<?php if(getConfig('ALLOW_DUPLICATE_QUOTATION') == 1) : ?>
-				<button type="button" class="btn btn-xs btn-primary" onclick="duplicateSQ()"><i class="fa fa-copy"></i> คัดลอกใบเสนอราคา</button>
-				<?php endif; ?>
-				<button type="button" class="btn btn-xs btn-primary" onclick="createSalesOrder('<?php echo $header->code; ?>')"><i class="fa fa-copy"></i> สร้างใบสั่งขาย</button>
+				<button type="button" class="btn btn-xs btn-info" onclick="printSalesOrder('<?php echo $header->code; ?>')"><i class="fa fa-print"></i> ใบสั่งขาย</button>
+				<button type="button" class="btn btn-xs btn-primary" onclick="duplicateSO()"><i class="fa fa-copy"></i> คัดลอกใบสั่งขาย</button>
 				<?php if($header->Approved !== 'A' && !$in_draft) : ?>
 					<button type="button" class="btn btn-xs btn-warning" onclick="goEdit('<?php echo $header->code; ?>')"><i class="fa fa-pencil"></i> แก้ไข</button>
 				<?php endif; ?>
@@ -45,14 +39,14 @@
 </div><!-- End Row -->
 <hr class="padding-5"/>
 <form id="addForm" method="post" action="">
-<?php $this->load->view('quotation/quotation_preview_header'); ?>
-<?php $this->load->view('quotation/quotation_preview_detail'); ?>
-<?php $this->load->view('quotation/quotation_preview_footer'); ?>
+<?php $this->load->view('sales_order/sales_order_preview_header'); ?>
+<?php $this->load->view('sales_order/sales_order_preview_detail'); ?>
+<?php $this->load->view('sales_order/sales_order_preview_footer'); ?>
 <input type="hidden" name="code" id="code" value="<?php echo $header->code; ?>" />
 <input type="hidden" id="sq-code" value="<?php echo $header->code; ?>" />
 </form>
 
 
-<script src="<?php echo base_url(); ?>scripts/quotation/quotation.js?v=<?php echo date('YmdH'); ?>"></script>
-<script src="<?php echo base_url(); ?>scripts/quotation/quotation_add.js?v=<?php echo date('YmdH'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/sales_order/sales_order.js?v=<?php echo date('YmdH'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/sales_order/sales_order_add.js?v=<?php echo date('YmdH'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

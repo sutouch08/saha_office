@@ -33,7 +33,7 @@ $config = array(
 $this->printer->config($config);
 
 $page  = '';
-$page .= $this->printer->doc_header();
+$page .= $this->printer->doc_header("ใบสั่งขาย");
 
 $tax_rate = getConfig('SALE_VAT_RATE');
 
@@ -150,8 +150,8 @@ while($total_page > 0 )
 	$top .= "<img src='{$logo_path}' class='company-logo' width='200px' />";
 	$top .= "</div>";
 	$top .= "<div class='text-center font-size-20'>";
-	$top .= "ใบเสนอราคา (Sales Quotation)";
-	$top .= "<span class='pull-right font-size-12'> Page {$this->printer->current_page} of {$this->printer->total_page} </span>";
+	$top .= "ใบสั่งขาย (Sales Order)";
+	$top .= "<span class='pull-right font-size-12' style='position:absolute; right:20px; top:100px;'> Page {$this->printer->current_page} of {$this->printer->total_page} </span>";
 	$top .= "</div>";
 	$top .= "</div>";
 
@@ -180,7 +180,11 @@ while($total_page > 0 )
 	$top .=					"<td style='width:50%; white-space:normal;'>: ".(empty($doc->DocNum) ? $doc->code : $doc->prefix.$doc->DocNum)."</td>";
 	$top .= 			"</tr>";
 	$top .= 			"<tr style='font-size:12px;'>";
-	$top .=					"<td style='width:50%; white-space:normal;'> กำหนดยืนราคา </td>";
+	$top .=					"<td style='width:50%; white-space:normal;'> ใบเสนอราคา </td>";
+	$top .=					"<td style='width:50%; white-space:normal;'>: ".$doc->SQNO."</td>";
+	$top .= 			"</tr>";
+	$top .= 			"<tr style='font-size:12px;'>";
+	$top .=					"<td style='width:50%; white-space:normal;'> กำหนดส่งสินค้า </td>";
 	$top .=					"<td style='width:50%; white-space:normal;'>: ".thai_date($doc->DocDueDate, FALSE, '/')."</td>";
 	$top .= 			"</tr>";
 	$top .=				"</tbody>";

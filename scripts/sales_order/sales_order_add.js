@@ -217,7 +217,7 @@ function saveAdd() {
 				if(ds.result === 'success') {
 					swal({
 						title:'Success',
-						text:'Insert new Quotation successfully',
+						text:'Insert new Sales Order successfully',
 						type:'success',
 						timer:1000
 					});
@@ -468,7 +468,7 @@ function update() {
 				if(ds.result === 'success') {
 					swal({
 						title:'Success',
-						text:'Insert new Quotation successfully',
+						text:'Insert new Sales Order successfully',
 						type:'success',
 						timer:1000
 					});
@@ -1322,10 +1322,10 @@ $(document).ready(function(){
 $('.autosize').autosize({append: "\n"});
 
 
-function duplicateSQ() {
+function duplicateSO() {
 	swal({
-    title:'Duplicate Sales Quotation ',
-    text:'ต้องการสร้างใบเสนอราคาใหม่ เหมือนใบเสนอราคานี้หรือไม่ ?',
+    title:'Duplicate Sales Order ',
+    text:'ต้องการสร้างใบสั่งขายใหม่ เหมือนใบสั่งขายนี้หรือไม่ ?',
     type:'warning',
     showCancelButton:true,
     cancelButtonText:'Cancle',
@@ -1335,7 +1335,7 @@ function duplicateSQ() {
 		load_in();
 		var code = $('#code').val();
 		$.ajax({
-			url:HOME + 'duplicate_quotation',
+			url:HOME + 'duplicate_sales_order',
 			type:'POST',
 			cache:false,
 			data:{
@@ -1349,7 +1349,7 @@ function duplicateSQ() {
 					if(ds.status === 'success') {
 						swal({
 							title:'Success',
-							text: 'Duplicate Sales Quotation success : '+ds.code,
+							text: 'Duplicate Sales Order success : '+ds.code,
 							type:'success',
 							timer:1000
 						});
@@ -1378,59 +1378,4 @@ function duplicateSQ() {
 		})
   });
 
-}
-
-
-function createSalesOrder(sqCode) {
-	swal({
-    title:'Create Sales Order',
-    text:'ต้องการสร้างใบสั่งขายใหม่ เหมือนใบเสนอราคานี้หรือไม่ ?',
-    type:'warning',
-    showCancelButton:true,
-    cancelButtonText:'Cancle',
-    confirmButtonText:'สร้างใบสั่งขาย',
-  },
-	function(){
-		load_in();
-		$.ajax({
-			url:BASE_URL + 'sales_order/create_from_quotation',
-			type:'POST',
-			cache:false,
-			data:{
-				'quotation_code' : sqCode
-			},
-			success:function(rs) {
-				load_out();
-				if(isJson(rs)) {
-					var ds = $.parseJSON(rs);
-					swal({
-						title:'Success',
-						type:'success',
-						timer:1000
-					});
-
-					setTimeout(function(){
-						window.location.href = BASE_URL + 'sales_order/edit/'+ds.code;
-					}, 1200);
-				}
-				else {
-					swal({
-						title:"Error!",
-						text:rs,
-						type:'error',
-						html:true
-					});
-				}
-			},
-			error:function(xhr, status, error) {
-				load_out();
-				swal({
-					title:'Error!',
-					text:xhr.responseText,
-					type:'error',
-					html:true
-				})
-			}
-		})
-	});
 }

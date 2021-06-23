@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Setting extends PS_Controller{
 	public $menu_code = 'SETTING';
-	public $menu_group_code = 'SC'; //--- System security
+	public $menu_group_code = 'AD'; //--- System security
 	public $title = 'Setting';
 
   public function __construct()

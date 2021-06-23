@@ -1,20 +1,20 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Quotation extends PS_Controller
+class Sales_order extends PS_Controller
 {
-	public $menu_code = 'QUOTATION';
+	public $menu_code = 'SALESORDER';
 	public $menu_group_code = 'AR';
-	public $title = 'Sales Quotation';
+	public $title = 'Sales Order';
 
   public function __construct()
   {
     parent::__construct();
-    $this->home = base_url().'quotation';
-		$this->load->model('quotation_model');
+    $this->home = base_url().'sales_order';
+		$this->load->model('sales_order_model');
 		$this->load->model('customers_model');
-		$this->load->model('quotation_logs_model');
-		$this->load->helper('quotation');
+		$this->load->model('sales_order_logs_model');
+		$this->load->helper('sales_order');
 		$this->load->helper('currency');
   }
 
@@ -47,33 +47,33 @@ class Quotation extends PS_Controller
 		}
 
 		$segment = 3; //-- url segment
-		$rows = $this->quotation_model->count_rows($filter);
+		$rows = $this->sales_order_model->count_rows($filter);
 
 		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
 		$init	= pagination_config($this->home.'/index/', $rows, $perpage, $segment);
 
-		$rs = $this->quotation_model->get_list($filter, $perpage, $this->uri->segment($segment));
+		$rs = $this->sales_order_model->get_list($filter, $perpage, $this->uri->segment($segment));
 
     $filter['data'] = $rs;
 
 		$this->pagination->initialize($init);
-    $this->load->view('quotation/quotation_list', $filter);
+    $this->load->view('sales_order/sales_order_list', $filter);
   }
 
 
 	private function update_status($limit = 100)
 	{
-		$ds = $this->quotation_model->get_non_sq_code($limit);
+		$ds = $this->sales_order_model->get_non_so_code($limit);
 		if(!empty($ds))
     {
       foreach($ds as $rs)
       {
-        $temp = $this->quotation_model->get_temp_status($rs->code);
+        $temp = $this->sales_order_model->get_temp_status($rs->code);
         if(!empty($temp))
         {
           if($temp->F_Sap === 'Y')
           {
-            $sap = $this->quotation_model->get_sap_doc_num($rs->code);
+            $sap = $this->sales_order_model->get_sap_doc_num($rs->code);
 
             if(!empty($sap))
             {
@@ -84,7 +84,7 @@ class Quotation extends PS_Controller
                 'Message' => NULL
               );
 
-              $this->quotation_model->update($rs->code, $arr);
+              $this->sales_order_model->update($rs->code, $arr);
             }
           }
           else
@@ -96,7 +96,7 @@ class Quotation extends PS_Controller
                 'Message' => $temp->Message
               );
 
-              $this->quotation_model->update($rs->code, $arr);
+              $this->sales_order_model->update($rs->code, $arr);
             }
           }
         }
@@ -106,13 +106,13 @@ class Quotation extends PS_Controller
 
 	public function add_new()
 	{
-		$this->title = "New Sales Quotation";
+		$this->title = "New Sales Order";
 
 		$ds = array(
 			'sale_name' => $this->user_model->get_saleman_name($this->user->sale_id)
 		);
 
-		$this->load->view('quotation/quotation_add', $ds);
+		$this->load->view('sales_order/sales_order_add', $ds);
 	}
 
 
@@ -154,7 +154,7 @@ class Quotation extends PS_Controller
 				'Address' => get_null($ds->BillTo),
 				'Address2' => get_null($ds->ShipTo),
 				'Series' => $ds->Series,
-				'BeginStr' => $this->qoutation_model->get_prefix($ds->Series),
+				'BeginStr' => $this->sales_order_model->get_prefix($ds->Series),
 				'DocDate' => sap_date($ds->DocDate, TRUE),
 				'DocDueDate' => sap_date($ds->DocDueDate, TRUE),
 				'TextDate' => sap_date($ds->TextDate, TRUE),
@@ -167,14 +167,14 @@ class Quotation extends PS_Controller
 
 			$this->db->trans_begin();
 
-			if(!$this->quotation_model->add($arr))
+			if(!$this->sales_order_model->add($arr))
 			{
 				$sc = FALSE;
 				$this->error = "Insert Quotation Header failed";
 			}
 			else
 			{
-				//--- insert quotation success
+				//--- insert sales_order success
 				//--- insert detail QUT1
 				if(!empty($details))
 				{
@@ -190,7 +190,7 @@ class Quotation extends PS_Controller
 						//$sell_price = $rs->Price - ($rs->Price * ($rs->DiscPrcnt *0.01));
 
 						$arr = array(
-							'quotation_code' => $code,
+							'sales_order_code' => $code,
 							'LineNum' => $rs->LineNum,
 							'Type' => $rs->Type, //--- 0 = item , 1 = text
 							'ItemCode' => get_null(trim($rs->ItemCode)),
@@ -212,7 +212,7 @@ class Quotation extends PS_Controller
 							'AfLineNum' => $rs->AfLineNum
 						);
 
-						if( ! $this->quotation_model->add_detail($arr))
+						if( ! $this->sales_order_model->add_detail($arr))
 						{
 							$sc = FALSE;
 							$this->error = "Insert Quotation detail failed at line : {$no} @ {$rs->ItemCode}";
@@ -226,8 +226,8 @@ class Quotation extends PS_Controller
 
 			if($sc === TRUE)
 			{
-				//--- write quotation logs
-				$this->quotation_logs_model->add('add', $code);
+				//--- write sales_order logs
+				$this->sales_order_logs_model->add('add', $code);
 			}
 
 
@@ -249,7 +249,7 @@ class Quotation extends PS_Controller
 					'Approved' => $must_approve === TRUE ? 'P' : 'S'
 				);
 
-				$this->quotation_model->update($code, $arr);
+				$this->sales_order_model->update($code, $arr);
 
 				if(! $must_approve)
 				{
@@ -275,23 +275,23 @@ class Quotation extends PS_Controller
 	}
 
 
-	public function duplicate_quotation()
+	public function duplicate_sales_order()
 	{
 		$sc = TRUE;
 		$code = $this->input->post('code');
 		if(!empty($code))
 		{
-			$ds = $this->quotation_model->get($code);
+			$ds = $this->sales_order_model->get($code);
 
 			if(!empty($ds))
 			{
 				$date = date('Y-m-d');
 				$valid_till = date('Y-m-d', strtotime("+30 days"));
 				//--- prepare data
-				$SQCode = $this->get_new_code($date);
+				$SOCode = $this->get_new_code($date);
 
 				$arr = array(
-					'code' => $SQCode,
+					'code' => $SOCode,
 					'CardCode' => trim($ds->CardCode),
 					'CardName' => trim($ds->CardName),
 					'SlpCode' => $ds->SlpCode,
@@ -316,7 +316,7 @@ class Quotation extends PS_Controller
 					'DocDate' => $date,
 					'DocDueDate' => $valid_till,
 					'TextDate' => $date,
-					'U_ORIGINALSQ' => $ds->code,
+					'U_ORIGINALSO' => $ds->code,
 					'OwnerCode' => get_null($ds->OwnerCode),
 					'Comments' => get_null($ds->Comments),
 					'user_id' => $this->user->id,
@@ -330,16 +330,16 @@ class Quotation extends PS_Controller
 
 				$this->db->trans_begin();
 
-				if(!$this->quotation_model->add($arr))
+				if(!$this->sales_order_model->add($arr))
 				{
 					$sc = FALSE;
-					$this->error = "Insert Quotation Header failed";
+					$this->error = "Insert Sales Order Header failed";
 				}
 				else
 				{
-					//--- insert quotation success
+					//--- insert sales_order success
 					//--- insert detail QUT1
-					$details = $this->quotation_model->get_details($code);
+					$details = $this->sales_order_model->get_details($code);
 
 					if(!empty($details))
 					{
@@ -352,7 +352,7 @@ class Quotation extends PS_Controller
 							}
 
 							$arr = array(
-								'quotation_code' => $SQCode,
+								'sales_order_code' => $SOCode,
 								'LineNum' => $rs->LineNum,
 								'Type' => $rs->Type, //--- 0 = item , 1 = text
 								'ItemCode' => $rs->ItemCode,
@@ -374,10 +374,10 @@ class Quotation extends PS_Controller
 								'AfLineNum' => $rs->AfLineNum
 							);
 
-							if( ! $this->quotation_model->add_detail($arr))
+							if( ! $this->sales_order_model->add_detail($arr))
 							{
 								$sc = FALSE;
-								$this->error = "Insert Quotation detail failed at line : {$no} @ {$rs->ItemCode}";
+								$this->error = "Insert Sales Order detail failed at line : {$no} @ {$rs->ItemCode}";
 							}
 
 						}
@@ -386,8 +386,8 @@ class Quotation extends PS_Controller
 
 				if($sc === TRUE)
 				{
-					//--- write quotation logs
-					$this->quotation_logs_model->add('add', $SQCode);
+					//--- write sales_order logs
+					$this->sales_order_logs_model->add('add', $SOCode);
 				}
 
 
@@ -409,7 +409,7 @@ class Quotation extends PS_Controller
 						'Approved' => $must_approve === TRUE ? 'P' : 'S'
 					);
 
-					$this->quotation_model->update($code, $arr);
+					$this->sales_order_model->update($code, $arr);
 
 				}
 
@@ -417,20 +417,20 @@ class Quotation extends PS_Controller
 			else
 			{
 				$sc = FALSE;
-				$this->error = "Invalid SQ Code";
+				$this->error = "Invalid SO Code";
 			}
 		}
 		else
 		{
 			$sc = FALSE;
-			$this->error = "Missing Required Parameter: Orignal SQ";
+			$this->error = "Missing Required Parameter: Orignal SO";
 		}
 
 		if($sc === TRUE)
 		{
 			$result = array(
 				"status" => 'success',
-				"code" => $SQCode
+				"code" => $SOCode
 			);
 
 			echo json_encode($result);
@@ -446,17 +446,195 @@ class Quotation extends PS_Controller
 		}
 	}
 
+
+
+	//--- call from quotation_add.js
+	//---- create sales order from quotation
+	public function create_from_quotation()
+	{
+		$sc = TRUE;
+
+		$sqCode = $this->input->post('quotation_code');
+
+		if(!empty($sqCode))
+		{
+			$this->load->model('quotation_model');
+			$ds = $this->quotation_model->get($sqCode);
+
+			if(!empty($ds))
+			{
+				//---- check default series
+				$Series = $this->sales_order_model->get_default_series_by_prefix(getConfig('DEFAULT_SALES_ORDER_SERIES'));
+
+				if(!empty($Series))
+				{
+					$qd = $this->quotation_model->get_details($ds->code);
+
+					if(!empty($qd))
+					{
+						//---- create sale order
+						$code = $this->get_new_code();
+						$DocDueDate = date('Y-m-d', strtotime("+30 days"));
+						$arr = array(
+							'code' => $code,
+							'CardCode' => trim($ds->CardCode),
+							'CardName' => trim($ds->CardName),
+							'SlpCode' => $ds->SlpCode,
+							'GroupNum' => $ds->GroupNum,
+							'Term' => $ds->Term,
+							'CntctCode' => get_null($ds->CntctCode),
+							'NumAtCard' => get_null($ds->NumAtCard),
+							'DocCur' => $ds->DocCur,
+							'DocRate' => $ds->DocRate,
+							'DocTotal' => $ds->DocTotal,
+							'DiscPrcnt' => $ds->DiscPrcnt,
+							'RoundDif' => $ds->RoundDif,
+							'VatSum' => $ds->VatSum,
+							'OcrCode' => $ds->OcrCode,
+							'OcrCode1' => $ds->OcrCode1,
+							'PayToCode' => $ds->PayToCode,
+							'ShipToCode' => $ds->ShipToCode,
+							'Address' => $ds->Address,
+							'Address2' => $ds->Address2,
+							'Series' => $Series->code,
+							'BeginStr' => $Series->prefix,
+							'DocDate' => date('Y-m-d'),
+							'DocDueDate' => $DocDueDate,
+							'TextDate' => date('Y-m-d'),
+							'U_SQNO' => $ds->code,
+							'OwnerCode' => get_null($ds->OwnerCode),
+							'Comments' => get_null($ds->Comments),
+							'user_id' => $this->user->id,
+							'uname' => $this->user->uname,
+							'sale_team' => $ds->sale_team
+						);
+
+						$this->db->trans_begin();
+
+						//--- add header
+						if(! $this->sales_order_model->add($arr))
+						{
+							$sc = FALSE;
+							$this->error = "Insert Sales Order Header failed";
+						}
+						else
+						{
+							//--- insert sales_order success
+							foreach($qd as $rs)
+							{
+								if($sc === FALSE)
+								{
+									break;
+								}
+
+								$arr = array(
+									'sales_order_code' => $code,
+									'LineNum' => $rs->LineNum,
+									'Type' => $rs->Type, //--- 0 = item , 1 = text
+									'ItemCode' => $rs->ItemCode,
+									'Dscription' => $rs->Dscription,
+									'ItemDetail' => $rs->ItemDetail,
+									'FreeText' => $rs->FreeText,
+									'Qty' => $rs->Qty,
+									'UomCode' => $rs->UomCode,
+									'Price' => $rs->Price,
+									'SellPrice' => $rs->SellPrice,
+									'U_DISWEB' => $rs->U_DISWEB,
+									'U_DISCEX' => $rs->U_DISCEX,
+									'DiscPrcnt' => $rs->DiscPrcnt,
+									'VatGroup' => $rs->VatGroup,
+									'VatRate' => $rs->VatRate,
+									'LineTotal' => $rs->LineTotal,
+									'WhsCode' => $rs->WhsCode,
+									'LineText' => $rs->LineText,
+									'AfLineNum' => $rs->AfLineNum
+								);
+
+								if( ! $this->sales_order_model->add_detail($arr))
+								{
+									$sc = FALSE;
+									$this->error = "Insert Sales Order detail failed at line : {$no} @ {$rs->ItemCode}";
+								}
+							} //--- end foreach
+
+						}
+
+						if($sc === TRUE)
+						{
+							$this->db->trans_commit();
+						}
+						else
+						{
+							$this->db->trans_rollback();
+						}
+
+						//---- check must approve
+						if($sc === TRUE)
+						{
+							$must_approve = $this->must_approve($code);
+							$arr = array(
+								'must_approve' => $must_approve === TRUE ? 1 : 0,
+								'Approved' => $must_approve === TRUE ? 'P' : 'S'
+							);
+
+							$this->sales_order_model->update($code, $arr);
+
+						}
+					}
+					else
+					{
+						$sc = FALSE;
+						$this->error = "No item in {$sqCode}";
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "Default Series not defined or invalid default series";
+				}
+
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "{$sqCode} Not found";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing Quotation Code";
+		}
+
+		if($sc === TRUE)
+		{
+			$arr = array(
+				'status' => 'success',
+				'code' => $code
+			);
+
+			echo json_encode($arr);
+		}
+		else
+		{
+			echo $this->error;
+		}
+	}
+
+
+
+
 	function edit($code)
 	{
-		$in_darft = $this->quotation_model->is_sap_exists_draft($code);
+		$in_darft = $this->sales_order_model->is_sap_exists_draft($code);
 
 		if(!$in_darft)
 		{
-			$this->title = "Edit Sales Quotation";
+			$this->title = "Edit Sales Order";
 			$this->load->model('stock_model');
 
-			$header = $this->quotation_model->get($code);
-			$details = $this->quotation_model->get_details($code);
+			$header = $this->sales_order_model->get($code);
+			$details = $this->sales_order_model->get_details($code);
 			$billToCode = empty($header) ? NULL : $this->customers_model->get_address_bill_to_code($header->CardCode);
 			$shipToCode = empty($header) ? NULL : $this->customers_model->get_address_ship_to_code($header->CardCode);
 			$totalAmount = 0;
@@ -482,10 +660,10 @@ class Quotation extends PS_Controller
 				'totalAmount' => $totalAmount,
 				'sale_name' => $this->user_model->get_saleman_name($header->SlpCode),
 				'user_sale_name' => $this->user_model->get_saleman_name($this->user->sale_id),
-				'logs' => $this->quotation_logs_model->get($code)
+				'logs' => $this->sales_order_logs_model->get($code)
 			);
 
-			$this->load->view('quotation/quotation_edit', $ds);
+			$this->load->view('sales_order/sales_order_edit', $ds);
 		}
 		else
 		{
@@ -504,7 +682,7 @@ class Quotation extends PS_Controller
 		$ds = json_decode($this->input->post('header')); //--- Header OQUT
 		$details = json_decode($this->input->post('details')); //---
 
-		$doc = $this->quotation_model->get($code);
+		$doc = $this->sales_order_model->get($code);
 
 		if(!empty($doc))
 		{
@@ -512,16 +690,16 @@ class Quotation extends PS_Controller
 			//--- Approved A = Approved, P = pendign R = Rejected, S = No need to Approved
 			if($doc->Status != 2 )
 			{
-				$in_sap = $this->quotation_model->is_sap_exists_draft($code);
+				$in_sap = $this->sales_order_model->is_sap_exists_draft($code);
 
 				if(! $in_sap)
 				{
-					$temps = $this->quotation_model->get_temp_quotations($code);
+					$temps = $this->sales_order_model->get_temp_sales_order($code);
 					if(!empty($temps))
 					{
 						foreach($temps as $temp)
 						{
-							$this->quotation_model->drop_quotation_temp_data($temp->DocEntry);
+							$this->sales_order_model->drop_sales_order_temp_data($temp->DocEntry);
 						}
 					}
 
@@ -549,7 +727,7 @@ class Quotation extends PS_Controller
 							'Address' => get_null($ds->BillTo),
 							'Address2' => get_null($ds->ShipTo),
 							'Series' => $ds->Series,
-							'BeginStr' => $this->qoutation_model->get_prefix($ds->Series),
+							'BeginStr' => $this->sales_order_model->get_prefix($ds->Series),
 							'DocDate' => sap_date($ds->DocDate, TRUE),
 							'DocDueDate' => sap_date($ds->DocDueDate, TRUE),
 							'TextDate' => sap_date($ds->TextDate, TRUE),
@@ -562,17 +740,17 @@ class Quotation extends PS_Controller
 
 						$this->db->trans_begin();
 
-						if(!$this->quotation_model->update($code, $arr))
+						if(!$this->sales_order_model->update($code, $arr))
 						{
 							$sc = FALSE;
 							$this->error = "Update Quotation Header failed";
 						}
 						else
 						{
-							//--- update quotation success
+							//--- update sales_order success
 
 							//--- Drop old details
-							if(!$this->quotation_model->drop_details($code))
+							if(!$this->sales_order_model->drop_details($code))
 							{
 								$sc = FALSE;
 								$this->error = "Drop Old data failed";
@@ -594,7 +772,7 @@ class Quotation extends PS_Controller
 									//$sell_price = $rs->Price - ($rs->Price * ($rs->DiscPrcnt * 0.01));
 
 									$arr = array(
-										'quotation_code' => $code,
+										'sales_order_code' => $code,
 										'LineNum' => $rs->LineNum,
 										'Type' => $rs->Type, //--- 0 = item , 1 = text
 										'ItemCode' => get_null(trim($rs->ItemCode)),
@@ -616,7 +794,7 @@ class Quotation extends PS_Controller
 										'AfLineNum' => $rs->AfLineNum
 									);
 
-									if( ! $this->quotation_model->add_detail($arr))
+									if( ! $this->sales_order_model->add_detail($arr))
 									{
 										$sc = FALSE;
 										$this->error = "Insert Quotation detail failed at line : {$no} @ {$rs->ItemCode}";
@@ -630,8 +808,8 @@ class Quotation extends PS_Controller
 
 						if($sc === TRUE)
 						{
-							//--- write quotation logs
-							$this->quotation_logs_model->add('edit', $code);
+							//--- write sales_order logs
+							$this->sales_order_logs_model->add('edit', $code);
 						}
 
 
@@ -652,7 +830,7 @@ class Quotation extends PS_Controller
 								'Approved' => $must_approve === TRUE ? 'P' : 'S'
 							);
 
-							$this->quotation_model->update($code, $arr);
+							$this->sales_order_model->update($code, $arr);
 
 							if(! $must_approve)
 							{
@@ -702,15 +880,15 @@ class Quotation extends PS_Controller
 	//---- Preview Quotation detail
 	public function view_detail($code)
 	{
-		$this->title = "Preview Sales Quotation";
+		$this->title = "Preview Sales Order";
 		$this->load->model('stock_model');
-		$header = $this->quotation_model->get($code);
-		$in_draft = $this->quotation_model->is_sap_exists_draft($code);
+		$header = $this->sales_order_model->get($code);
+		$in_draft = $this->sales_order_model->is_sap_exists_draft($code);
 		if(!empty($header))
 		{
 			$vatRate = getConfig('SALE_VAT_RATE');
 			$totalAmount = 0;
-			$details = $this->quotation_model->get_details($code);
+			$details = $this->sales_order_model->get_details($code);
 
 			if(!empty($details))
 			{
@@ -724,13 +902,13 @@ class Quotation extends PS_Controller
 				}
 			}
 
-			$max_discount = $this->quotation_model->get_max_line_disc($code);
-			$can_approve = $this->quotation_model->can_approve($this->user->uname, $header->sale_team, $max_discount);
+			$max_discount = $this->sales_order_model->get_max_line_disc($code);
+			$can_approve = $this->sales_order_model->can_approve($this->user->uname, $header->sale_team, $max_discount);
 			$contact = $this->customers_model->get_contact_person_detail($header->CntctCode);
 			$header->contact_person = empty($contact) ? NULL : $contact->Name;
-			$header->department_name = $this->quotation_model->get_department_name($header->OcrCode);
-			$header->division_name = $this->quotation_model->get_division_name($header->OcrCode1);
-			$header->series_name = $this->quotation_model->get_series_name($header->Series);
+			$header->department_name = $this->sales_order_model->get_department_name($header->OcrCode);
+			$header->division_name = $this->sales_order_model->get_division_name($header->OcrCode1);
+			$header->series_name = $this->sales_order_model->get_series_name($header->Series);
 			$header->owner_name = $this->user_model->get_emp_name($header->OwnerCode);
 
 			$ds =  array(
@@ -739,12 +917,12 @@ class Quotation extends PS_Controller
 				'totalAmount' => $totalAmount,
 				'vat_rate' => $vatRate * 0.01,
 				'sale_name' => $this->user_model->get_saleman_name($header->SlpCode),
-				'logs' => $this->quotation_logs_model->get($code),
+				'logs' => $this->sales_order_logs_model->get($code),
 				'can_approve' => $can_approve,
 				'in_draft' => $in_draft
 			);
 
-			$this->load->view('quotation/quotation_detail', $ds);
+			$this->load->view('sales_order/sales_order_detail', $ds);
 		}
 		else
 		{
@@ -760,15 +938,15 @@ class Quotation extends PS_Controller
 	//--- ตรวจสอบเงื่อนไขว่าต้องอนุมัติหรือไม่ ถ้าไม่เข้าเงื่อนไข ไม่ต้องอนุมัติ
 	public function must_approve($code)
 	{
-		$doc = $this->quotation_model->get($code);
+		$doc = $this->sales_order_model->get($code);
 
 		if(!empty($doc))
 		{
-			$max_discount = $this->quotation_model->get_max_line_disc($code);
+			$max_discount = $this->sales_order_model->get_max_line_disc($code);
 
 			//---- ต้องมีส่วนลด ถ้าไม่มีส่วนลดไม่ต้องตรวจสอบ
 			//--- return TRUE if exists rule return FALSE if not exists rule
-			return $this->quotation_model->is_exists_rule($doc->sale_team, $max_discount);
+			return $this->sales_order_model->is_exists_rule($doc->sale_team, $max_discount);
 
 		}
 
@@ -990,7 +1168,7 @@ class Quotation extends PS_Controller
 		$month = empty($month) ? date('Y-m') : $month;
 		$default = getConfig('DEFAULT_QUOTATION_SERIES');
 
-		$options = $this->quotation_model->get_series($month);
+		$options = $this->sales_order_model->get_series($month);
 
 		if(!empty($options))
 		{
@@ -1100,25 +1278,25 @@ class Quotation extends PS_Controller
 	public function doExport($code)
 	{
 		$sc = TRUE;
-		$doc = $this->quotation_model->get($code);
+		$doc = $this->sales_order_model->get($code);
 		if(!empty($doc))
 		{
 			//---- Status ต้องยังไม่เข้า SAP && (ไม่ต้องอนุมัติ หรือ อนุมัติแล้ว เท่านั้น)
 			if($doc->Status != 2 && ($doc->must_approve == 0 OR ($doc->Approved == 'A' OR $doc->Approved == 'S' )))
 			{
 				//---- check SQ already in SAP
-				//$sq = $this->quotation_model->get_sap_quotation($code);
-				$sq = $this->quotation_model->get_sap_quotation_draft($code); //--- check ว่า SQ เข้า draft ไปแล้วหรือยัง
+				//$sq = $this->sales_order_model->get_sap_sales_order($code);
+				$sq = $this->sales_order_model->get_sap_sales_order_draft($code); //--- check ว่า SQ เข้า draft ไปแล้วหรือยัง
 
 				if(empty($sq))
 				{
 					//---- drop exists temp data
-					$temp = $this->quotation_model->get_temp_quotations($code);
+					$temp = $this->sales_order_model->get_temp_sales_order($code);
 					if(!empty($temp))
 		      {
 		        foreach($temp as $rows)
 		        {
-		          if($this->quotation_model->drop_quotation_temp_data($rows->DocEntry) === FALSE)
+		          if($this->sales_order_model->drop_sales_order_temp_data($rows->DocEntry) === FALSE)
 		          {
 		            $sc = FALSE;
 		            $this->error = "ลบรายการที่ค้างใน Temp ไม่สำเร็จ";
@@ -1141,7 +1319,7 @@ class Quotation extends PS_Controller
 							'NumAtCard' => $doc->NumAtCard,
 							'VatSum' => $doc->VatSum,
 							'DiscPrcnt' => $doc->DiscPrcnt,
-							'DiscSum' => ($this->quotation_model->sum_line_total($code) * ($doc->DiscPrcnt * 0.01)),
+							'DiscSum' => ($this->sales_order_model->sum_line_total($code) * ($doc->DiscPrcnt * 0.01)),
 							'DocCur' => $doc->DocCur,
 							'DocRate' => $doc->DocRate,
 							'RoundDif' => $doc->RoundDif,
@@ -1157,11 +1335,11 @@ class Quotation extends PS_Controller
 							'F_WebDate' => sap_date(now(), TRUE)
 						);
 
-						$docEntry = $this->quotation_model->add_sap_quotation($header);
+						$docEntry = $this->sales_order_model->add_sap_sales_order($header);
 
 						if($docEntry !== FALSE)
 						{
-							$details = $this->quotation_model->get_details($code);
+							$details = $this->sales_order_model->get_details($code);
 							if(!empty($details))
 							{
 								$seqNum = 0;
@@ -1176,17 +1354,17 @@ class Quotation extends PS_Controller
 											'LineSeq' => $seqNum,
 											'LineText' => $rs->LineText,
 											'AftLineNum' => $rs->AfLineNum,
-											'U_WEBORDER' => $rs->quotation_code
+											'U_WEBORDER' => $rs->sales_order_code
 										);
 
-										$this->quotation_model->add_sap_quotation_text_row($arr);
+										$this->sales_order_model->add_sap_sales_order_text_row($arr);
 										$seqNum++;
 									}
 									else
 									{
 										$arr = array(
 											'DocEntry' => $docEntry,
-											'U_WEBORDER' => $rs->quotation_code,
+											'U_WEBORDER' => $rs->sales_order_code,
 											'LineNum' => $rs->LineNum,
 											'ItemCode' => $rs->ItemCode,
 											'Dscription' => $rs->Dscription,
@@ -1214,7 +1392,7 @@ class Quotation extends PS_Controller
 											'U_DISCEX' => $rs->U_DISCEX
 										);
 
-										$this->quotation_model->add_sap_quotation_row($arr);
+										$this->sales_order_model->add_sap_sales_order_row($arr);
 									}
 
 								} //--- end foreach details
@@ -1238,7 +1416,7 @@ class Quotation extends PS_Controller
 				'temp_date' => now()
 			);
 
-			$this->quotation_model->update($code, $arr);
+			$this->sales_order_model->update($code, $arr);
 		}
 
 
@@ -1252,17 +1430,17 @@ class Quotation extends PS_Controller
 		$sc = TRUE;
 
 		//---- check SQ already in SAP
-		$sq = $this->quotation_model->get_sap_quotation($code);
+		$sq = $this->sales_order_model->get_sap_sales_order($code);
 
 		if(empty($sq))
 		{
 			//---- drop exists temp data
-			$temp = $this->quotation_model->get_temp_quotations($code);
+			$temp = $this->sales_order_model->get_temp_sales_orders($code);
 			if(!empty($temp))
 			{
 				foreach($temp as $rows)
 				{
-					if($this->quotation_model->drop_quotation_temp_data($rows->DocEntry) === FALSE)
+					if($this->sales_order_model->drop_sales_order_temp_data($rows->DocEntry) === FALSE)
 					{
 						$sc = FALSE;
 						$this->error = "ลบรายการที่ค้างใน Temp ไม่สำเร็จ";
@@ -1286,7 +1464,7 @@ class Quotation extends PS_Controller
 				'Message' => NULL
 			);
 
-			$this->quotation_model->update($code, $arr);
+			$this->sales_order_model->update($code, $arr);
 		}
 
 		return $sc;
@@ -1404,15 +1582,15 @@ class Quotation extends PS_Controller
 	public function do_approve($code)
 	{
 		$sc = TRUE;
-		$doc = $this->quotation_model->get($code);
+		$doc = $this->sales_order_model->get($code);
 		if(!empty($doc))
 		{
 			//--- ตัองยังไม่ได้อนุมัติ และ ยังไม่เข้า SAP และ ยังไม่มีเลขที่เอกสารใน SAP
 			if($doc->Approved === 'P' && $doc->Status != 2 && $doc->DocNum === NULL)
 			{
 				//--- ตรวจสอบสิทธิ์ในการอนุาัติ
-				$max_discount = $this->quotation_model->get_max_line_disc($code);
-				$can_approve = $this->quotation_model->can_approve($this->user->uname, $doc->sale_team, $max_discount);
+				$max_discount = $this->sales_order_model->get_max_line_disc($code);
+				$can_approve = $this->sales_order_model->can_approve($this->user->uname, $doc->sale_team, $max_discount);
 
 				if($can_approve === TRUE)
 				{
@@ -1421,9 +1599,9 @@ class Quotation extends PS_Controller
 						'Approver' => $this->user->uname
 					);
 
-					if($this->quotation_model->update($code, $arr))
+					if($this->sales_order_model->update($code, $arr))
 					{
-						$this->quotation_logs_model->add('approve', $code);
+						$this->sales_order_logs_model->add('approve', $code);
 					}
 				}
 				else
@@ -1453,15 +1631,15 @@ class Quotation extends PS_Controller
 	public function un_approve($code)
 	{
 		$sc = TRUE;
-		$doc = $this->quotation_model->get($code);
+		$doc = $this->sales_order_model->get($code);
 		if(!empty($doc))
 		{
 			//--- ตัองอนุมัติแล้ว และ ยังไม่เข้า SAP และ ยังไม่มีเลขที่เอกสารใน SAP
 			if($doc->Approved === 'A' && $doc->Status != 2 && $doc->DocNum === NULL)
 			{
 				//--- ตรวจสอบสิทธิ์ในการอนุาัติ
-				$max_discount = $this->quotation_model->get_max_line_disc($code);
-				$can_approve = $this->quotation_model->can_approve($this->user->uname, $doc->sale_team, $max_discount);
+				$max_discount = $this->sales_order_model->get_max_line_disc($code);
+				$can_approve = $this->sales_order_model->can_approve($this->user->uname, $doc->sale_team, $max_discount);
 				$must_approve = $this->must_approve($code);
 				if($can_approve === TRUE OR $must_approve === FALSE)
 				{
@@ -1470,9 +1648,9 @@ class Quotation extends PS_Controller
 						'Approver' => $this->user->uname
 					);
 
-					if($this->quotation_model->update($code, $arr))
+					if($this->sales_order_model->update($code, $arr))
 					{
-						$this->quotation_logs_model->add('unapprove', $code);
+						$this->sales_order_logs_model->add('unapprove', $code);
 					}
 				}
 				else
@@ -1500,15 +1678,15 @@ class Quotation extends PS_Controller
 	public function do_reject($code)
 	{
 		$sc = TRUE;
-		$doc = $this->quotation_model->get($code);
+		$doc = $this->sales_order_model->get($code);
 		if(!empty($doc))
 		{
 			//--- ตัองยังไม่ได้อนุมัติ และ ยังไม่เข้า SAP และ ยังไม่มีเลขที่เอกสารใน SAP
 			if($doc->Approved === 'P' && $doc->Status != 2 && $doc->DocNum === NULL)
 			{
 				//--- ตรวจสอบสิทธิ์ในการอนุาัติ
-				$max_discount = $this->quotation_model->get_max_line_disc($code);
-				$can_approve = $this->quotation_model->can_approve($this->user->uname, $doc->sale_team, $max_discount);
+				$max_discount = $this->sales_order_model->get_max_line_disc($code);
+				$can_approve = $this->sales_order_model->can_approve($this->user->uname, $doc->sale_team, $max_discount);
 
 				if($can_approve === TRUE)
 				{
@@ -1517,9 +1695,9 @@ class Quotation extends PS_Controller
 						'Approver' => $this->user->uname
 					);
 
-					if($this->quotation_model->update($code, $arr))
+					if($this->sales_order_model->update($code, $arr))
 					{
-						$this->quotation_logs_model->add('reject', $code);
+						$this->sales_order_logs_model->add('reject', $code);
 					}
 				}
 				else
@@ -1548,15 +1726,15 @@ class Quotation extends PS_Controller
 	public function un_reject($code)
 	{
 		$sc = TRUE;
-		$doc = $this->quotation_model->get($code);
+		$doc = $this->sales_order_model->get($code);
 		if(!empty($doc))
 		{
 			//--- ตัองยังไม่ได้อนุมัติ และ ยังไม่เข้า SAP และ ยังไม่มีเลขที่เอกสารใน SAP
 			if($doc->Approved === 'R' && $doc->Status != 2 && $doc->DocNum === NULL)
 			{
 				//--- ตรวจสอบสิทธิ์ในการอนุาัติ
-				$max_discount = $this->quotation_model->get_max_line_disc($code);
-				$can_approve = $this->quotation_model->can_approve($this->user->uname, $doc->sale_team, $max_discount);
+				$max_discount = $this->sales_order_model->get_max_line_disc($code);
+				$can_approve = $this->sales_order_model->can_approve($this->user->uname, $doc->sale_team, $max_discount);
 
 				if($can_approve === TRUE)
 				{
@@ -1565,9 +1743,9 @@ class Quotation extends PS_Controller
 						'Approver' => $this->user->uname
 					);
 
-					if($this->quotation_model->update($code, $arr))
+					if($this->sales_order_model->update($code, $arr))
 					{
-						$this->quotation_logs_model->add('unreject', $code);
+						$this->sales_order_logs_model->add('unreject', $code);
 					}
 				}
 				else
@@ -1594,11 +1772,11 @@ class Quotation extends PS_Controller
 
 
 
-	public function print_quotation($code)
+	public function print_sales_order($code)
 	{
 		$this->load->library('printer');
-		$doc = $this->quotation_model->get($code);
-		$detail = $this->quotation_model->get_details($code);
+		$doc = $this->sales_order_model->get($code);
+		$detail = $this->sales_order_model->get_details($code);
 
 		$details = array();
 
@@ -1626,7 +1804,8 @@ class Quotation extends PS_Controller
 		$sale = $this->user_model->get_sale_data($doc->SlpCode);
 		$empName = empty($sale) ? "" : $sale->emp_name;
 		$division_name = empty($sale) ? "" : $this->user_model->get_division_name($sale->division_code);
-		$doc->prefix = empty($doc->BeginStr) ? $this->quotation_model->get_prefix($doc->Series) : $doc->BeginStr;
+		$doc->prefix = empty($doc->BeginStr) ? $this->sales_order_model->get_prefix($doc->Series) : $doc->BeginStr;
+		$doc->SQNO = empty($doc->U_SQNO) ? "" : get_quotation_reference($doc->U_SQNO);
 
 		$ds = array(
 			'doc' => $doc,
@@ -1637,16 +1816,16 @@ class Quotation extends PS_Controller
 			'show_discount' => TRUE
 		);
 
-		$this->load->view('print/print_quotation', $ds);
+		$this->load->view('print/print_sales_order', $ds);
 	}
 
 
 
-	public function print_quotation_no_discount($code)
+	public function print_sales_order_no_discount($code)
 	{
 		$this->load->library('printer');
-		$doc = $this->quotation_model->get($code);
-		$detail = $this->quotation_model->get_details($code);
+		$doc = $this->sales_order_model->get($code);
+		$detail = $this->sales_order_model->get_details($code);
 
 		$details = array();
 
@@ -1656,21 +1835,6 @@ class Quotation extends PS_Controller
 			$no = 0;
 			foreach($detail as $rs)
 			{
-				if($rs->Type == 0)
-				{
-					$prefix = substr($rs->ItemCode, 0, 2);
-
-					if($prefix == 'SV' OR $prefix == 'ES')
-					{
-						$rs->Dscription = "ค่าบริการ";
-
-						if(! empty($rs->FreeText))
-						{
-							$rs->ItemDetail = $rs->FreeText;
-						}
-					}
-				}
-
 				if($rs->Type == 1 && $no > 0)
 				{
 					$noo = $no -1;
@@ -1688,7 +1852,7 @@ class Quotation extends PS_Controller
 		$sale = $this->user_model->get_sale_data($doc->SlpCode);
 		$empName = empty($sale) ? "" : $sale->emp_name;
 		$division_name = empty($sale) ? "" : $this->user_model->get_division_name($sale->division_code);
-		$doc->prefix = empty($doc->BeginStr) ? $this->quotation_model->get_prefix($doc->Series) : $doc->BeginStr;
+		$doc->prefix = empty($doc->BeginStr) ? $this->sales_order_model->get_prefix($doc->Series) : $doc->BeginStr;
 
 		$ds = array(
 			'doc' => $doc,
@@ -1699,7 +1863,7 @@ class Quotation extends PS_Controller
 			'show_discount' => FALSE
 		);
 
-		$this->load->view('print/print_quotation', $ds);
+		$this->load->view('print/print_sales_order', $ds);
 	}
 
 
@@ -1709,7 +1873,7 @@ class Quotation extends PS_Controller
   {
     $code = $this->input->get('code'); //--- U_WEBORDER
 
-    $data = $this->quotation_model->get_temp_data($code);
+    $data = $this->sales_order_model->get_temp_data($code);
     if(!empty($data))
     {
 			//$btn = "<button type='button' class='btn btn-sm btn-danger' onClick='removeTemp()'' ><i class='fa fa-trash'></i> Delete Temp</button>";
@@ -1726,7 +1890,7 @@ class Quotation extends PS_Controller
 			}
 			else if($data->F_Sap === 'Y')
 			{
-				$sq = $this->quotation_model->get_sap_quotation($code);
+				$sq = $this->sales_order_model->get_sap_sales_order($code);
 
 				if(!empty($sq))
 				{
@@ -1734,7 +1898,7 @@ class Quotation extends PS_Controller
 				}
 				else
 				{
-					$sd = $this->quotation_model->get_sap_quotation_draft($code);
+					$sd = $this->sales_order_model->get_sap_sales_order_draft($code);
 					if(!empty($sd))
 					{
 						$status = "Draft";
@@ -1771,7 +1935,7 @@ class Quotation extends PS_Controller
   {
     $sc = TRUE;
     $code = $this->input->post('U_WEBORDER');
-    $temp = $this->quotation_model->get_temp_status($code);
+    $temp = $this->sales_order_model->get_temp_status($code);
 
     if(empty($temp))
     {
@@ -1786,7 +1950,7 @@ class Quotation extends PS_Controller
 
     if($sc === TRUE)
     {
-      if(! $this->quotation_model->drop_temp_exists_data($code))
+      if(! $this->sales_order_model->drop_temp_exists_data($code))
       {
         $sc = FALSE;
         $this->error = "Delete Failed : Delete Temp Failed";
@@ -1801,7 +1965,7 @@ class Quotation extends PS_Controller
 					'temp_date' => NULL
 				);
 
-				$this->quotation_model->update($code, $arr);
+				$this->sales_order_model->update($code, $arr);
 			}
     }
 
@@ -1873,10 +2037,10 @@ class Quotation extends PS_Controller
     $date = empty($date) ? date('Y-m-d') : $date;
     $Y = date('Y', strtotime($date));
     $M = date('m', strtotime($date));
-    $prefix = getConfig('PREFIX_QUOTATION');
-    $run_digit = getConfig('RUN_DIGIT_QUOTATION');
+    $prefix = getConfig('PREFIX_SALES_ORDER');
+    $run_digit = getConfig('RUN_DIGIT_SALES_ORDER');
     $pre = $prefix .'-'.$Y.$M;
-    $code = $this->quotation_model->get_max_code($pre);
+    $code = $this->sales_order_model->get_max_code($pre);
     if(! empty($code))
     {
       $run_no = mb_substr($code, ($run_digit*-1), NULL, 'UTF-8') + 1;

@@ -12,17 +12,20 @@
 
 		<?php $this->load->view('include/header_include'); ?>
 
-    <style>
-		.ui-helper-hidden-accessible {
-			display:none;
-		}
+		<style>
+			.ui-helper-hidden-accessible {
+				display:none;
+			}
 
-		.ui-autocomplete {
-    max-height: 250px;
-    overflow-y: auto;
-    /* prevent horizontal scrollbar */
-    overflow-x: hidden;
-  }
+			.ui-autocomplete {
+		    max-height: 250px;
+		    overflow-y: auto;
+		    overflow-x: hidden;
+			}
+
+			.ui-widget {
+				width:auto;
+			}
 	</style>
 	</head>
 	<body class="no-skin" onload="checkError()">
