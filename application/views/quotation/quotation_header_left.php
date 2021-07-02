@@ -31,19 +31,7 @@
       </div>
     </div>
 
-    <div class="form-group">
-      <label class="col-sm-3 col-xs-12 control-label no-padding-right">Currency</label>
-      <div class="col-sm-2 col-xs-6" style="padding-left:11px; padding-right:5px;">
-        <select class="form-control input-sm" id="Currency">
-          <?php echo select_currency(); ?>
-        </select>
-      </div>
-      <div class="col-sm-2 col-xs-6 padding-5">
-        <input type="number" class="form-control input-sm text-right" id="Rate" value="1.00">
-      </div>
-    </div>
-
-
+    
     <div class="form-group">
       <label class="col-sm-3 control-label no-padding-right">ฝ่าย</label>
       <div class="col-sm-7 col-xs-8">

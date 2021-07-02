@@ -194,7 +194,7 @@ class Sales_order_model extends CI_Model
       $this->db->where('Status', $ds['Status']);
     }
 
-    if($this->isAdmin === FALSE)
+    if(!$this->isAdmin && !$this->isSuperAdmin)
     {
       if($this->isLead)
       {
@@ -265,7 +265,7 @@ class Sales_order_model extends CI_Model
       $this->db->where('Status', $ds['Status']);
     }
 
-    if($this->isAdmin === FALSE)
+    if(!$this->isAdmin && !$this->isSuperAdmin)
     {
       if($this->isLead === TRUE)
       {

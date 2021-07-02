@@ -14,6 +14,7 @@ class Sales_order extends PS_Controller
 		$this->load->model('sales_order_model');
 		$this->load->model('customers_model');
 		$this->load->model('sales_order_logs_model');
+		$this->load->model('item_model');
 		$this->load->helper('sales_order');
 		$this->load->helper('currency');
   }
@@ -104,6 +105,8 @@ class Sales_order extends PS_Controller
     }
 	}
 
+
+
 	public function add_new()
 	{
 		$this->title = "New Sales Order";
@@ -141,8 +144,8 @@ class Sales_order extends PS_Controller
 				'Term' => $ds->term,
 				'CntctCode' => get_null($ds->Contact),
 				'NumAtCard' => get_null($ds->CustRef),
-				'DocCur' => $ds->Currency,
-				'DocRate' => $ds->Rate,
+				'DocCur' => NULL,
+				'DocRate' => 1,
 				'DocTotal' => $ds->docTotal,
 				'DiscPrcnt' => $ds->discPrcnt,
 				'RoundDif' => $ds->roundDif,
@@ -175,7 +178,7 @@ class Sales_order extends PS_Controller
 			else
 			{
 				//--- insert sales_order success
-				//--- insert detail QUT1
+				//--- insert detail
 				if(!empty($details))
 				{
 					$no = 1;
@@ -185,9 +188,6 @@ class Sales_order extends PS_Controller
 						{
 							break;
 						}
-
-						$sell_price = $rs->Type == 0 ? $rs->LineTotal / $rs->Quantity : 0;
-						//$sell_price = $rs->Price - ($rs->Price * ($rs->DiscPrcnt *0.01));
 
 						$arr = array(
 							'sales_order_code' => $code,
@@ -199,10 +199,13 @@ class Sales_order extends PS_Controller
 							'FreeText' => get_null(trim($rs->FreeTxt)),
 							'Qty' => $rs->Quantity,
 							'UomCode' => get_null($rs->UomCode),
+							'basePrice' => $rs->basePrice,
+							'stdPrice' => $rs->stdPrice,
 							'Price' => $rs->Price,
-							'SellPrice' => $sell_price,
+							'priceDiffPercent' => $rs->priceDiffPercent,
+							'SellPrice' => $rs->sellPrice,
 							'U_DISWEB' => round($rs->U_DISWEB, 2),
-							'U_DISCEX' => round($rs->U_DISCEX, 2),
+							'U_DISCEX' => 0,
 							'DiscPrcnt' => round($rs->DiscPrcnt, 2),
 							'VatGroup' => $rs->VatGroup,
 							'VatRate' => $rs->VatPrcnt,
@@ -212,10 +215,11 @@ class Sales_order extends PS_Controller
 							'AfLineNum' => $rs->AfLineNum
 						);
 
+
 						if( ! $this->sales_order_model->add_detail($arr))
 						{
 							$sc = FALSE;
-							$this->error = "Insert Quotation detail failed at line : {$no} @ {$rs->ItemCode}";
+							$this->error = "Insert Sales order detail failed at line : {$no} @ {$rs->ItemCode}";
 						}
 
 						$no++;
@@ -262,7 +266,7 @@ class Sales_order extends PS_Controller
 		else
 		{
 			$sc = FALSE;
-			$this->error = "Invalid Quotation header data";
+			$this->error = "Invalid Sales Order header data";
 		}
 
 		$message = array(
@@ -271,7 +275,6 @@ class Sales_order extends PS_Controller
 		);
 
 		echo json_encode($message);
-
 	}
 
 
@@ -361,7 +364,10 @@ class Sales_order extends PS_Controller
 								'FreeText' => $rs->FreeText,
 								'Qty' => $rs->Qty,
 								'UomCode' => $rs->UomCode,
+								'basePrice' => $rs->basePrice,
+								'stdPrice' => $rs->stdPrice,
 								'Price' => $rs->Price,
+								'priceDiffPercent' => $rs->priceDiffPercent,
 								'SellPrice' => $rs->SellPrice,
 								'U_DISWEB' => $rs->U_DISWEB,
 								'U_DISCEX' => $rs->U_DISCEX,
@@ -537,7 +543,10 @@ class Sales_order extends PS_Controller
 									'FreeText' => $rs->FreeText,
 									'Qty' => $rs->Qty,
 									'UomCode' => $rs->UomCode,
+									'basePrice' => $rs->basePrice,
+									'stdPrice' => $rs->stdPrice,
 									'Price' => $rs->Price,
+									'priceDiffPercent' => $rs->priceDiffPercent,
 									'SellPrice' => $rs->SellPrice,
 									'U_DISWEB' => $rs->U_DISWEB,
 									'U_DISCEX' => $rs->U_DISCEX,
@@ -549,6 +558,7 @@ class Sales_order extends PS_Controller
 									'LineText' => $rs->LineText,
 									'AfLineNum' => $rs->AfLineNum
 								);
+
 
 								if( ! $this->sales_order_model->add_detail($arr))
 								{
@@ -643,6 +653,18 @@ class Sales_order extends PS_Controller
 			{
 				foreach($details as $rs)
 				{
+					$uom = "";
+					$UomList = $this->item_model->get_uom_list_by_item_code($rs->ItemCode);
+
+					if(!empty($UomList))
+					{
+						foreach($UomList as $ls)
+						{
+							$uom .= '<option data-qty="'.$ls->BaseQty.'" data-code="'.$ls->UomCode.'" value="'.$ls->UomEntry.'" '.is_selected($ls->UomCode, $rs->UomCode).'>'.$ls->UomName.'</option>';
+						}
+					}
+
+					$rs->uom = $uom;
 					$stock = $this->stock_model->get_stock($rs->ItemCode, NULL);
 					$totalAmount += ($rs->Qty * $rs->SellPrice);
 					$rs->OnHandQty = empty($stock) ? 0 : round($stock->OnHand, 2);
@@ -667,7 +689,7 @@ class Sales_order extends PS_Controller
 		}
 		else
 		{
-			set_error("Quotation already in draft");
+			set_error("Sales Order already in draft");
 			redirect("{$this->home}/view_detail/{$code}");
 		}
 
@@ -716,8 +738,6 @@ class Sales_order extends PS_Controller
 							'term' => $ds->term,
 							'CntctCode' => get_null($ds->Contact),
 							'NumAtCard' => get_null($ds->CustRef),
-							'DocCur' => $ds->Currency,
-							'DocRate' => $ds->Rate,
 							'DocTotal' => $ds->docTotal,
 							'DiscPrcnt' => $ds->discPrcnt,
 							'RoundDif' => $ds->roundDif,
@@ -743,7 +763,7 @@ class Sales_order extends PS_Controller
 						if(!$this->sales_order_model->update($code, $arr))
 						{
 							$sc = FALSE;
-							$this->error = "Update Quotation Header failed";
+							$this->error = "Update Sales Order Header failed";
 						}
 						else
 						{
@@ -768,9 +788,6 @@ class Sales_order extends PS_Controller
 										break;
 									}
 
-									$sell_price = $rs->Type == 0 ? $rs->LineTotal / $rs->Quantity : 0;
-									//$sell_price = $rs->Price - ($rs->Price * ($rs->DiscPrcnt * 0.01));
-
 									$arr = array(
 										'sales_order_code' => $code,
 										'LineNum' => $rs->LineNum,
@@ -781,12 +798,14 @@ class Sales_order extends PS_Controller
 										'FreeText' => get_null(trim($rs->FreeTxt)),
 										'Qty' => $rs->Quantity,
 										'UomCode' => get_null($rs->UomCode),
+										'basePrice' => $rs->basePrice,
+										'stdPrice' => $rs->stdPrice,
 										'Price' => $rs->Price,
-										'SellPrice' => $sell_price,
+										'priceDiffPercent' => $rs->priceDiffPercent,
+										'SellPrice' => $rs->sellPrice,
 										'U_DISWEB' => round($rs->U_DISWEB, 2),
-										'U_DISCEX' => round($rs->U_DISCEX, 2),
 										'DiscPrcnt' => round($rs->DiscPrcnt, 2),
-										'VatGroup' => get_null($rs->VatGroup),
+										'VatGroup' => $rs->VatGroup,
 										'VatRate' => $rs->VatPrcnt,
 										'LineTotal' => $rs->Type == 0 ? $rs->LineTotal : 0,
 										'WhsCode' => get_null(trim($rs->WhsCode)),
@@ -797,7 +816,7 @@ class Sales_order extends PS_Controller
 									if( ! $this->sales_order_model->add_detail($arr))
 									{
 										$sc = FALSE;
-										$this->error = "Insert Quotation detail failed at line : {$no} @ {$rs->ItemCode}";
+										$this->error = "Insert Sales Order detail failed at line : {$no} @ {$rs->ItemCode}";
 									}
 
 									$no++;
@@ -842,7 +861,7 @@ class Sales_order extends PS_Controller
 					else
 					{
 						$sc = FALSE;
-						$this->error = "Invalid Quotation header data";
+						$this->error = "Invalid Sales Order header data";
 					}
 				}
 				else
@@ -894,8 +913,9 @@ class Sales_order extends PS_Controller
 			{
 				foreach($details as $rs)
 				{
+					$rs->UomName = $this->item_model->get_uom_name($rs->UomCode);
 					$stock = $this->stock_model->get_stock($rs->ItemCode, $rs->WhsCode);
-					$totalAmount += ($rs->Qty * $rs->SellPrice);
+					$totalAmount += $rs->LineTotal;
 					$rs->OnHandQty = empty($stock) ? 0 : round($stock->OnHand,2);
 					$rs->IsCommited = empty($stock) ? 0 : round($stock->IsCommited,2);
 					$rs->OnOrder = empty($stock) ? 0 : round($stock->OnOrder, 2);
@@ -954,27 +974,48 @@ class Sales_order extends PS_Controller
 	}
 
 
+
+
 	function get_item_data()
 	{
 		$sc = TRUE;
 		$code = trim($this->input->get('code'));
 		$card_code = trim($this->input->get('CardCode'));
+
 		if(!empty($code))
 		{
-			$this->load->model('item_model');
 			$this->load->model('stock_model');
-			$priceList = empty($card_code) ? 12 : $this->customers_model->get_list_num($card_code);
+			$PriceList = $this->customers_model->get_list_num($card_code);
+			$PriceList = empty($PriceList) ? 1 : $PriceList;
 
-			$item = $this->item_model->get($code, $priceList);
+			$item = $this->item_model->get($code, $PriceList);
 
 			if(!empty($item))
 			{
-				//$whsCode = empty($item->dfWhsCode) ? getConfig('DEFAULT_WAREHOUSE') : $item->dfWhsCode;
+				$price_list = $this->item_model->price_list($item->code, $PriceList); //--- return AS object with 2 properties (Price , UomEntry)
+				$DfUom = empty($price_list) ? NULL : $price_list->UomEntry;
+				$price = empty($price_list) ? 0.00 : round($price_list->Price, 2);
+
+				$uom = "";
+				$UomList = $this->item_model->get_uom_list($item->UgpEntry);
+
+				if(!empty($UomList))
+				{
+					foreach($UomList as $ls)
+					{
+						$uom .= '<option data-qty="'.$ls->BaseQty.'" data-code="'.$ls->UomCode.'" value="'.$ls->UomEntry.'" '.is_selected($ls->UomEntry, $DfUom).'>'.$ls->UomName.'</option>';
+						if($ls->UomEntry == $DfUom)
+						{
+							$price = round($price * $ls->BaseQty);
+						}
+					}
+				}
+
+
 				$stock = $this->stock_model->get_stock($item->code, NULL);
 				$whsQty = !empty($stock) ? round($stock->OnHand,2) : 0;
 				$commitQty = !empty($stock) ? round($stock->IsCommited,2) : 0;
 				$orderedQty = !empty($stock) ? round($stock->OnOrder, 2) : 0;
-				$cost = round($item->last_price, 2);
 
 				if($whsQty > 0)
 				{
@@ -989,13 +1030,13 @@ class Sales_order extends PS_Controller
 					'code' => $item->code,
 					'name' => $item->name,
 					'detail' => $item->detail,
-					'uom' => $item->uom,
+					'freeText' => $item->ValidComm,
+					'uom' => $uom,
 					'taxCode' => $item->taxCode,
 					'taxRate' => $item->taxRate,
-					'cost' => $cost,
-					'price' => $item->price,
-					'lineAmount' => $item->price,
-					'warranty' => $item->WarrntTmpl,
+					'price' => $price,
+					'priceDiff' => $price,
+					'lineAmount' => $price,
 					'whsQty' => $whsQty,
 					'commitQty' => $commitQty,
 					'orderedQty' => $orderedQty,
@@ -1016,6 +1057,7 @@ class Sales_order extends PS_Controller
 
 		echo $sc === TRUE ? json_encode($arr) : $this->error;
 	}
+
 
 
 	public function get_contact_person()
@@ -1793,6 +1835,7 @@ class Sales_order extends PS_Controller
 				}
 				else
 				{
+					$rs->UomName = $this->item_model->get_uom_name($rs->UomCode);
 					$details[$no] = $rs;
 					$no++;
 				}
@@ -1842,6 +1885,7 @@ class Sales_order extends PS_Controller
 				}
 				else
 				{
+					$rs->UomName = $this->item_model->get_uom_name($rs->UomCode);
 					$details[$no] = $rs;
 					$no++;
 				}

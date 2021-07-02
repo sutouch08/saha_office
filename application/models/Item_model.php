@@ -1,37 +1,91 @@
 <?php
 class Item_model extends CI_Model
 {
-  public $price_list = 12;
-  public $cost_list = 11;
-  public $clear_price_list = 10;
-
   public function __construct()
   {
     parent::__construct();
   }
 
 
-  public function get($code, $priceList = NULL)
+  public function get($ItemCode)
   {
-    $priceList = empty($priceList) ? $this->$price_list : $priceList;
-
     $rs = $this->ms
-    ->select('OITM.ItemCode AS code, OITM.ItemName AS name')
-    ->select('OITM.SalUnitMsr AS uom, ITM1.Price AS price')
-    ->select('OITM.VatGourpSa AS taxCode, OITM.UserText AS detail')
+    ->select('OITM.ItemCode AS code, OITM.ItemName AS name, OITM.UgpEntry')
+    ->select('OITM.VatGourpSa AS taxCode, OITM.UserText AS detail, OITM.ValidComm')
     ->select('OVTG.Rate AS taxRate')
-    ->select('OITM.DfltWH AS dfWhsCode, OITM.WarrntTmpl')
-    ->select('OITM.LastPurPrc AS last_price')
+    ->select('OITM.DfltWH AS dfWhsCode')
     ->from('OITM')
-    ->join('ITM1', 'ITM1.ItemCode = OITM.ItemCode', 'left')
     ->join('OVTG', 'OVTG.Code = OITM.VatGourpSa', 'left')
-    ->where('OITM.ItemCode', $code)
-    ->where('ITM1.PriceList', $priceList)
+    ->where('OITM.ItemCode', $ItemCode)
     ->get();
 
     if($rs->num_rows() === 1)
     {
       return $rs->row();
+    }
+
+    return NULL;
+  }
+
+
+  public function price_list($ItemCode, $PriceList)
+  {
+    $rs = $this->ms->select('Price, UomEntry')->where('ItemCode', $ItemCode)->where('PriceList', $PriceList)->get('ITM1');
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
+
+
+  public function get_uom_list($UgpEntry)
+  {
+    $rs = $this->ms
+    ->select("UGP1.UomEntry, UGP1.BaseQty, OUOM.UomCode, OUOM.UomName")
+    ->from('UGP1')
+    ->join('OUOM', 'UGP1.UomEntry = OUOM.UomEntry', 'left')
+    ->where('UGP1.UgpEntry', $UgpEntry)
+    ->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+  public function get_uom_list_by_item_code($ItemCode)
+  {
+    $rs = $this->ms
+    ->select('UGP1.UomEntry, UGP1.BaseQty, OUOM.UomCode, OUOM.UomName')
+    ->from('UGP1')
+    ->join('OITM', 'OITM.UgpEntry = UGP1.UgpEntry', 'left')
+    ->join('OUOM', 'UGP1.UomEntry = OUOM.UomEntry', 'left')
+    ->where('OITM.ItemCode', $ItemCode)
+    ->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+  public function get_uom_name($UomCode)
+  {
+    $qr = "SELECT UomName AS name FROM OUOM WHERE UomCode = N'{$UomCode}'";
+    $rs = $this->ms->query($qr);
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->name;
     }
 
     return NULL;

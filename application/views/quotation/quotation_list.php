@@ -103,20 +103,20 @@
 
 <div class="row">
 	<div class="col-sm-12 col-xs-12 padding-5 table-responsive">
-		<table class="table table-striped table-hover border-1 dataTable" style="width:100%; min-width:980px;">
+		<table class="table table-striped table-hover border-1 dataTable" style="table-layout:fixed; width:100%; min-width:980px;">
 			<thead>
 				<tr style="font-size:10px;">
 					<th style="width:20px;" class="middle text-center">#</th>
 					<th style="width:100px;" class="middle sorting <?php echo $sort_WebCode; ?>" id="sort_code" onclick="sort('code')">Web Order</th>
 					<th style="width:100px;" class="middle sorting <?php echo $sort_DocNum; ?>" id="sort_DocNum" onclick="sort('DocNum')">Quotation No.</th>
 					<th style="width:100px;" class="middle sorting <?php echo $sort_PostingDate; ?>" id="sort_DocDate" onclick="sort('DocDate')">Posting Date</th>
-					<th style="width:80px;" class="middle sorting <?php echo $sort_CardCode; ?>" id="sort_CardCode" onclick="sort('CardCode')">Cust. Code</th>
-					<th style="width:150x;" class="middle sorting <?php echo $sort_CardName; ?>" id="sort_CardName" onclick="sort('CardName')">Cust. Name</th>
-					<th style="width:50px;" class="middle sorting <?php echo $sort_NumAtCard; ?>" id="sort_NumAtCard" onclick="sort('NumAtCard')">Cust. Ref</th>
-					<th style="width:100px;" class="middle sorting <?php echo $sort_DocTotal; ?>" id="sort_DocTotal" onclick="sort('DocTotal')">Doc Total</th>
-					<th style="width:80px;" class="middle sorting <?php echo $sort_uname; ?>" id="sort_uname" onclick="sort('uname')">User</th>
-					<th style="width:50px;" class="middle text-center">Approved</th>
-					<th style="width:50px;" class="middle text-center">Temp Status</th>
+					<th style="width:100px;" class="middle sorting <?php echo $sort_CardCode; ?>" id="sort_CardCode" onclick="sort('CardCode')">Cust. Code</th>
+					<th style="width:200px;" class="middle sorting <?php echo $sort_CardName; ?>" id="sort_CardName" onclick="sort('CardName')">Cust. Name</th>
+					<th style="width:100px;" class="middle sorting <?php echo $sort_NumAtCard; ?>" id="sort_NumAtCard" onclick="sort('NumAtCard')">Cust. Ref</th>
+					<th style="width:100px;" class="middle text-center sorting <?php echo $sort_DocTotal; ?>" id="sort_DocTotal" onclick="sort('DocTotal')">Doc Total</th>
+					<th style="width:80px;" class="middle text-center sorting <?php echo $sort_uname; ?>" id="sort_uname" onclick="sort('uname')">User</th>
+					<th style="width:80px;" class="middle text-center">Approved</th>
+					<th style="width:80px;" class="middle text-center">Temp Status</th>
 					<th style="width:100px;" class="middle text-right"></th>
 				</tr>
 			</thead>
@@ -134,7 +134,7 @@
 						<td class="middle"><?php echo $rs->CardName; ?></td>
 						<td class="middle"><?php echo $rs->NumAtCard; ?></td>
 						<td class="middle text-right"><?php echo number($rs->DocTotal, 2); ?></td>
-						<td class="middle"><?php echo $rs->uname; ?></td>
+						<td class="middle text-center"><?php echo $rs->uname; ?></td>
 						<td class="middle text-center">
 							<?php if($rs->Approved == 'A') : ?>
 								<span class="label label-success">อนุมัติ</span>

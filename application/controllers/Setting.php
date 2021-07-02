@@ -17,7 +17,7 @@ class Setting extends PS_Controller{
 
   public function index()
   {
-		if($this->isAdmin)
+		if($this->isAdmin OR $this->isSuperAdmin)
 		{
 
 			$groups = array('Company', 'Document', 'SAP');

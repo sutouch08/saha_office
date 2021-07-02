@@ -107,7 +107,7 @@
       <div class="divider-hidden"></div>
 
       <div class="col-sm-9 col-sm-offset-3">
-				<?php if($this->isAdmin) : ?>
+				<?php if($this->isAdmin OR $this->isSuperAdmin) : ?>
         <button type="button" class="btn btn-sm btn-success" onClick="updateConfig('companyForm')">
           <i class="fa fa-save"></i> บันทึก
         </button>

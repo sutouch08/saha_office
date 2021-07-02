@@ -1,28 +1,30 @@
 
 <div class="row">
   <div class="col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-striped" style="width:2400px;">
+    <table class="table table-striped" style="width:2350px;">
       <thead>
-        <tr class="font-size-12">
-          <th class="middle text-center bg-green" style="width:50px;">No.</th>
-          <th class="middle text-center bg-green" style="width:50px;">Type</th>
-          <th class="middle bg-green" style="width:150px;">Item No.</th>
-          <th class="middle bg-green" style="width:200px;">Item Description.</th>
-          <th class="middle bg-green" style="width:350px;">Item Detail</th>
-          <th class="middle bg-green" style="width:200px;">Freetext</th>
-          <th class="middle text-right bg-green" style="width:80px;">Quantity</th>
-          <th class="middle text-center bg-green" style="width:60px;">Uom</th>
-          <th class="middle text-right bg-green" style="width:150px;">มูลค่า/หน่วย ก่อน VAT</th>
-          <th class="middle text-right bg-green" style="width:100px;">ส่วนลด</th>
-          <th class="middle text-right bg-green" style="width:100px;">ส่วนลดตาม</th>
-          <th class="middle text-center bg-green" style="width:100px;">Tax Code</th>
-          <th class="middle text-right bg-green" style="width:150px;">มูลค่ารวม ก่อน VAT</th>
-          <th class="middle text-center bg-green" style="width:150px;">Whs</th>
-          <th class="middle text-center bg-green" style="width:100px;">In Stock</th>
-          <th class="middle text-center bg-green" style="width:100px;">Committed</th>
-          <th class="middle text-center bg-green" style="width:100px;">Ordered</th>
+        <tr class="font-size-10">
+          <th class="middle text-center" style="width:20px;">#</th>
+          <th class="middle text-center" style="width:50px;">Type</th>
+          <th class="middle" style="width:200px;">Item Code</th>
+          <th class="middle" style="width:250px;">Item Description.</th>
+          <th class="middle" style="width:200px;">Item Detail</th>
+          <th class="middle" style="width:150px;">รหัสสมบูรณ์</th>
+          <th class="middle text-right" style="width:100px;">Quantity</th>
+          <th class="middle text-center" style="width:100px;">Uom</th>
+          <th class="middle text-right" style="width:100px;">STD Price</th>
+          <th class="middle text-right" style="width:100px;">Price</th>
+          <th class="middle text-right" style="width:100px;">ส่วนต่างราคา(%)</th>
+          <th class="middle text-right" style="width:100px;">ส่วนลด(%)</th>
+          <th class="middle text-center" style="width:100px;">Tax Code</th>
+          <th class="middle text-right" style="width:150px;">มูลค่ารวม (ก่อน vat)</th>
+          <th class="middle text-center" style="width:150px;">Whs</th>
+          <th class="middle text-center" style="width:100px;">In Stock</th>
+          <th class="middle text-center" style="width:100px;">Commited</th>
+          <th class="middle text-center" style="width:100px;">Ordered</th>
         </tr>
       </thead>
+
       <tbody id="details-template">
         <?php $no = 1; ?>
         <?php $rows = 5; ?>
@@ -32,7 +34,7 @@
             <?php if($ds->Type == 1) : ?>
             <td class="text-center no"><?php echo $no; ?></td>
             <td class="text-center"><?php echo ($ds->Type == 1 ? 'Text' : '-'); ?></td>
-            <td colspan="15" style="white-space:pre-wrap;"><?php echo $ds->LineText; ?></td>
+            <td colspan="16" style="white-space:pre-wrap;"><?php echo $ds->LineText; ?></td>
             <?php else : ?>
             <td class="middle text-center no"><?php echo $no; ?></td>
             <td class="middle text-center"><?php echo ($ds->Type == 1 ? 'Text' : '-'); ?></td>
@@ -41,10 +43,11 @@
             <td class="middle"><?php echo $ds->ItemDetail; ?></td>
             <td class="middle"><?php echo $ds->FreeText; ?></td>
             <td class="middle text-right"><?php echo number(round($ds->Qty, 2)); ?></td>
-            <td class="middle text-center"><?php echo $ds->UomCode; ?></td>
+            <td class="middle text-center"><?php echo $ds->UomName; ?></td>
+            <td class="middle text-right"><?php echo number($ds->stdPrice, 2); ?></td>
             <td class="middle text-right"><?php echo number($ds->Price, 2); ?></td>
+            <td class="middle text-right"><?php echo number($ds->priceDiffPercent, 2); ?></td>
             <td class="middle text-right"><?php echo number($ds->U_DISWEB, 2); ?></td>
-            <td class="middle text-right"><?php echo number($ds->U_DISCEX, 2); ?></td>
             <td class="middle text-center"><?php echo $ds->VatGroup; ?></td>
             <td class="middle text-right"><?php echo number($ds->LineTotal, 2); ?></td>
             <td class="middle text-center"><?php echo $ds->WhsCode; ?></td>

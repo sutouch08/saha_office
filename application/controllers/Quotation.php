@@ -14,6 +14,7 @@ class Quotation extends PS_Controller
 		$this->load->model('quotation_model');
 		$this->load->model('customers_model');
 		$this->load->model('quotation_logs_model');
+		$this->load->model('item_model');
 		$this->load->helper('quotation');
 		$this->load->helper('currency');
   }
@@ -141,8 +142,8 @@ class Quotation extends PS_Controller
 				'Term' => $ds->term,
 				'CntctCode' => get_null($ds->Contact),
 				'NumAtCard' => get_null($ds->CustRef),
-				'DocCur' => $ds->Currency,
-				'DocRate' => $ds->Rate,
+				'DocCur' => NULL, //$ds->Currency,
+				'DocRate' => 1.00, //$ds->Rate,
 				'DocTotal' => $ds->docTotal,
 				'DiscPrcnt' => $ds->discPrcnt,
 				'RoundDif' => $ds->roundDif,
@@ -154,7 +155,7 @@ class Quotation extends PS_Controller
 				'Address' => get_null($ds->BillTo),
 				'Address2' => get_null($ds->ShipTo),
 				'Series' => $ds->Series,
-				'BeginStr' => $this->qoutation_model->get_prefix($ds->Series),
+				'BeginStr' => $this->quotation_model->get_prefix($ds->Series),
 				'DocDate' => sap_date($ds->DocDate, TRUE),
 				'DocDueDate' => sap_date($ds->DocDueDate, TRUE),
 				'TextDate' => sap_date($ds->TextDate, TRUE),
@@ -186,9 +187,6 @@ class Quotation extends PS_Controller
 							break;
 						}
 
-						$sell_price = $rs->Type == 0 ? $rs->LineTotal / $rs->Quantity : 0;
-						//$sell_price = $rs->Price - ($rs->Price * ($rs->DiscPrcnt *0.01));
-
 						$arr = array(
 							'quotation_code' => $code,
 							'LineNum' => $rs->LineNum,
@@ -199,10 +197,13 @@ class Quotation extends PS_Controller
 							'FreeText' => get_null(trim($rs->FreeTxt)),
 							'Qty' => $rs->Quantity,
 							'UomCode' => get_null($rs->UomCode),
+							'basePrice' => $rs->basePrice,
+							'stdPrice' => $rs->stdPrice,
 							'Price' => $rs->Price,
-							'SellPrice' => $sell_price,
+							'priceDiffPercent' => $rs->priceDiffPercent,
+							'SellPrice' => $rs->sellPrice,
 							'U_DISWEB' => round($rs->U_DISWEB, 2),
-							'U_DISCEX' => round($rs->U_DISCEX, 2),
+							'U_DISCEX' => 0,
 							'DiscPrcnt' => round($rs->DiscPrcnt, 2),
 							'VatGroup' => $rs->VatGroup,
 							'VatRate' => $rs->VatPrcnt,
@@ -361,8 +362,11 @@ class Quotation extends PS_Controller
 								'FreeText' => $rs->FreeText,
 								'Qty' => $rs->Qty,
 								'UomCode' => $rs->UomCode,
+								'basePrice' => $rs->basePrice,
+								'stdPrice' => $rs->stdPrice,
 								'Price' => $rs->Price,
 								'SellPrice' => $rs->SellPrice,
+								'priceDiffPercent' => $rs->priceDiffPercent,
 								'U_DISWEB' => $rs->U_DISWEB,
 								'U_DISCEX' => $rs->U_DISCEX,
 								'DiscPrcnt' => $rs->DiscPrcnt,
@@ -465,6 +469,18 @@ class Quotation extends PS_Controller
 			{
 				foreach($details as $rs)
 				{
+					$uom = "";
+					$UomList = $this->item_model->get_uom_list_by_item_code($rs->ItemCode);
+
+					if(!empty($UomList))
+					{
+						foreach($UomList as $ls)
+						{
+							$uom .= '<option data-qty="'.$ls->BaseQty.'" data-code="'.$ls->UomCode.'" value="'.$ls->UomEntry.'" '.is_selected($ls->UomCode, $rs->UomCode).'>'.$ls->UomName.'</option>';
+						}
+					}
+
+					$rs->uom = $uom;
 					$stock = $this->stock_model->get_stock($rs->ItemCode, NULL);
 					$totalAmount += ($rs->Qty * $rs->SellPrice);
 					$rs->OnHandQty = empty($stock) ? 0 : round($stock->OnHand, 2);
@@ -538,8 +554,6 @@ class Quotation extends PS_Controller
 							'term' => $ds->term,
 							'CntctCode' => get_null($ds->Contact),
 							'NumAtCard' => get_null($ds->CustRef),
-							'DocCur' => $ds->Currency,
-							'DocRate' => $ds->Rate,
 							'DocTotal' => $ds->docTotal,
 							'DiscPrcnt' => $ds->discPrcnt,
 							'RoundDif' => $ds->roundDif,
@@ -549,7 +563,7 @@ class Quotation extends PS_Controller
 							'Address' => get_null($ds->BillTo),
 							'Address2' => get_null($ds->ShipTo),
 							'Series' => $ds->Series,
-							'BeginStr' => $this->qoutation_model->get_prefix($ds->Series),
+							'BeginStr' => $this->quotation_model->get_prefix($ds->Series),
 							'DocDate' => sap_date($ds->DocDate, TRUE),
 							'DocDueDate' => sap_date($ds->DocDueDate, TRUE),
 							'TextDate' => sap_date($ds->TextDate, TRUE),
@@ -590,8 +604,6 @@ class Quotation extends PS_Controller
 										break;
 									}
 
-									$sell_price = $rs->Type == 0 ? $rs->LineTotal / $rs->Quantity : 0;
-									//$sell_price = $rs->Price - ($rs->Price * ($rs->DiscPrcnt * 0.01));
 
 									$arr = array(
 										'quotation_code' => $code,
@@ -603,12 +615,14 @@ class Quotation extends PS_Controller
 										'FreeText' => get_null(trim($rs->FreeTxt)),
 										'Qty' => $rs->Quantity,
 										'UomCode' => get_null($rs->UomCode),
+										'basePrice' => $rs->basePrice,
+										'stdPrice' => $rs->stdPrice,
 										'Price' => $rs->Price,
-										'SellPrice' => $sell_price,
+										'priceDiffPercent' => $rs->priceDiffPercent,
+										'SellPrice' => $rs->sellPrice,
 										'U_DISWEB' => round($rs->U_DISWEB, 2),
-										'U_DISCEX' => round($rs->U_DISCEX, 2),
 										'DiscPrcnt' => round($rs->DiscPrcnt, 2),
-										'VatGroup' => get_null($rs->VatGroup),
+										'VatGroup' => $rs->VatGroup,
 										'VatRate' => $rs->VatPrcnt,
 										'LineTotal' => $rs->Type == 0 ? $rs->LineTotal : 0,
 										'WhsCode' => get_null(trim($rs->WhsCode)),
@@ -716,8 +730,9 @@ class Quotation extends PS_Controller
 			{
 				foreach($details as $rs)
 				{
+					$rs->UomName = $this->item_model->get_uom_name($rs->UomCode);
 					$stock = $this->stock_model->get_stock($rs->ItemCode, $rs->WhsCode);
-					$totalAmount += ($rs->Qty * $rs->SellPrice);
+					$totalAmount += $rs->LineTotal;
 					$rs->OnHandQty = empty($stock) ? 0 : round($stock->OnHand,2);
 					$rs->IsCommited = empty($stock) ? 0 : round($stock->IsCommited,2);
 					$rs->OnOrder = empty($stock) ? 0 : round($stock->OnOrder, 2);
@@ -781,22 +796,41 @@ class Quotation extends PS_Controller
 		$sc = TRUE;
 		$code = trim($this->input->get('code'));
 		$card_code = trim($this->input->get('CardCode'));
+
 		if(!empty($code))
 		{
-			$this->load->model('item_model');
 			$this->load->model('stock_model');
-			$priceList = empty($card_code) ? 12 : $this->customers_model->get_list_num($card_code);
+			$PriceList = $this->customers_model->get_list_num($card_code);
+			$PriceList = empty($PriceList) ? 1 : $PriceList;
 
-			$item = $this->item_model->get($code, $priceList);
+			$item = $this->item_model->get($code, $PriceList);
 
 			if(!empty($item))
 			{
-				//$whsCode = empty($item->dfWhsCode) ? getConfig('DEFAULT_WAREHOUSE') : $item->dfWhsCode;
+				$price_list = $this->item_model->price_list($item->code, $PriceList); //--- return AS object with 2 properties (Price , UomEntry)
+				$DfUom = empty($price_list) ? NULL : $price_list->UomEntry;
+				$price = empty($price_list) ? 0.00 : round($price_list->Price, 2);
+
+				$uom = "";
+				$UomList = $this->item_model->get_uom_list($item->UgpEntry);
+
+				if(!empty($UomList))
+				{
+					foreach($UomList as $ls)
+					{
+						$uom .= '<option data-qty="'.$ls->BaseQty.'" data-code="'.$ls->UomCode.'" value="'.$ls->UomEntry.'" '.is_selected($ls->UomEntry, $DfUom).'>'.$ls->UomName.'</option>';
+						if($ls->UomEntry == $DfUom)
+						{
+							$price = round($price * $ls->BaseQty);
+						}
+					}
+				}
+
+
 				$stock = $this->stock_model->get_stock($item->code, NULL);
 				$whsQty = !empty($stock) ? round($stock->OnHand,2) : 0;
 				$commitQty = !empty($stock) ? round($stock->IsCommited,2) : 0;
 				$orderedQty = !empty($stock) ? round($stock->OnOrder, 2) : 0;
-				$cost = round($item->last_price, 2);
 
 				if($whsQty > 0)
 				{
@@ -811,13 +845,13 @@ class Quotation extends PS_Controller
 					'code' => $item->code,
 					'name' => $item->name,
 					'detail' => $item->detail,
-					'uom' => $item->uom,
+					'freeText' => $item->ValidComm,
+					'uom' => $uom,
 					'taxCode' => $item->taxCode,
 					'taxRate' => $item->taxRate,
-					'cost' => $cost,
-					'price' => $item->price,
-					'lineAmount' => $item->price,
-					'warranty' => $item->WarrntTmpl,
+					'price' => $price,
+					'priceDiff' => $price,
+					'lineAmount' => $price,
 					'whsQty' => $whsQty,
 					'commitQty' => $commitQty,
 					'orderedQty' => $orderedQty,
@@ -1615,6 +1649,7 @@ class Quotation extends PS_Controller
 				}
 				else
 				{
+					$rs->UomName = $this->item_model->get_uom_name($rs->UomCode);
 					$details[$no] = $rs;
 					$no++;
 				}
@@ -1656,21 +1691,6 @@ class Quotation extends PS_Controller
 			$no = 0;
 			foreach($detail as $rs)
 			{
-				if($rs->Type == 0)
-				{
-					$prefix = substr($rs->ItemCode, 0, 2);
-
-					if($prefix == 'SV' OR $prefix == 'ES')
-					{
-						$rs->Dscription = "ค่าบริการ";
-
-						if(! empty($rs->FreeText))
-						{
-							$rs->ItemDetail = $rs->FreeText;
-						}
-					}
-				}
-
 				if($rs->Type == 1 && $no > 0)
 				{
 					$noo = $no -1;
@@ -1678,6 +1698,7 @@ class Quotation extends PS_Controller
 				}
 				else
 				{
+					$rs->UomName = $this->item_model->get_uom_name($rs->UomCode);
 					$details[$no] = $rs;
 					$no++;
 				}

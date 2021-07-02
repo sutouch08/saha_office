@@ -7,9 +7,10 @@ $all_row = count($details);
 foreach($details as $rs)
 {
 	$model = mb_strlen($rs->Dscription);
-	$spec  = mb_strlen($rs->ItemDetail);
+	//$spec  = mb_strlen($rs->ItemDetail);
 	$newline = ceil(substr_count($rs->Dscription, "\n") * 0.5);
-	$text_length = $spec > $model ? $spec : $model;
+	//$text_length = $spec > $model ? $spec : $model;
+	$text_length = $model;
 
 	$u_row = $text_length > $row_text ? ceil($text_length/$row_text) : 1;
 	$u_row = $u_row > $newline ? $u_row : $newline;
@@ -42,11 +43,10 @@ $logo_path = base_url()."images/company/company_logo.png";
 
 //**************  กำหนดหัวตาราง  ******************************//
 $thead	= array(
-          array("#", "width:5mm; text-align:center; height:10mm;"),
-          array("Item code", "width:30mm; text-align:center; height:10mm;"),
-					array("Model", "width:40mm; text-align:center; height:10mm;"),
-					array("Description", "width:40mm; text-align:center; height:10mm;"),
-          array("จำนวน", "width:15mm; text-align:center; height:10mm;"),
+          array("#", "width:8mm; text-align:center; height:10mm;"),
+          array("Item", "width:30mm; text-align:center; height:10mm;"),
+					array("Description", "width:65mm; text-align:center; height:10mm;"),
+          array("จำนวน", "width:25mm; text-align:center; height:10mm;", "colspan='2'"),
 					array("หน่วยละ", "width:20mm; text-align:center; height:10mm;"),
 					array("ส่วนลด", "width:15mm; text-align:center; height:10mm;"),
           array("จำนวนเงิน", "width:25mm; text-align:center; font-size:11px; height:10mm;")
@@ -60,8 +60,8 @@ $pattern = array(
             "text-align:center; padding-left:3px; padding-right:3px; min-height:10mm;", //-- ลำดับ
             "text-align:left; padding-left:3px; padding-right:3px; min-height:10mm;",  //--- Item code
             "text-align:left; padding-left:3px; padding-right:3px; min-height:10mm; white-space:pre-wrap;", //--- Model
-            "text-align:left; padding-left:3px; padding-right:3px; min-height:10mm; white-space:pre-wrap;", //--- Spec
-            "text-align:right; padding-left:3px; padding-right:3px; min-height:10mm;", //--- จำนวน
+            "width:8mm; text-align:right; padding-left:3px; padding-right:3px; min-height:10mm;", //--- จำนวน
+						"width:20mm; text-align:left; padding-left:3px; padding-right:3px; border-left:0px; overflow:hidden; min-height:10mm;", //--- หน่วยนับ
 						"text-align:right; padding-left:3px; padding-right:3px; min-height:10mm;", //---- หน่วยละ
             "text-align:right; padding-left:3px; padding-right:3px; min-height:10mm;", //--- ส่วนลด
 						"text-align:right; padding-left:3px; padding-right:3px; min-height:10mm;" //--- จำนวนเงิน
@@ -219,9 +219,9 @@ while($total_page > 0 )
     {
 
 			$model = mb_strlen($rs->Dscription);
-			$spec  = mb_strlen($rs->ItemDetail);
+			// $spec  = mb_strlen($rs->ItemDetail);
 			$newline = ceil(substr_count($rs->Dscription, "\n") * 0.5);
-			$text_length = $spec > $model ? $spec : $model;
+			$text_length = $model;
 			$use_row = ceil($text_length/$row_text);
 			$use_row = $use_row > $newline ? $use_row : $newline;
 			if($use_row > 1)
@@ -250,10 +250,10 @@ while($total_page > 0 )
 	        $n,
 	        $rs->ItemCode,
 					$rs->Dscription,
-					$rs->ItemDetail,
-					round($rs->Qty,2).' '.$rs->UomCode,
+					round($rs->Qty,2),
+					$rs->UomName,
 	        ($show_discount === TRUE ? number($rs->Price,2) : number($rs->SellPrice, 2)),
-					($show_discount === TRUE ? round($rs->DiscPrcnt,2).' %' : ''),
+					($show_discount === TRUE ? ($rs->DiscPrcnt > 0 ? round($rs->DiscPrcnt,2).' %' : '') : ''),
 	        number($rs->LineTotal, 2)
 	      );
 
@@ -277,9 +277,9 @@ while($total_page > 0 )
 		if(!empty($nextrow))
 		{
 			$model = mb_strlen($nextrow->Dscription);
-			$spec  = mb_strlen($nextrow->ItemDetail);
+			//$spec  = mb_strlen($nextrow->ItemDetail);
 			$newline = ceil(substr_count($nextrow->Dscription, "\n") * 0.5);
-			$text_length = $spec > $model ? $spec : $model;
+			$text_length = $model; //$spec > $model ? $spec : $model;
 			$use_row = ceil($text_length/$row_text);
 			$use_row = $use_row > $newline ? $use_row : $newline;
 			$use_row += $i;

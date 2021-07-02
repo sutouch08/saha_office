@@ -43,6 +43,12 @@
       <td class="width-60"><?php echo $header->U_ORIGINALSO; ?></td>
     </tr>
     <?php endif; ?>
+    <?php if(!empty($header->U_SQNO)) : ?>
+    <tr>
+      <td class="width-40 bg-green">Quotation No</td>
+      <td class="width-60"><?php echo $header->U_SQNO; ?></td>
+    </tr>
+    <?php endif; ?>
     <tr>
       <td class="width-40 bg-green">Bill To</td>
       <td class="width-60"><?php echo $header->Address; ?></td>

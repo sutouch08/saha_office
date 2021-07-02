@@ -9,8 +9,6 @@ function saveAdd() {
 		'term' : $('#Payment').val(),
 		'Contact' : $('#Contact').val(),
 		'CustRef' : $.trim($('#NumAtCard').val()),
-		'Currency' : $('#Currency').val(),
-		'Rate' : $('#Rate').val(),
 		'Department' : $('#Department').val(), //****** required
 		'Division' : $('#Division').val(), //****** required
 		'ShipToCode' : $('#shipToCode').val(),
@@ -144,15 +142,19 @@ function saveAdd() {
 					"Text" : $('#itemDetail-'+no).val(),
 					"FreeTxt" : $('#freeText-'+no).val(),
 					"Quantity" : removeCommas($('#qty-'+no).val()),
-					"UomCode" : $('#uom-'+no).val(),
+					"UomCode" : $('#uom-'+no).find(':selected').data('code'),
+					"basePrice" : $('#basePrice-'+no).val(), //--- ราคาตามหน่วยนับย่อย
+					"stdPrice" : removeCommas($('#stdPrice-'+no).val()), //--- ราคาตามหน่วยย่อย * ตัวคูณตามหน่วยนับที่เลือก เช่น ราคาต่อชิ้น = 100 * (ชิ้น = 1, แพ็ค = 3, ลัง = 6)
 					"Price" : removeCommas($('#price-'+no).val()),
+					"priceDiffPercent" : $('#priceDiff-'+no).val(),
+					'sellPrice' : removeCommas($('#priceAfDiscBfTax-'+no).val()),
 					"DiscPrcnt" : $('#lineDiscPrcnt-'+no).val(), //--- ส่วนลดได้จากการเอาส่วนลด 2 สเต็ป มาแปลงเป็นส่วนลดเดียว
 					"LineTotal" : removeCommas($('#lineAmount-'+no).val()),
 					"WhsCode" : $('#whs-'+no).val(),
-					"VatPrcnt" : $('#taxCode-'+no).find(':selected').data('rate'), //--- Vat rate
+					"VatPrcnt" : $('#taxCode-'+no).data('rate'), //--- Vat rate
 					"VatGroup" : $('#taxCode-'+no).val(), //--- รหัส vat group
 					"U_DISWEB" : $('#disc1-'+no).val(),
-					"U_DISCEX" : $('#disc2-'+no).val(),
+					"U_DISCEX" : 0,
 					"LineText" : "",
 					"AfLineNum" : -1,
 				}
@@ -174,7 +176,10 @@ function saveAdd() {
 					"FreeTxt" : "",
 					"Quantity" : 0,
 					"UomCode" : "",
+					"basePrice" : 0,
+					"stdPrice" : 0,
 					"Price" : 0,
+					"sellPrice" : 0,
 					"DiscPrcnt" : 0, //--- ส่วนลดได้จากการเอาส่วนลด 2 สเต็ป มาแปลงเป็นส่วนลดเดียว
 					"WhsCode" : "",
 					"VatPrcnt" : 0, //--- Vat rate
@@ -217,7 +222,7 @@ function saveAdd() {
 				if(ds.result === 'success') {
 					swal({
 						title:'Success',
-						text:'Insert new Sales Order successfully',
+						text:'Insert new Quotation successfully',
 						type:'success',
 						timer:1000
 					});
@@ -259,8 +264,6 @@ function update() {
 		'term' : $('#Payment').val(),
 		'Contact' : $('#Contact').val(),
 		'CustRef' : $.trim($('#NumAtCard').val()),
-		'Currency' : $('#Currency').val(),
-		'Rate' : $('#Rate').val(),
 		'Department' : $('#Department').val(), //****** required
 		'Division' : $('#Division').val(), //****** required
 		'ShipToCode' : $('#shipToCode').val(),
@@ -392,15 +395,19 @@ function update() {
 					"Text" : $('#itemDetail-'+no).val(),
 					"FreeTxt" : $('#freeText-'+no).val(),
 					"Quantity" : removeCommas($('#qty-'+no).val()),
-					"UomCode" : $('#uom-'+no).val(),
+					"UomCode" : $('#uom-'+no).find(':selected').data('code'),
+					"basePrice" : $('#basePrice-'+no).val(), //--- ราคาตามหน่วยนับย่อย
+					"stdPrice" : removeCommas($('#stdPrice-'+no).val()), //--- ราคาตามหน่วยย่อย * ตัวคูณตามหน่วยนับที่เลือก เช่น ราคาต่อชิ้น = 100 * (ชิ้น = 1, แพ็ค = 3, ลัง = 6)
 					"Price" : removeCommas($('#price-'+no).val()),
+					"priceDiffPercent" : $('#priceDiff-'+no).val(),
+					'sellPrice' : removeCommas($('#priceAfDiscBfTax-'+no).val()),
 					"DiscPrcnt" : $('#lineDiscPrcnt-'+no).val(), //--- ส่วนลดได้จากการเอาส่วนลด 2 สเต็ป มาแปลงเป็นส่วนลดเดียว
 					"LineTotal" : removeCommas($('#lineAmount-'+no).val()),
 					"WhsCode" : $('#whs-'+no).val(),
-					"VatPrcnt" : $('#taxCode-'+no).find(':selected').data('rate'), //--- Vat rate
+					"VatPrcnt" : $('#taxCode-'+no).data('rate'), //--- Vat rate
 					"VatGroup" : $('#taxCode-'+no).val(), //--- รหัส vat group
 					"U_DISWEB" : $('#disc1-'+no).val(),
-					"U_DISCEX" : $('#disc2-'+no).val(),
+					"U_DISCEX" : 0,
 					"LineText" : "",
 					"AfLineNum" : 0,
 				}
@@ -422,11 +429,16 @@ function update() {
 					"FreeTxt" : "",
 					"Quantity" : 0,
 					"UomCode" : "",
+					"basePrice" : 0,
+					"stdPrice" : 0,
 					"Price" : 0,
-					"DiscPrcnt" : 0, //--- ส่วนลดได้จากการเอาส่วนลด 2 สเต็ป มาแปลงเป็นส่วนลดเดียว
+					"priceDiffPercent" : 0,
+					'sellPrice' : 0,
+					"DiscPrcnt" : 0,
+					"LineTotal" : 0,
 					"WhsCode" : "",
-					"VatPrcnt" : 0, //--- Vat rate
-					"VatGroup" : "", //--- รหัส vat group
+					"VatPrcnt" : 0,
+					"VatGroup" : "",
 					"U_DISWEB" : 0,
 					"U_DISCEX" : 0,
 					"LineText" : text,
@@ -468,7 +480,7 @@ function update() {
 				if(ds.result === 'success') {
 					swal({
 						title:'Success',
-						text:'Insert new Sales Order successfully',
+						text:'Insert new Quotation successfully',
 						type:'success',
 						timer:1000
 					});
@@ -950,10 +962,15 @@ function getItemData(code, no) {
 
 				$('#itemName-'+no).val(ds.name);
 				$('#itemDetail-'+no).val(ds.detail);
+				$('#freeText-'+no).val(ds.freeText);
 				$('#qty-'+no).val(1);
-				$('#uom-'+no).val(ds.uom);
+				$('#uom-'+no).html(ds.uom);
+				$('#basePrice-'+no).val(price);
+				$('#stdPrice-'+no).val(addCommas(price.toFixed(2)));
 				$('#price-'+no).val(addCommas(price.toFixed(2)));
+				$('#priceDiff-'+no).val(addCommas(price.toFixed(2)));
 				$('#taxCode-'+no).val(ds.taxCode);
+				$('#taxCode-'+no).data('rate', ds.taxRate);
 				$('#lineAmount-'+no).val(addCommas(lineAmount.toFixed(2)));
 				$('#warranty-'+no).val(ds.warranty);
 				$('#whs-'+no).val(whCode);
@@ -977,6 +994,34 @@ function getItemData(code, no) {
 }
 
 
+function recalPrice(el) {
+	let no = getNo(el);
+	let factor = parseDefault(parseFloat(el.find(':selected').data('qty')), 1); //--- ตัวคูณ
+	let basePrice = parseDefault(parseFloat($('#basePrice-'+no).val()), 0.00);
+	let newPrice = parseFloat(factor * basePrice);
+	$('#stdPrice-'+no).val(addCommas(newPrice.toFixed(2)));
+	$('#price-'+no).val(addCommas(newPrice.toFixed(2)));
+
+	recalAmount(el);
+}
+
+
+function priceDiffPercent(no) {
+	let basePrice = parseDefault(parseFloat(removeCommas($('#stdPrice-'+no).val())), 0.00);
+	let price = parseDefault(parseFloat(removeCommas($('#price-'+no).val())), 0.00);
+	let priceDiff = basePrice - price;
+
+	if(priceDiff != 0 && basePrice != 0 && price != 0) {
+		let priceDiffPercent = (priceDiff/basePrice) * 100;
+		return priceDiffPercent.toFixed(2);
+	}
+	else {
+		return 0;
+	}
+}
+
+
+
 function recalAmount(el) {
 	var no = getNo(el);
   var currentInput = removeCommas(el.val());
@@ -985,18 +1030,12 @@ function recalAmount(el) {
   el.val(addCommas(val));
 
 	var disc1 = parseFloat($('#disc1-'+no).val());
-	var disc2 = parseFloat($('#disc2-'+no).val());
 
 	if(disc1 < 0 || disc1 > 100) {
 		$('#disc1-'+no).val(0);
 	}
 
-	if(disc1 === 0 || disc1 === 100 || disc2 < 0 || disc2 > 100) {
-		$('#disc2-'+no).val(0);
-	}
-
 	recal(no);
-
 }
 
 
@@ -1012,23 +1051,27 @@ function recalDiscount(el) {
 
 	var disc = (1- (amount/qty)/price) * 100;
 
-	$('#disc2-'+no).val(0);
 	$('#disc1-'+no).val(disc.toFixed(2));
 	$('#lineDiscPrcnt-'+no).val(disc.toFixed(2));
 
+	var disc1 = parseDefault(parseFloat($('#disc1-'+no).val()), 0);
+	var sellPrice = getSellPrice(price, disc1);
+
+	$('#priceAfDiscBfTax-'+no).val(addCommas(sellPrice.toFixed(2)));
+
 	recalTotal();
 }
+
 
 function recal(no) {
 	var qty = parseDefault(parseFloat(removeCommas($('#qty-'+no).val())), 0);
 	var price = parseDefault(parseFloat(removeCommas($('#price-'+no).val())), 0);
 	var disc1 = parseDefault(parseFloat($('#disc1-'+no).val()), 0);
-	var disc2 = parseDefault(parseFloat($('#disc2-'+no).val()), 0);
 
-	var sellPrice = getSellPrice(price, disc1, disc2);
+	var sellPrice = getSellPrice(price, disc1);
 	var lineAmount = qty * sellPrice;
 	var discPrcnt = ((price - sellPrice)/price) * 100; //--- discount percent per row
-
+	$('#priceDiff-'+no).val(priceDiffPercent(no));
 	$('#priceAfDiscBfTax-'+no).val(addCommas(sellPrice.toFixed(2)));
 	$('#lineAmount-'+no).val(addCommas(lineAmount.toFixed(2)));
 	$('#lineDiscPrcnt-'+no).val(discPrcnt.toFixed(2));
@@ -1135,7 +1178,7 @@ function getTaxAmount() {
 	$('.tax-code').each(function() {
 		var no = getNo($(this));
 		var lineAmount = parseDefault(parseFloat(removeCommas($('#lineAmount-'+no).val())), 0);
-		var rate = $(this).find(':selected').data('rate');
+		var rate = parseDefault(parseFloat($(this).data('rate')), 0);
 		if(rate > 0) {
 			taxTotal += lineAmount;
 		}
@@ -1146,17 +1189,11 @@ function getTaxAmount() {
 
 
 //--- return sell price after discount
-function getSellPrice(price, disc1, disc2) {
+function getSellPrice(price, disc1) {
 
 	if(disc1 > 0 && disc1 <= 100) {
 		//--- sell price step 1
 		price = ((100 - disc1) * 0.01) * price;
-
-		if(disc2 > 0 && disc2 <= 100) {
-			//--- sell price step 2
-			price = ((100 - disc2) * 0.01) * price;
-		}
-
 		return price;
 	}
 	else {
@@ -1297,6 +1334,10 @@ function init() {
 		let val = removeCommas($(this).val());
 		$(this).val(addCommas(val))
 	})
+
+	$('.number').focus(function(){
+		$(this).select();
+	})
 }
 
 
@@ -1317,6 +1358,8 @@ function nextFocus(name, el) {
 $(document).ready(function(){
 	init();
 })
+
+
 
 
 $('.autosize').autosize({append: "\n"});

@@ -30,13 +30,6 @@
       </div>
 
       <div class="form-group">
-        <label class="col-sm-9 control-label no-padding-right">Status</label>
-        <div class="col-sm-3 col-xs-8">
-          <input type="text" id="status" class="form-control input-sm" value="" disabled/>
-        </div>
-      </div>
-
-      <div class="form-group">
         <label class="col-sm-9 control-label no-padding-right">Posting Date</label>
         <div class="col-sm-3 col-xs-8">
           <span class="input-icon input-icon-right">

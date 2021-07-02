@@ -175,14 +175,15 @@ class Printer
 
 	public function thead(array $dataset)
 	{
-		$thead	= "<table class='table content-table' style='margin-bottom:2px; border:solid 1px #333; height:120mm;'>";
+		$thead	= "<table class='table content-table' style='table-layout:fixed; margin-bottom:2px; border:solid 1px #333; height:120mm;'>";
 		$thead 	.= "<thead>";
 		$thead	.= "<tr style='line-height:".$this->row_height."mm; font-size:".$this->font_size."px;'>";
 		foreach($dataset as $data)
 		{
 			$value 	= $data[0];
 			$css		= $data[1];
-			$thead 	.= "<th style='border:solid 1px #333; ".$css."'>".$value."</th>";
+			$colspan   = empty($data[2]) ? "" : $data[2];
+			$thead 	.= "<th ".$colspan." style='border:solid 1px #333; ".$css."'>".$value."</th>";
 			//$thead 	.= "<th class='border-bottom-2 border-top-2' style='".$css."'>".$value."</th>";
 		}
 		$thead	.= "</tr>";

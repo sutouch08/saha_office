@@ -20,18 +20,19 @@
           <th class="middle text-center" style="width:20px;"></th>
           <th class="middle text-center" style="width:50px;">#</th>
           <th class="middle text-center" style="width:80px;">Type</th>
-          <th class="middle text-center" style="width:250px;">Item No.</th>
+          <th class="middle text-center" style="width:200px;">Item Code</th>
           <th class="middle text-center" style="width:250px;">Item Description.</th>
           <th class="middle text-center" style="width:200px;">Item Detail</th>
-          <th class="middle text-center" style="width:250px;">Freetext</th>
+          <th class="middle text-center" style="width:150px;">รหัสสมบูรณ์</th>
           <th class="middle text-center" style="width:100px;">Quantity</th>
           <th class="middle text-center" style="width:100px;">Uom</th>
-          <th class="middle text-center" style="width:100px;">มูลค่า/หน่วย (ก่อนvat)</th>
-          <th class="middle text-center" style="width:100px;">ส่วนลด%</th>
-          <th class="middle text-center" style="width:100px;">ส่วนลดตาม%</th>
+          <th class="middle text-center" style="width:100px;">STD Price</th>
+          <th class="middle text-center" style="width:100px;">Price</th>
+          <th class="middle text-center" style="width:100px;">ส่วนต่างราคา(%)</th>
+          <th class="middle text-center" style="width:100px;">ส่วนลด(%)</th>
           <th class="middle text-center" style="width:100px;">Tax Code</th>
-          <th class="middle text-center" style="width:100px;">มูลค่า/หน่วย หลังส่วนลด(ก่อนvat)</th>
-          <th class="middle text-center" style="width:100px;">มูลค่ารวม (ก่อนvat)</th>
+          <th class="middle text-center" style="width:100px;">มูค่า/หน่วย หลังส่วนลด(ก่อน vat)</th>
+          <th class="middle text-center" style="width:150px;">มูลค่ารวม (ก่อน vat)</th>
           <th class="middle text-center" style="width:150px;">Whs</th>
           <th class="middle text-center" style="width:100px;">In Stock</th>
           <th class="middle text-center" style="width:100px;">Commited</th>
@@ -41,8 +42,6 @@
       <tbody id="details-template">
         <?php $rows = 5; ?>
         <?php $no = 1; ?>
-        <?php $uom = select_uom(); ?>
-        <?php $taxcode = select_tax_code(); ?>
         <?php $whs = select_whs(); ?>
         <?php while($no <= $rows) : ?>
         <tr id="row-<?php echo $no; ?>">
@@ -73,31 +72,30 @@
             <input type="text" class="form-control input-sm text-right number input-qty" id="qty-<?php echo $no; ?>" onkeyup="recalAmount($(this))" />
           </td>
           <td class="middle">
-            <select class="form-control input-sm uom" id="uom-<?php echo $no; ?>">
-              <option value=""></option>
-              <?php echo $uom; ?>
-            </select>
+            <select class="form-control input-sm uom" id="uom-<?php echo $no; ?>" onchange="recalPrice($(this))"></select>
+          </td>
+          <td class="middle">
+            <input type="text" class="form-control input-sm text-right number" id="stdPrice-<?php echo $no; ?>" readonly disabled/>
+            <input type="hidden" id="basePrice-<?php echo $no; ?>" value="0"/>
           </td>
           <td class="middle">
             <input type="text" class="form-control input-sm text-right number input-price" id="price-<?php echo $no; ?>" onkeyup="recalAmount($(this))"/>
           </td>
           <td class="middle">
-            <input type="number" class="form-control input-sm text-right input-disc1" id="disc1-<?php echo $no; ?>" onkeyup="recalAmount($(this))"/>
+            <input type="number" class="form-control input-sm text-right" id="priceDiff-<?php echo $no; ?>" readonly disabled/>
           </td>
           <td class="middle">
-            <input type="number" class="form-control input-sm text-right input-disc2" id="disc2-<?php echo $no; ?>" onkeyup="recalAmount($(this))"/>
+            <input type="number" class="form-control input-sm text-right number input-disc1" id="disc1-<?php echo $no; ?>" onkeyup="recalAmount($(this))"/>
           </td>
           <td class="middle">
-            <select class="form-control inpt-sm tax-code" id="taxCode-<?php echo $no; ?>" onchange="recalTotal()">
-              <option value=""></option>
-              <?php echo $taxcode; ?>
-            </select>
+            <input type="text" class="form-control input-sm text-center tax-code" id="taxCode-<?php echo $no; ?>" data-rate="0.00" value="" disabled/>
+          </td>
+
+          <td class="middle">
+            <input type="text" class="form-control input-sm text-right" id="priceAfDiscBfTax-<?php echo $no; ?>" value="" readonly disabled>
           </td>
           <td class="middle">
-            <input type="text" id="priceAfDiscBfTax-<?php echo $no; ?>" value="" readonly>
-          </td>
-          <td class="middle">
-            <input type="text" class="form-control input-sm text-right number input-amount" id="lineAmount-<?php echo $no; ?>" onkeyup="recalDiscount($(this))"/>
+            <input type="text" class="form-control input-sm text-right number input-amount" id="lineAmount-<?php echo $no; ?>" readonly disabled />
             <input type="hidden" class="lineDisc" id="lineDiscPrcnt-<?php echo $no; ?>" value="0">
           </td>
 
@@ -108,13 +106,13 @@
           </td>
 
           <td class="middle">
-            <input type="number" class="form-control input-sm text-right whs-qty" id="whsQty-<?php echo $no; ?>" readonly/>
+            <input type="number" class="form-control input-sm text-right whs-qty" id="whsQty-<?php echo $no; ?>" readonly disabled/>
           </td>
           <td class="middle">
-            <input type="number" class="form-control input-sm text-right commit-qty" id="commitQty-<?php echo $no; ?>" readonly/>
+            <input type="number" class="form-control input-sm text-right commit-qty" id="commitQty-<?php echo $no; ?>" readonly disabled/>
           </td>
           <td class="middle">
-            <input type="number" class="form-control input-sm text-right ordered-qty" id="orderedQty-<?php echo $no; ?>" readonly/>
+            <input type="number" class="form-control input-sm text-right ordered-qty" id="orderedQty-<?php echo $no; ?>" readonly disabled/>
           </td>
         </tr>
 
@@ -158,31 +156,29 @@
       <input type="text" class="form-control input-sm text-right number input-qty" id="qty-{{no}}" onkeyup="recalAmount($(this))"/>
     </td>
     <td class="middle">
-      <select class="form-control input-sm uom" id="uom-{{no}}">
-        <option value=""></option>
-        <?php echo $uom; ?>
-      </select>
+      <select class="form-control input-sm uom" id="uom-{{no}}" onchange="recalPrice($(this))"></select>
+    </td>
+    <td class="middle">
+      <input type="text" class="form-control input-sm text-right number" id="stdPrice-{{no}}" readonly disabled/>
+      <input type="hidden" id="basePrice-{{no}}" value="0"/>
     </td>
     <td class="middle">
       <input type="text" class="form-control input-sm text-right number input-price" id="price-{{no}}" onkeyup="recalAmount($(this))"/>
     </td>
     <td class="middle">
-      <input type="number" class="form-control input-sm text-right input-disc1" id="disc1-{{no}}" onkeyup="recalAmount($(this))"/>
+      <input type="number" class="form-control input-sm text-right" id="priceDiff-{{no}}" readonly disabled/>
     </td>
     <td class="middle">
-      <input type="number" class="form-control input-sm text-right input-disc2" id="disc2-{{no}}" onkeyup="recalAmount($(this))"/>
+      <input type="number" class="form-control input-sm text-right number input-disc1" id="disc1-{{no}}" onkeyup="recalAmount($(this))"/>
     </td>
     <td class="middle">
-      <select class="form-control inpt-sm tax-code" id="taxCode-{{no}}" onchange="recalTotal()">
-        <option value=""></option>
-        <?php echo $taxcode; ?>
-      </select>
+      <input type="text" class="form-control input-sm text-center tax-code" id="taxCode-{{no}}" data-rate="0.00" value="" disabled/>
     </td>
     <td class="middle">
-      <input type="text" id="priceAfDiscBfTax-{{no}}" value="" readonly>
+      <input type="text" class="form-control input-sm text-right" id="priceAfDiscBfTax-{{no}}" value="" disabled>
     </td>
     <td class="middle">
-      <input type="text" class="form-control input-sm text-right number input-amount" id="lineAmount-{{no}}" onkeyup="recalDiscount($(this))"/>
+      <input type="text" class="form-control input-sm text-right number input-amount" id="lineAmount-{{no}}" onkeyup="recalDiscount($(this))" disabled/>
       <input type="hidden" class="lineDisc" id="lineDiscPrcnt-{{no}}" value="0">
     </td>
 
@@ -193,15 +189,14 @@
     </td>
 
     <td class="middle">
-      <input type="number" class="form-control input-sm text-right whs-qty" id="whsQty-{{no}}" readonly/>
+      <input type="number" class="form-control input-sm text-right whs-qty" id="whsQty-{{no}}" disabled />
     </td>
     <td class="middle">
-      <input type="number" class="form-control input-sm text-right commit-qty" id="commitQty-{{no}}" readonly/>
+      <input type="number" class="form-control input-sm text-right commit-qty" id="commitQty-{{no}}" disabled/>
     </td>
     <td class="middle">
-      <input type="number" class="form-control input-sm text-right ordered-qty" id="orderedQty-{{no}}" readonly/>
+      <input type="number" class="form-control input-sm text-right ordered-qty" id="orderedQty-{{no}}" disabled/>
     </td>
-
   </tr>
 </script>
 
@@ -234,31 +229,29 @@
   <input type="text" class="form-control input-sm text-right number input-qty" id="qty-{{no}}" onkeyup="recalAmount($(this))"/>
 </td>
 <td class="middle">
-  <select class="form-control input-sm uom" id="uom-{{no}}">
-    <option value=""></option>
-    <?php echo $uom; ?>
-  </select>
+  <select class="form-control input-sm uom" id="uom-{{no}}" onchange="recalPrice($(this))"></select>
+</td>
+<td class="middle">
+  <input type="text" class="form-control input-sm text-right number" id="stdPrice-{{no}}" readonly disabled/>
+  <input type="hidden" id="basePrice-{{no}}" value="0"/>
 </td>
 <td class="middle">
   <input type="text" class="form-control input-sm text-right number input-price" id="price-{{no}}" onkeyup="recalAmount($(this))"/>
 </td>
 <td class="middle">
-  <input type="number" class="form-control input-sm text-right input-disc1" id="disc1-{{no}}" onkeyup="recalAmount($(this))"/>
+  <input type="number" class="form-control input-sm text-right" id="priceDiff-{{no}}" readonly disabled/>
 </td>
 <td class="middle">
-  <input type="number" class="form-control input-sm text-right input-disc2" id="disc2-{{no}}" onkeyup="recalAmount($(this))"/>
+  <input type="number" class="form-control input-sm text-right number input-disc1" id="disc1-{{no}}" onkeyup="recalAmount($(this))"/>
 </td>
 <td class="middle">
-  <select class="form-control inpt-sm tax-code" id="taxCode-{{no}}" onchange="recalTotal()">
-    <option value=""></option>
-    <?php echo $taxcode; ?>
-  </select>
+  <input type="text" class="form-control input-sm text-center tax-code" id="taxCode-{{no}}" data-rate="0.00" value="" disabled/>
 </td>
 <td class="middle">
-  <input type="text" id="priceAfDiscBfTax-{{no}}" value="" readonly>
+  <input type="text" class="form-control input-sm text-right" id="priceAfDiscBfTax-{{no}}" value="" disabled>
 </td>
 <td class="middle">
-  <input type="text" class="form-control input-sm text-right number input-amount" id="lineAmount-{{no}}" onkeyup="recalDiscount($(this))"/>
+  <input type="text" class="form-control input-sm text-right number input-amount" id="lineAmount-{{no}}" onkeyup="recalDiscount($(this))" disabled/>
   <input type="hidden" class="lineDisc" id="lineDiscPrcnt-{{no}}" value="0">
 </td>
 
@@ -269,13 +262,13 @@
 </td>
 
 <td class="middle">
-  <input type="number" class="form-control input-sm text-right whs-qty" id="whsQty-{{no}}" readonly/>
+  <input type="number" class="form-control input-sm text-right whs-qty" id="whsQty-{{no}}" disabled/>
 </td>
 <td class="middle">
-  <input type="number" class="form-control input-sm text-right commit-qty" id="commitQty-{{no}}" readonly/>
+  <input type="number" class="form-control input-sm text-right commit-qty" id="commitQty-{{no}}" disabled/>
 </td>
 <td class="middle">
-  <input type="number" class="form-control input-sm text-right ordered-qty" id="orderedQty-{{no}}" readonly/>
+  <input type="number" class="form-control input-sm text-right ordered-qty" id="orderedQty-{{no}}" disabled/>
 </td>
 </script>
 
@@ -291,7 +284,7 @@
       <option value="1" selected>Text</option>
     </select>
   </td>
-  <td colspan="16">
+  <td colspan="17">
     <textarea id="text-{{no}}" class="autosize autosize-transition" style="height:150px; width:800px;"></textarea>
   </td>
 </script>
