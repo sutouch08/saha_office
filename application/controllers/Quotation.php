@@ -200,7 +200,7 @@ class Quotation extends PS_Controller
 							'basePrice' => $rs->basePrice,
 							'stdPrice' => $rs->stdPrice,
 							'Price' => $rs->Price,
-							'priceDiffPercent' => $rs->priceDiffPercent,
+							'priceDiffPercent' => $rs->Type == 0 ? $rs->priceDiffPercent : 0,
 							'SellPrice' => $rs->sellPrice,
 							'U_DISWEB' => round($rs->U_DISWEB, 2),
 							'U_DISCEX' => 0,
@@ -290,7 +290,7 @@ class Quotation extends PS_Controller
 				$valid_till = date('Y-m-d', strtotime("+30 days"));
 				//--- prepare data
 				$SQCode = $this->get_new_code($date);
-
+				$OriginalSQ = $ds->code .(empty($ds->DocNum) ? "" : ", ".$ds->DocNum);
 				$arr = array(
 					'code' => $SQCode,
 					'CardCode' => trim($ds->CardCode),
@@ -317,7 +317,7 @@ class Quotation extends PS_Controller
 					'DocDate' => $date,
 					'DocDueDate' => $valid_till,
 					'TextDate' => $date,
-					'U_ORIGINALSQ' => $ds->code,
+					'U_ORIGINALSQ' => $OriginalSQ,
 					'OwnerCode' => get_null($ds->OwnerCode),
 					'Comments' => get_null($ds->Comments),
 					'user_id' => $this->user->id,
@@ -366,7 +366,7 @@ class Quotation extends PS_Controller
 								'stdPrice' => $rs->stdPrice,
 								'Price' => $rs->Price,
 								'SellPrice' => $rs->SellPrice,
-								'priceDiffPercent' => $rs->priceDiffPercent,
+								'priceDiffPercent' => $rs->Type == 0 ? $rs->priceDiffPercent : 0,
 								'U_DISWEB' => $rs->U_DISWEB,
 								'U_DISCEX' => $rs->U_DISCEX,
 								'DiscPrcnt' => $rs->DiscPrcnt,
@@ -452,9 +452,10 @@ class Quotation extends PS_Controller
 
 	function edit($code)
 	{
-		$in_darft = $this->quotation_model->is_sap_exists_draft($code);
+		$in_sap = $this->quotation_model->is_sap_exists_code($code);
+		//$in_darft = $this->quotation_model->is_sap_exists_draft($code);
 
-		if(!$in_darft)
+		if(!$in_sap)
 		{
 			$this->title = "Edit Sales Quotation";
 			$this->load->model('stock_model');
@@ -505,7 +506,7 @@ class Quotation extends PS_Controller
 		}
 		else
 		{
-			set_error("Quotation already in draft");
+			set_error("Quotation already in SAP");
 			redirect("{$this->home}/view_detail/{$code}");
 		}
 
@@ -528,7 +529,8 @@ class Quotation extends PS_Controller
 			//--- Approved A = Approved, P = pendign R = Rejected, S = No need to Approved
 			if($doc->Status != 2 )
 			{
-				$in_sap = $this->quotation_model->is_sap_exists_draft($code);
+				//$in_sap = $this->quotation_model->is_sap_exists_draft($code);
+				$in_sap = $this->quotation_model->is_sap_exists_code($code);
 
 				if(! $in_sap)
 				{
@@ -618,7 +620,7 @@ class Quotation extends PS_Controller
 										'basePrice' => $rs->basePrice,
 										'stdPrice' => $rs->stdPrice,
 										'Price' => $rs->Price,
-										'priceDiffPercent' => $rs->priceDiffPercent,
+										'priceDiffPercent' => $rs->Type == 0 ? $rs->priceDiffPercent : 0,
 										'SellPrice' => $rs->sellPrice,
 										'U_DISWEB' => round($rs->U_DISWEB, 2),
 										'DiscPrcnt' => round($rs->DiscPrcnt, 2),
@@ -684,7 +686,7 @@ class Quotation extends PS_Controller
 				else
 				{
 					$sc = FALSE;
-					$this->error = "Update failed : Document already in Darft";
+					$this->error = "Invalid Status : Document already in SAP";
 				}
 			}
 			else
@@ -719,7 +721,8 @@ class Quotation extends PS_Controller
 		$this->title = "Preview Sales Quotation";
 		$this->load->model('stock_model');
 		$header = $this->quotation_model->get($code);
-		$in_draft = $this->quotation_model->is_sap_exists_draft($code);
+		$in_sap = $this->quotation_model->is_sap_exists_code($code);
+
 		if(!empty($header))
 		{
 			$vatRate = getConfig('SALE_VAT_RATE');
@@ -756,7 +759,7 @@ class Quotation extends PS_Controller
 				'sale_name' => $this->user_model->get_saleman_name($header->SlpCode),
 				'logs' => $this->quotation_logs_model->get($code),
 				'can_approve' => $can_approve,
-				'in_draft' => $in_draft
+				'in_sap' => $in_sap
 			);
 
 			$this->load->view('quotation/quotation_detail', $ds);
@@ -807,9 +810,31 @@ class Quotation extends PS_Controller
 
 			if(!empty($item))
 			{
-				$price_list = $this->item_model->price_list($item->code, $PriceList); //--- return AS object with 2 properties (Price , UomEntry)
-				$DfUom = empty($price_list) ? NULL : $price_list->UomEntry;
-				$price = empty($price_list) ? 0.00 : round($price_list->Price, 2);
+				$DfUom = NULL;
+				$price = 0.00;
+				$discount = 0.00;
+				$priceAfDisc = 0.00;
+
+				$spPrice = $this->item_model->get_special_price($item->code, $card_code, $PriceList);
+				if(!empty($spPrice))
+				{
+					$DfUom = $spPrice->UomEntry;
+					$price = round($spPrice->Price, 2);
+					$priceAfDisc = round($spPrice->PriceAfDisc, 2);
+					$discount = round($spPrice->Discount, 2);
+				}
+				else
+				{
+					$price_list = $this->item_model->price_list($item->code, $PriceList); //--- return AS object with 2 properties (Price , UomEntry)
+					if(!empty($price_list))
+					{
+						$DfUom = $price_list->UomEntry;
+						$price = round($price_list->Price, 2);
+						$priceAfDisc = $price;
+						$discount = 0.00;
+					}
+				}
+
 
 				$uom = "";
 				$UomList = $this->item_model->get_uom_list($item->UgpEntry);
@@ -850,6 +875,7 @@ class Quotation extends PS_Controller
 					'taxCode' => $item->taxCode,
 					'taxRate' => $item->taxRate,
 					'price' => $price,
+					'discount' => $discount,
 					'priceDiff' => $price,
 					'lineAmount' => $price,
 					'whsQty' => $whsQty,
@@ -909,13 +935,13 @@ class Quotation extends PS_Controller
 	public function get_address_ship_to_code()
 	{
 		$code = trim($this->input->get('CardCode'));
+		$ds = array();
 		if(!empty($code))
 		{
 			$addr = $this->customers_model->get_address_ship_to_code($code);
 
 			if(!empty($addr))
 			{
-				$ds = array();
 				foreach($addr as $adr)
 				{
 					$arr = array(
@@ -924,10 +950,17 @@ class Quotation extends PS_Controller
 
 					array_push($ds, $arr);
 				}
-
-
-				echo json_encode($ds);
 			}
+			else
+			{
+				$arr = array(
+					'code' =>""
+				);
+
+				array_push($ds, $arr);
+			}
+
+			echo json_encode($ds);
 		}
 	}
 
@@ -955,8 +988,23 @@ class Quotation extends PS_Controller
 					'postcode' => get_empty_text($adr->ZipCode)
 				);
 
-				echo json_encode($arr);
 			}
+			else
+			{
+				$arr = array(
+					'code' => "",
+					'address' => "",
+					'street' => "",
+					'sub_district' => "",
+					'district' => "",
+					'province' => "",
+					'country' => "",
+					'countryName' => "",
+					'postcode' => ""
+				);
+			}
+
+			echo json_encode($arr);
 		}
 	}
 
@@ -965,13 +1013,13 @@ class Quotation extends PS_Controller
 	public function get_address_bill_to_code()
 	{
 		$code = trim($this->input->get('CardCode'));
+		$ds = array();
 		if(!empty($code))
 		{
 			$addr = $this->customers_model->get_address_bill_to_code($code);
 
 			if(!empty($addr))
 			{
-				$ds = array();
 				foreach($addr as $adr)
 				{
 					$arr = array(
@@ -980,10 +1028,17 @@ class Quotation extends PS_Controller
 
 					array_push($ds, $arr);
 				}
-
-
-				echo json_encode($ds);
 			}
+			else
+			{
+				$arr = array(
+					'code' => ""
+				);
+
+				array_push($ds, $arr);
+			}
+
+			echo json_encode($ds);
 		}
 	}
 
@@ -1009,9 +1064,23 @@ class Quotation extends PS_Controller
 					'countryName' => get_empty_text($adr->countryName),
 					'postcode' => get_empty_text($adr->ZipCode)
 				);
-
-				echo json_encode($arr);
 			}
+			else
+			{
+				$arr = array(
+					'code' => "",
+					'address' => "",
+					'street' => "",
+					'sub_district' => "",
+					'district' => "",
+					'province' => "",
+					'country' => "",
+					'countryName' => "",
+					'postcode' => ""
+				);
+			}
+
+			echo json_encode($arr);
 		}
 	}
 
@@ -1141,8 +1210,8 @@ class Quotation extends PS_Controller
 			if($doc->Status != 2 && ($doc->must_approve == 0 OR ($doc->Approved == 'A' OR $doc->Approved == 'S' )))
 			{
 				//---- check SQ already in SAP
-				//$sq = $this->quotation_model->get_sap_quotation($code);
-				$sq = $this->quotation_model->get_sap_quotation_draft($code); //--- check ว่า SQ เข้า draft ไปแล้วหรือยัง
+				$sq = $this->quotation_model->get_sap_quotation($code);
+				//$sq = $this->quotation_model->get_sap_quotation_draft($code); //--- check ว่า SQ เข้า draft ไปแล้วหรือยัง
 
 				if(empty($sq))
 				{
@@ -1187,6 +1256,7 @@ class Quotation extends PS_Controller
 							'CntctCode' => $doc->CntctCode,
 							'Comments' => $doc->Comments,
 							'U_WEBORDER' => $doc->code,
+							'U_ORIGINALSQ' => $doc->U_ORIGINALSQ,
 							'F_Web' => 'A',
 							'F_WebDate' => sap_date(now(), TRUE)
 						);
@@ -1658,17 +1728,16 @@ class Quotation extends PS_Controller
 
 
 		$customer = $this->customers_model->get_sap_contact_data($doc->CardCode);
-		$sale = $this->user_model->get_sale_data($doc->SlpCode);
-		$empName = empty($sale) ? "" : $sale->emp_name;
-		$division_name = empty($sale) ? "" : $this->user_model->get_division_name($sale->division_code);
+		$sale = $this->user_model->get_sap_sale_data($doc->SlpCode);
 		$doc->prefix = empty($doc->BeginStr) ? $this->quotation_model->get_prefix($doc->Series) : $doc->BeginStr;
+		$contact_person = empty($doc->CntctCode) ? "" : $this->customers_model->get_contact_person_name($doc->CntctCode);
 
 		$ds = array(
 			'doc' => $doc,
 			'details' => $details,
 			'customer' => $customer,
-			'empName' => $empName,
-			'division_name' => $division_name,
+			'contact_person' => $contact_person,
+			'sale' => $sale,
 			'show_discount' => TRUE
 		);
 
@@ -1835,7 +1904,7 @@ class Quotation extends PS_Controller
 	public function get_payment_term()
 	{
 		$sc = TRUE;
-		$code = trim($this->input->get('CardCode'));
+		$code = $this->input->get('CardCode');
 
 		if(!empty($code))
 		{
@@ -1892,7 +1961,7 @@ class Quotation extends PS_Controller
 	public function get_new_code($date = NULL)
   {
     $date = empty($date) ? date('Y-m-d') : $date;
-    $Y = date('Y', strtotime($date));
+    $Y = date('y', strtotime($date));
     $M = date('m', strtotime($date));
     $prefix = getConfig('PREFIX_QUOTATION');
     $run_digit = getConfig('RUN_DIGIT_QUOTATION');

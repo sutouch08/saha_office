@@ -1,10 +1,10 @@
 
 <div class="row">
   <div class="col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-striped" style="width:2350px;">
+    <table class="table table-striped" style="table-layout: fixed; min-width: 100%; width:2380px;">
       <thead>
         <tr class="font-size-10">
-          <th class="middle text-center" style="width:20px;">#</th>
+          <th class="middle text-center" style="width:50px;">#</th>
           <th class="middle text-center" style="width:50px;">Type</th>
           <th class="middle" style="width:200px;">Item Code</th>
           <th class="middle" style="width:250px;">Item Description.</th>

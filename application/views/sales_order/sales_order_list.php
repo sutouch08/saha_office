@@ -72,6 +72,8 @@
 			<option value="1" <?php echo is_selected('1', $Status); ?>>Pending</option>
 			<option value="2" <?php echo is_selected('2', $Status); ?>>Success</option>
 			<option value="3" <?php echo is_selected('3', $Status); ?>>Error</option>
+			<option value="4" <?php echo is_selected('4', $Status); ?>>Closed</option>
+			<option value="-1" <?php echo is_selected('-1', $Status); ?>>Canceled</option>
 		</select>
   </div>
 
@@ -149,7 +151,10 @@
 								<button type="button" class="btn btn-minier btn-success btn-block" onclick="viewDetail('<?php echo $rs->code; ?>')">Success</button>
 							<?php endif; ?>
 							<?php if($rs->Status == 4) : ?>
-								<button type="button" class="btn btn-minier btn-info btn-block" onclick="viewDetail('<?php echo $rs->code; ?>')">Draft</button>
+								<button type="button" class="btn btn-minier btn-info btn-block">Closed</button>
+							<?php endif; ?>
+							<?php if($rs->Status == -1) : ?>
+								<button type="button" class="btn btn-minier btn-danger btn-block">Canceled</button>
 							<?php endif; ?>
 							<?php if($rs->Status == 3) : ?>
 								<button type="button" class="btn btn-minier btn-danger btn-block" onclick="viewDetail('<?php echo $rs->code; ?>')">Failed</button>
@@ -163,13 +168,13 @@
 						</td>
 						<td class="middle text-right">
 							<button type="button" class="btn btn-minier btn-primary" title="Preview" onclick="goDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
-							<?php if($rs->Status != 2 && $rs->Status != 4 && $rs->Approved !== 'A' ) : ?>
+							<?php if($rs->Status != 2 && $rs->Status != 4 && $rs->Approved !== 'A' && $rs->Status != -1 ) : ?>
 							<button type="button" class="btn btn-minier btn-warning" title="Edit" onclick="goEdit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil"></i></button>
 							<?php endif; ?>
+							<?php if($rs->Status == 2) : ?>
 							<button type="button" class="btn btn-minier btn-info" title="Print" onclick="printSalesOrder('<?php echo $rs->code; ?>')"><i class="fa fa-print"></i></button>
-							<!--
-							<button type="button" class="btn btn-minier btn-info" title="Print" onclick="chooseLayout('<?php echo $rs->code; ?>')"><i class="fa fa-print"></i></button>
-						-->
+							<?php endif; ?>
+
 						</td>
 					</tr>
 					<?php $no++; ?>

@@ -24,7 +24,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |
 */
 //$doc_folder = 'saha';
-$config['base_url'] = 'http://localhost/saha_office/';
+$config['base_url'] = '/saha_office';
 // $config['image_path'] = 'images/';
 // $config['upload_path'] = 'upload/';
 // $config['company_logo'] = 'images/company/company_logo.png';

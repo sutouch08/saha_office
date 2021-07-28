@@ -19,9 +19,11 @@
     <div class="col-sm-8 col-xs-12 padding-5">
     	<p class="pull-right top-p">
         <button type="button" class="btn btn-xs btn-default" onclick="goBack()"><i class="fa fa-arrow-left"></i> &nbsp; Back</button>
+				<?php if($header->Status == 2) : ?>
 				<button type="button" class="btn btn-xs btn-info" onclick="printSalesOrder('<?php echo $header->code; ?>')"><i class="fa fa-print"></i> ใบสั่งขาย</button>
+				<?php endif; ?>
 				<button type="button" class="btn btn-xs btn-primary" onclick="duplicateSO()"><i class="fa fa-copy"></i> คัดลอกใบสั่งขาย</button>
-				<?php if($header->Approved !== 'A' && !$in_draft) : ?>
+				<?php if($header->Approved !== 'A' && !$in_sap && ($header->Status == 0 OR $header->Status == 1 OR $header->Status == 3)) : ?>
 					<button type="button" class="btn btn-xs btn-warning" onclick="goEdit('<?php echo $header->code; ?>')"><i class="fa fa-pencil"></i> แก้ไข</button>
 				<?php endif; ?>
 				<?php if($header->must_approve == 1 && $header->Approved === 'P' && $can_approve) : ?>
@@ -42,6 +44,14 @@
 <?php $this->load->view('sales_order/sales_order_preview_header'); ?>
 <?php $this->load->view('sales_order/sales_order_preview_detail'); ?>
 <?php $this->load->view('sales_order/sales_order_preview_footer'); ?>
+
+<?php
+	if($header->Status == -1)
+	{
+		$this->load->view('cancle_watermark');
+	}
+	?>
+
 <input type="hidden" name="code" id="code" value="<?php echo $header->code; ?>" />
 <input type="hidden" id="sq-code" value="<?php echo $header->code; ?>" />
 </form>

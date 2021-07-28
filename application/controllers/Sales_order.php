@@ -202,7 +202,7 @@ class Sales_order extends PS_Controller
 							'basePrice' => $rs->basePrice,
 							'stdPrice' => $rs->stdPrice,
 							'Price' => $rs->Price,
-							'priceDiffPercent' => $rs->priceDiffPercent,
+							'priceDiffPercent' => $rs->Type == 0 ? $rs->priceDiffPercent : 0,
 							'SellPrice' => $rs->sellPrice,
 							'U_DISWEB' => round($rs->U_DISWEB, 2),
 							'U_DISCEX' => 0,
@@ -292,7 +292,7 @@ class Sales_order extends PS_Controller
 				$valid_till = date('Y-m-d', strtotime("+30 days"));
 				//--- prepare data
 				$SOCode = $this->get_new_code($date);
-
+				$OriginalSO = $ds->code . (empty($ds->DocNum) ? "": ", ".$ds->DocNum);
 				$arr = array(
 					'code' => $SOCode,
 					'CardCode' => trim($ds->CardCode),
@@ -319,7 +319,7 @@ class Sales_order extends PS_Controller
 					'DocDate' => $date,
 					'DocDueDate' => $valid_till,
 					'TextDate' => $date,
-					'U_ORIGINALSO' => $ds->code,
+					'U_ORIGINALSO' => $OriginalSO,
 					'OwnerCode' => get_null($ds->OwnerCode),
 					'Comments' => get_null($ds->Comments),
 					'user_id' => $this->user->id,
@@ -367,7 +367,7 @@ class Sales_order extends PS_Controller
 								'basePrice' => $rs->basePrice,
 								'stdPrice' => $rs->stdPrice,
 								'Price' => $rs->Price,
-								'priceDiffPercent' => $rs->priceDiffPercent,
+								'priceDiffPercent' => $rs->Type == 0 ? $rs->priceDiffPercent : 0,
 								'SellPrice' => $rs->SellPrice,
 								'U_DISWEB' => $rs->U_DISWEB,
 								'U_DISCEX' => $rs->U_DISCEX,
@@ -481,6 +481,7 @@ class Sales_order extends PS_Controller
 						//---- create sale order
 						$code = $this->get_new_code();
 						$DocDueDate = date('Y-m-d', strtotime("+30 days"));
+						$SQNO = $ds->code .(empty($ds->DocNum) ? "" : ", ". $ds->DocNum);
 						$arr = array(
 							'code' => $code,
 							'CardCode' => trim($ds->CardCode),
@@ -507,7 +508,7 @@ class Sales_order extends PS_Controller
 							'DocDate' => date('Y-m-d'),
 							'DocDueDate' => $DocDueDate,
 							'TextDate' => date('Y-m-d'),
-							'U_SQNO' => $ds->code,
+							'U_SQNO' => $SQNO,
 							'OwnerCode' => get_null($ds->OwnerCode),
 							'Comments' => get_null($ds->Comments),
 							'user_id' => $this->user->id,
@@ -546,7 +547,7 @@ class Sales_order extends PS_Controller
 									'basePrice' => $rs->basePrice,
 									'stdPrice' => $rs->stdPrice,
 									'Price' => $rs->Price,
-									'priceDiffPercent' => $rs->priceDiffPercent,
+									'priceDiffPercent' => $rs->Type == 0 ? $rs->priceDiffPercent : 0,
 									'SellPrice' => $rs->SellPrice,
 									'U_DISWEB' => $rs->U_DISWEB,
 									'U_DISCEX' => $rs->U_DISCEX,
@@ -636,9 +637,9 @@ class Sales_order extends PS_Controller
 
 	function edit($code)
 	{
-		$in_darft = $this->sales_order_model->is_sap_exists_draft($code);
+		$in_sap = $this->sales_order_model->is_sap_exists_code($code);
 
-		if(!$in_darft)
+		if(!$in_sap)
 		{
 			$this->title = "Edit Sales Order";
 			$this->load->model('stock_model');
@@ -689,7 +690,7 @@ class Sales_order extends PS_Controller
 		}
 		else
 		{
-			set_error("Sales Order already in draft");
+			set_error("Sales Order already in SAP");
 			redirect("{$this->home}/view_detail/{$code}");
 		}
 
@@ -712,7 +713,7 @@ class Sales_order extends PS_Controller
 			//--- Approved A = Approved, P = pendign R = Rejected, S = No need to Approved
 			if($doc->Status != 2 )
 			{
-				$in_sap = $this->sales_order_model->is_sap_exists_draft($code);
+				$in_sap = $this->sales_order_model->is_sap_exists_code($code);
 
 				if(! $in_sap)
 				{
@@ -801,7 +802,7 @@ class Sales_order extends PS_Controller
 										'basePrice' => $rs->basePrice,
 										'stdPrice' => $rs->stdPrice,
 										'Price' => $rs->Price,
-										'priceDiffPercent' => $rs->priceDiffPercent,
+										'priceDiffPercent' => $rs->Type == 0 ? $rs->priceDiffPercent : 0,
 										'SellPrice' => $rs->sellPrice,
 										'U_DISWEB' => round($rs->U_DISWEB, 2),
 										'DiscPrcnt' => round($rs->DiscPrcnt, 2),
@@ -902,7 +903,7 @@ class Sales_order extends PS_Controller
 		$this->title = "Preview Sales Order";
 		$this->load->model('stock_model');
 		$header = $this->sales_order_model->get($code);
-		$in_draft = $this->sales_order_model->is_sap_exists_draft($code);
+		$in_sap = $this->sales_order_model->is_sap_exists_code($code);
 		if(!empty($header))
 		{
 			$vatRate = getConfig('SALE_VAT_RATE');
@@ -939,7 +940,7 @@ class Sales_order extends PS_Controller
 				'sale_name' => $this->user_model->get_saleman_name($header->SlpCode),
 				'logs' => $this->sales_order_logs_model->get($code),
 				'can_approve' => $can_approve,
-				'in_draft' => $in_draft
+				'in_sap' => $in_sap
 			);
 
 			$this->load->view('sales_order/sales_order_detail', $ds);
@@ -992,9 +993,30 @@ class Sales_order extends PS_Controller
 
 			if(!empty($item))
 			{
-				$price_list = $this->item_model->price_list($item->code, $PriceList); //--- return AS object with 2 properties (Price , UomEntry)
-				$DfUom = empty($price_list) ? NULL : $price_list->UomEntry;
-				$price = empty($price_list) ? 0.00 : round($price_list->Price, 2);
+				$DfUom = NULL;
+				$price = 0.00;
+				$discount = 0.00;
+				$priceAfDisc = 0.00;
+
+				$spPrice = $this->item_model->get_special_price($item->code, $card_code, $PriceList);
+				if(!empty($spPrice))
+				{
+					$DfUom = $spPrice->UomEntry;
+					$price = round($spPrice->Price, 2);
+					$priceAfDisc = round($spPrice->PriceAfDisc, 2);
+					$discount = round($spPrice->Discount, 2);
+				}
+				else
+				{
+					$price_list = $this->item_model->price_list($item->code, $PriceList); //--- return AS object with 2 properties (Price , UomEntry)
+					if(!empty($price_list))
+					{
+						$DfUom = $price_list->UomEntry;
+						$price = round($price_list->Price, 2);
+						$priceAfDisc = $price;
+						$discount = 0.00;
+					}
+				}
 
 				$uom = "";
 				$UomList = $this->item_model->get_uom_list($item->UgpEntry);
@@ -1036,6 +1058,7 @@ class Sales_order extends PS_Controller
 					'taxRate' => $item->taxRate,
 					'price' => $price,
 					'priceDiff' => $price,
+					'discount' => $discount,
 					'lineAmount' => $price,
 					'whsQty' => $whsQty,
 					'commitQty' => $commitQty,
@@ -1095,6 +1118,8 @@ class Sales_order extends PS_Controller
 	public function get_address_ship_to_code()
 	{
 		$code = trim($this->input->get('CardCode'));
+		$ds = array();
+
 		if(!empty($code))
 		{
 			$addr = $this->customers_model->get_address_ship_to_code($code);
@@ -1110,11 +1135,18 @@ class Sales_order extends PS_Controller
 
 					array_push($ds, $arr);
 				}
+			}
+			else
+			{
+				$arr = array(
+					'code' => ""
+				);
 
-
-				echo json_encode($ds);
+				array_push($ds, $arr);
 			}
 		}
+
+		echo json_encode($ds);
 	}
 
 
@@ -1140,9 +1172,23 @@ class Sales_order extends PS_Controller
 					'countryName' => get_empty_text($adr->countryName),
 					'postcode' => get_empty_text($adr->ZipCode)
 				);
-
-				echo json_encode($arr);
 			}
+			else
+			{
+				$arr = array(
+					'code' => "",
+					'address' => "",
+					'street' => "",
+					'sub_district' => "",
+					'district' => "",
+					'province' => "",
+					'country' => "",
+					'countryName' => "",
+					'postcode' => ""
+				);
+			}
+
+			echo json_encode($arr);
 		}
 	}
 
@@ -1151,6 +1197,8 @@ class Sales_order extends PS_Controller
 	public function get_address_bill_to_code()
 	{
 		$code = trim($this->input->get('CardCode'));
+		$ds = array();
+
 		if(!empty($code))
 		{
 			$addr = $this->customers_model->get_address_bill_to_code($code);
@@ -1166,11 +1214,18 @@ class Sales_order extends PS_Controller
 
 					array_push($ds, $arr);
 				}
+			}
+			else
+			{
+				$arr = array(
+					'code' => ""
+				);
 
-
-				echo json_encode($ds);
+				array_push($ds, $arr);
 			}
 		}
+
+		echo json_encode($ds);
 	}
 
 
@@ -1195,9 +1250,23 @@ class Sales_order extends PS_Controller
 					'countryName' => get_empty_text($adr->countryName),
 					'postcode' => get_empty_text($adr->ZipCode)
 				);
-
-				echo json_encode($arr);
 			}
+			else
+			{
+				$arr = array(
+					'code' => "",
+					'address' => "",
+					'street' => "",
+					'sub_district' => "",
+					'district' => "",
+					'province' => "",
+					'country' => "",
+					'countryName' => "",
+					'postcode' => ""
+				);
+			}
+
+			echo json_encode($ds);
 		}
 	}
 
@@ -1327,8 +1396,8 @@ class Sales_order extends PS_Controller
 			if($doc->Status != 2 && ($doc->must_approve == 0 OR ($doc->Approved == 'A' OR $doc->Approved == 'S' )))
 			{
 				//---- check SQ already in SAP
-				//$sq = $this->sales_order_model->get_sap_sales_order($code);
-				$sq = $this->sales_order_model->get_sap_sales_order_draft($code); //--- check ว่า SQ เข้า draft ไปแล้วหรือยัง
+				$sq = $this->sales_order_model->get_sap_sales_order($code);
+				//$sq = $this->sales_order_model->get_sap_sales_order_draft($code); //--- check ว่า SQ เข้า draft ไปแล้วหรือยัง
 
 				if(empty($sq))
 				{
@@ -1373,6 +1442,8 @@ class Sales_order extends PS_Controller
 							'CntctCode' => $doc->CntctCode,
 							'Comments' => $doc->Comments,
 							'U_WEBORDER' => $doc->code,
+							'U_ORIGINALSO' => $doc->U_ORIGINALSO,
+							'U_SQNO' => $doc->U_SQNO,
 							'F_Web' => 'A',
 							'F_WebDate' => sap_date(now(), TRUE)
 						);
@@ -1816,6 +1887,7 @@ class Sales_order extends PS_Controller
 
 	public function print_sales_order($code)
 	{
+		$this->load->model('stock_model');
 		$this->load->library('printer');
 		$doc = $this->sales_order_model->get($code);
 		$detail = $this->sales_order_model->get_details($code);
@@ -1837,6 +1909,11 @@ class Sales_order extends PS_Controller
 				{
 					$rs->UomName = $this->item_model->get_uom_name($rs->UomCode);
 					$details[$no] = $rs;
+
+					$stock = $this->stock_model->get_stock_zone_qty($rs->ItemCode, $rs->WhsCode);
+
+					$rs->zone_code = empty($stock) ? NULL : $stock->zone_code;
+					$rs->InStock = empty($stock) ? 0 : $stock->qty;
 					$no++;
 				}
 			}
@@ -1844,18 +1921,17 @@ class Sales_order extends PS_Controller
 
 
 		$customer = $this->customers_model->get_sap_contact_data($doc->CardCode);
-		$sale = $this->user_model->get_sale_data($doc->SlpCode);
-		$empName = empty($sale) ? "" : $sale->emp_name;
-		$division_name = empty($sale) ? "" : $this->user_model->get_division_name($sale->division_code);
+		$sale = $this->user_model->get_sap_sale_data($doc->SlpCode);
 		$doc->prefix = empty($doc->BeginStr) ? $this->sales_order_model->get_prefix($doc->Series) : $doc->BeginStr;
-		$doc->SQNO = empty($doc->U_SQNO) ? "" : get_quotation_reference($doc->U_SQNO);
+		$contact_person = empty($doc->CntctCode) ? "" : $this->customers_model->get_contact_person_name($doc->CntctCode);
+		$doc->reference = !empty($doc->NumAtCard) ? $doc->NumAtCard : $doc->U_SQNO;
 
 		$ds = array(
 			'doc' => $doc,
 			'details' => $details,
 			'customer' => $customer,
-			'empName' => $empName,
-			'division_name' => $division_name,
+			'contact_person' => $contact_person,
+			'sale' => $sale,
 			'show_discount' => TRUE
 		);
 
@@ -1864,51 +1940,51 @@ class Sales_order extends PS_Controller
 
 
 
-	public function print_sales_order_no_discount($code)
-	{
-		$this->load->library('printer');
-		$doc = $this->sales_order_model->get($code);
-		$detail = $this->sales_order_model->get_details($code);
-
-		$details = array();
-
-
-		if(!empty($detail))
-		{
-			$no = 0;
-			foreach($detail as $rs)
-			{
-				if($rs->Type == 1 && $no > 0)
-				{
-					$noo = $no -1;
-					$details[$noo]->Dscription .= PHP_EOL.$rs->LineText;
-				}
-				else
-				{
-					$rs->UomName = $this->item_model->get_uom_name($rs->UomCode);
-					$details[$no] = $rs;
-					$no++;
-				}
-			}
-		}
-
-		$customer = $this->customers_model->get_sap_contact_data($doc->CardCode);
-		$sale = $this->user_model->get_sale_data($doc->SlpCode);
-		$empName = empty($sale) ? "" : $sale->emp_name;
-		$division_name = empty($sale) ? "" : $this->user_model->get_division_name($sale->division_code);
-		$doc->prefix = empty($doc->BeginStr) ? $this->sales_order_model->get_prefix($doc->Series) : $doc->BeginStr;
-
-		$ds = array(
-			'doc' => $doc,
-			'details' => $details,
-			'customer' => $customer,
-			'empName' => $empName,
-			'division_name' => $division_name,
-			'show_discount' => FALSE
-		);
-
-		$this->load->view('print/print_sales_order', $ds);
-	}
+	// public function print_sales_order_no_discount($code)
+	// {
+	// 	$this->load->library('printer');
+	// 	$doc = $this->sales_order_model->get($code);
+	// 	$detail = $this->sales_order_model->get_details($code);
+	//
+	// 	$details = array();
+	//
+	//
+	// 	if(!empty($detail))
+	// 	{
+	// 		$no = 0;
+	// 		foreach($detail as $rs)
+	// 		{
+	// 			if($rs->Type == 1 && $no > 0)
+	// 			{
+	// 				$noo = $no -1;
+	// 				$details[$noo]->Dscription .= PHP_EOL.$rs->LineText;
+	// 			}
+	// 			else
+	// 			{
+	// 				$rs->UomName = $this->item_model->get_uom_name($rs->UomCode);
+	// 				$details[$no] = $rs;
+	// 				$no++;
+	// 			}
+	// 		}
+	// 	}
+	//
+	// 	$customer = $this->customers_model->get_sap_contact_data($doc->CardCode);
+	// 	$sale = $this->user_model->get_sale_data($doc->SlpCode);
+	// 	$empName = empty($sale) ? "" : $sale->emp_name;
+	// 	$division_name = empty($sale) ? "" : $this->user_model->get_division_name($sale->division_code);
+	// 	$doc->prefix = empty($doc->BeginStr) ? $this->sales_order_model->get_prefix($doc->Series) : $doc->BeginStr;
+	//
+	// 	$ds = array(
+	// 		'doc' => $doc,
+	// 		'details' => $details,
+	// 		'customer' => $customer,
+	// 		'empName' => $empName,
+	// 		'division_name' => $division_name,
+	// 		'show_discount' => FALSE
+	// 	);
+	//
+	// 	$this->load->view('print/print_sales_order', $ds);
+	// }
 
 
 
@@ -2079,7 +2155,7 @@ class Sales_order extends PS_Controller
 	public function get_new_code($date = NULL)
   {
     $date = empty($date) ? date('Y-m-d') : $date;
-    $Y = date('Y', strtotime($date));
+    $Y = date('y', strtotime($date));
     $M = date('m', strtotime($date));
     $prefix = getConfig('PREFIX_SALES_ORDER');
     $run_digit = getConfig('RUN_DIGIT_SALES_ORDER');

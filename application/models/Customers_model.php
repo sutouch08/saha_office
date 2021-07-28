@@ -22,7 +22,7 @@ class Customers_model extends CI_Model
   public function get_sap_contact_data($code)
   {
     $rs = $this->ms
-    ->select('OCRD.Phone1, OCRD.Phone2, OCRD.Cellular, OCRD.Fax, OCRD.E_Mail')
+    ->select('OCRD.LicTradNum, OCRD.Phone1, OCRD.Phone2, OCRD.Cellular, OCRD.Fax, OCRD.E_Mail')
     ->select('OCTG.PymntGroup, OCTG.ExtraDays AS term')
     ->from('OCRD')
     ->JOIN('OCTG', 'OCRD.GroupNum = OCTG.GroupNum', 'left')
@@ -326,6 +326,21 @@ class Customers_model extends CI_Model
     if($rs->num_rows() > 0)
     {
       return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+
+
+  public function get_contact_person_name($id)
+  {
+    $rs = $this->ms->select('Name AS name')->where('CntctCode', $id)->get('OCPR');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->name;
     }
 
     return NULL;

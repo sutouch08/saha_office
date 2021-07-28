@@ -222,7 +222,7 @@ function saveAdd() {
 				if(ds.result === 'success') {
 					swal({
 						title:'Success',
-						text:'Insert new Quotation successfully',
+						text:'Create successfully',
 						type:'success',
 						timer:1000
 					});
@@ -480,7 +480,7 @@ function update() {
 				if(ds.result === 'success') {
 					swal({
 						title:'Success',
-						text:'Insert new Quotation successfully',
+						text:'Update successfully',
 						type:'success',
 						timer:1000
 					});
@@ -724,7 +724,7 @@ function get_address_ship_to_code(code)
 				get_address_ship_to();
 			}
 			else {
-				console.log(rs);
+				$('#shipToCode').html('');
 			}
 		}
 	})
@@ -764,19 +764,6 @@ function get_address_ship_to() {
 				let adr = address + street + sub_district + district + province + postcode + country;
 
 				$('#ShipTo').val(adr);
-
-			}
-			else {
-				$('#s_address').val('');
-				$('#sBlock').val('');
-				$('#sStreet').val('');
-				$('#sSubDistrict').val('');
-				$('#sDistrict').val('');
-				$('#sProvince').val('');
-				$('#sCountry').val('');
-				$('#sPostCode').val('');
-
-				$('#ShipTo').val('');
 			}
 		}
 	})
@@ -808,7 +795,7 @@ function get_address_bill_to_code(code)
 				get_address_bill_to();
 			}
 			else {
-				console.log(rs);
+				$('#billToCode').html('');
 			}
 		}
 	})
@@ -969,6 +956,7 @@ function getItemData(code, no) {
 				$('#stdPrice-'+no).val(addCommas(price.toFixed(2)));
 				$('#price-'+no).val(addCommas(price.toFixed(2)));
 				$('#priceDiff-'+no).val(addCommas(price.toFixed(2)));
+				$('#disc1-'+no).val(ds.discount);
 				$('#taxCode-'+no).val(ds.taxCode);
 				$('#taxCode-'+no).data('rate', ds.taxRate);
 				$('#lineAmount-'+no).val(addCommas(lineAmount.toFixed(2)));

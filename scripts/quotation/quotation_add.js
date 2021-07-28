@@ -438,7 +438,7 @@ function update() {
 					"LineTotal" : 0,
 					"WhsCode" : "",
 					"VatPrcnt" : 0,
-					"VatGroup" : "", 
+					"VatGroup" : "",
 					"U_DISWEB" : 0,
 					"U_DISCEX" : 0,
 					"LineText" : text,
@@ -692,7 +692,7 @@ function get_contact_person(code) {
 				render(source, data, output);
 			}
 			else {
-				console.log(rs);
+				$('#Contact').html('');
 			}
 		}
 	});
@@ -724,7 +724,7 @@ function get_address_ship_to_code(code)
 				get_address_ship_to();
 			}
 			else {
-				console.log(rs);
+				$('#shipToCode').html('');
 			}
 		}
 	})
@@ -766,18 +766,6 @@ function get_address_ship_to() {
 				$('#ShipTo').val(adr);
 
 			}
-			else {
-				$('#s_address').val('');
-				$('#sBlock').val('');
-				$('#sStreet').val('');
-				$('#sSubDistrict').val('');
-				$('#sDistrict').val('');
-				$('#sProvince').val('');
-				$('#sCountry').val('');
-				$('#sPostCode').val('');
-
-				$('#ShipTo').val('');
-			}
 		}
 	})
 }
@@ -808,7 +796,7 @@ function get_address_bill_to_code(code)
 				get_address_bill_to();
 			}
 			else {
-				console.log(rs);
+				$('#billToCode').html('');
 			}
 		}
 	})
@@ -969,6 +957,7 @@ function getItemData(code, no) {
 				$('#stdPrice-'+no).val(addCommas(price.toFixed(2)));
 				$('#price-'+no).val(addCommas(price.toFixed(2)));
 				$('#priceDiff-'+no).val(addCommas(price.toFixed(2)));
+				$('#disc1-'+no).val(ds.discount);
 				$('#taxCode-'+no).val(ds.taxCode);
 				$('#taxCode-'+no).data('rate', ds.taxRate);
 				$('#lineAmount-'+no).val(addCommas(lineAmount.toFixed(2)));

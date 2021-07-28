@@ -8,8 +8,6 @@ class Clear_sync_logs extends CI_Controller
   public function __construct()
   {
     parent::__construct();
-    $this->ms = $this->load->database('ms', TRUE); //--- SAP database
-    $this->mc = $this->load->database('mc', TRUE); //--- Temp Database
   }
 
 

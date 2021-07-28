@@ -72,6 +72,8 @@
 			<option value="1" <?php echo is_selected('1', $Status); ?>>Pending</option>
 			<option value="2" <?php echo is_selected('2', $Status); ?>>Success</option>
 			<option value="3" <?php echo is_selected('3', $Status); ?>>Error</option>
+			<option value="4" <?php echo is_selected('4', $Status); ?>>Closed</option>
+			<option value="-1" <?php echo is_selected('-1', $Status); ?>>Canceled</option>
 		</select>
   </div>
 
@@ -149,7 +151,7 @@
 								<button type="button" class="btn btn-minier btn-success btn-block" onclick="viewDetail('<?php echo $rs->code; ?>')">Success</button>
 							<?php endif; ?>
 							<?php if($rs->Status == 4) : ?>
-								<button type="button" class="btn btn-minier btn-info btn-block" onclick="viewDetail('<?php echo $rs->code; ?>')">Draft</button>
+								<button type="button" class="btn btn-minier btn-info btn-block">Closed</button>
 							<?php endif; ?>
 							<?php if($rs->Status == 3) : ?>
 								<button type="button" class="btn btn-minier btn-danger btn-block" onclick="viewDetail('<?php echo $rs->code; ?>')">Failed</button>
@@ -157,16 +159,21 @@
 							<?php if($rs->Status == 1) : ?>
 								<button type="button" class="btn btn-minier btn-warning btn-block" onclick="viewDetail('<?php echo $rs->code; ?>')">Pending</button>
 							<?php endif; ?>
+							<?php if($rs->Status == -1) : ?>
+								<button type="button" class="btn btn-minier btn-danger btn-block">Canceled</button>
+							<?php endif; ?>
 							<?php if($rs->Status == 0) : ?>
 								<span class="label label-danger">Not Export</span>
 							<?php endif; ?>
 						</td>
 						<td class="middle text-right">
 							<button type="button" class="btn btn-minier btn-primary" title="Preview" onclick="goDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
-							<?php if($rs->Status != 2 && $rs->Status != 4 && $rs->Approved !== 'A' ) : ?>
+							<?php if($rs->Status != -1 && $rs->Status != 2 && $rs->Status != 4 && $rs->Approved !== 'A' ) : ?>
 							<button type="button" class="btn btn-minier btn-warning" title="Edit" onclick="goEdit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil"></i></button>
 							<?php endif; ?>
-							<button type="button" class="btn btn-minier btn-info" title="Print" onclick="chooseLayout('<?php echo $rs->code; ?>')"><i class="fa fa-print"></i></button>
+							<?php if($rs->Status == 2) : ?>
+							<button type="button" class="btn btn-minier btn-info" title="Print" onclick="printQuotation('<?php echo $rs->code; ?>')"><i class="fa fa-print"></i></button>
+							<?php endif; ?>
 						</td>
 					</tr>
 					<?php $no++; ?>
@@ -189,24 +196,6 @@
 	</div>
 </div>
 
-<div class="modal fade" id="printModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog" style="max-width:350px;">
-        <div class="modal-content">
-            <div class="modal-header" style="padding-bottom:15px; padding-right:15px; min-height:30px;">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            </div>
-            <div class="modal-body" style="padding-top:5px;">
-            <div class="row">
-              <div class="col-sm-12 col-xs-12 text-center">
-								<input type="hidden" id="sq-code" value="" />
-								<button type="button" class="btn btn-sm btn-primary" onclick="printQuotation('normal')">ใบเสนอราคา</button>
-								<button type="button" class="btn btn-sm btn-primary" onclick="printQuotation('nodiscount')">ใบเสนอราคา(ไม่โชว์ส่วนลด)</button>
-            </div>
-        </div>
-    </div>
-  </div>
-</div>
-</div>
 
 <div class="modal fade" id="tempModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog" style="max-width:800px;">

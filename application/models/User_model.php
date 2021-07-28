@@ -432,6 +432,19 @@ class User_model extends CI_Model
   }
 
 
+  public function get_sap_sale_data($SlpCode)
+  {
+    $rs = $this->ms->where('SlpCode', $SlpCode)->get('OSLP');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
+
 } //---- End class
 
  ?>

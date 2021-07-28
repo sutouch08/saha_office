@@ -73,5 +73,27 @@ class Stock_model extends CI_Model
 
 
 
+  public function get_stock_zone_qty($itemCode, $WhsCode)
+  {
+    $rs = $this->ms
+    ->select('OBIN.SL1Code AS zone_code')
+    ->select('OIBQ.OnHandQty AS qty')
+    ->from('OIBQ')
+    ->join('OBIN', 'OIBQ.BinAbs = OBIN.AbsEntry')
+    ->where('OIBQ.ItemCode', $itemCode)
+    ->where('OIBQ.WhsCode', $WhsCode)
+    ->order_by('OIBQ.OnHandQty', 'DESC')
+    ->limit(1)
+    ->get();
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
+
 }
 ?>

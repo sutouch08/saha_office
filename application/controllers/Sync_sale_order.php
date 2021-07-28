@@ -1,5 +1,5 @@
 <?php
-class Sync_quotation extends CI_Controller
+class Sync_sale_order extends CI_Controller
 {
   public $ms;
   public $mc;

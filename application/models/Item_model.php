@@ -40,6 +40,38 @@ class Item_model extends CI_Model
   }
 
 
+  public function get_special_price($ItemCode, $CardCode, $PriceList)
+  {
+    $rs = $this->ms
+    ->select('ITM1.Price AS Price')
+    ->select('OSPP.Price AS PriceAfDisc')
+    ->select('OSPP.Discount')
+    ->select('ITM1.UomEntry')
+    ->from('OSPP')
+    ->join('ITM1', 'OSPP.ItemCode = ITM1.ItemCode AND ITM1.PriceList = OSPP.ListNum', 'left')
+    ->where('OSPP.ItemCode', $ItemCode)
+    ->where('OSPP.CardCode', $CardCode)
+    ->where('OSPP.ListNum', $PriceList)
+    ->where('OSPP.Valid', 'Y')
+    ->group_start()
+    ->where('OSPP.ValidFrom <=', from_date())
+    ->or_where('OSPP.ValidFrom IS NULL', NULL, FALSE)
+    ->group_end()
+    ->group_start()
+    ->where('OSPP.ValidTo >=', to_date())
+    ->or_where('OSPP.ValidTo IS NULL', NULL, FALSE)
+    ->group_end()
+    ->get();
+
+    if($rs->num_rows() == 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
+
 
   public function get_uom_list($UgpEntry)
   {

@@ -218,22 +218,13 @@ function getDelete(code)
 }
 
 
-function chooseLayout(code) {
-  $('#sq-code').val(code);
-  $('#printModal').modal('show');
-}
 
-
-function printQuotation(layout) {
+function printQuotation(code) {
   //--- properties for print
-  var code = $('#sq-code').val();
   var prop 		= "width=800, height=900. left="+center+", scrollbars=yes";
   var center  = ($(document).width() - 800)/2;
   var target  = HOME + 'print_quotation/'+code;
-  if(layout === 'nodiscount') {
-    target = HOME + 'print_quotation_no_discount/'+code;
-  }
-
+  
   window.open(target, '_blank', prop);
 }
 

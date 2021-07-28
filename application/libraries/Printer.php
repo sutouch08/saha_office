@@ -81,7 +81,7 @@ class Printer
 										}
 
 										.content-table > tbody > tr {
-											height:10mm;
+											height:5mm;
 										}
 										.content-table > tbody > tr:last-child {
 											height: auto;
@@ -343,31 +343,38 @@ class Printer
 
 
 
-	public function page_end()
+	public function page_end($addr = TRUE)
 	{
+		if($addr)
+		{
+			$phone = getConfig('COMPANY_PHONE');
+			$fax = getConfig('COMPANY_FAX');
+			$email = getConfig('COMPANY_EMAIL');
+			$line = getConfig('COMPANY_LINE');
+			$facebook = getConfig('COMPANY_FACEBOOK');
+			$website = getConfig('COMPANY_WEBSITE');
 
-		$phone = getConfig('COMPANY_PHONE');
-		$fax = getConfig('COMPANY_FAX');
-		$email = getConfig('COMPANY_EMAIL');
-		$line = getConfig('COMPANY_LINE');
-		$facebook = getConfig('COMPANY_FACEBOOK');
-		$website = getConfig('COMPANY_WEBSITE');
-
-		$page  = "<div style='width:100%; margin:auto; position:absolute; bottom:15px;'>";
-		$page .= "<div style='width:180mm; margin:auto; text-align:center; font-size:12px; padding-top:5px;'>";
-		$page .= getConfig('COMPANY_FULL_NAME')." ".getConfig('COMPANY_ADDRESS1')." ";
-		$page .= getConfig('COMPANY_ADDRESS2')." ".getConfig('COMPANY_POST_CODE')." Tax ID ".getConfig('COMPANY_TAX_ID');
-		$page .= "</div>";
-		$page .= "<div style='width:180mm; margin:auto; text-align:center; font-size:12px;'>";
-		$page .= (empty($phone) ? "" : "<span style='margin-left:10px; margin-right:10px;'><i class='fas fa-phone-alt'></i>&nbsp; ".$phone."</span>");
-		$page .= (empty($fax) ? "" : "<span style='margin-left:10px; margin-right:10px;'><i class='fa fa-fax'></i>&nbsp; ".$fax."</span>");
-		$page .= (empty($line) ? "" : "<span style='margin-left:10px; margin-right:10px;'><i class='fab fa-line'></i>&nbsp;".$line."</span>");
-		$page .= (empty($facebook) ? "" : "<span style='margin-left:10px; margin-right:10px;'><i class='fab fa-facebook'></i>&nbsp; ".$facebook."</span>");
-		$page .= (empty($website) ? "" : "<span style='margin-left:10px; margin-right:10px;'><i class='fab fa-chrome'></i>&nbsp; ".$website."</span>");
-		$page .= "</div>";
-		$page .= "</div>";
-		$page .= "</div><div class='hidden-print' style='height: 5mm; width:".$this->page_width."'></div>";
-		return $page;
+			$page  = "<div style='width:100%; margin:auto; position:absolute; bottom:15px;'>";
+			$page .= "<div style='width:180mm; margin:auto; text-align:center; font-size:12px; padding-top:5px;'>";
+			$page .= getConfig('COMPANY_FULL_NAME')." ".getConfig('COMPANY_ADDRESS1')." ";
+			$page .= getConfig('COMPANY_ADDRESS2')." ".getConfig('COMPANY_POST_CODE')." Tax ID ".getConfig('COMPANY_TAX_ID');
+			$page .= "</div>";
+			$page .= "<div style='width:180mm; margin:auto; text-align:center; font-size:12px;'>";
+			$page .= (empty($phone) ? "" : "<span style='margin-left:10px; margin-right:10px;'><i class='fas fa-phone-alt'></i>&nbsp; ".$phone."</span>");
+			$page .= (empty($fax) ? "" : "<span style='margin-left:10px; margin-right:10px;'><i class='fa fa-fax'></i>&nbsp; ".$fax."</span>");
+			$page .= (empty($line) ? "" : "<span style='margin-left:10px; margin-right:10px;'><i class='fab fa-line'></i>&nbsp;".$line."</span>");
+			$page .= (empty($facebook) ? "" : "<span style='margin-left:10px; margin-right:10px;'><i class='fab fa-facebook'></i>&nbsp; ".$facebook."</span>");
+			$page .= (empty($website) ? "" : "<span style='margin-left:10px; margin-right:10px;'><i class='fab fa-chrome'></i>&nbsp; ".$website."</span>");
+			$page .= "</div>";
+			$page .= "</div>";
+			$page .= "</div>";
+			$page .= "<div class='hidden-print' style='height: 5mm; width:".$this->page_width."'></div>";
+			return $page;
+		}
+		else
+		{
+			return "</div><div class='hidden-print' style='height: 5mm; width:".$this->page_width."'></div>";
+		}
 	}
 
 
