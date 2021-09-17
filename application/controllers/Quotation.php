@@ -26,17 +26,19 @@ class Quotation extends PS_Controller
 		$this->update_status(100);
 
 		$filter = array(
-			'WebCode' => get_filter('WebCode', 'WebCode', ''),
-			'DocNum' => get_filter('DocNum', 'DocNum', ''),
-			'CardCode' => get_filter('CardCode', 'CardCode', ''),
-			'SaleName' => get_filter('SaleName', 'SaleName', ''),
-			'CustRef' => get_filter('CustRef', 'CustRef', ''),
-			'Approved' => get_filter('Approved', 'Approved', 'all'),
-			'Status' => get_filter('Status', 'Status', 'all'),
-			'fromDate' => get_filter('fromDate', 'fromDate', ''),
-			'toDate' => get_filter('toDate', 'toDate', ''),
-			'order_by' => get_filter('order_by', 'order_by', 'code'),
-			'sort_by' => get_filter('sort_by', 'sort_by', 'DESC'),
+			'WebCode' => get_filter('WebCode', 'sq_WebCode', ''),
+			'DocNum' => get_filter('DocNum', 'sq_DocNum', ''),
+			'SoNo' => get_filter('SoNo', 'sq_SoNo', ''),
+			'CardCode' => get_filter('CardCode', 'sq_CardCode', ''),
+			'SaleName' => get_filter('SaleName', 'sq_SaleName', ''),
+			'CustRef' => get_filter('CustRef', 'sq_CustRef', ''),
+			'Approved' => get_filter('Approved', 'sq_Approved', 'all'),
+			'SapStatus' => get_filter('SapStatus', 'sq_SapStatus', 'all'),
+			'Status' => get_filter('Status', 'sq_Status', 'all'),
+			'fromDate' => get_filter('fromDate', 'sq_fromDate', ''),
+			'toDate' => get_filter('toDate', 'sq_toDate', ''),
+			'order_by' => get_filter('order_by', 'sq_order_by', 'code'),
+			'sort_by' => get_filter('sort_by', 'sq_sort_by', 'DESC'),
 		);
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -720,8 +722,10 @@ class Quotation extends PS_Controller
 	{
 		$this->title = "Preview Sales Quotation";
 		$this->load->model('stock_model');
+		$this->load->model('sales_order_model');
 		$header = $this->quotation_model->get($code);
 		$in_sap = $this->quotation_model->is_sap_exists_code($code);
+		$in_so = $this->sales_order_model->is_exists_sq($code);
 
 		if(!empty($header))
 		{
@@ -759,7 +763,8 @@ class Quotation extends PS_Controller
 				'sale_name' => $this->user_model->get_saleman_name($header->SlpCode),
 				'logs' => $this->quotation_logs_model->get($code),
 				'can_approve' => $can_approve,
-				'in_sap' => $in_sap
+				'in_sap' => $in_sap,
+				'in_so' => $in_so
 			);
 
 			$this->load->view('quotation/quotation_detail', $ds);
@@ -1985,18 +1990,20 @@ class Quotation extends PS_Controller
   public function clear_filter()
 	{
 		$filter = array(
-			'WebCode',
-			'DocNum',
-			'CardCode',
-			'CardName',
-			'SaleName',
-			'CustRef',
-			'Approved',
-			'Status',
-			'fromDate',
-			'toDate',
-			'order_by',
-			'sort_by'
+			'sq_WebCode',
+			'sq_DocNum',
+			'sq_SoNo',
+			'sq_CardCode',
+			'sq_CardName',
+			'sq_SaleName',
+			'sq_CustRef',
+			'sq_Approved',
+			'sq_SapStatus',
+			'sq_Status',
+			'sq_fromDate',
+			'sq_toDate',
+			'sq_order_by',
+			'sq_sort_by'
 		);
 
 		clear_filter($filter);

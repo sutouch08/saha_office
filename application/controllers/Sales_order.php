@@ -23,20 +23,24 @@ class Sales_order extends PS_Controller
 
   public function index()
   {
-		$this->update_status(100);
+		//$this->update_status(100);
 
 		$filter = array(
-			'WebCode' => get_filter('WebCode', 'WebCode', ''),
-			'DocNum' => get_filter('DocNum', 'DocNum', ''),
-			'CardCode' => get_filter('CardCode', 'CardCode', ''),
-			'SaleName' => get_filter('SaleName', 'SaleName', ''),
-			'CustRef' => get_filter('CustRef', 'CustRef', ''),
-			'Approved' => get_filter('Approved', 'Approved', 'all'),
-			'Status' => get_filter('Status', 'Status', 'all'),
-			'fromDate' => get_filter('fromDate', 'fromDate', ''),
-			'toDate' => get_filter('toDate', 'toDate', ''),
-			'order_by' => get_filter('order_by', 'order_by', 'code'),
-			'sort_by' => get_filter('sort_by', 'sort_by', 'DESC'),
+			'WebCode' => get_filter('WebCode', 'so_WebCode', ''),
+			'DocNum' => get_filter('DocNum', 'so_DocNum', ''),
+			'SqNo' => get_filter('SqNo', 'so_SqNo', ''),
+			'DeliveryNo' => get_filter('DeliveryNo', 'so_DeliveryNo', ''),
+			'InvoiceNo' => get_filter('InvoiceNo', 'so_InvoiceNo', ''),
+			'CardCode' => get_filter('CardCode', 'so_CardCode', ''),
+			'SaleName' => get_filter('SaleName', 'so_SaleName', ''),
+			'CustRef' => get_filter('CustRef', 'so_CustRef', ''),
+			'Approved' => get_filter('Approved', 'so_Approved', 'all'),
+			'SapStatus' => get_filter('SapStatus', 'so_SapStatus', 'all'),
+			'Status' => get_filter('Status', 'so_Status', 'all'),
+			'fromDate' => get_filter('fromDate', 'so_fromDate', ''),
+			'toDate' => get_filter('toDate', 'so_toDate', ''),
+			'order_by' => get_filter('order_by', 'so_order_by', 'code'),
+			'sort_by' => get_filter('sort_by', 'so_sort_by', 'DESC'),
 		);
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -464,152 +468,163 @@ class Sales_order extends PS_Controller
 
 		if(!empty($sqCode))
 		{
-			$this->load->model('quotation_model');
-			$ds = $this->quotation_model->get($sqCode);
+			$is_exists_sq = $this->sales_order_model->is_exists_sq($sqCode);
 
-			if(!empty($ds))
+			if(!$is_exists_sq)
 			{
-				//---- check default series
-				$Series = $this->sales_order_model->get_default_series_by_prefix(getConfig('DEFAULT_SALES_ORDER_SERIES'));
+				$this->load->model('quotation_model');
+				$ds = $this->quotation_model->get($sqCode);
 
-				if(!empty($Series))
+				if(!empty($ds))
 				{
-					$qd = $this->quotation_model->get_details($ds->code);
+					//---- check default series
+					$Series = $this->sales_order_model->get_default_series_by_prefix(getConfig('DEFAULT_SALES_ORDER_SERIES'));
 
-					if(!empty($qd))
+					if(!empty($Series))
 					{
-						//---- create sale order
-						$code = $this->get_new_code();
-						$DocDueDate = date('Y-m-d', strtotime("+30 days"));
-						$SQNO = $ds->code .(empty($ds->DocNum) ? "" : ", ". $ds->DocNum);
-						$arr = array(
-							'code' => $code,
-							'CardCode' => trim($ds->CardCode),
-							'CardName' => trim($ds->CardName),
-							'SlpCode' => $ds->SlpCode,
-							'GroupNum' => $ds->GroupNum,
-							'Term' => $ds->Term,
-							'CntctCode' => get_null($ds->CntctCode),
-							'NumAtCard' => get_null($ds->NumAtCard),
-							'DocCur' => $ds->DocCur,
-							'DocRate' => $ds->DocRate,
-							'DocTotal' => $ds->DocTotal,
-							'DiscPrcnt' => $ds->DiscPrcnt,
-							'RoundDif' => $ds->RoundDif,
-							'VatSum' => $ds->VatSum,
-							'OcrCode' => $ds->OcrCode,
-							'OcrCode1' => $ds->OcrCode1,
-							'PayToCode' => $ds->PayToCode,
-							'ShipToCode' => $ds->ShipToCode,
-							'Address' => $ds->Address,
-							'Address2' => $ds->Address2,
-							'Series' => $Series->code,
-							'BeginStr' => $Series->prefix,
-							'DocDate' => date('Y-m-d'),
-							'DocDueDate' => $DocDueDate,
-							'TextDate' => date('Y-m-d'),
-							'U_SQNO' => $SQNO,
-							'OwnerCode' => get_null($ds->OwnerCode),
-							'Comments' => get_null($ds->Comments),
-							'user_id' => $this->user->id,
-							'uname' => $this->user->uname,
-							'sale_team' => $ds->sale_team
-						);
+						$qd = $this->quotation_model->get_details($ds->code);
 
-						$this->db->trans_begin();
-
-						//--- add header
-						if(! $this->sales_order_model->add($arr))
+						if(!empty($qd))
 						{
-							$sc = FALSE;
-							$this->error = "Insert Sales Order Header failed";
-						}
-						else
-						{
-							//--- insert sales_order success
-							foreach($qd as $rs)
-							{
-								if($sc === FALSE)
-								{
-									break;
-								}
+							//---- create sale order
+							$code = $this->get_new_code();
+							$DocDueDate = date('Y-m-d', strtotime("+30 days"));
 
-								$arr = array(
-									'sales_order_code' => $code,
-									'LineNum' => $rs->LineNum,
-									'Type' => $rs->Type, //--- 0 = item , 1 = text
-									'ItemCode' => $rs->ItemCode,
-									'Dscription' => $rs->Dscription,
-									'ItemDetail' => $rs->ItemDetail,
-									'FreeText' => $rs->FreeText,
-									'Qty' => $rs->Qty,
-									'UomCode' => $rs->UomCode,
-									'basePrice' => $rs->basePrice,
-									'stdPrice' => $rs->stdPrice,
-									'Price' => $rs->Price,
-									'priceDiffPercent' => $rs->Type == 0 ? $rs->priceDiffPercent : 0,
-									'SellPrice' => $rs->SellPrice,
-									'U_DISWEB' => $rs->U_DISWEB,
-									'U_DISCEX' => $rs->U_DISCEX,
-									'DiscPrcnt' => $rs->DiscPrcnt,
-									'VatGroup' => $rs->VatGroup,
-									'VatRate' => $rs->VatRate,
-									'LineTotal' => $rs->LineTotal,
-									'WhsCode' => $rs->WhsCode,
-									'LineText' => $rs->LineText,
-									'AfLineNum' => $rs->AfLineNum
-								);
-
-
-								if( ! $this->sales_order_model->add_detail($arr))
-								{
-									$sc = FALSE;
-									$this->error = "Insert Sales Order detail failed at line : {$no} @ {$rs->ItemCode}";
-								}
-							} //--- end foreach
-
-						}
-
-						if($sc === TRUE)
-						{
-							$this->db->trans_commit();
-						}
-						else
-						{
-							$this->db->trans_rollback();
-						}
-
-						//---- check must approve
-						if($sc === TRUE)
-						{
-							$must_approve = $this->must_approve($code);
 							$arr = array(
-								'must_approve' => $must_approve === TRUE ? 1 : 0,
-								'Approved' => $must_approve === TRUE ? 'P' : 'S'
+								'code' => $code,
+								'CardCode' => trim($ds->CardCode),
+								'CardName' => trim($ds->CardName),
+								'SlpCode' => $ds->SlpCode,
+								'GroupNum' => $ds->GroupNum,
+								'Term' => $ds->Term,
+								'CntctCode' => get_null($ds->CntctCode),
+								'NumAtCard' => get_null($ds->NumAtCard),
+								'DocCur' => $ds->DocCur,
+								'DocRate' => $ds->DocRate,
+								'DocTotal' => $ds->DocTotal,
+								'DiscPrcnt' => $ds->DiscPrcnt,
+								'RoundDif' => $ds->RoundDif,
+								'VatSum' => $ds->VatSum,
+								'OcrCode' => $ds->OcrCode,
+								'OcrCode1' => $ds->OcrCode1,
+								'PayToCode' => $ds->PayToCode,
+								'ShipToCode' => $ds->ShipToCode,
+								'Address' => $ds->Address,
+								'Address2' => $ds->Address2,
+								'Series' => $Series->code,
+								'BeginStr' => $Series->prefix,
+								'DocDate' => date('Y-m-d'),
+								'DocDueDate' => NULL,
+								'TextDate' => date('Y-m-d'),
+								'U_SQNO' => $ds->code,
+								'SqNo' => $ds->DocNum,
+								'OwnerCode' => get_null($ds->OwnerCode),
+								'Comments' => get_null($ds->Comments),
+								'user_id' => $this->user->id,
+								'uname' => $this->user->uname,
+								'sale_team' => $ds->sale_team
 							);
 
-							$this->sales_order_model->update($code, $arr);
+							$this->db->trans_begin();
 
+							//--- add header
+							if(! $this->sales_order_model->add($arr))
+							{
+								$sc = FALSE;
+								$this->error = "Insert Sales Order Header failed";
+							}
+							else
+							{
+								//--- insert sales_order success
+								foreach($qd as $rs)
+								{
+									if($sc === FALSE)
+									{
+										break;
+									}
+
+									$arr = array(
+										'sales_order_code' => $code,
+										'LineNum' => $rs->LineNum,
+										'Type' => $rs->Type, //--- 0 = item , 1 = text
+										'ItemCode' => $rs->ItemCode,
+										'Dscription' => $rs->Dscription,
+										'ItemDetail' => $rs->ItemDetail,
+										'FreeText' => $rs->FreeText,
+										'Qty' => $rs->Qty,
+										'UomCode' => $rs->UomCode,
+										'basePrice' => $rs->basePrice,
+										'stdPrice' => $rs->stdPrice,
+										'Price' => $rs->Price,
+										'priceDiffPercent' => $rs->Type == 0 ? $rs->priceDiffPercent : 0,
+										'SellPrice' => $rs->SellPrice,
+										'U_DISWEB' => $rs->U_DISWEB,
+										'U_DISCEX' => $rs->U_DISCEX,
+										'DiscPrcnt' => $rs->DiscPrcnt,
+										'VatGroup' => $rs->VatGroup,
+										'VatRate' => $rs->VatRate,
+										'LineTotal' => $rs->LineTotal,
+										'WhsCode' => $rs->WhsCode,
+										'LineText' => $rs->LineText,
+										'AfLineNum' => $rs->AfLineNum
+									);
+
+
+									if( ! $this->sales_order_model->add_detail($arr))
+									{
+										$sc = FALSE;
+										$this->error = "Insert Sales Order detail failed at line : {$no} @ {$rs->ItemCode}";
+									}
+								} //--- end foreach
+
+							}
+
+							if($sc === TRUE)
+							{
+								$this->db->trans_commit();
+							}
+							else
+							{
+								$this->db->trans_rollback();
+							}
+
+							//---- check must approve
+							if($sc === TRUE)
+							{
+								$must_approve = $this->must_approve($code);
+								$arr = array(
+									'must_approve' => $must_approve === TRUE ? 1 : 0,
+									'Approved' => $must_approve === TRUE ? 'P' : 'S'
+								);
+
+								$this->sales_order_model->update($code, $arr);
+
+							}
+						}
+						else
+						{
+							$sc = FALSE;
+							$this->error = "No item in {$sqCode}";
 						}
 					}
 					else
 					{
 						$sc = FALSE;
-						$this->error = "No item in {$sqCode}";
+						$this->error = "Default Series not defined or invalid default series";
 					}
 				}
 				else
 				{
 					$sc = FALSE;
-					$this->error = "Default Series not defined or invalid default series";
+					$this->error = "{$sqCode} Not found";
 				}
-
 			}
 			else
 			{
 				$sc = FALSE;
-				$this->error = "{$sqCode} Not found";
+				$this->error = "Can not create Sales Order from {$sqCode}. Because It was already used by another Sales order.";
 			}
+
 		}
 		else
 		{
@@ -2179,18 +2194,22 @@ class Sales_order extends PS_Controller
   public function clear_filter()
 	{
 		$filter = array(
-			'WebCode',
-			'DocNum',
-			'CardCode',
-			'CardName',
-			'SaleName',
-			'CustRef',
-			'Approved',
-			'Status',
-			'fromDate',
-			'toDate',
-			'order_by',
-			'sort_by'
+			'so_WebCode',
+			'so_DocNum',
+			'so_SqNo',
+			'so_DeliveryNo',
+			'so_InvoiceNo',
+			'so_SapStatus',
+			'so_CardCode',
+			'so_CardName',
+			'so_SaleName',
+			'so_CustRef',
+			'so_Approved',
+			'so_Status',
+			'so_fromDate',
+			'so_toDate',
+			'so_order_by',
+			'so_sort_by'
 		);
 
 		clear_filter($filter);

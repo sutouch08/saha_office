@@ -2,7 +2,7 @@
 class Sync_sale_order_status extends CI_Controller
 {
   public $mc;
-  public $limit = 100;
+  public $limit = 50;
 
   public function __construct()
   {
@@ -19,25 +19,27 @@ class Sync_sale_order_status extends CI_Controller
     {
       foreach($list as $ds)
       {
-
         //--- O = Open, C= Closed, E = Cancled
-        //--- -1 = Cancle, 2 = Open, 4 = Closed
         $arr = array(
-          'status' => $ds->DocStatus == E ? -1 : ($ds->DocStatus == 'O' ? 2 :$ds->DocStatus == 'C' ? 4 :)
+          'SapStatus' => $ds->DocStatus,
+          'DeliveryNo' => $ds->DeliveryNo,
+          'InvoiceNo' => $ds->InvoiceNo
         );
 
         if(!$this->update($ds->WEB_ORDER, $arr))
         {
           $arr = array(
             'F_Web' => 'N',
-            'F_Message' => "Update failed"
+            'F_Message' => "Update failed",
+            'F_WebDate' => now()
           );
         }
         else
         {
           $arr = array(
             'F_Web' => 'Y',
-            'F_Message' => NULL
+            'F_Message' => NULL,
+            'F_WebDate' => now()
           );
         }
 
@@ -52,8 +54,12 @@ class Sync_sale_order_status extends CI_Controller
   {
     //--- status O = open, C = Clos
     $rs = $this->mc
-    ->select('DocEntry, WEB_ORDER, DocStatus')
-    ->where('F_Web !=', 'Y')
+    ->select('DocEntry, WEB_ORDER, DeliveryNo, InvoiceNo, DocStatus')
+    ->group_start()
+    ->where('F_Web IS NULL', NULL, FALSE)
+    ->or_where('F_Web', 'N')
+    ->group_end()
+    ->where('DocNum >', 0)
     ->limit($this->limit)
     ->get('ORDR_STATUS_UPDATE');
 
@@ -76,9 +82,6 @@ class Sync_sale_order_status extends CI_Controller
   {
     return $this->mc->where('DocEntry', $docEntry)->update('ORDR_STATUS_UPDATE', $ds);
   }
-
-
-
 
 } //--- end class
 

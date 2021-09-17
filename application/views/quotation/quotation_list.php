@@ -19,14 +19,19 @@
 <hr class="padding-5"/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-sm-1 col-xs-6 padding-5">
+  <div class="col-sm-1 col-1-harf col-xs-6 padding-5">
     <label class="search-label">Web Order</label>
     <input type="text" class="form-control input-sm text-center search-box" name="WebCode" value="<?php echo $WebCode; ?>" />
   </div>
 
-	<div class="col-sm-1 col-xs-6 padding-5">
+	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
     <label class="search-label">SQ No.</label>
     <input type="text" class="form-control input-sm text-center search-box" name="DocNum" value="<?php echo $DocNum; ?>" />
+  </div>
+
+	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+    <label class="search-label">SO No.</label>
+    <input type="text" class="form-control input-sm text-center search-box" name="SoNo" value="<?php echo $SoNo; ?>" />
   </div>
 
 	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
@@ -34,7 +39,7 @@
     <input type="text" class="form-control input-sm text-center search-box" name="CardCode" value="<?php echo $CardCode; ?>" placeholder="Code OR Name" />
   </div>
 
-	<div class="col-sm-1 col-xs-6 padding-5">
+	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
     <label class="search-label">Cust. Ref</label>
     <input type="text" class="form-control input-sm text-center search-box" name="CustRef" value="<?php echo $CustRef; ?>" />
   </div>
@@ -44,16 +49,28 @@
     <input type="text" class="form-control input-sm text-center search-box" name="SaleName" value="<?php echo $SaleName; ?>" />
   </div>
 
-	<div class="col-sm-2 col-xs-6 padding-5">
-		<label class="search-label">Posting Date</label>
-		<div class="input-daterange input-group">
-			<input type="text" class="form-control input-sm width-50 from-date text-center" id="fromDate" name="fromDate" value="<?php echo $fromDate; ?>" placeholder="From" readonly/>
-			<input type="text" class="form-control input-sm width-50 to-date text-center" id="toDate" name="toDate" value="<?php echo $toDate; ?>" placeholder="To" readonly />
-		</div>
-	</div>
+	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+    <label class="search-label">SAP Status</label>
+    <select class="form-control input-sm" name="SapStatus" onchange="getSearch()">
+			<option value="all">ทั้งหมด</option>
+			<option value="O" <?php echo is_selected('O', $SapStatus); ?>>Open</option>
+			<option value="C" <?php echo is_selected('C', $SapStatus); ?>>Closed</option>
+			<option value="E" <?php echo is_selected('E', $SapStatus); ?>>Canceled</option>
+		</select>
+  </div>
 
+	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+    <label class="search-label">Temp Status</label>
+    <select class="form-control input-sm" name="Status" onchange="getSearch()">
+			<option value="all">ทั้งหมด</option>
+			<option value="0" <?php echo is_selected('0', $Status); ?>>Not Export</option>
+			<option value="1" <?php echo is_selected('1', $Status); ?>>Pending</option>
+			<option value="2" <?php echo is_selected('2', $Status); ?>>Success</option>
+			<option value="3" <?php echo is_selected('3', $Status); ?>>Error</option>
+		</select>
+  </div>
 
-	<div class="col-sm-1 col-xs-6 padding-5">
+	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
     <label class="search-label">Approved</label>
     <select class="form-control input-sm" name="Approved" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -64,18 +81,13 @@
 		</select>
   </div>
 
-	<div class="col-sm-1 col-xs-6 padding-5">
-    <label class="search-label">Temp Status</label>
-    <select class="form-control input-sm" name="Status" onchange="getSearch()">
-			<option value="all">ทั้งหมด</option>
-			<option value="0" <?php echo is_selected('0', $Status); ?>>Not Export</option>
-			<option value="1" <?php echo is_selected('1', $Status); ?>>Pending</option>
-			<option value="2" <?php echo is_selected('2', $Status); ?>>Success</option>
-			<option value="3" <?php echo is_selected('3', $Status); ?>>Error</option>
-			<option value="4" <?php echo is_selected('4', $Status); ?>>Closed</option>
-			<option value="-1" <?php echo is_selected('-1', $Status); ?>>Canceled</option>
-		</select>
-  </div>
+	<div class="col-sm-2 col-xs-6 padding-5">
+		<label class="search-label">Posting Date</label>
+		<div class="input-daterange input-group">
+			<input type="text" class="form-control input-sm width-50 from-date text-center" id="fromDate" name="fromDate" value="<?php echo $fromDate; ?>" placeholder="From" readonly/>
+			<input type="text" class="form-control input-sm width-50 to-date text-center" id="toDate" name="toDate" value="<?php echo $toDate; ?>" placeholder="To" readonly />
+		</div>
+	</div>
 
   <div class="col-sm-1 col-xs-6 padding-5">
     <label class="display-block not-show">buton</label>
@@ -95,6 +107,7 @@
 <?php
 	$sort_WebCode = get_sort('code', $order_by, $sort_by);
 	$sort_DocNum = get_sort('DocNum', $order_by, $sort_by);
+	$sort_SoNo = get_sort('SoNo', $order_by, $sort_by);
 	$sort_PostingDate = get_sort('DocDate', $order_by, $sort_by);
 	$sort_CardName = get_sort('CardName', $order_by, $sort_by);
 	$sort_CardCode = get_sort('CardCode', $order_by, $sort_by);
@@ -109,9 +122,10 @@
 			<thead>
 				<tr style="font-size:10px;">
 					<th style="width:20px;" class="middle text-center">#</th>
-					<th style="width:100px;" class="middle sorting <?php echo $sort_WebCode; ?>" id="sort_code" onclick="sort('code')">Web Order</th>
-					<th style="width:100px;" class="middle sorting <?php echo $sort_DocNum; ?>" id="sort_DocNum" onclick="sort('DocNum')">Quotation No.</th>
 					<th style="width:100px;" class="middle sorting <?php echo $sort_PostingDate; ?>" id="sort_DocDate" onclick="sort('DocDate')">Posting Date</th>
+					<th style="width:100px;" class="middle sorting <?php echo $sort_WebCode; ?>" id="sort_code" onclick="sort('code')">Web Order</th>
+					<th style="width:100px;" class="middle sorting <?php echo $sort_DocNum; ?>" id="sort_DocNum" onclick="sort('DocNum')">SQ No.</th>
+					<th style="width:100px;" class="middle sorting <?php echo $sort_SoNo; ?>" id="sort_SoNo" onclick="sort('SoNo')">SO No.</th>
 					<th style="width:100px;" class="middle sorting <?php echo $sort_CardCode; ?>" id="sort_CardCode" onclick="sort('CardCode')">Cust. Code</th>
 					<th style="width:200px;" class="middle sorting <?php echo $sort_CardName; ?>" id="sort_CardName" onclick="sort('CardName')">Cust. Name</th>
 					<th style="width:100px;" class="middle sorting <?php echo $sort_NumAtCard; ?>" id="sort_NumAtCard" onclick="sort('NumAtCard')">Cust. Ref</th>
@@ -129,9 +143,10 @@
 				<?php foreach($data as $rs) : ?>
 					<tr style="font-size:10px;">
 						<td class="middle text-center no"><?php echo $no; ?></td>
+						<td class="middle"><?php echo thai_date($rs->DocDate, FALSE,'/'); ?></td>
 						<td class="middle"><?php echo $rs->code; ?></td>
 						<td class="middle"><?php echo $rs->DocNum; ?></td>
-						<td class="middle"><?php echo thai_date($rs->DocDate, FALSE,'/'); ?></td>
+						<td class="middle"><?php echo $rs->SoNo; ?></td>
 						<td class="middle"><?php echo $rs->CardCode; ?></td>
 						<td class="middle"><?php echo $rs->CardName; ?></td>
 						<td class="middle"><?php echo $rs->NumAtCard; ?></td>
@@ -181,13 +196,13 @@
 				<?php endforeach; ?>
 			<?php else : ?>
 				<tr>
-					<td colspan="12" class="middle text-center">ไม่พบรายการ</td>
+					<td colspan="13" class="middle text-center">ไม่พบรายการ</td>
 				</tr>
 			<?php endif; ?>
 			</tbody>
 			<tfoot class="border-1">
 				<tr>
-					<td colspan="6" class="middle text-right font-size-14">รวม</td>
+					<td colspan="7" class="middle text-right font-size-14">รวม</td>
 					<td colspan="2" class="middle text-right font-size-14"><?php echo number($sum_total, 2); ?></td>
 					<td colspan="4" class="middle"></td>
 				</tr>

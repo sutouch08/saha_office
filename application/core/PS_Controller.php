@@ -37,11 +37,11 @@ class PS_Controller extends CI_Controller
     $this->ms = $this->load->database('ms', TRUE); //--- SAP database
     $this->mc = $this->load->database('mc', TRUE); //--- Temp Database
 
-    $valid_date = date('Y-m-d', strtotime('2021-07-31'));
-    if(date('Y-m-d') > $valid_date)
-    {
-      $this->expired_page();
-    }
+    // $valid_date = date('Y-m-d', strtotime('2021-07-31'));
+    // if(date('Y-m-d') > $valid_date)
+    // {
+    //   $this->expired_page();
+    // }
   }
 
 

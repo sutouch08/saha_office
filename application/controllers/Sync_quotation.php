@@ -3,7 +3,7 @@ class Sync_quotation extends CI_Controller
 {
   public $ms;
   public $mc;
-  public $limit = 100;
+  public $limit = 50;
 
   public function __construct()
   {
@@ -39,27 +39,28 @@ class Sync_quotation extends CI_Controller
                 'DocNum' => $DocNum,
                 'sap_date' => $temp->F_SapDate,
                 'Status' => 2,  //-- เข้า SAP แล้ว
+                'SapStatus' => 'O',
                 'Message' => NULL
               );
 
               $this->update($ds->code, $arr);
               $update++;
             }
-            else
-            {
-              $draft_code = $this->get_sap_draft_code($ds->code);
-              if(!empty($draft_code))
-              {
-                $arr = array(
-                  'sap_date' => $temp->F_SapDate,
-                  'Status' => 4,  //-- เข้า Darft ใน SAP แล้ว
-                  'Message' => NULL
-                );
-
-                $this->update($ds->code, $arr);
-                $update++;
-              }
-            }
+            // else
+            // {
+            //   $draft_code = $this->get_sap_draft_code($ds->code);
+            //   if(!empty($draft_code))
+            //   {
+            //     $arr = array(
+            //       'sap_date' => $temp->F_SapDate,
+            //       'Status' => 4,  //-- เข้า Darft ใน SAP แล้ว
+            //       'Message' => NULL
+            //     );
+            //
+            //     $this->update($ds->code, $arr);
+            //     $update++;
+            //   }
+            // }
           }
           else
           {
@@ -87,6 +88,8 @@ class Sync_quotation extends CI_Controller
 
     //--- add logs
     $this->sync_data_model->add_logs($logs);
+
+    $this->syncSoNo();
   }
 
 
@@ -157,6 +160,71 @@ class Sync_quotation extends CI_Controller
     return $this->db->where('code', $code)->update('quotation', $ds);
   }
 
+
+
+  public function syncSoNo()
+  {
+    $list = $this->getSoSyncList();
+
+    if(!empty($list))
+    {
+      foreach($list as $rs)
+      {
+        $SoNo = $this->getSoNo($rs->DocNum);
+        if(!empty($SoNo))
+        {
+          $arr = array(
+            'SoNo' => $SoNo
+          );
+
+          $this->update($rs->code, $arr);
+        }
+      }
+    }
+  }
+
+
+  private function getSoSyncList()
+  {
+    $rs = $this->db
+    ->select('code, DocNum')
+    ->where('DocNum IS NOT NULL', NULL, FALSE)
+    ->where('SoNo IS NULL', NULL, FALSE)
+    ->where('Status', 2)
+    ->group_start()
+    ->where('SapStatus !=', 'E')
+    ->or_where('SapStatus IS NULL', NULL, FALSE)
+    ->group_end()
+    ->order_by('code', 'ASC')
+    ->limit($this->limit)
+    ->get('quotation');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+    
+  }
+
+
+  private function getSoNo($code)
+  {
+    $rs = $this->ms
+    ->select('DocNum')
+    ->where('Ref1', $code)
+    ->where('CANCELED', 'N')
+    ->order_by('DocNum', 'DESC')
+    ->get('ORDR');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row()->DocNum;
+    }
+
+    return NULL;
+  }
 
 
 

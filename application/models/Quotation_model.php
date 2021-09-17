@@ -170,6 +170,13 @@ class Quotation_model extends CI_Model
       $this->db->like('DocNum', $ds['DocNum']);
     }
 
+
+    if(!empty($ds['SoNo']))
+    {
+      $this->db->like('SoNo', $ds['SoNo']);
+    }
+
+
     if(!empty($ds['CustRef']))
     {
       $this->db->like('NumAtCard', $ds['CustRef']);
@@ -189,6 +196,11 @@ class Quotation_model extends CI_Model
     if($ds['Status'] !== 'all')
     {
       $this->db->where('Status', $ds['Status']);
+    }
+
+    if($ds['SapStatus'] !== 'all')
+    {
+      $this->db->where('SapStatus', $ds['SapStatus']);
     }
 
     if(!$this->isAdmin && !$this->isSuperAdmin )
@@ -241,6 +253,11 @@ class Quotation_model extends CI_Model
       $this->db->like('DocNum', $ds['DocNum']);
     }
 
+    if(!empty($ds['SoNo']))
+    {
+      $this->db->like('SoNo', $ds['SoNo']);
+    }
+
     if(!empty($ds['CustRef']))
     {
       $this->db->like('NumAtCard', $ds['CustRef']);
@@ -262,6 +279,12 @@ class Quotation_model extends CI_Model
       $this->db->where('Status', $ds['Status']);
     }
 
+    if($ds['SapStatus'] !== 'all')
+    {
+      $this->db->where('SapStatus', $ds['SapStatus']);
+    }
+
+    
     if(!$this->isAdmin && !$this->isSuperAdmin)
     {
       if($this->isLead === TRUE)

@@ -1421,6 +1421,7 @@ function createSalesOrder(sqCode) {
     showCancelButton:true,
     cancelButtonText:'Cancle',
     confirmButtonText:'สร้างใบสั่งขาย',
+		closeOnConfirm:false
   },
 	function(){
 		load_in();
@@ -1449,8 +1450,7 @@ function createSalesOrder(sqCode) {
 					swal({
 						title:"Error!",
 						text:rs,
-						type:'error',
-						html:true
+						type:'error'
 					});
 				}
 			},

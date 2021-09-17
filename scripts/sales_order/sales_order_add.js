@@ -80,7 +80,7 @@ function saveAdd() {
 
 
 	if(!isDate(ds.DocDueDate)) {
-		swal("Invalid Valid Until Date");
+		swal("Invalid Delivery Date");
 		$('#DocDueDate').addClass('has-error');
 		return false;
 	}
@@ -334,7 +334,7 @@ function update() {
 
 
 	if(!isDate(ds.DocDueDate)) {
-		swal("Invalid Valid Until Date");
+		swal("Invalid Delivery Date");
 		$('#DocDueDate').addClass('has-error');
 		return false;
 	}

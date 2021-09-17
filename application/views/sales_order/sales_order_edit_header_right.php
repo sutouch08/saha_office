@@ -33,7 +33,7 @@
       <div class="form-group">
         <label class="col-sm-9 control-label no-padding-right">Status</label>
         <div class="col-sm-3 col-xs-8">
-          <?php $status = $header->Approved === 'A' ? 'Approved' :($header->Approved === 'R' ? 'Rejected' : 'Pending'); ?>
+          <?php $status = $header->Approved === 'A' ? 'Approved' :($header->Approved === 'R' ? 'Rejected' : ($header->Approved == 'S' ? "" :'Pending')); ?>
           <input type="text" class="form-control input-sm" value="<?php echo $status; ?>" disabled/>
         </div>
       </div>
@@ -53,7 +53,7 @@
         <label class="col-sm-9 control-label no-padding-right">Delivery Date</label>
         <div class="col-sm-3 col-xs-8">
           <span class="input-icon input-icon-right">
-          <input type="text" id="DocDueDate" class="form-control input-sm" value="<?php echo thai_date($header->DocDueDate); ?>" readonly/>
+          <input type="text" id="DocDueDate" class="form-control input-sm" value="<?php echo !empty($header->DocDueDate) ? thai_date($header->DocDueDate) : ""; ?>" readonly/>
           <i class="ace-icon fa fa-calendar-o"></i>
           </span>
         </div>

@@ -63,6 +63,17 @@ class Sales_order_model extends CI_Model
 
 
 
+  public function is_exists_sq($sqCode)
+  {
+    $rs = $this->db->where('U_SQNO', $sqCode)->count_all_results('sales_order');
+
+    if($rs > 0)
+    {
+      return TRUE;
+    }
+
+    return FALSE;
+  }
 
   public function get($code)
   {
@@ -173,6 +184,31 @@ class Sales_order_model extends CI_Model
       $this->db->like('DocNum', $ds['DocNum']);
     }
 
+    if(!empty($ds['SqNo']))
+    {
+      $this->db->group_start();
+      $this->db->like('U_SQNO', $ds['SqNo'])->or_like('SqNo', $ds['SqNo']);
+      $this->db->group_end();
+    }
+
+    if(!empty($ds['DeliveryNo']))
+    {
+      $this->db->like('DeliveryNo', $ds['DeliveryNo']);
+    }
+
+
+    if(!empty($ds['InvoiceNo']))
+    {
+      $this->db->like('InvoiceNo', $ds['InvoiceNo']);
+    }
+
+
+    if($ds['SapStatus'] !== 'all')
+    {
+      $this->db->where('SapStatus', $ds['SapStatus']);
+    }
+
+
     if(!empty($ds['CustRef']))
     {
       $this->db->like('NumAtCard', $ds['CustRef']);
@@ -242,6 +278,32 @@ class Sales_order_model extends CI_Model
     if(!empty($ds['DocNum']))
     {
       $this->db->like('DocNum', $ds['DocNum']);
+    }
+
+
+    if(!empty($ds['SqNo']))
+    {
+      $this->db->group_start();
+      $this->db->like('U_SQNO', $ds['SqNo'])->or_like('SqNo', $ds['SqNo']);
+      $this->db->group_end();
+    }
+
+
+    if(!empty($ds['DeliveryNo']))
+    {
+      $this->db->like('DeliveryNo', $ds['DeliveryNo']);
+    }
+
+
+    if(!empty($ds['InvoiceNo']))
+    {
+      $this->db->like('InvoiceNo', $ds['InvoiceNo']);
+    }
+
+
+    if($ds['SapStatus'] !== 'all')
+    {
+      $this->db->where('SapStatus', $ds['SapStatus']);
     }
 
     if(!empty($ds['CustRef']))

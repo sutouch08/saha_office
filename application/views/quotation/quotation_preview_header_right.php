@@ -21,7 +21,7 @@
     <tr>
       <td class="width-40 bg-green">Status</td>
       <td class="width-60">
-        <?php $status = $header->Approved === 'A' ? 'Approved' :($header->Approved === 'R' ? 'Rejected' : 'Pending'); ?>
+        <?php $status = $header->Approved === 'A' ? 'Approved' :($header->Approved === 'R' ? 'Rejected' : ($header->Approved == 'S' ? '' :'Pending')); ?>
         <?php echo $status; ?>
       </td>
     </tr>

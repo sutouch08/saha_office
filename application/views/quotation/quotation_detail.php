@@ -25,7 +25,7 @@
 				<?php if(getConfig('ALLOW_DUPLICATE_QUOTATION') == 1) : ?>
 				<button type="button" class="btn btn-xs btn-primary" onclick="duplicateSQ()"><i class="fa fa-copy"></i> คัดลอกใบเสนอราคา</button>
 				<?php endif; ?>
-				<?php if($header->Status == 2) : ?>
+				<?php if($header->Status == 2 && $in_so == FALSE) : ?>
 				<button type="button" class="btn btn-xs btn-primary" onclick="createSalesOrder('<?php echo $header->code; ?>')"><i class="fa fa-copy"></i> สร้างใบสั่งขาย</button>
 				<?php endif; ?>
 				<?php if($header->Approved !== 'A' && !$in_sap && ($header->Status == 0 OR $header->Status == 1 OR $header->Status == 3)) : ?>

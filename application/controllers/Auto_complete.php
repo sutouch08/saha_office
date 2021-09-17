@@ -17,8 +17,8 @@ class Auto_complete extends PS_Controller
     $sc = array();
     $qr = "SELECT ItemCode AS code, ItemName AS name ";
     $qr .= "FROM OITM ";
-    $qr .= "WHERE ItemCode LIKE N'%{$this->ms->escape_str($txt)}%' ";
-    $qr .= "OR ItemName LIKE N'%{$this->ms->escape_str($txt)}%' ";
+    $qr .= "WHERE validFor = 'Y' ";
+    $qr .= "AND (ItemCode LIKE N'%{$this->ms->escape_str($txt)}%' OR ItemName LIKE N'%{$this->ms->escape_str($txt)}%') ";
     $qr .= "ORDER BY ItemCode ASC ";
     $qr .= "OFFSET 0 ROWS FETCH NEXT 20 ROWS ONLY";
     $rs = $this->ms->query($qr);
@@ -332,7 +332,7 @@ class Auto_complete extends PS_Controller
       $sc[] = 'Not found';
     }
 
-    echo json_encode($sc);    
+    echo json_encode($sc);
   }
 
 

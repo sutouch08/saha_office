@@ -43,7 +43,7 @@
         <label class="col-sm-9 control-label no-padding-right">Delivery Date</label>
         <div class="col-sm-3 col-xs-8">
           <span class="input-icon input-icon-right">
-          <input type="text" id="DocDueDate" class="form-control input-sm" value="<?php echo date('d-m-Y'); ?>" readonly/>
+          <input type="text" id="DocDueDate" class="form-control input-sm" value="" readonly/>
           <i class="ace-icon fa fa-calendar-o"></i>
           </span>
         </div>

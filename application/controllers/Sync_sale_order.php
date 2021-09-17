@@ -3,7 +3,7 @@ class Sync_sale_order extends CI_Controller
 {
   public $ms;
   public $mc;
-  public $limit = 100;
+  public $limit = 50;
 
   public function __construct()
   {
@@ -39,27 +39,29 @@ class Sync_sale_order extends CI_Controller
                 'DocNum' => $DocNum,
                 'sap_date' => $temp->F_SapDate,
                 'Status' => 2,  //-- เข้า SAP แล้ว
+                'SapStatus' => 'O',
                 'Message' => NULL
               );
 
               $this->update($ds->code, $arr);
               $update++;
             }
-            else
-            {
-              $draft_code = $this->get_sap_draft_code($ds->code);
-              if(!empty($draft_code))
-              {
-                $arr = array(
-                  'sap_date' => $temp->F_SapDate,
-                  'Status' => 4,  //-- เข้า Darft ใน SAP แล้ว
-                  'Message' => NULL
-                );
 
-                $this->update($ds->code, $arr);
-                $update++;
-              }
-            }
+            // else
+            // {
+            //   $draft_code = $this->get_sap_draft_code($ds->code);
+            //   if(!empty($draft_code))
+            //   {
+            //     $arr = array(
+            //       'sap_date' => $temp->F_SapDate,
+            //       'Status' => 4,  //-- เข้า Darft ใน SAP แล้ว
+            //       'Message' => NULL
+            //     );
+            //
+            //     $this->update($ds->code, $arr);
+            //     $update++;
+            //   }
+            // }
           }
           else
           {

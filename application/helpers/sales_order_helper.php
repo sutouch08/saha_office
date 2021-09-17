@@ -27,7 +27,7 @@ function select_series($posting_date = NULL, $code = NULL)
   }
   else
   {
-    $ds = '<opton value="">Please define Series</option>';
+    $ds = '<option value="">Please define Series</option>';
   }
 
   return $ds;
