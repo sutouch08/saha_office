@@ -17,7 +17,7 @@ class Auto_complete extends PS_Controller
     $sc = array();
     $qr = "SELECT ItemCode AS code, ItemName AS name ";
     $qr .= "FROM OITM ";
-    $qr .= "WHERE validFor = 'Y' ";
+    $qr .= "WHERE validFor = 'Y' AND SellItem = 'Y' ";
     $qr .= "AND (ItemCode LIKE N'%{$this->ms->escape_str($txt)}%' OR ItemName LIKE N'%{$this->ms->escape_str($txt)}%') ";
     $qr .= "ORDER BY ItemCode ASC ";
     $qr .= "OFFSET 0 ROWS FETCH NEXT 20 ROWS ONLY";
@@ -48,19 +48,19 @@ class Auto_complete extends PS_Controller
     $qr .= "FROM OCRD ";
     $qr .= "WHERE CardType IN('C', 'L') ";
 
-    if(!$this->isAdmin && !$this->isSalesAdmin && !$this->isSuperAdmin)
-    {
-      $sale_in = $this->user_model->get_sale_in();
-
-      if(!empty($sale_in))
-      {
-        $qr .= "AND (SlpCode IN({$sale_in}) OR SlpCode = -1) ";
-      }
-      else
-      {
-        $qr .= "AND (SlpCode = {$this->user->sale_id} OR SlpCode = -1)";
-      }
-    }
+    // if(!$this->isAdmin && !$this->isSalesAdmin && !$this->isSuperAdmin)
+    // {
+    //   $sale_in = $this->user_model->get_sale_in();
+    //
+    //   if(!empty($sale_in))
+    //   {
+    //     $qr .= "AND (SlpCode IN({$sale_in}) OR SlpCode = -1) ";
+    //   }
+    //   else
+    //   {
+    //     $qr .= "AND (SlpCode = {$this->user->sale_id} OR SlpCode = -1)";
+    //   }
+    // }
 
 
     $qr .= "AND validFor = 'Y' ";
@@ -70,7 +70,7 @@ class Auto_complete extends PS_Controller
       $qr .= "AND (CardCode = '{$df_cust}' OR CardCode LIKE N'%{$this->ms->escape_str($txt)}%' OR CardName LIKE N'%{$this->ms->escape_str($txt)}%') ";
     }
 
-    $qr .= "ORDER BY 1 OFFSET 0 ROWS FETCH NEXT 20 ROWS ONLY";
+    $qr .= "ORDER BY 1 OFFSET 0 ROWS FETCH NEXT 50 ROWS ONLY";
 
     $qs = $this->ms->query($qr);
 

@@ -199,6 +199,7 @@ class Quotation extends PS_Controller
 							'FreeText' => get_null(trim($rs->FreeTxt)),
 							'Qty' => $rs->Quantity,
 							'UomCode' => get_null($rs->UomCode),
+							'lastSellPrice' => $rs->lastSellPrice,
 							'basePrice' => $rs->basePrice,
 							'stdPrice' => $rs->stdPrice,
 							'Price' => $rs->Price,
@@ -364,6 +365,7 @@ class Quotation extends PS_Controller
 								'FreeText' => $rs->FreeText,
 								'Qty' => $rs->Qty,
 								'UomCode' => $rs->UomCode,
+								'lastSellPrice' => $this->item_model->last_sell_price($rs->ItemCode, $ds->CardCode, $this->item_model->get_uom_id($rs->UomCode)),
 								'basePrice' => $rs->basePrice,
 								'stdPrice' => $rs->stdPrice,
 								'Price' => $rs->Price,
@@ -619,6 +621,7 @@ class Quotation extends PS_Controller
 										'FreeText' => get_null(trim($rs->FreeTxt)),
 										'Qty' => $rs->Quantity,
 										'UomCode' => get_null($rs->UomCode),
+										'lastSellPrice' => $rs->lastSellPrice,
 										'basePrice' => $rs->basePrice,
 										'stdPrice' => $rs->stdPrice,
 										'Price' => $rs->Price,
@@ -811,6 +814,9 @@ class Quotation extends PS_Controller
 			$PriceList = $this->customers_model->get_list_num($card_code);
 			$PriceList = empty($PriceList) ? 1 : $PriceList;
 
+			//--- เช็คว่าลูกค้าถูก SET VAT ไว้หรือไม่ ถ้าใช่ ใช้ Vat code, vat rate จาก ลูกค้าก่อน
+			$customerTax = $this->customers_model->get_tax($card_code);
+
 			$item = $this->item_model->get($code, $PriceList);
 
 			if(!empty($item))
@@ -877,9 +883,10 @@ class Quotation extends PS_Controller
 					'detail' => $item->detail,
 					'freeText' => $item->ValidComm,
 					'uom' => $uom,
-					'taxCode' => $item->taxCode,
-					'taxRate' => $item->taxRate,
+					'taxCode' => !empty($customerTax) ? $customerTax->taxCode : $item->taxCode,
+					'taxRate' => !empty($customerTax) ? $customerTax->taxRate : $item->taxRate,
 					'price' => $price,
+					'lastSellPrice' => empty($card_code) ? $price : $this->item_model->last_sell_price($item->code, $card_code, $DfUom),
 					'discount' => $discount,
 					'priceDiff' => $price,
 					'lineAmount' => $price,
@@ -1960,6 +1967,19 @@ class Quotation extends PS_Controller
 		}
 
 		return $cost;
+	}
+
+
+
+	public function get_last_sell_price()
+	{
+		$cardCode = get_null(trim($this->input->get('cardCode')));
+		$itemCode = get_null(trim($this->input->get('itemCode')));
+		$uomEntry = get_null($this->input->get('uomEntry'));
+
+		$price = $this->item_model->last_sell_price($itemCode, $cardCode, $uomEntry);
+
+		echo $price >= 0 ? $price : 0;
 	}
 
 

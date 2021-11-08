@@ -63,6 +63,25 @@ class Customers_model extends CI_Model
 
 
 
+  public function get_tax($code)
+  {
+    $rs = $this->ms
+    ->select('OVTG.Code AS taxCode, OVTG.Rate AS taxRate')
+    ->from('OCRD')
+    ->join('OVTG', 'OVTG.Code = OCRD.ECVatGroup', 'left')
+    ->where('OCRD.CardCode', $code)
+    ->where('OCRD.ECVatGroup IS NOT NULL', NULL, FALSE)
+    ->get();
+
+    if($rs->num_rows() == 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
+
   public function get_contact($code)
   {
     $rs = $this->db->where('CardCode', $code)->get('contact_person');

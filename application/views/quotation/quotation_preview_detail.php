@@ -1,7 +1,7 @@
 
 <div class="row">
   <div class="col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-striped" style="table-layout: fixed; min-width: 100%; width:2380px;">
+    <table class="table table-striped" style="table-layout: fixed; min-width: 100%; width:2480px;">
       <thead>
         <tr class="font-size-10">
           <th class="middle text-center" style="width:50px;">#</th>
@@ -13,6 +13,7 @@
           <th class="middle text-right" style="width:100px;">Quantity</th>
           <th class="middle text-center" style="width:100px;">Uom</th>
           <th class="middle text-right" style="width:100px;">STD Price</th>
+          <th class="middle text-right" style="width:100px;">Last Sell Price</th>
           <th class="middle text-right" style="width:100px;">Price</th>
           <th class="middle text-right" style="width:100px;">ส่วนต่างราคา(%)</th>
           <th class="middle text-right" style="width:100px;">ส่วนลด(%)</th>
@@ -45,6 +46,7 @@
             <td class="middle text-right"><?php echo number(round($ds->Qty, 2)); ?></td>
             <td class="middle text-center"><?php echo $ds->UomName; ?></td>
             <td class="middle text-right"><?php echo number($ds->stdPrice, 2); ?></td>
+            <td class="middle text-right"><?php echo number($ds->lastSellPrice, 2); ?></td>
             <td class="middle text-right"><?php echo number($ds->Price, 2); ?></td>
             <td class="middle text-right"><?php echo number($ds->priceDiffPercent, 2); ?></td>
             <td class="middle text-right"><?php echo number($ds->U_DISWEB, 2); ?></td>
@@ -62,7 +64,7 @@
         <?php if($rows > 0) : ?>
           <?php while($rows > 0) : ?>
             <tr>
-              <td colspan="20">&nbsp;</td>
+              <td colspan="21">&nbsp;</td>
             </tr>
             <?php $rows--; ?>
           <?php endwhile; ?>

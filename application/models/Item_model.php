@@ -124,6 +124,20 @@ class Item_model extends CI_Model
   }
 
 
+  public function get_uom_id($UomCode)
+  {
+    $qr = "SELECT UomEntry FROM OUOM WHERE UomCode = N'{$UomCode}'";
+    $rs = $this->ms->query($qr);
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->UomEntry;
+    }
+
+    return NULL;
+  }
+
+
 
   public function get_item_list($group = NULL)
   {
@@ -220,6 +234,30 @@ class Item_model extends CI_Model
 
     return 0;
 	}
+
+
+
+  public function last_sell_price($itemCode, $cardCode, $uom)
+  {
+    if($uom !== NULL)
+    {
+      $qr = "SELECT TOP(1) Price
+              FROM OINV A
+              INNER JOIN INV1 B ON A.DocEntry = B.DocEntry
+              WHERE B.ItemCode = '{$itemCode}'
+              AND A.CardCode = '{$cardCode}'
+              AND B.UomEntry = {$uom}
+              ORDER BY A.DocDate DESC";
+      $rs = $this->ms->query($qr);
+
+      if($rs->num_rows() === 1)
+      {
+        return $rs->row()->Price;
+      }
+    }
+
+    return 0;
+  }
 
 } //---- End class
 

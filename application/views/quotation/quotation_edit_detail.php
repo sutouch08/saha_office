@@ -14,7 +14,7 @@
 
   </div>
   <div class="col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-bordered" style="table-layout: fixed; min-width: 100%; width:2380px;">
+    <table class="table table-bordered" style="table-layout: fixed; min-width: 100%; width:2480px;">
       <thead>
         <tr class="font-size-10">
           <th class="middle text-center" style="width:50px;"></th>
@@ -27,6 +27,7 @@
           <th class="middle text-center" style="width:100px;">Quantity</th>
           <th class="middle text-center" style="width:100px;">Uom</th>
           <th class="middle text-center" style="width:100px;">STD Price</th>
+          <th class="middle text-center" style="width:100px;">Last Sell Price</th>
           <th class="middle text-center" style="width:100px;">Price</th>
           <th class="middle text-center" style="width:100px;">ส่วนต่างราคา(%)</th>
           <th class="middle text-center" style="width:100px;">ส่วนลด(%)</th>
@@ -86,6 +87,10 @@
             <td class="middle">
               <input type="text" class="form-control input-sm text-right number" id="stdPrice-<?php echo $no; ?>" value="<?php echo number($ds->stdPrice, 2); ?>" disabled/>
               <input type="hidden" id="basePrice-<?php echo $no; ?>" value="<?php echo $ds->basePrice; ?>"/>
+            </td>
+            <td class="middle">
+              <input type="text" class="form-control input-sm text-right number" id="lstPrice-<?php echo $no; ?>" value="<?php echo number($ds->lastSellPrice, 2); ?>" readonly disabled/>
+              <input type="hidden" id="lastSellPrice-<?php echo $no; ?>" value="<?php echo $ds->lastSellPrice; ?>"/>
             </td>
             <td class="middle">
               <input type="text" class="form-control input-sm text-right number input-price" id="price-<?php echo $no; ?>" value="<?php echo number($ds->Price, 2); ?>" onkeyup="recalAmount($(this))"/>
@@ -166,6 +171,10 @@
           <td class="middle">
             <input type="text" class="form-control input-sm text-right number" id="stdPrice-<?php echo $no; ?>" value="" disabled/>
             <input type="hidden" id="basePrice-<?php echo $no; ?>" value="0"/>
+          </td>
+          <td class="middle">
+            <input type="text" class="form-control input-sm text-right number" id="lstPrice-<?php echo $no; ?>" readonly disabled/>
+            <input type="hidden" id="lastSellPrice-<?php echo $no; ?>" value="0"/>
           </td>
           <td class="middle">
             <input type="text" class="form-control input-sm text-right number input-price" id="price-<?php echo $no; ?>" value="" onkeyup="recalAmount($(this))"/>
@@ -251,6 +260,10 @@
       <input type="hidden" id="basePrice-{{no}}" value="0"/>
     </td>
     <td class="middle">
+      <input type="text" class="form-control input-sm text-right number" id="lstPrice-{{no}}" readonly disabled/>
+      <input type="hidden" id="lastSellPrice-{{no}}" value="0"/>
+    </td>
+    <td class="middle">
       <input type="text" class="form-control input-sm text-right number input-price" id="price-{{no}}" onkeyup="recalAmount($(this))"/>
     </td>
     <td class="middle">
@@ -324,6 +337,10 @@
   <input type="hidden" id="basePrice-{{no}}" value="0"/>
 </td>
 <td class="middle">
+  <input type="text" class="form-control input-sm text-right number" id="lstPrice-{{no}}" readonly disabled/>
+  <input type="hidden" id="lastSellPrice-{{no}}" value="0"/>
+</td>
+<td class="middle">
   <input type="text" class="form-control input-sm text-right number input-price" id="price-{{no}}" onkeyup="recalAmount($(this))"/>
 </td>
 <td class="middle">
@@ -372,7 +389,7 @@
       <option value="1" selected>Text</option>
     </select>
   </td>
-  <td colspan="17">
+  <td colspan="18">
     <textarea id="text-{{no}}" class="autosize autosize-transition" style="height:150px; width:800px;"></textarea>
   </td>
 </script>

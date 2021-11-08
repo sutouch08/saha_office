@@ -143,6 +143,7 @@ function saveAdd() {
 					"FreeTxt" : $('#freeText-'+no).val(),
 					"Quantity" : removeCommas($('#qty-'+no).val()),
 					"UomCode" : $('#uom-'+no).find(':selected').data('code'),
+					"lastSellPrice" : $('#lastSellPrice-'+no).val(),
 					"basePrice" : $('#basePrice-'+no).val(), //--- ราคาตามหน่วยนับย่อย
 					"stdPrice" : removeCommas($('#stdPrice-'+no).val()), //--- ราคาตามหน่วยย่อย * ตัวคูณตามหน่วยนับที่เลือก เช่น ราคาต่อชิ้น = 100 * (ชิ้น = 1, แพ็ค = 3, ลัง = 6)
 					"Price" : removeCommas($('#price-'+no).val()),
@@ -176,6 +177,7 @@ function saveAdd() {
 					"FreeTxt" : "",
 					"Quantity" : 0,
 					"UomCode" : "",
+					"lastSellPrice" : 0,
 					"basePrice" : 0,
 					"stdPrice" : 0,
 					"Price" : 0,
@@ -399,6 +401,7 @@ function update() {
 					"basePrice" : $('#basePrice-'+no).val(), //--- ราคาตามหน่วยนับย่อย
 					"stdPrice" : removeCommas($('#stdPrice-'+no).val()), //--- ราคาตามหน่วยย่อย * ตัวคูณตามหน่วยนับที่เลือก เช่น ราคาต่อชิ้น = 100 * (ชิ้น = 1, แพ็ค = 3, ลัง = 6)
 					"Price" : removeCommas($('#price-'+no).val()),
+					"lastSellPrice" : $('#lastSellPrice-'+no).val(),
 					"priceDiffPercent" : $('#priceDiff-'+no).val(),
 					'sellPrice' : removeCommas($('#priceAfDiscBfTax-'+no).val()),
 					"DiscPrcnt" : $('#lineDiscPrcnt-'+no).val(), //--- ส่วนลดได้จากการเอาส่วนลด 2 สเต็ป มาแปลงเป็นส่วนลดเดียว
@@ -431,6 +434,7 @@ function update() {
 					"UomCode" : "",
 					"basePrice" : 0,
 					"stdPrice" : 0,
+					"lastSellPrice" : 0,
 					"Price" : 0,
 					"priceDiffPercent" : 0,
 					'sellPrice' : 0,
@@ -945,6 +949,7 @@ function getItemData(code, no) {
 			if(isJson(rs)) {
 				var ds = $.parseJSON(rs);
 				var price = parseFloat(ds.price);
+				var lastSellPrice = parseDefault(parseFloat(ds.lastSellPrice), 0.00);
 				var lineAmount = parseFloat(ds.lineAmount);
 				var whCode = ds.dfWhsCode;
 
@@ -955,6 +960,8 @@ function getItemData(code, no) {
 				$('#uom-'+no).html(ds.uom);
 				$('#basePrice-'+no).val(price);
 				$('#stdPrice-'+no).val(addCommas(price.toFixed(2)));
+				$('#lastSellPrice-'+no).val(lastSellPrice);
+				$('#lstPrice-'+no).val(addCommas(lastSellPrice.toFixed(2)));
 				$('#price-'+no).val(addCommas(price.toFixed(2)));
 				$('#priceDiff-'+no).val(addCommas(price.toFixed(2)));
 				$('#disc1-'+no).val(ds.discount);
@@ -983,6 +990,32 @@ function getItemData(code, no) {
 }
 
 
+function get_last_sell_price(no) {
+	const cardCode = $('#CardCode').val();
+	const itemCode = $('#itemCode-'+no).val();
+	const uomEntry = $('#uom-'+no).val();
+
+	if(cardCode.length && itemCode.length) {
+		$.ajax({
+			url:HOME + 'get_last_sell_price',
+			type:'GET',
+			cache:false,
+			data:{
+				'cardCode' : cardCode,
+				'itemCode' : itemCode,
+				'uomEntry' : uomEntry
+			},
+			success:function(rs) {
+				let lastSellPrice = parseDefault(parseFloat(rs), 0.00);
+
+				$('#lstPrice-'+no).val(addCommas(lastSellPrice.toFixed(2)));
+				$('#lastSellPrice-'+no).val(lastSellPrice);
+			}
+		})
+	}
+}
+
+
 function recalPrice(el) {
 	let no = getNo(el);
 	let factor = parseDefault(parseFloat(el.find(':selected').data('qty')), 1); //--- ตัวคูณ
@@ -990,6 +1023,8 @@ function recalPrice(el) {
 	let newPrice = parseFloat(factor * basePrice);
 	$('#stdPrice-'+no).val(addCommas(newPrice.toFixed(2)));
 	$('#price-'+no).val(addCommas(newPrice.toFixed(2)));
+
+	get_last_sell_price(no);
 
 	recalAmount(el);
 }
