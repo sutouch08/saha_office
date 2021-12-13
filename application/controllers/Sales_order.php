@@ -1023,7 +1023,7 @@ class Sales_order extends PS_Controller
 				if(!empty($spPrice))
 				{
 					$DfUom = $spPrice->UomEntry;
-					$price = round($spPrice->Price, 2);
+					$price = empty($spPrice->Price) ? round($spPrice->PriceAfDisc, 2) : round($spPrice->Price, 2);
 					$priceAfDisc = round($spPrice->PriceAfDisc, 2);
 					$discount = round($spPrice->Discount, 2);
 				}

@@ -1108,6 +1108,7 @@ function recalTotal() {
 	var total = 0.00; //--- total amount after row discount
 	var df_rate = parseDefault(parseFloat($('#vat_rate').val()), 7); //---- 7%
 	var taxRate = df_rate * 0.01;
+	var rounding = parseDefault(parseFloat(removeCommas($('#roundDif').val())), 0);
 
 	$('.input-amount').each(function(){
 		let no = getNo($(this));
@@ -1145,7 +1146,7 @@ function recalTotal() {
 	var amountToPayTax = amountBeforeDiscWithTax - totalDiscTax;
 	//console.log(amountToPayTax);
 	var taxAmount = amountToPayTax * taxRate;
-	var docTotal = amountAfterDisc + taxAmount;
+	var docTotal = amountAfterDisc + taxAmount + rounding;
 
 	$('#totalAmount').val(addCommas(total.toFixed(2)));
 	$('#tax').val(addCommas(taxAmount.toFixed(2)));
@@ -1191,6 +1192,12 @@ $('#discAmount').focusout(function(){
 
 	$('#discPrcnt').val(discPrcnt.toFixed(2));
 
+	recalTotal();
+})
+
+
+
+$('#roundDif').keyup(function(){
 	recalTotal();
 })
 

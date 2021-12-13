@@ -817,7 +817,7 @@ class Quotation extends PS_Controller
 			//--- เช็คว่าลูกค้าถูก SET VAT ไว้หรือไม่ ถ้าใช่ ใช้ Vat code, vat rate จาก ลูกค้าก่อน
 			$customerTax = $this->customers_model->get_tax($card_code);
 
-			$item = $this->item_model->get($code, $PriceList);
+			$item = $this->item_model->get($code);
 
 			if(!empty($item))
 			{
@@ -830,7 +830,7 @@ class Quotation extends PS_Controller
 				if(!empty($spPrice))
 				{
 					$DfUom = $spPrice->UomEntry;
-					$price = round($spPrice->Price, 2);
+					$price = empty($spPrice->Price) ? round($spPrice->PriceAfDisc, 2) : round($spPrice->Price, 2);
 					$priceAfDisc = round($spPrice->PriceAfDisc, 2);
 					$discount = round($spPrice->Discount, 2);
 				}

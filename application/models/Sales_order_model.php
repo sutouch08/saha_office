@@ -483,6 +483,13 @@ class Sales_order_model extends CI_Model
     }
 
     return NULL;
+
+    // $ds = new stdClass();
+    // $ds->code = "880";
+    // $ds->name = "SO2111";
+    // $ds->beginStr = "SO";
+    //
+    // return array($ds);
   }
 
 
@@ -504,6 +511,14 @@ class Sales_order_model extends CI_Model
     }
 
     return NULL;
+
+    //ByPass
+    // $ds = new stdClass();
+    // $ds->code = "880";
+    // $ds->name = "SO2111";
+    // $ds->prefix = "SO";
+
+    return $ds;
   }
 
 

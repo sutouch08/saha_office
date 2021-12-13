@@ -60,7 +60,7 @@
       <div class="form-group">
         <label class="col-sm-6 control-label no-padding-right">Rouding</label>
         <div class="col-sm-6 col-xs-6 padding-5 last">
-          <input type="text" id="roundDif" class="form-control input-sm text-right" value="<?php echo number($header->RoundDif, 2); ?>" />
+          <input type="number" id="roundDif" class="form-control input-sm text-right" value="<?php echo round($header->RoundDif, 2); ?>" />
         </div>
       </div>
 

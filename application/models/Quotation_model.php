@@ -284,7 +284,7 @@ class Quotation_model extends CI_Model
       $this->db->where('SapStatus', $ds['SapStatus']);
     }
 
-    
+
     if(!$this->isAdmin && !$this->isSuperAdmin)
     {
       if($this->isLead === TRUE)
@@ -441,6 +441,13 @@ class Quotation_model extends CI_Model
     }
 
     return NULL;
+
+    // $ds = new stdClass();
+    // $ds->code = "880";
+    // $ds->name = "SQ2111";
+    // $ds->prefix = "SQ";
+    //
+    // return array($ds);
   }
 
 

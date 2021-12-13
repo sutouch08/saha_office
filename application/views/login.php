@@ -39,9 +39,11 @@
 					<span class="login100-form-title p-b-70">
 						Welcome
 					</span>
+					<!--
 					<span class="login100-form-avatar">
 						<img src="<?php echo base_url(); ?>assets/images/logo.png" alt="Saha Office Co., Ltd.">
 					</span>
+				-->
 
 					<div class="wrap-input100 validate-input m-t-85 m-b-35" data-validate = "Enter username">
 						<input class="input100" type="text" name="user_name" id="txtUserName" autofocus>
