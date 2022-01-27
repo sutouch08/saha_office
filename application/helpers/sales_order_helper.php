@@ -135,19 +135,6 @@ function get_quotation_reference($sq_no)
   return $code;
 }
 
-function logs_action_name($name)
-{
-  $arr = array(
-    'add' => 'สร้างโดย',
-    'edit' => 'แก้ไขโดย',
-    'cancle' => 'ยกเลิกโดย',
-    'approve' => 'อนุมัติโดย',
-    'unapprove' => 'ยกเลิกการอนุมัติโดย',
-    'reject' => 'ปฏิเสธการอนุมัติโดย',
-    'unreject' => 'ยกเลิกการปฏิเสธโดย'
-  );
 
-  return $arr[$name];
-}
 
  ?>

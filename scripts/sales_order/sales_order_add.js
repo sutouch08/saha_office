@@ -1022,8 +1022,23 @@ function recalPrice(el) {
 	let newPrice = parseFloat(factor * basePrice);
 	$('#stdPrice-'+no).val(addCommas(newPrice.toFixed(2)));
 	$('#price-'+no).val(addCommas(newPrice.toFixed(2)));
+	$('#price_inc-'+no).val(0);
 
 	get_last_sell_price(no);
+
+	recalAmount(el);
+}
+
+
+function changePrice(el) {
+	let no = getNo(el);
+	var priceInc = parseDefault(parseFloat(removeCommas($('#price_inc-'+no).val())), 0);
+	var vat = parseDefault(parseFloat($('#taxCode-'+no).data('rate')), 0);
+
+	if(priceInc > 0) {
+		let price = removeVat(priceInc, vat);
+		$('#price-'+no).val(addCommas(price.toFixed(2)));
+	}
 
 	recalAmount(el);
 }
@@ -1087,8 +1102,9 @@ function recalDiscount(el) {
 
 
 function recal(no) {
-	var qty = parseDefault(parseFloat(removeCommas($('#qty-'+no).val())), 0);
 	var price = parseDefault(parseFloat(removeCommas($('#price-'+no).val())), 0);
+	var qty = parseDefault(parseFloat(removeCommas($('#qty-'+no).val())), 0);
+
 	var disc1 = parseDefault(parseFloat($('#disc1-'+no).val()), 0);
 
 	var sellPrice = getSellPrice(price, disc1);
@@ -1100,6 +1116,20 @@ function recal(no) {
 	$('#lineDiscPrcnt-'+no).val(discPrcnt.toFixed(2));
 
 	recalTotal();
+}
+
+
+function removeVat(price, vat) {
+	var vat = parseDefault(parseFloat(vat), 0);
+	var price = parseDefault(parseFloat(price), 0);
+
+	if( vat > 0) {
+		var re_vat = (vat + 100) / 100;
+
+		return price/re_vat;
+	}
+
+	return price;
 }
 
 

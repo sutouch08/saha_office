@@ -67,6 +67,14 @@
       <div class="divider-hidden"></div>
 
 			<div class="col-sm-4">
+        <span class="form-control left-label">Buffer Warehouse</span>
+      </div>
+      <div class="col-sm-8">
+        <input type="text" class="form-control input-sm input-small" id="buffer_warehouse" name="BUFFER_WAREHOUSE" value="<?php echo $BUFFER_WAREHOUSE; ?>" />
+      </div>
+      <div class="divider-hidden"></div>
+
+			<div class="col-sm-4">
         <span class="form-control left-label">Default CUSTOMER</span>
       </div>
       <div class="col-sm-8">
@@ -103,6 +111,23 @@
 				}
 			}
 		});
+
+
+		$('#buffer_warehouse').autocomplete({
+			source:BASE_URL + 'auto_complete/get_warehouse_code_and_name',
+			autoFocus:true,
+			close:function(){
+				var rs = $(this).val();
+				var arr = rs.split(' | ');
+				if(arr.length === 2) {
+					$(this).val(arr[0]);
+				}
+				else {
+					$(this).val('');
+				}
+			}
+		});
+
 
 		$('#default_customer').autocomplete({
 			source:BASE_URL + 'auto_complete/get_customer_code_and_name',

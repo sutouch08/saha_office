@@ -397,14 +397,23 @@ class Customers_model extends CI_Model
 
   public function get_address_ship_to($CardCode, $address = '00000')
   {
-    $rs = $this->ms
-    ->select('CRD1.*, OCRY.Name AS countryName')
-    ->from('CRD1')
-    ->join('OCRY', 'CRD1.Country = OCRY.Code', 'left')
-    ->where('CRD1.AdresType', 'S')
-    ->where('CRD1.CardCode', $CardCode)
-    ->where('CRD1.Address', $address)
-    ->get();
+    $qr  = "SELECT CRD1.*, OCRY.Name AS countryName ";
+    $qr .= "FROM CRD1 ";
+    $qr .= "LEFT JOIN OCRY ON CRD1.Country = OCRY.Code ";
+    $qr .= "WHERE CRD1.AdresType = 'S' ";
+    $qr .= "AND CRD1.CardCode = '{$CardCode}' ";
+    $qr .= "AND CRD1.Address = N'{$address}' ";
+
+    $rs = $this->ms->query($qr);
+
+    // $rs = $this->ms
+    // ->select('CRD1.*, OCRY.Name AS countryName')
+    // ->from('CRD1')
+    // ->join('OCRY', 'CRD1.Country = OCRY.Code', 'left')
+    // ->where('CRD1.AdresType', 'S')
+    // ->where('CRD1.CardCode', $CardCode)
+    // ->where('CRD1.Address', $address)
+    // ->get();
 
     if($rs->num_rows() == 1)
     {
@@ -434,14 +443,23 @@ class Customers_model extends CI_Model
 
   public function get_address_bill_to($CardCode, $address = '00000')
   {
-    $rs = $this->ms
-    ->select('CRD1.*, OCRY.Name AS countryName')
-    ->from('CRD1')
-    ->join('OCRY', 'CRD1.Country = OCRY.Code', 'left')
-    ->where('CRD1.AdresType', 'B')
-    ->where('CRD1.CardCode', $CardCode)
-    ->where('CRD1.Address', $address)
-    ->get();
+    $qr  = "SELECT CRD1.*, OCRY.Name AS countryName ";
+    $qr .= "FROM CRD1 ";
+    $qr .= "LEFT JOIN OCRY ON CRD1.Country = OCRY.Code ";
+    $qr .= "WHERE CRD1.AdresType = 'B' ";
+    $qr .= "AND CRD1.CardCode = '{$CardCode}' ";
+    $qr .= "AND CRD1.Address = N'{$address}' ";
+
+    $rs = $this->ms->query($qr);
+
+    // $rs = $this->ms
+    // ->select('CRD1.*, OCRY.Name AS countryName')
+    // ->from('CRD1')
+    // ->join('OCRY', 'CRD1.Country = OCRY.Code', 'left')
+    // ->where('CRD1.AdresType', 'B')
+    // ->where('CRD1.CardCode', $CardCode)
+    // ->where('CRD1.Address', $address)
+    // ->get();
 
     if($rs->num_rows() > 0)
     {

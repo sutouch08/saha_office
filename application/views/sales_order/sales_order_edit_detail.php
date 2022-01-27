@@ -28,7 +28,8 @@
           <th class="middle text-center" style="width:100px;">Uom</th>
           <th class="middle text-center" style="width:100px;">STD Price</th>
           <th class="middle text-center" style="width:100px;">Last Sell Price</th>
-          <th class="middle text-center" style="width:100px;">Price</th>
+          <th class="middle text-center" style="width:100px;">Price(exc.)</th>
+          <th class="middle text-center" style="width:100px;">Price(inc.)</th>
           <th class="middle text-center" style="width:100px;">ส่วนต่างราคา(%)</th>
           <th class="middle text-center" style="width:100px;">ส่วนลด(%)</th>
           <th class="middle text-center" style="width:100px;">Tax Code</th>
@@ -94,6 +95,9 @@
             </td>
             <td class="middle">
               <input type="text" class="form-control input-sm text-right number input-price" id="price-<?php echo $no; ?>" value="<?php echo number($ds->Price, 2); ?>" onkeyup="recalAmount($(this))"/>
+            </td>
+            <td class="middle">
+              <input type="text" class="form-control input-sm text-right number input-price_inc" id="price_inc-<?php echo $no; ?>" value="" onkeyup="changePrice($(this))"/>
             </td>
             <td class="middle">
               <input type="number" class="form-control input-sm text-right" id="priceDiff-<?php echo $no; ?>" value="<?php echo $ds->priceDiffPercent; ?>" disabled/>
@@ -178,6 +182,9 @@
           </td>
           <td class="middle">
             <input type="text" class="form-control input-sm text-right number input-price" id="price-<?php echo $no; ?>" value="" onkeyup="recalAmount($(this))"/>
+          </td>
+          <td class="middle">
+            <input type="text" class="form-control input-sm text-right number input-price_inc" id="price_inc-<?php echo $no; ?>" value="" onkeyup="changePrice($(this))"/>
           </td>
           <td class="middle">
             <input type="number" class="form-control input-sm text-right" id="priceDiff-<?php echo $no; ?>" value="" disabled/>
@@ -267,6 +274,9 @@
       <input type="text" class="form-control input-sm text-right number input-price" id="price-{{no}}" onkeyup="recalAmount($(this))"/>
     </td>
     <td class="middle">
+      <input type="text" class="form-control input-sm text-right number input-price_inc" id="price_inc-{{no}}" onkeyup="changePrice($(this))"/>
+    </td>
+    <td class="middle">
       <input type="number" class="form-control input-sm text-right" id="priceDiff-{{no}}" readonly disabled/>
     </td>
     <td class="middle">
@@ -342,6 +352,9 @@
 </td>
 <td class="middle">
   <input type="text" class="form-control input-sm text-right number input-price" id="price-{{no}}" onkeyup="recalAmount($(this))"/>
+</td>
+<td class="middle">
+  <input type="text" class="form-control input-sm text-right number input-price_inc" id="price_inc-{{no}}" onkeyup="changePrice($(this))"/>
 </td>
 <td class="middle">
   <input type="number" class="form-control input-sm text-right" id="priceDiff-{{no}}" readonly disabled/>

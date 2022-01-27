@@ -1288,7 +1288,7 @@ class Sales_order extends PS_Controller
 				);
 			}
 
-			echo json_encode($ds);
+			echo json_encode($arr);
 		}
 	}
 

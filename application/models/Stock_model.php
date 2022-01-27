@@ -94,6 +94,78 @@ class Stock_model extends CI_Model
     return NULL;
   }
 
+  public function getStockZone($itemCode, $binCode)
+  {
+    $rs = $this->ms
+    ->select('OIBQ.OnHandQty AS qty')
+    ->from('OIBQ')
+    ->join('OBIN', 'OIBQ.BinAbs = OBIN.AbsEntry')
+    ->where('OIBQ.ItemCode', $itemCode)
+    ->where('OBIN.BinCode', $binCode)
+    ->get();
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->qty;
+    }
+
+    return 0;
+  }
+
+
+  //--- ยอดรวมสินค้าทั้งหมดทุกคลัง (ไม่รวมคลังฝากสินค้า)
+  public function get_onhand_stock($item)
+  {
+    $buffer = getConfig('BUFFER_WAREHOUSE');
+    $this->ms->select_sum('OnHand')->where('ItemCode', $item);
+
+    if($buffer != "" && $buffer != NULL)
+    {
+      $this->ms->where_not_in('WhsCode', array($buffer));
+    }
+
+    $rs = $this->ms->get('OITW');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->OnHand;
+    }
+
+    return 0;
+  }
+
+
+  public function get_stock_in_zone($itemCode)
+  {
+    $buffer = getConfig('BUFFER_WAREHOUSE');
+
+    $this->ms
+    ->select('OBIN.BinCode, OBIN.SL1Code AS code')
+    ->select('OIBQ.OnHandQty AS qty')
+    ->from('OIBQ')
+    ->join('OBIN', 'OIBQ.BinAbs = OBIN.AbsEntry')
+    ->where('OIBQ.ItemCode', $itemCode);
+
+    if($buffer != "" && $buffer != NULL)
+    {
+      $this->ms->where_not_in('OBIN.WhsCode', array($buffer));
+    }
+
+    $this->ms->order_by('OIBQ.OnHandQty', 'DESC');
+
+    $rs = $this->ms->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+
+
 
 }
 ?>

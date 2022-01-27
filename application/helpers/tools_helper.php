@@ -297,6 +297,29 @@ function is_true($value)
 
 
 
+function logs_action_name($name)
+{
+  $arr = array(
+    'add' => 'สร้างโดย',
+    'edit' => 'แก้ไขโดย',
+    'cancle' => 'ยกเลิกโดย',
+    'approve' => 'อนุมัติโดย',
+    'unapprove' => 'ยกเลิกการอนุมัติโดย',
+    'reject' => 'ปฏิเสธการอนุมัติโดย',
+    'unreject' => 'ยกเลิกการปฏิเสธโดย',
+		'release' => 'Released โดย',
+		'unrelease' => 'Unreleased โดย',
+		'pick' => 'เริ่มจัด โดย',
+		'picked' => 'จัดเสร็จ โดย',
+		'pack' => 'เริ่มแพ็ค โดย',
+		'packed' => 'แพ็คเสร็จ โดย' 
+  );
+
+  return $arr[$name];
+}
+
+
+
 function pagination_config( $base_url, $total_rows = 0, $perpage = 20, $segment = 3)
 {
     $rows = get_rows();

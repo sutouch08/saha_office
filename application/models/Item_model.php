@@ -10,7 +10,7 @@ class Item_model extends CI_Model
   public function get($ItemCode)
   {
     $rs = $this->ms
-    ->select('OITM.ItemCode AS code, OITM.ItemName AS name, OITM.UgpEntry')
+    ->select('OITM.ItemCode AS code, OITM.ItemName AS name, OITM.UgpEntry, OITM.IUoMEntry')
     ->select('OITM.VatGourpSa AS taxCode, OITM.UserText AS detail, OITM.ValidComm')
     ->select('OVTG.Rate AS taxRate')
     ->select('OITM.DfltWH AS dfWhsCode')
@@ -108,6 +108,26 @@ class Item_model extends CI_Model
 
     return NULL;
   }
+
+
+  public function get_base_qty($itemCode, $UomEntry)
+  {
+    $rs = $this->ms
+    ->select('BaseQty')
+    ->from('OITM')
+    ->join('UGP1', 'OITM.UgpEntry = UGP1.UgpEntry', 'left')
+    ->where('OITM.ItemCode', $itemCode)
+    ->where('UGP1.UomEntry', $UomEntry)
+    ->get();
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->BaseQty;
+    }
+
+    return 1;
+  }
+
 
 
   public function get_uom_name($UomCode)
@@ -257,6 +277,69 @@ class Item_model extends CI_Model
     }
 
     return 0;
+  }
+
+
+  public function getItemBarcode($ItemCode)
+  {
+    $rs = $this->ms->select('CodeBars AS barcode')->where('ItemCode', $ItemCode)->get('OITM');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->barcode;
+    }
+
+    return NULL;
+  }
+
+
+  public function getItemByBarcode($barcode)
+  {
+    $rs = $this->ms
+    ->select('ItemCode')
+    ->where('CodeBars', $barcode)
+    ->or_where('ItemCode', $barcode)
+    ->get('OITM');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->ItemCode;
+    }
+
+    return NULL;
+  }
+
+
+  public function get_barcode_uom($ItemCode, $UomEntry)
+  {
+    $rs = $this->ms
+    ->select('BcdCode AS barcode')
+    ->where('ItemCode', $ItemCode)
+    ->where('UomEntry', $UomEntry)
+    ->get('OBCD');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row()->barcode;
+    }
+
+    return NULL;
+  }
+
+
+  public function get_item_code_uom_by_barcode($barcode)
+  {
+    $rs = $this->ms
+    ->select('ItemCode, UomEntry')
+    ->where('BcdCode', $barcode)
+    ->get('OBCD');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
   }
 
 } //---- End class

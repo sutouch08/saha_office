@@ -5,12 +5,12 @@
 	}
 </style>
 <div class="row">
-	<div class="col-sm-6 col-xs-6 padding-5">
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5">
     <h3 class="title">
       <?php echo $this->title; ?>
     </h3>
     </div>
-    <div class="col-sm-6 col-xs-6 padding-5">
+    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5">
     	<p class="pull-right top-p">
         <button type="button" class="btn btn-sm btn-success" onclick="goAdd()"><i class="fa fa-plus"></i> Add Sales Quotation</button>
       </p>
@@ -19,7 +19,7 @@
 <hr class="padding-5"/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
     <label class="search-label">Web Order</label>
     <input type="text" class="form-control input-sm text-center search-box" name="WebCode" value="<?php echo $WebCode; ?>" />
   </div>
@@ -139,7 +139,7 @@
 			<tbody>
 			<?php $sum_total = 0; ?>
 			<?php if(!empty($data)) : ?>
-				<?php $no = $this->uri->segment(4) + 1; ?>
+				<?php $no = $this->uri->segment(3) + 1; ?>
 				<?php foreach($data as $rs) : ?>
 					<tr style="font-size:10px;">
 						<td class="middle text-center no"><?php echo $no; ?></td>

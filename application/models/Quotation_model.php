@@ -571,25 +571,6 @@ class Quotation_model extends CI_Model
     return FALSE;
   }
 
-  // public function can_approve($uname, $sale_team, $gp)
-  // {
-  //   $rs = $this->db
-  //   ->where('uname', $uname)
-  //   ->group_start()
-  //   ->where('sale_team', $sale_team)
-  //   ->or_where('sale_team', 'all')
-  //   ->group_end()
-  //   ->where('min_gp <=',$gp, FALSE)
-  //   ->where('status', 1)
-  //   ->count_all_results('quotation_approver');
-  //
-  //   if($rs > 0)
-  //   {
-  //     return TRUE;
-  //   }
-  //
-  //   return FALSE;
-  // }
 
 
   public function is_exists_rule($sale_team, $discount)

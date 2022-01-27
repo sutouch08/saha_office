@@ -143,20 +143,4 @@ function select_contact_person($CardCode, $id = NULL)
   return $ds;
 }
 
-
-function logs_action_name($name)
-{
-  $arr = array(
-    'add' => 'สร้างโดย',
-    'edit' => 'แก้ไขโดย',
-    'cancle' => 'ยกเลิกโดย',
-    'approve' => 'อนุมัติโดย',
-    'unapprove' => 'ยกเลิกการอนุมัติโดย',
-    'reject' => 'ปฏิเสธการอนุมัติโดย',
-    'unreject' => 'ยกเลิกการปฏิเสธโดย'
-  );
-
-  return $arr[$name];
-}
-
  ?>
