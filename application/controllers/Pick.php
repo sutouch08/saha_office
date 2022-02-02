@@ -184,6 +184,25 @@ class Pick extends PS_Controller
 
 
 
+
+	public function remove_pick_row()
+	{
+		$sc = TRUE;
+		$AbsEntry = $this->input->post('AbsEntry');
+		$PickEntry = $this->input->post('PickEntry');
+
+		if(! $this->pick_model->remove_pick_row($AbsEntry, $PickEntry))
+		{
+			$sc = FALSE;
+			$this->error = "ลบรายการไม่สำเร็จ";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
+
+	
+
+
 	public function get_committed_stock($ItemCode)
 	{
 		$rows = $this->pick_model->get_committed_stock($ItemCode);
@@ -687,38 +706,33 @@ class Pick extends PS_Controller
 
 								if(! $is_exists)
 								{
-									//--- get pick row
-									$picking_rows = $this->pick_model->get_picking_rows($absEntry);
-
-									if(!empty($picking_rows))
+									//--- create prick detail row
+									foreach($rows as $rs)
 									{
-										//--- create prick detail row
-										foreach($picking_rows as $rs)
+										if($sc === FALSE)
 										{
-											if($sc === FALSE)
-											{
-												break;
-											}
+											break;
+										}
 
-											$arr = array(
-												'AbsEntry' => $absEntry,
-												'DocNum' => $doc->DocNum,
-												'ItemCode' => $rs->ItemCode,
-												'ItemName' => $rs->ItemName,
-												'UomEntry' => $rs->UomEntry,
-												'UomCode' => $rs->UomCode,
-												'unitMsr' => $rs->unitMsr,
-												'InvUom' => $rs->InvUom,
-												'BaseQty' => $rs->BaseQty,
-												'RelQtty' => $rs->RelQtty,
-												'BaseRelQty' => $rs->BaseRelQty
-											);
+										$arr = array(
+											'AbsEntry' => $absEntry,
+											'DocNum' => $doc->DocNum,
+											'OrderCode' => $rs->OrderCode,
+											'ItemCode' => $rs->ItemCode,
+											'ItemName' => $rs->ItemName,
+											'UomEntry' => $rs->UomEntry,
+											'UomCode' => $rs->UomCode,
+											'unitMsr' => $rs->unitMsr,
+											'InvUom' => $rs->UomEntry2,
+											'BaseQty' => $rs->BaseQty,
+											'RelQtty' => $rs->RelQtty,
+											'BaseRelQty' => $rs->BaseRelQty
+										);
 
-											if(! $this->pick_model->add_pick_detail($arr))
-											{
-												$sc = FALSE;
-												$this->error = "Create Pick details failed";
-											}
+										if(! $this->pick_model->add_pick_detail($arr))
+										{
+											$sc = FALSE;
+											$this->error = "Create Pick details failed";
 										}
 									}
 								}

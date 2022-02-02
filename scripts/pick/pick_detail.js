@@ -32,6 +32,8 @@ function releasePickList() {
                 $('#row-'+no).addClass('red');
                 $('#onhand-'+no).text(addCommas(ds[i].onHand.toFixed(2)));
               }
+
+              swal("สินค้าไม่พอ");
             }
           }
           else {
@@ -82,4 +84,31 @@ function unReleasePickList() {
       }
     })
   }
+}
+
+
+
+function removeRow(rowNum, absEntry, pickEntry) {
+  $.ajax({
+    url:HOME + 'remove_pick_row',
+    type:'POST',
+    cache:false,
+    data:{
+      'AbsEntry' : absEntry,
+      'PickEntry' : pickEntry
+    },
+    success:function(rs) {
+      if(rs == 'success') {
+        $('#row-'+rowNum).remove();
+        reIndex();
+      }
+      else {
+        swal({
+          title:'Error!',
+          text:rs,
+          type:'error'
+        });
+      }
+    }
+  })
 }

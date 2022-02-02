@@ -38,10 +38,11 @@ class Picking_model extends CI_Model
 
 
 
-  public function get_detail_by_item_uom($absEntry, $ItemCode, $UomEntry)
+  public function get_detail_by_item_uom($absEntry, $orderCode, $ItemCode, $UomEntry)
   {
     $rs = $this->db
     ->where('AbsEntry', $absEntry)
+    ->where('OrderCode', $orderCode)
     ->where('ItemCode', $ItemCode)
     ->where('UomEntry', $UomEntry)
     ->get('pick_details');
@@ -56,10 +57,11 @@ class Picking_model extends CI_Model
 
 
 
-  public function get_details_by_item_other_uom($absEntry, $ItemCode, $UomEntry)
+  public function get_details_by_item_other_uom($absEntry, $orderCode, $ItemCode, $UomEntry)
   {
     $rs = $this->db
     ->where('AbsEntry', $absEntry)
+    ->where('OrderCode', $orderCode)
     ->where('ItemCode', $ItemCode)
     ->where('UomEntry !=', $UomEntry)
     ->order_by('BaseQty', 'ASC')

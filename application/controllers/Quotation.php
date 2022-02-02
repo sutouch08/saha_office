@@ -1139,7 +1139,7 @@ class Quotation extends PS_Controller
 
 	public function get_sale_by_customer()
 	{
-		$code = trim($this->input->post('CardCode'));
+		$code = trim($this->input->get('CardCode'));
 
 		$slp = $this->customers_model->get_slp_code_and_name($code);
 

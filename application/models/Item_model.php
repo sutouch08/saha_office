@@ -342,6 +342,19 @@ class Item_model extends CI_Model
     return NULL;
   }
 
+
+  public function getName($ItemCode)
+  {
+    $rs = $this->ms->select('ItemName')->where('ItemCode', $ItemCode)->get('OITM');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->ItemName;
+    }
+
+    return NULL;
+  }
+
 } //---- End class
 
  ?>

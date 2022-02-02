@@ -85,7 +85,6 @@ function saveAdd() {
   var arr = [
     {'el' : 'uname', 'label':'uname-error', 'error':'uname_error'},
     {'el' : 'emp', 'label' : 'emp-error', 'error' : 'emp_error'},
-    {'el' : 'saleman', 'label' : 'saleman-error', 'error' : 'sale_error'},
     {'el' : 'sale_team', 'label' : 'sale-team-error', 'error' : 'team_error'},
     {'el' : 'ugroup', 'label' : 'ugroup-error', 'error' : 'ugroup_error'},
     {'el' : 'department', 'label' : 'department-error', 'error' : 'dep_error'},
@@ -95,7 +94,7 @@ function saveAdd() {
   arr.forEach(check_value);
 
 
-  var error = uname_error + emp_error + sale_error + pwd_error + team_error + ugroup_error + dep_error + div_error;
+  var error = uname_error + emp_error + pwd_error + team_error + ugroup_error + dep_error + div_error;
 
   if( error > 0) {
     return false;
@@ -164,7 +163,6 @@ function update() {
   var arr = [
     {'el' : 'uname', 'label':'uname-error', 'error':'uname_error'},
     {'el' : 'emp', 'label' : 'emp-error', 'error' : 'emp_error'},
-    {'el' : 'saleman', 'label' : 'saleman-error', 'error' : 'sale_error'},
     {'el' : 'sale_team', 'label' : 'sale-team-error', 'error' : 'team_error'},
     {'el' : 'ugroup', 'label' : 'ugroup-error', 'error' : 'ugroup_error'},
     {'el' : 'department', 'label' : 'department-error', 'error' : 'dep_error'},
@@ -173,7 +171,7 @@ function update() {
 
   arr.forEach(check_value);
 
-  var error = uname_error + emp_error + sale_error + team_error + ugroup_error + dep_error + div_error;
+  var error = uname_error + emp_error + team_error + ugroup_error + dep_error + div_error;
 
   if( error > 0) {
     return false;

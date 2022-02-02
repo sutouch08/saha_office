@@ -80,11 +80,12 @@ class Pick_model extends CI_Model
 
 
 
-  public function get_pick_rows_by_item_uom($AbsEntry, $ItemCode, $UomEntry)
+  public function get_pick_rows_by_item_uom($AbsEntry, $OrderCode, $ItemCode, $UomEntry)
   {
     $rs = $this->db
     ->where('AbsEntry', $AbsEntry)
     ->where('ItemCode', $ItemCode)
+    ->where('OrderCode', $OrderCode)
     ->where('UomEntry', $UomEntry)
     ->where('PickQtty <', 'RelQtty', FALSE)
     ->order_by('PickEntry', 'ASC')
@@ -131,6 +132,15 @@ class Pick_model extends CI_Model
     return FALSE;
   }
 
+
+
+  public function remove_pick_row($AbsEntry, $PickEntry)
+  {
+    return $this->db
+    ->where('AbsEntry', $AbsEntry)
+    ->where('PickEntry', $PickEntry)
+    ->delete('pick_row');
+  }
 
 
   public function getOrderRow($DocEntry, $LineNum)
@@ -385,7 +395,7 @@ class Pick_model extends CI_Model
     ->set("BasePickQty", "BasePickQty + {$BasePickQty}", FALSE)
     ->where('AbsEntry', $absEntry)
     ->where('PickEntry', $pickEntry);
-    
+
     return $this->db->update('pick_row');
   }
 

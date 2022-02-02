@@ -30,6 +30,11 @@ function goDetail(id){
 }
 
 
+function goProcess(id) {
+  window.location.href = BASE_URL + 'packing/process/'+id;
+}
+
+
 $("#fromDate").datepicker({
 	dateFormat: 'dd-mm-yy',
 	onClose: function(ds){

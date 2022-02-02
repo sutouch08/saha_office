@@ -1,12 +1,3 @@
-$('#barcode-box').keyup(function(e) {
-  if(e.keyCode == 13) {
-    var barcode = $(this).val();
-    if(barcode.length) {
-      setBox();
-    }
-  }
-})
-
 
 $('#barcode-item').keyup(function(e) {
   if(e.keyCode === 13) {
@@ -18,32 +9,29 @@ $('#barcode-item').keyup(function(e) {
 })
 
 
+function setBox(id) {
+  $('#box_id').val(id);
+  $('.box-btn').removeClass('btn-success');
+  $('#btn-box-'+id).addClass('btn-success');
+  $('#barcode-item').focus();
+}
 
-function setBox() {
-  var barcode = $('#barcode-box').val();
+
+function addBox() {
   var code = $('#code').val();
 
-  if(barcode.length && code.length) {
+  if(code.length) {
     $.ajax({
-      url:HOME + 'get_box',
-      type:'GET',
+      url:HOME + 'add_box',
+      type:'POST',
       cache:false,
       data:{
-        "barcode" : barcode,
         "code" : code
       },
       success:function(rs) {
         var rs = $.trim(rs);
         if(! isNaN(parseInt(rs))) {
           $('#box_id').val(rs);
-          $('#barcode-box').attr('disabled', 'disabled');
-          $('#btn-box').addClass('hide');
-          $('#btn-change-box').removeClass('hide');
-
-          $('#qty').removeAttr('disabled').val(1);
-          $('#btn-item').removeAttr('disabled');
-          $('#barcode-item').removeAttr('disabled').focus();
-
           updateBoxList();
         }
       }
@@ -52,21 +40,23 @@ function setBox() {
 }
 
 
-function changeBox() {
-  $('#box_id').val('');
-  $('#barcode-item').val('').attr('disabled','disabled');
-  $('#qty').val(1).attr('disabled', 'disabled');
-  $('#btn-item').attr('disabled');
-  $('#btn-change-box').addClass('hide');
-  $('#btn-box').removeClass('hide');
-  $('#barcode-box').val('').removeAttr('disabled').focus();
+function updateBox(packQty){
+  var box_id = $("#box_id").val();
+  var packQty = parseDefault(parseFloat(packQty), 0);
+  var qty = parseDefault(parseFloat($("#"+box_id).text()), 0) + packQty;
+
+  $("#"+box_id).text(qty);
 }
 
 
-function updateBox(packQty){
-  var box_id = $("#box_id").val();
-  var qty = parseInt( removeCommas( $("#"+box_id).text() ) ) + packQty;
-  $("#"+box_id).text(addCommas(qty));
+function updatePackQty() {
+  var packed = 0;
+  $('.packed').each(function() {
+    let qty = parseDefault(parseFloat($(this).text()), 0);
+    packed += qty;
+  });
+
+  $('#all_qty').text(packed);
 }
 
 
@@ -89,9 +79,14 @@ function updateBoxList(){
         var data = $.parseJSON(rs);
         var output = $("#box-row");
         render(source, data, output);
-      }else if(rs == "no box"){
+        $('#barcode-item').focus();
+
+        updatePackQty();
+      }
+      else if(rs == "no box"){
         $("#box-row").html('<span id="no-box-label">ยังไม่มีการตรวจสินค้า</span>');
-      }else{
+      }
+      else{
         swal("Error!", rs, "error");
       }
     }
@@ -136,6 +131,9 @@ function showPackOption(itemCode, uomEntry) {
 }
 
 
+$('#packOptionModal').on('shown.bs.modal', function() {
+  $('#option-qty').focus().select();
+})
 
 function packWithOption() {
   let id = $('#id').val();
@@ -212,8 +210,10 @@ function packWithOption() {
           updateBox(ds.pack_qty);
           //--- อัพเดตยอดตรวจรวมทั้งออเดอร์
           //--- จำนวนสินค้าที่ตรวจแล้วทั้งออเดอร์ (รวมที่ยังไม่บันทึกด้วย)
-          let all_qty = parseDefault(parseFloat( removeCommas( $("#all_qty").text() ) ), 0) + ds.pack_qty;
-          $("#all_qty").text( addCommas(all_qty));
+          // let all_qty = parseDefault(parseFloat( removeCommas( $("#all_qty").text() ) ), 0) + ds.pack_qty;
+          // $("#all_qty").text( addCommas(all_qty));
+          updatePackQty();
+
           $('#qty').val(1);
           $('#barcode-item').removeAttr('disabled').val('').focus();
         }
@@ -394,4 +394,292 @@ function finish_pack() {
       type:"error"
     });
   }
+}
+
+
+
+function showBoxOption() {
+  code = $('#code').val();
+  box_id = "1";
+  $.ajax({
+    url:HOME + 'get_box_list',
+    type:'GET',
+    data:{
+      'code' : code,
+      'box_id' : box_id
+    },
+    success:function(rs) {
+      if(isJson(rs)) {
+        var ds = $.parseJSON(rs);
+        var source = $('#box-list-template').html();
+        var output = $('#box-list-table');
+        render(source, ds, output);
+
+        $('#boxOptionModal').modal('show');
+      }
+      else {
+        swal({
+          title:"Error !",
+          text:rs,
+          type:'error'
+        })
+      }
+    }
+  })
+}
+
+
+function check_box_all() {
+  if($('#box-chk-all').is(':checked')) {
+    $('.box-chk').prop('checked', true);
+  }
+  else {
+    $('.box-chk').prop('checked', false);
+  }
+}
+
+
+function editBox(box_id) {
+  var code = $('#code').val();
+  $('#boxOptionModal').modal('hide');
+
+  $.ajax({
+    url:HOME + 'get_pack_box_details',
+    type:'GET',
+    cache:false,
+    data:{
+      "code" : code,
+      "box_id" : box_id
+    },
+    success:function(rs) {
+      if(isJson(rs)) {
+        var data = $.parseJSON(rs);
+        var source = $('#box-detail-template').html();
+        var output = $('#box-detail-table');
+        render(source, data, output);
+        $('#boxEditModal').modal('show');
+      }
+      else {
+        swal({
+          title:"Error!",
+          text:rs,
+          type:"error"
+        });
+      }
+    }
+  })
+}
+
+
+
+function removePackDetail(id, text) {
+  swal({
+		title: "ลบรายการ",
+		text: "ต้องการลบรายการ "+text+" หรือไม่ ?",
+		type: "warning",
+		showCancelButton: true,
+		confirmButtonColor: "#d15b47",
+		confirmButtonText: 'ใช่ ต้องการลบ',
+		cancelButtonText: 'ไม่ใช่',
+		closeOnConfirm: false
+  },function() {
+    $.ajax({
+      url:HOME + 'delete_pack_detail',
+      type:'POST',
+      cache:false,
+      data:{
+        'code' : code,
+        'id' : id
+      },
+      success:function(rs) {
+        var rs = $.trim(rs);
+        if(rs == 'success') {
+          swal({
+            title:'Deleted',
+            type:'success',
+            timer:1000
+          });
+
+          $('#box-row-'+id).remove();
+
+          updatePackTable();
+        }
+        else {
+          swal({
+            titel:"Error!",
+            text:rs,
+            type:'error'
+          })
+        }
+      }
+    })
+  });
+}
+
+
+function removeBox(box_id, box_no) {
+  var id = $('#id').val();
+  var code = $('#code').val();
+
+  swal({
+		title: "ลบกล่อง",
+		text: "ต้องการลบรายการ กล่องที่ "+box_no+" หรือไม่ ?",
+		type: "warning",
+		showCancelButton: true,
+		confirmButtonColor: "#d15b47",
+		confirmButtonText: 'ใช่ ต้องการลบ',
+		cancelButtonText: 'ไม่ใช่',
+		closeOnConfirm: false
+  },function() {
+
+    $.ajax({
+      url:HOME + 'delete_pack_box',
+      type:'POST',
+      cache:false,
+      data:{
+        'code' : code,
+        'id' : id,
+        'box_id' : box_id
+      },
+      success:function(rs) {
+        var rs = $.trim(rs);
+        if(rs == 'success') {
+          swal({
+            title:'Deleted',
+            type:'success',
+            timer:1000
+          });
+
+          setTimeout(function() {
+            window.location.reload();
+          }, 1200);
+
+        }
+        else {
+          swal({
+            titel:"Error!",
+            text:rs,
+            type:'error'
+          })
+        }
+      }
+    })
+  });
+}
+
+
+function removeSelectedBox() {
+  var code = $('#code').val();
+  var boxes = [];
+  var box_no = "";
+  var no = 1;
+
+  $('.box-chk').each(function() {
+    if($(this).is(':checked')) {
+      boxes.push({"box_id" : $(this).val()});
+
+      box_no = no == 1 ? box_no + $(this).data('no') : box_no + ", "+$(this).data('no');
+      no++;
+    }
+  });
+
+  if(boxes.length > 0) {
+
+    $('#boxOptionModal').modal('hide');
+
+    swal({
+  		title: "ลบกล่อง",
+  		text: "ต้องการลบรายการ กล่องที่ "+box_no+" หรือไม่ ?",
+  		type: "warning",
+  		showCancelButton: true,
+  		confirmButtonColor: "#d15b47",
+  		confirmButtonText: 'ใช่ ต้องการลบ',
+  		cancelButtonText: 'ไม่ใช่',
+  		closeOnConfirm: false
+    }, function() {
+      $.ajax({
+        url:HOME + 'delete_select_box',
+        type:'POST',
+        cache:false,
+        data:{
+          "code" : code,
+          "boxes" : JSON.stringify(boxes)
+        },
+        success:function(rs) {
+          var rs = $.trim(rs);
+          if(rs == 'success') {
+            swal({
+              title:'Success',
+              type:'success',
+              timer:1000
+            });
+
+            setTimeout(function() {
+              window.location.reload();
+            }, 1200);
+          }
+          else {
+            swal({
+
+            })
+          }
+        }
+      });
+    });
+  }
+}
+
+
+function updatePackTable() {
+  var id = $('#id').val();
+
+  $.ajax({
+    url:HOME + 'get_details_table',
+    type:'GET',
+    cache:false,
+    data:{
+      'id' : id
+    },
+    success:function(rs) {
+      if(isJson(rs)) {
+        var data = $.parseJSON(rs);
+        var source = $('#details-template').html();
+        var output = $('#row-table');
+
+        render(source, data, output);
+
+        updateBoxList();
+      }
+    }
+  })
+}
+
+
+
+function printBox(box_id) {
+  var code = $('#code').val();
+  //--- properties for print
+  var center  = ($(document).width() - 800)/2;
+  var prop 		= "width=800, height=900. left="+center+", scrollbars=yes";
+  var target  = HOME + 'print_box/'+ code +'/'+box_id;
+  print_url(target);
+  //window.open(target, '_blank', prop);
+}
+
+
+function printSelectedBox() {
+  var box_id = "";
+  var i = 1;
+  $('.box-chk').each(function() {
+    if($(this).is(':checked')) {
+      box_id = i == 1 ? box_id + $(this).val() : box_id + '-'+$(this).val();
+      i++;
+    }
+  })
+
+  var code = $('#code').val();
+  var target  = HOME + 'print_selected_boxes/'+ code +'/'+box_id;
+
+  print_url(target);
+  //window.open(target, '_blank', prop);
 }

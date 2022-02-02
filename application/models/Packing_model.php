@@ -29,6 +29,31 @@ class Packing_model extends CI_Model
   }
 
 
+  public function update_box($id, array $ds = array())
+  {
+    if(!empty($ds))
+    {
+      return $this->db->where('id', $id)->update('pack_box', $ds);
+    }
+
+    return FALSE;
+  }
+
+
+
+  public function get_pack_boxes($code)
+  {
+    $rs = $this->db->where('packCode', $code)->order_by('id', 'ASC')->get('pack_box');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
   public function get_box($code, $barcode)
   {
     $rs = $this->db
@@ -45,6 +70,47 @@ class Packing_model extends CI_Model
   }
 
 
+  public function get_box_by_id($box_id)
+  {
+    $rs = $this->db
+    ->where('id', $box_id)
+    ->get('pack_box');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
+
+  public function get_selected_boxes($arr)
+  {
+    $rs = $this->db->where_in('id', $arr)->get('pack_box');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+  public function get_pack_box_details($packCode, $box_id)
+  {
+    $rs = $this->db->where('packCode', $packCode)->where('box_id', $box_id)->get('pack_details');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
   public function get_last_box_no($code)
   {
     $rs = $this->db
@@ -53,6 +119,12 @@ class Packing_model extends CI_Model
     ->get('pack_box');
 
     return intval($rs->row()->box_no);
+  }
+
+
+  public function delete_box($box_id)
+  {
+    return $this->db->where('id', $box_id)->delete('pack_box');
   }
 
 
@@ -73,6 +145,19 @@ class Packing_model extends CI_Model
     }
 
     return FALSE;
+  }
+
+
+  public function get_pack_detail($id)
+  {
+    $rs = $this->db->where('id', $id)->get('pack_details');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
   }
 
 
@@ -112,6 +197,13 @@ class Packing_model extends CI_Model
   }
 
 
+
+  public function delete_pack_detail($id)
+  {
+    return $this->db->where('id', $id)->delete('pack_details');
+  }
+
+
   public function get_pack_detail_id($packCode, $itemCode, $box_id)
   {
     $rs = $this->db
@@ -131,10 +223,11 @@ class Packing_model extends CI_Model
 
 
 
-  public function get_buffer_uom($DocNum, $ItemCode, $UomEntry)
+  public function get_buffer_uom($DocNum, $orderCode, $ItemCode, $UomEntry)
   {
     $rs = $this->db
     ->where('DocNum', $DocNum)
+    ->where('orderCode', $orderCode)
     ->where('ItemCode', $ItemCode)
     ->where('UomEntry', $UomEntry)
     ->get('buffer');

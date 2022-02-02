@@ -20,7 +20,7 @@ class Setting extends PS_Controller{
 		if($this->isAdmin OR $this->isSuperAdmin)
 		{
 
-			$groups = array('Company', 'Document', 'SAP');
+			$groups = array('Company', 'Document', 'SAP', 'LABEL');
 
 	    $ds = array();
 	    foreach($groups as $rs)

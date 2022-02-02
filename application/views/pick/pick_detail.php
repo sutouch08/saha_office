@@ -1,19 +1,19 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-5 padding-5">
     <h3 class="title">
       <?php echo $this->title; ?>
     </h3>
     </div>
-    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
+    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-7 padding-5">
     	<p class="pull-right top-p">
         <button type="button" class="btn btn-sm btn-default" onclick="goBack()"><i class="fa fa-arrow-left"></i> &nbsp; Back</button>
-				
+
 				<?php if($doc->Status == 'N') : ?>
-				<button type="button" class="btn btn-sm btn-success" onclick="releasePickList()">Release Pick List</button>
+				<button type="button" class="btn btn-sm btn-success" onclick="releasePickList()">Release</button>
 				<?php endif; ?>
 				<?php if($doc->Status == 'R') : ?>
-					<button type="button" class="btn btn-sm btn-danger" onclick="unReleasePickList()">Unrelease Pick List</button>
+					<button type="button" class="btn btn-sm btn-danger" onclick="unReleasePickList()">Unrelease</button>
 				<?php endif; ?>
       </p>
     </div>

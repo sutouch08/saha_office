@@ -22,6 +22,20 @@ class Pack_model extends CI_Model
 
 
 
+  public function get_by_code($code)
+  {
+    $rs = $this->db->where('code', $code)->get('pack_list');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
+
+
 
   public function get_rows($code)
   {
@@ -241,6 +255,11 @@ class Pack_model extends CI_Model
       $this->db->like('CardName', $ds['CardName']);
     }
 
+    if(!empty($ds['transferCode']))
+    {
+      $this->db->like('SapNo', $ds['transferCode']);
+    }
+
     if(!empty($ds['uname']))
     {
       $this->db->like('uname', $ds['uname']);
@@ -294,6 +313,12 @@ class Pack_model extends CI_Model
     {
       $this->db->like('CardName', $ds['CardName']);
     }
+
+    if(!empty($ds['transferCode']))
+    {
+      $this->db->like('SapNo', $ds['transferCode']);
+    }
+
 
     if(!empty($ds['uname']))
     {

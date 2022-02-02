@@ -57,10 +57,12 @@ function changeZone() {
   $('#barcode-item').attr('disabled', 'disabled');
 
   $('#BinCode').val('');
+  $('#soNo').val('');
   $('#zoneCode').val('');
   $('#zoneCode').removeAttr('disabled', 'disabled');
   $('#btn-change-zone').addClass('hide');
   $('#btn-submit-zone').removeClass('hide');
+  $('.order-btn').removeClass('btn-primary');
   $('#zoneCode').focus();
 }
 
@@ -83,6 +85,19 @@ function addToBarcode(itemCode) {
 
 function showPickOption(itemCode, uomEntry) {
   let binCode = $('#BinCode').val();
+  let orderCode = $('#soNo').val();
+
+  if(binCode.length == 0) {
+    swal("กรุณาระบุ Location");
+    return false;
+  }
+
+  if(orderCode.length == 0) {
+    swal("กรุณาระบุเลขที่ SO");
+    return false;
+  }
+
+
   if(binCode.length) {
     $.ajax({
       url:HOME + 'get_item_uom_list',
@@ -111,10 +126,12 @@ function showPickOption(itemCode, uomEntry) {
       }
     })
   }
-  else {
-    swal("กรุณาระบุ Location");
-  }
 }
+
+
+$('#pickOptionModal').on('shown.bs.modal', function() {
+  $('#option-qty').focus().select();
+})
 
 
 
@@ -122,6 +139,7 @@ function pickWithOption() {
   let absEntry = $('#AbsEntry').val();
   let docNum = $('#DocNum').val();
   let binCode = $('#BinCode').val();
+  let orderCode = $('#soNo').val();
   let qty = parseDefault(parseFloat($('#option-qty').val()), 0);
   let itemCode = $('#option-item').val();
   let uom = $('#option-uom').val();
@@ -130,6 +148,11 @@ function pickWithOption() {
 
   if(binCode.length == 0) {
     swal("กรุณาระบุ Location");
+    return false;
+  }
+
+  if(orderCode.length == 0) {
+    swal("กรุณาระบุเลขที่ SO");
     return false;
   }
 
@@ -168,6 +191,7 @@ function pickWithOption() {
       'AbsEntry' : absEntry,
       'DocNum' : docNum,
       'BinCode' : binCode,
+      'orderCode' : orderCode,
       'ItemCode' : itemCode,
       'UomEntry' : uom,
       'qty' : qty
@@ -189,6 +213,8 @@ function pickWithOption() {
             $('#row-'+ds.id).css('background-color', '#ebf1e2');
           }
         }
+
+        is_all_picked();
       }
       else {
         beep();
@@ -208,6 +234,7 @@ function pickItem() {
 
   let barcode = $.trim($('#barcode-item').val());
   let qty = parseDefault(parseFloat($('#qty').val()), 0);
+  let orderCode = $('#soNo').val();
 
   if(barcode.length && qty != 0) {
     $('#barcode-item').val('');
@@ -217,6 +244,16 @@ function pickItem() {
     let docNum = $('#DocNum').val();
     let binCode = $('#BinCode').val();
 
+    if(binCode.length == 0) {
+      swal("กรุณาระบุ Location");
+      return false;
+    }
+
+    if(orderCode.length == 0) {
+      swal("กรุณาระบุเลขที่ SO");
+      return false;
+    }
+
     $.ajax({
       url:HOME + 'pick_item',
       type:'POST',
@@ -225,6 +262,7 @@ function pickItem() {
         'AbsEntry' : absEntry,
         'DocNum' : docNum,
         'BinCode' : binCode,
+        'orderCode' : orderCode,
         'barcode' : barcode,
         'qty' : qty
       },
@@ -244,6 +282,8 @@ function pickItem() {
               $('#row-'+ds.id).css('background-color', '#ebf1e2');
             }
           }
+
+          is_all_picked();
         }
         else {
           beep();
@@ -338,6 +378,74 @@ function finishPick() {
 
 }
 
+
+function is_all_picked() {
+  var balance = 0;
+
+  $('.row-no').each(function() {
+    let no = $(this).val();
+    let relqty = parseDefault(parseFloat($('#release-'+no).text()), 0);
+    let picked = parseDefault(parseFloat($('#pick-'+no).text()), 0);
+
+    if(relqty > picked) {
+      balance++;
+    }
+  });
+
+  if(balance == 0) {
+    $('#finish-row').removeClass('hide');
+  }
+  else {
+    $('#finish-row').addClass('hide');
+  }
+}
+
+
+
+
+function toggleOrderCode(id, orderCode) {
+  let binCode = $('#BinCode').val();
+  $('#soNo').val(orderCode);
+  $('.order-btn').removeClass('btn-primary');
+  $('#order-'+id).addClass('btn-primary');
+
+  $('#details-table').prepend($('#row-'+id));
+
+  if(binCode.length > 0) {
+    $('#barcode-item').focus();
+  }
+  else {
+    $('#zoneCode').focus();
+  }
+
+}
+
+
+
+function increseQty() {
+  let qty = parseDefault(parseInt($('#option-qty').val()), 0);
+  if(qty >= 1) {
+    qty++;
+  }
+  else {
+    qty = 1;
+  }
+
+  $('#option-qty').val(qty);
+}
+
+
+function decreseQty() {
+  let qty = parseDefault(parseInt($('#option-qty').val()), 0);
+  if(qty > 1) {
+    qty--;
+  }
+  else {
+    qty = 1;
+  }
+
+  $('#option-qty').val(qty);
+}
 
 
 var intv = setInterval(function() {

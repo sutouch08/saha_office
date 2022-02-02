@@ -11,6 +11,7 @@
 <ul id="myTab1" class="setting-tabs">
 	<li class="li-block active"><a href="#company" data-toggle="tab">ข้อมูลบริษัท</a></li>
   <li class="li-block"><a href="#document" data-toggle="tab">เลขที่เอกสาร</a></li>
+	<li class="li-block"><a href="#LABEL" data-toggle="tab">Print Label</a></li>
 	<li class="li-block"><a href="#SAP" data-toggle="tab">ข้อมูล SAP</a></li>
 </ul>
 </div>
@@ -21,6 +22,8 @@
 <?php $this->load->view('setting/setting_company'); ?>
 <!---  ตั้งค่าเอกสาร  --------------------------------------------------->
 <?php $this->load->view('setting/setting_document'); ?>
+
+<?php $this->load->view('setting/setting_label'); ?>
 
 <?php $this->load->view('setting/setting_sap'); ?>
 

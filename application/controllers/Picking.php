@@ -190,6 +190,7 @@ class Picking extends PS_Controller
 		$absEntry = $this->input->post('AbsEntry');
 		$docNum = trim($this->input->post('DocNum'));
 		$binCode = $this->input->post('BinCode');
+		$orderCode = $this->input->post('orderCode');
 		$barcode = trim($this->input->post('barcode'));
 		$qty = $this->input->post('qty');
 
@@ -201,7 +202,7 @@ class Picking extends PS_Controller
 
 			if(! empty($item))
 			{
-				$detail = $this->picking_model->get_detail_by_item_uom($absEntry, $item->ItemCode, $item->UomEntry);
+				$detail = $this->picking_model->get_detail_by_item_uom($absEntry, $orderCode, $item->ItemCode, $item->UomEntry);
 
 				//--- ถ้ามีแสดงว่า หน่วยนับตรงกัน
 				if(! empty($detail))
@@ -242,6 +243,7 @@ class Picking extends PS_Controller
 								$arr = array(
 									'AbsEntry' => $absEntry,
 									'DocNum' => $docNum,
+									'OrderCode' => $orderCode,
 									'ItemCode' => $detail->ItemCode,
 									'UomEntry' => $detail->UomEntry,
 									'UomCode' => $detail->UomCode,
@@ -267,6 +269,7 @@ class Picking extends PS_Controller
 								$arr = array(
 									'AbsEntry' => $absEntry,
 									'DocNum' => $docNum,
+									'OrderCode' => $orderCode,
 									'ItemCode' => $detail->ItemCode,
 									'UomEntry' => $detail->UomEntry,
 									'UomCode' => $detail->UomCode,
@@ -320,7 +323,7 @@ class Picking extends PS_Controller
 				{
 					//---- กรณีหน่วนนับไม่ตรงกับในรายการ
 					//---- ดึงรายการที่หน่วยนับ ไม่ตรงกับที่ยิงมา
-					$details = $this->picking_model->get_details_by_item_other_uom($absEntry, $item->ItemCode, $item->UomEntry);
+					$details = $this->picking_model->get_details_by_item_other_uom($absEntry, $orderCode, $item->ItemCode, $item->UomEntry);
 
 					if(!empty($details))
 					{
@@ -389,6 +392,7 @@ class Picking extends PS_Controller
 											$arr = array(
 												'AbsEntry' => $absEntry,
 												'DocNum' => $docNum,
+												'OrderCode' => $orderCode,
 												'ItemCode' => $detail->ItemCode,
 												'UomEntry' => $detail->UomEntry,
 												'UomCode' => $detail->UomCode,
@@ -414,6 +418,7 @@ class Picking extends PS_Controller
 											$arr = array(
 												'AbsEntry' => $absEntry,
 												'DocNum' => $docNum,
+												'OrderCode' => $orderCode,
 												'ItemCode' => $detail->ItemCode,
 												'UomEntry' => $detail->UomEntry,
 												'UomCode' => $detail->UomCode,
@@ -499,6 +504,7 @@ class Picking extends PS_Controller
 		$absEntry = $this->input->post('AbsEntry');
 		$docNum = trim($this->input->post('DocNum'));
 		$binCode = $this->input->post('BinCode');
+		$orderCode = $this->input->post('orderCode');
 		$ItemCode = trim($this->input->post('ItemCode'));
 		$UomEntry = $this->input->post('UomEntry');
 		$qty = $this->input->post('qty');
@@ -510,7 +516,7 @@ class Picking extends PS_Controller
 
 			if(! empty($item))
 			{
-				$detail = $this->picking_model->get_detail_by_item_uom($absEntry, $ItemCode, $UomEntry);
+				$detail = $this->picking_model->get_detail_by_item_uom($absEntry, $orderCode, $ItemCode, $UomEntry);
 
 				//--- ถ้ามีแสดงว่า หน่วยนับตรงกัน
 				if(! empty($detail))
@@ -551,6 +557,7 @@ class Picking extends PS_Controller
 								$arr = array(
 									'AbsEntry' => $absEntry,
 									'DocNum' => $docNum,
+									'OrderCode' => $orderCode,
 									'ItemCode' => $detail->ItemCode,
 									'UomEntry' => $detail->UomEntry,
 									'UomCode' => $detail->UomCode,
@@ -576,6 +583,7 @@ class Picking extends PS_Controller
 								$arr = array(
 									'AbsEntry' => $absEntry,
 									'DocNum' => $docNum,
+									'OrderCode' => $orderCode,
 									'ItemCode' => $detail->ItemCode,
 									'UomEntry' => $detail->UomEntry,
 									'UomCode' => $detail->UomCode,
@@ -629,7 +637,7 @@ class Picking extends PS_Controller
 				{
 					//---- กรณีหน่วนนับไม่ตรงกับในรายการ
 					//---- ดึงรายการที่หน่วยนับ ไม่ตรงกับที่ยิงมา
-					$details = $this->picking_model->get_details_by_item_other_uom($absEntry, $ItemCode, $UomEntry);
+					$details = $this->picking_model->get_details_by_item_other_uom($absEntry, $orderCode, $ItemCode, $UomEntry);
 
 					if(!empty($details))
 					{
@@ -698,6 +706,7 @@ class Picking extends PS_Controller
 											$arr = array(
 												'AbsEntry' => $absEntry,
 												'DocNum' => $docNum,
+												'OrderCode' => $orderCode,
 												'ItemCode' => $detail->ItemCode,
 												'UomEntry' => $detail->UomEntry,
 												'UomCode' => $detail->UomCode,
@@ -723,6 +732,7 @@ class Picking extends PS_Controller
 											$arr = array(
 												'AbsEntry' => $absEntry,
 												'DocNum' => $docNum,
+												'OrderCode' => $orderCode,
 												'ItemCode' => $detail->ItemCode,
 												'UomEntry' => $detail->UomEntry,
 												'UomCode' => $detail->UomCode,
@@ -847,7 +857,7 @@ class Picking extends PS_Controller
 		{
 			foreach($details as $rs)
 			{
-				$rows = $this->pick_model->get_pick_rows_by_item_uom($absEntry, $rs->ItemCode, $rs->UomEntry);
+				$rows = $this->pick_model->get_pick_rows_by_item_uom($absEntry, $rs->OrderCode, $rs->ItemCode, $rs->UomEntry);
 
 				if(!empty($rows))
 				{

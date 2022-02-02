@@ -6,8 +6,9 @@ use BarcodeBakery\Common\BCGDrawing;
 use BarcodeBakery\Common\BCGFontFile;
 use BarcodeBakery\Barcode\BCGcode128;
 
+$size = isset($_GET['font_size']) ? intval($_GET['font_size']) : 18;
 // Loading Font
-$font = new BCGFontFile(__DIR__ . '/../font/Arial.ttf', 18);
+$font = new BCGFontFile(__DIR__ . '/../font/Arial.ttf', $size);
 
 // Don't forget to sanitize user inputs
 $text = isset($_GET['text']) ? $_GET['text'] : 'a123';

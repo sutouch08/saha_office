@@ -735,6 +735,10 @@ hr.padding-5 {
 	border: solid 1px red !important;
 }
 
+.has-success {
+  border: solid 1px green !important;
+}
+
 
 
 .img-tool-box{

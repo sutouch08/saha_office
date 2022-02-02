@@ -42,7 +42,7 @@
 <?php $this->load->view('packing/packing_control'); ?>
 
 <div class="row">
-	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
 		<table class="table table-striped border-1">
 			<thead>
 				<tr>
@@ -67,13 +67,13 @@
 								<?php if($rs->barcode) : ?>
 									<?php echo $rs->barcode; ?>
 								<?php else : ?>
-									<button type="button" class="btn btn-sm btn-primary" onclick="showPackOption('<?php echo $rs->ItemCode; ?>', <?php echo $rs->UomEntry; ?>)">Options</button>
+									<button type="button" class="btn btn-mini btn-primary" onclick="showPackOption('<?php echo $rs->ItemCode; ?>', <?php echo $rs->UomEntry; ?>)">Options</button>
 								<?php endif; ?>
 							</td>
 							<td class=""><?php echo $rs->ItemCode .' | '.$rs->ItemName; ?></td>
 							<td class="middle text-center"><?php echo $rs->unitMsr; ?></td>
 							<td class="middle text-center" id="pick-<?php echo $rs->id; ?>"><?php echo round($rs->PickQtty, 2); ?></td>
-							<td class="middle text-center" id="pack-<?php echo $rs->id; ?>"><?php echo round($rs->PackQtty, 2); ?></td>
+							<td class="middle text-center packed" id="pack-<?php echo $rs->id; ?>"><?php echo round($rs->PackQtty, 2); ?></td>
 							<td class="middle text-center balance" id="balance-<?php echo $rs->id; ?>"><?php echo round($balance, 2); ?></td>
 						</tr>
 						<?php $totalPick += round($rs->PickQtty, 2); ?>
@@ -81,17 +81,37 @@
 						<?php $totalBalance += round($balance, 2); ?>
 					<?php endforeach; ?>
 				<?php endif; ?>
-
-				<?php $finish = $totalBalance <= 0 ? "" : "hide"; ?>
-				<tr class="<?php echo $finish; ?>" id="finish-row">
+			</tbody>
+			<?php $finish = $totalBalance <= 0 ? "" : "hide"; ?>
+			<tfoot class="<?php echo $finish; ?>" id="finish-row">
+				<tr>
 					<td colspan="6" class="text-center">
 						<button type="button" class="btn btn-sm btn-success" id="btn-finish" onclick="finish_pack()">Finish Pack</button>
 					</td>
 				</tr>
-			</tbody>
+			</tfoot>
 		</table>
 	</div>
 </div>
+
+<script id="details-template" type="text/x-handlebarsTemplate">
+	{{#each this}}
+		<tr class="row-tr" id="row-{{id}}" style="{{color}}">
+			<td class="middle text-center">
+				{{#if barcode}}
+					{{barcode}}
+				{{else}}
+					<button type="button" class="btn btn-mini btn-primary" onclick="showPackOption('{{ItemCode}}', {{UomEntry}})">Options</button>
+				{{/if}}
+			</td>
+			<td class="">{{ItemCode}} | {{ItemName}}</td>
+			<td class="middle text-center">{{unitMsr}}</td>
+			<td class="middle text-center" id="pick-{{id}}">{{PickQtty}}</td>
+			<td class="middle text-center packed" id="pack-{{id}}">{{PackQtty}}</td>
+			<td class="middle text-center balance" id="balance-{{id}}">{{balance}}</td>
+		</tr>
+	{{/each}}
+</script>
 
 <!--  Add New Address Modal  --------->
 <div class="modal fade" id="packOptionModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -126,6 +146,117 @@
         </div>
     </div>
 </div>
+
+
+
+<div class="modal fade" id="boxOptionModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="max-width:500px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title-site text-center">การแก้ไขกล่อง</h4>
+            </div>
+            <div class="modal-body">
+	            <div class="row">
+	              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
+	              	<table class="table table-striped table-bordered">
+										<thead>
+											<tr>
+												<th class="width-10 middle text-center">
+													<label>
+														<input type="checkbox" class="ace" id="box-chk-all" onchange="check_box_all()">
+														<span class="lbl"></span>
+													</label>
+												</th>
+												<th class="width-30 middle text-center">กล่อง</th>
+												<th class="width-20 middle text-center">จำนวนสินค้า</th>
+												<th class="width-30 middle text-center"></th>
+											</tr>
+										</thead>
+	              		<tbody id="box-list-table">
+
+	              		</tbody>
+	              	</table>
+	              </div>
+	            </div>
+            </div>
+            <div class="modal-footer">
+							<button type="button" class="btn btn-sm btn-danger pull-left" onclick="removeSelectedBox()"><i class="fa fa-trash"></i> Delete</button>
+              <button type="button" class="btn btn-sm btn-info pull-right" onClick="printSelectedBox()"><i class="fa fa-print"></i> Print</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script id="box-list-template" type="text/x-handlebarsTemplate">
+{{#each this}}
+	<tr id="box-row-{{box_id}}">
+		<td class="middle text-center">
+			<label><input type="checkbox" class="ace box-chk" data-no="{{no}}" value="{{box_id}}"><span class="lbl"></span></label>
+		</td>
+		<td class="middle">กล่องที่ {{no}}</td>
+		<td class="middle text-center">{{qty}}</td>
+		<td class="middle text-right">
+			<button type="button" class="btn btn-xs btn-info" onclick="printBox({{box_id}})"><i class="fa fa-print"></i></button>
+			<button type="button" class="btn btn-xs btn-primary" onclick="editBox({{box_id}})"><i class="fa fa-eye"></i></button>
+			<button type="button" class="btn btn-xs btn-danger" onclick="removeBox({{box_id}}, {{no}})"><i class="fa fa-trash"></i></button>
+		</td>
+	</tr>
+{{/each}}
+</script>
+
+
+<div class="modal fade" id="boxEditModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="max-width:600px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            </div>
+            <div class="modal-body">
+	            <div class="row">
+	              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
+	              	<table class="table table-striped table-bordered">
+	              		<tbody id="box-detail-table">
+
+	              		</tbody>
+	              	</table>
+	              </div>
+								<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 text-center red" id="box-error">
+
+								</div>
+	            </div>
+            </div>
+            <div class="modal-footer">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script id="box-detail-template" type="text/x-handlebarsTemplate">
+	<tr>
+		<td colspan="4" class="text-center">กล่องที่ {{box_no}}</td>
+	</tr>
+	<tr>
+		<td class="text-center">สินค้า</td>
+		<td class="text-center" style="width:50px;">Uom</td>
+		<td class="text-center" style="width:70px;">จำนวน</td>
+		<td class="text-center" style="width:50px;"></td>
+	</tr>
+	{{#each rows}}
+	<tr id="box-row-{{id}}">
+		<td class="middle">{{ItemCode}}  {{ItemName}}</td>
+		<td class="middle text-center">{{unitMsr}}</td>
+		<td class="middle text-center">{{qty}}</td>
+		<td class="middle text-right">
+			<button type="button" class="btn btn-xs btn-danger" onclick="removePackDetail({{id}}, '{{ItemCode}}')"><i class="fa fa-trash"></i></button>
+		</td>
+	</tr>
+	{{/each}}
+</script>
 
 <script src="<?php echo base_url(); ?>scripts/packing/packing.js?v=<?php echo date('YmdH'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/packing/packing_control.js?v=<?php echo date('YmdH'); ?>"></script>

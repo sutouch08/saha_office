@@ -345,3 +345,9 @@ function validInput(input, regex){
   var regex = regex === undefined ? /[^a-z0-9-_.]+/gi : regex;
   input.value = input.value.replace(regex, '');
 }
+
+
+function print_url(target)
+{
+	$("<iframe>").hide().attr("src", target).appendTo("body");
+}

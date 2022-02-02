@@ -140,11 +140,21 @@ class Packing extends PS_Controller
 					}
 				}
 
+				$box_list = $this->packing_model->get_box_list($doc->code);
+
+				if(empty($box_list))
+				{
+					if($this->packing_model->add_new_box($doc->code, 1, 1))
+					{
+						$box_list = $this->packing_model->get_box_list($doc->code);
+					}
+				}
+
 
 				$ds = array(
 					'doc' => $doc,
 					'rows' => $rows,
-					'box_list' => $this->packing_model->get_box_list($doc->code),
+					'box_list' => $box_list,
 					'pack_qty' => $pack_qty,
 					'all_qty' => $all_qty
 				);
@@ -160,6 +170,55 @@ class Packing extends PS_Controller
 		{
 			$this->page_error();
 		}
+	}
+
+
+
+	public function get_details_table()
+	{
+		$sc = TRUE;
+		$ds = array();
+
+		$id = $this->input->get('id');
+
+		$doc = $this->pack_model->get($id);
+
+		if(!empty($doc))
+		{
+			$rows = $this->pack_model->get_rows($doc->code);
+			$pack_qty = 0;
+			$all_qty = 0;
+
+			if(!empty($rows))
+			{
+				foreach($rows as $rs)
+				{
+					$balance = $rs->PickQtty - $rs->PackQtty;
+
+					$arr = array(
+						'id' => $rs->id,
+						'barcode' => $this->item_model->get_barcode_uom($rs->ItemCode, $rs->UomEntry),
+						'ItemCode' => $rs->ItemCode,
+						'ItemName' => $rs->ItemName,
+						'UomEntry' => $rs->UomEntry,
+						'unitMsr' => $rs->unitMsr,
+						'PickQtty' => round($rs->PickQtty, 2),
+						'PackQtty' => round($rs->PackQtty, 2),
+						'balance' => $balance < 0 ? 0 : round($balance , 2),
+						'color' => $balance <= 0 ? 'background-color:#ebf1e2;' : ''
+					);
+
+					array_push($ds, $arr);
+				}
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Invalid document id";
+		}
+
+		echo $sc === TRUE ? json_encode($ds) : $this->error;
 	}
 
 
@@ -619,6 +678,31 @@ class Packing extends PS_Controller
   }
 
 
+	public function add_box() {
+		$sc = TRUE;
+		$box_id = "";
+
+		$code = $this->input->post('code');
+		if(!empty($code))
+		{
+			$box_no = $this->packing_model->get_last_box_no($code) + 1;
+			$box_id = $this->packing_model->add_new_box($code, $box_no, $box_no);
+			if(! $box_id)
+			{
+				$sc = FALSE;
+				$this->error = "เพิ่มกล่องไม่สำเร็จ";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing required parameter: code";
+		}
+
+		echo $sc === TRUE ? $box_id : $this->error;
+	}
+
+
 
 
 
@@ -684,7 +768,7 @@ class Packing extends PS_Controller
 
 						$PackQtty = $row->PackQtty;
 
-						$buffer = $this->packing_model->get_buffer_uom($row->pickCode, $row->ItemCode, $row->UomEntry);
+						$buffer = $this->packing_model->get_buffer_uom($row->pickCode, $row->orderCode, $row->ItemCode, $row->UomEntry);
 
 						if(! empty($buffer))
 						{
@@ -705,6 +789,7 @@ class Packing extends PS_Controller
 
 									$arr = array(
 										'packCode' => $doc->code,
+										'OrderCode' => $row->orderCode,
 										'ItemCode' => $row->ItemCode,
 										'UomEntry' => $row->UomEntry,
 										'UomCode' => $row->UomCode,
@@ -819,6 +904,436 @@ class Packing extends PS_Controller
 
 
 
+	public function get_pack_box_details()
+	{
+		$sc = TRUE;
+		$ds = array();
+		$code = $this->input->get('code');
+		$box_id = $this->input->get('box_id');
+		$box = $this->packing_model->get_box_by_id($box_id);
+
+		if(!empty($box))
+		{
+			$ds['box_no'] = $box->box_no;
+
+			$details = $this->packing_model->get_pack_box_details($code, $box_id);
+
+			if(!empty($details))
+			{
+				$rows = array();
+
+				foreach($details as $rs)
+				{
+					$arr = array(
+						'id' => $rs->id,
+						'ItemCode' => $rs->ItemCode,
+						'ItemName' => $this->item_model->getName($rs->ItemCode),
+						'qty' => round($rs->qty, 2),
+						'unitMsr' => $rs->unitMsr
+					);
+
+					array_push($rows, $arr);
+				}
+
+				$ds['rows'] = $rows;
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "The specified box not found";
+		}
+
+		echo $sc === TRUE ? json_encode($ds) : $this->error;
+	}
+
+
+
+
+	public function delete_pack_detail()
+	{
+		$sc = TRUE;
+		$id = $this->input->post('id');
+		$code = trim($this->input->post('code'));
+
+		if(!empty($code))
+		{
+			$doc = $this->pack_model->get_by_code($code);
+
+			if(!empty($doc))
+			{
+				if($doc->Status == 'P')
+				{
+					$detail = $this->packing_model->get_pack_detail($id);
+
+					if(!empty($detail))
+					{
+						$row = $this->pack_model->get_detail_by_item_uom($code, $detail->ItemCode, $detail->UomEntry);
+
+						if(!empty($row))
+						{
+							$packDif = $row->PackQtty - $detail->qty;
+							$baseDif = $row->BasePackQty - $detail->BasePackQty;
+
+							if($packDif < 0 OR $baseDif < 0)
+							{
+								$sc = FALSE;
+								$this->error = "จำนวนที่ต้องการลบ มากกว่าจำนวนแพ็คแล้ว";
+							}
+
+							//---- Update pack row
+							if($sc === TRUE)
+							{
+
+								$this->db->trans_begin();
+
+								//--- delete pack detail
+								if(! $this->packing_model->delete_pack_detail($id))
+								{
+									$sc = FALSE;
+									$this->error = "Delete pack detail failed";
+								}
+
+								if($sc === TRUE)
+								{
+									$packQty = $detail->qty * -1;
+									$basePackQty = $detail->BasePackQty * -1;
+
+									if(! $this->packing_model->update_pack_row($row->id, $packQty, $basePackQty))
+									{
+										$sc = FALSE;
+										$this->error = "Update pack row failed";
+									}
+								}
+
+								if($sc === TRUE)
+								{
+									$this->db->trans_commit();
+								}
+								else
+								{
+									$this->db->trans_rollback();
+								}
+							}
+						}
+						else
+						{
+							$sc = FALSE;
+							$this->error = "Pack row not found";
+						}
+					}
+					else
+					{
+						$sc = FALSE;
+						$this->error = "Invalid pack detail id";
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "Invalid document status";
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Invalid document code";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing required parameter: code";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
+
+
+
+	public function delete_pack_box()
+	{
+		$sc = TRUE;
+		$id = $this->input->post('id');
+		$code = trim($this->input->post('code'));
+		$box_id = $this->input->post('box_id');
+
+		if(!empty($code))
+		{
+			$doc = $this->pack_model->get_by_code($code);
+
+			if(!empty($doc))
+			{
+				if($doc->Status == 'P')
+				{
+					$this->db->trans_begin();
+
+					if(! $this->delete_packed_box($code, $box_id))
+					{
+						$sc = FALSE;
+					}
+
+					if($sc === TRUE)
+					{
+						$this->db->trans_commit();
+					}
+					else
+					{
+						$this->db->trans_rollback();
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "Invalid document status";
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Invalid document code";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing required parameter: code";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
+
+
+
+	private function delete_packed_box($code, $box_id)
+	{
+		$sc = TRUE;
+
+		$details = $this->packing_model->get_pack_box_details($code, $box_id);
+
+		if(!empty($details))
+		{
+			foreach($details as $detail)
+			{
+				if($sc === FALSE)
+				{
+					break;
+				}
+
+				$row = $this->pack_model->get_detail_by_item_uom($code, $detail->ItemCode, $detail->UomEntry);
+
+				if(!empty($row))
+				{
+					$packDif = $row->PackQtty - $detail->qty;
+					$baseDif = $row->BasePackQty - $detail->BasePackQty;
+
+					if($packDif < 0 OR $baseDif < 0)
+					{
+						$sc = FALSE;
+						$this->error = "จำนวนที่ต้องการลบ มากกว่าจำนวนแพ็คแล้ว";
+					}
+
+					//---- Update pack row
+					if($sc === TRUE)
+					{
+						//--- delete pack detail
+						if(! $this->packing_model->delete_pack_detail($detail->id))
+						{
+							$sc = FALSE;
+							$this->error = "Delete pack detail failed";
+						}
+
+						if($sc === TRUE)
+						{
+							$packQty = $detail->qty * -1;
+							$basePackQty = $detail->BasePackQty * -1;
+
+							if(! $this->packing_model->update_pack_row($row->id, $packQty, $basePackQty))
+							{
+								$sc = FALSE;
+								$this->error = "Update pack row failed";
+							}
+						}
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "Pack row not found";
+				}
+			}
+		}
+
+
+		if($sc === TRUE)
+		{
+			//--- delete box
+			if(! $this->packing_model->delete_box($box_id))
+			{
+				$sc = FALSE;
+				$this->error = "Delete box failed";
+			}
+
+			if($sc === TRUE)
+			{
+				//--- rearange box
+				$boxes = $this->packing_model->get_pack_boxes($code);
+
+				if(!empty($boxes))
+				{
+					$box_no = 1;
+					foreach($boxes as $box)
+					{
+						$arr = array(
+							'code' => $box_no,
+							'box_no' => $box_no
+						);
+
+						if(! $this->packing_model->update_box($box->id, $arr))
+						{
+							$sc = FALSE;
+							$this->error = "Update box failed";
+						}
+
+						$box_no++;
+					}
+				}
+			}
+		}
+
+		return $sc;
+	}
+
+
+
+	public function delete_select_box()
+	{
+		$sc = TRUE;
+
+		$code = $this->input->post('code');
+		$boxes = json_decode($this->input->post('boxes'));
+
+		if(!empty($code))
+		{
+			$doc = $this->pack_model->get_by_code($code);
+
+			if(!empty($doc))
+			{
+				if($doc->Status == 'P')
+				{
+					if(!empty($boxes))
+					{
+						$this->db->trans_begin();
+
+						foreach($boxes as $box)
+						{
+							if($sc === FALSE)
+							{
+								break;
+							}
+
+							if(! $this->delete_packed_box($code, $box->box_id))
+							{
+								$sc = FALSE;
+							}
+						}
+
+						if($sc === TRUE)
+						{
+							$this->db->trans_commit();
+						}
+						else
+						{
+							$this->db->trans_rollback();
+						}
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "Invalid document status";
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Invalid document code";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing required parameter: code";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
+
+
+
+
+	public function print_box($code, $box_id)
+	{
+		$this->title = "Print Label";
+		$this->load->model('sales_order_model');
+		$this->load->library('printer');
+
+		$arr = array($box_id);
+		$box = $this->packing_model->get_selected_boxes($arr);
+
+		$doc = $this->pack_model->get_by_code($code);
+		$order = $this->getOrder($doc->orderCode);
+		$order->BeginStr = $this->sales_order_model->get_prefix($order->Series);
+
+
+		$ds = array(
+			'doc' => $doc,
+			'boxes' => $box,
+			'last_box_no' => $this->packing_model->get_last_box_no($doc->code),
+			'order' => $order
+		);
+
+		$this->load->view('print/print_pack_label', $ds);
+	}
+
+
+
+	public function print_selected_boxes($code, $box_ids)
+	{
+		$this->title = "Print Label";
+		$this->load->model('sales_order_model');
+		$this->load->library('printer');
+
+		$arr = explode("-", $box_ids);
+
+		$box = $this->packing_model->get_selected_boxes($arr);
+
+		$doc = $this->pack_model->get_by_code($code);
+		$order = $this->getOrder($doc->orderCode);
+		$order->BeginStr = $this->sales_order_model->get_prefix($order->Series);
+
+
+		$ds = array(
+			'doc' => $doc,
+			'boxes' => $box,
+			'last_box_no' => $this->packing_model->get_last_box_no($doc->code),
+			'order' => $order
+		);
+
+		$this->load->view('print/print_pack_label', $ds);
+	}
+
+
+	public function getOrder($soNo)
+	{
+		$rs = $this->ms->where('DocNum', $soNo)->get('ORDR');
+		if($rs->num_rows() === 1)
+		{
+			return $rs->row();
+		}
+
+		return NULL;
+	}
 
 
 	public function clear_filter()

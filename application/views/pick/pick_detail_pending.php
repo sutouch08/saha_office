@@ -13,7 +13,7 @@
           <th class="middle text-right" style="width:100px;">Prev Released</th>
           <th class="middle text-right" style="width:100px;">Qty</th>
           <th class="middle text-right" style="width:100px;">Available(UOM)</th>
-
+          <th class="" style="width:50px;"></th>
         </tr>
       </thead>
       <tbody id="pick-list-items">
@@ -41,7 +41,13 @@
               <td class="middle text-right"><?php echo number($rs->PrevRelease, 2); ?></td>
               <td class="middle text-right"><?php echo number($rs->RelQtty, 2); ?></td>
               <td class="middle text-right" id="onhand-<?php echo $rowNum; ?>"><?php echo number($rs->OnHand, 2); ?>(<?php echo $rs->unitMsr2; ?>)</td>
-
+              <td class="middle text-center">
+                <button type="button"
+                class="btn btn-danger btn-minier"
+                onclick="removeRow(<?php echo $rowNum.", ".$rs->AbsEntry.", ".$rs->PickEntry; ?>)">
+                <i class="fa fa-trash"></i>
+              </button>
+              </td>
             </tr>
             <?php
               $no++;
@@ -61,6 +67,7 @@
           <td class="middle text-right" id="totalPrevRelease"><?php echo number($totalPrevRelease, 2); ?></td>
           <td class="middle text-right" id="totalQty"><?php echo number($totalQty, 2); ?></td>
           <td class="middle text-right"></td>
+          <td></td>
         </tr>
       </tfoot>
     </table>

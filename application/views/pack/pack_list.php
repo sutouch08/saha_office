@@ -36,7 +36,12 @@
     <input type="text" class="form-control input-sm text-center search-box" name="pickCode" value="<?php echo $pickCode; ?>" />
   </div>
 
-	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1 col-md-2 col-sm-2 col-xs-6 padding-5">
+    <label class="search-label">Transfer No</label>
+    <input type="text" class="form-control input-sm text-center search-box" name="transferCode" value="<?php echo $transferCode; ?>" />
+  </div>
+
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label class="search-label">ลูกค้า</label>
     <input type="text" class="form-control input-sm text-center search-box" name="CardName" value="<?php echo $CardName; ?>" />
   </div>
@@ -91,11 +96,12 @@
 	$sort_Status = get_sort('Status', $order_by, $sort_by);
   $sort_date = get_sort('date_add', $order_by, $sort_by);
   $sort_CardName = get_sort('CardName', $order_by, $sort_by);
+	$sort_transferCode = get_sort('transferCode', $order_by, $sort_by);
  ?>
 
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-		<table class="table table-striped table-hover border-1 dataTable" style="table-layout: fixed; width:100%; min-width:1000px;">
+		<table class="table table-striped table-hover border-1 dataTable" style="table-layout: fixed; width:100%; min-width:1110px;">
 			<thead>
 				<tr>
 					<th style="width:40px;" class="middle text-center">#</th>
@@ -103,9 +109,11 @@
 					<th style="width:110px;" class="middle text-center sorting <?php echo $sort_code; ?>" id="sort_code" onclick="sort('code')">เลขที่</th>
           <th style="width:100px;" class="middle text-center sorting <?php echo $sort_orderCode; ?>" id="sort_orderCode" onclick="sort('orderCode')">SO No.</th>
           <th style="width:110px;" class="middle text-center sorting <?php echo $sort_pickCode; ?>" id="sort_pickCode" onclick="sort('pickCode')">Pick List No.</th>
+					<th style="width:100px;" class="middle text-center sorting <?php echo $sort_transferCode; ?>" id="sort_transferCode" onclick="sort('transferCode')">Transfer No.</th>
           <th style="min-width:150px;" class="middle sorting <?php echo $sort_CardName; ?>" id="sort_CardName" onclick="sort('CardName')">ลูกค้า</th>
 					<th style="width:150px;" class="middle sorting <?php echo $sort_uname; ?>" id="sort_uname" onclick="sort('uname')">User</th>
 					<th style="width:100px;" class="middle text-center sorting <?php echo $sort_Status; ?>" id="sort_Status" onclick="sort('Status')">สถานะ</th>
+					<th style="width:100px;" class="middle text-center">Temp Status</th>
 					<th style="width:150px;"></th>
 				</tr>
 			</thead>
@@ -120,18 +128,32 @@
 						<td class="middle text-center"><?php echo $rs->code; ?></td>
             <td class="middle text-center"><?php echo $rs->orderCode; ?></td>
             <td class="middle text-center"><?php echo $rs->pickCode; ?></td>
+						<td class="middle text-center"><?php echo $rs->SapNo; ?></td>
             <td class="middle" style="white-space:pre-wrap;"><?php echo $rs->CardName; ?></td>
 						<td class="middle"><?php echo $rs->uname; ?></td>
 						<td class="middle text-center">
               <?php if($rs->Status == 'D') : ?>
                 <span class="red">ยกเลิก</span>
               <?php elseif($rs->Status == 'Y') : ?>
-                <span class="green">แพ็คเสร็จแล้ว</span>
+                <span class="green">แพ็คแล้ว</span>
               <?php elseif($rs->Status == 'P') : ?>
                 <span class="blue">กำลังแพ็ค</span>
               <?php elseif($rs->Status == 'N') : ?>
                 <span class="orange">รอแพ็ค</span>
               <?php endif; ?>
+						</td>
+						<td class="middle text-center">
+							<?php if($rs->Status == 'Y') : ?>
+								<?php if($rs->tempStatus == 'S') : ?>
+									<button type="button" class="btn btn-xs btn-success" onclick="viewTempDetail('<?php echo $rs->code; ?>')">Success</button>
+								<?php elseif($rs->tempStatus == 'P') : ?>
+									<button type="button" class="btn btn-xs btn-warning" onclick="viewTempDetail('<?php echo $rs->code; ?>')">Pending</button>
+								<?php elseif($rs->tempStatus == 'E') : ?>
+									<button type="button" class="btn btn-xs btn-danger" onclick="viewTempDetail('<?php echo $rs->code; ?>')">Fail</button>
+								<?php else : ?>
+									<span class="orange">Not Export</span>
+								<?php endif; ?>
+							<?php endif; ?>
 						</td>
 						<td class="middle text-right">
 							<button type="button"
@@ -146,7 +168,7 @@
 				<?php endforeach; ?>
 			<?php else : ?>
 				<tr>
-					<td colspan="9" class="middle text-center">ไม่พบรายการ</td>
+					<td colspan="10" class="middle text-center">ไม่พบรายการ</td>
 				</tr>
 			<?php endif; ?>
 			</tbody>
