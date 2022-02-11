@@ -548,6 +548,25 @@ class Sales_order_model extends CI_Model
   }
 
 
+
+  public function get_prefix_by_docNum($docNum)
+  {
+    $rs = $this->ms
+    ->select('N.BeginStr')
+    ->from('ORDR AS O')
+    ->join('NNM1 AS N', 'O.Series = N.Series AND N.ObjectCode = 17', 'left')
+    ->where('O.DocNum', $docNum)
+    ->get();
+
+    if($rs->num_rows() == 1)
+    {
+      return $rs->row()->BeginStr;
+    }
+
+    return NULL;
+  }
+
+
   public function get_all_oum()
   {
     $rs = $this->ms

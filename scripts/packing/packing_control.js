@@ -10,15 +10,59 @@ $('#barcode-item').keyup(function(e) {
 
 
 function setBox(id) {
-  $('#box_id').val(id);
+
+  let pallet_id = $('#pallet_id').val();
+  let box_pallet_id = $('#btn-box-'+id).data('pallet_id');
+
+  if(pallet_id == "") {
+    swal({
+      title:'Error!',
+      text:'กรุณาระบุ pallet ก่อนเลือกกล่อง',
+      type:'error'
+    });
+
+    return false;
+  }
+
+
+  if(box_pallet_id != pallet_id) {
+    swal({
+      title:"Error",
+      text:"กล่องไม่ตรงกับpallet",
+      type:"error"
+    });
+
+    return false;
+  }
+  else {
+    $('#box_id').val(id);
+    $('.box-btn').removeClass('btn-success');
+    $('#btn-box-'+id).addClass('btn-success');
+    $('#barcode-item').focus();
+  }
+}
+
+
+function unsetBox() {
+  $('#box_id').val('');
   $('.box-btn').removeClass('btn-success');
-  $('#btn-box-'+id).addClass('btn-success');
-  $('#barcode-item').focus();
 }
 
 
 function addBox() {
   var code = $('#code').val();
+  var pallet_id = $('#pallet_id').val();
+
+  if(pallet_id == "" || pallet_id == 0) {
+    swal({
+      title:'Error!',
+      text:'กรุณาเลือก pallet ก่อน',
+      type:'error'
+    });
+
+    return false;
+  }
+
 
   if(code.length) {
     $.ajax({
@@ -26,7 +70,8 @@ function addBox() {
       type:'POST',
       cache:false,
       data:{
-        "code" : code
+        "code" : code,
+        "pallet_id" : pallet_id
       },
       success:function(rs) {
         var rs = $.trim(rs);

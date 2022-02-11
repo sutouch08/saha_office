@@ -20,7 +20,7 @@
   </div>
   <div class="col-lg-1 col-md-1 col-sm-1 col-xs-3 padding-5">
     <label class="display-block not-show">btn</label>
-    <button type="button" class="btn btn-xs btn-primary btn-block" id="btn-item" onclick="doPacking()" disabled>ตกลง</button>
+    <button type="button" class="btn btn-xs btn-primary btn-block" id="btn-item" onclick="doPacking()">ตกลง</button>
   </div>
 </div>
 

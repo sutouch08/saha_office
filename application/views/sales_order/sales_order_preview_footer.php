@@ -38,7 +38,7 @@
       </tr>
       <tr>
         <td class="width-60 text-right">Tax</td>
-        <td class="width-40 text-right"><?php echo number(($totalAmount - ($totalAmount * $header->DiscPrcnt * 0.01)) * $vat_rate, 2); ?></td>
+        <td class="width-40 text-right"><?php echo number($totalVat, 2); ?></td>
       </tr>
       <tr>
         <td class="width-60 text-right">Total</td>

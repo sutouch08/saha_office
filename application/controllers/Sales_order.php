@@ -927,6 +927,7 @@ class Sales_order extends PS_Controller
 		{
 			$vatRate = getConfig('SALE_VAT_RATE');
 			$totalAmount = 0;
+			$totalVat = 0;
 			$details = $this->sales_order_model->get_details($code);
 
 			if(!empty($details))
@@ -939,6 +940,8 @@ class Sales_order extends PS_Controller
 					$rs->OnHandQty = empty($stock) ? 0 : round($stock->OnHand,2);
 					$rs->IsCommited = empty($stock) ? 0 : round($stock->IsCommited,2);
 					$rs->OnOrder = empty($stock) ? 0 : round($stock->OnOrder, 2);
+
+					$totalVat += $rs->LineTotal * ($rs->VatRate * 0.01);
 				}
 			}
 
@@ -956,6 +959,7 @@ class Sales_order extends PS_Controller
 				'details' => $details,
 				'totalAmount' => $totalAmount,
 				'vat_rate' => $vatRate * 0.01,
+				'totalVat' => $totalVat,
 				'sale_name' => $this->user_model->get_saleman_name($header->SlpCode),
 				'logs' => $this->sales_order_logs_model->get($code),
 				'can_approve' => $can_approve,
@@ -1957,7 +1961,14 @@ class Sales_order extends PS_Controller
 			'show_discount' => TRUE
 		);
 
-		$this->load->view('print/print_sales_order', $ds);
+		if(!empty(getConfig('DEMO')))
+		{
+			$this->load->view('print/print_sales_order_demo', $ds);
+		}
+		else
+		{
+			$this->load->view('print/print_sales_order', $ds);
+		}
 	}
 
 

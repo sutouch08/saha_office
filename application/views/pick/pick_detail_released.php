@@ -11,7 +11,6 @@
           <th class="middle text-right" style="width:100px;">Released</th>
           <th class="middle text-right" style="width:100px;">Picked</th>
           <th class="middle text-right" style="width:100px;">Balance</th>
-
         </tr>
       </thead>
       <tbody id="pick-list-items">

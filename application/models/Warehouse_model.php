@@ -22,5 +22,31 @@ class Warehouse_model extends CI_Model
     return NULL;
   }
 
+
+  public function get_warehouse_code($binCode)
+  {
+    $rs = $this->ms->select('WhsCode')->where('BinCode', $binCode)->get('OBIN');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->WhsCode;
+    }
+
+    return NULL;
+  }
+
+
+  public function is_exists_bin_code($whsCode, $binCode)
+  {
+    $rs = $this->ms->select('AbsEntry')->where('WhsCode', $whsCode)->where('BinCode', $binCode)->get('OBIN');
+
+    if($rs->num_rows() === 1)
+    {
+      return TRUE;
+    }
+
+    return FALSE;
+  }
+
 }
 ?>

@@ -14,7 +14,7 @@
 				<?php endif; ?>
 				<?php if($doc->Status == 'Y') : ?>
 					<button type="button" class="btn btn-sm btn-info" onclick="showBoxOption()"><i class="fa fa-print"></i></button>
-					<button type="button" class="btn btn-sm btn-primary" onclick="sendToSap()"><i class="fa fa-send"></i></button>
+					<button type="button" class="btn btn-sm btn-primary" onclick="showBinOption()"><i class="fa fa-send"></i></button>
 				<?php endif; ?>
       </p>
 			<p class="pull-right top-p hidden-xs">
@@ -24,9 +24,8 @@
 				<button type="button" class="btn btn-sm btn-primary" onclick="goProcess(<?php echo $doc->id; ?>)">แพ็คสินค้า</button>
 				<button type="button" class="btn btn-sm btn-danger" onclick="canclePack()">ยกเลิก</button>
 				<?php endif; ?>
-				<?php if($doc->Status == 'Y') : ?>					
-					<button type="button" class="btn btn-sm btn-info" onclick="showBoxOption()"><i class="fa fa-print"></i> พิมพ์ Label</button>
-					<button type="button" class="btn btn-sm btn-primary" onclick="sendToSap()"><i class="fa fa-send"></i> Send to SAP</button>
+				<?php if($doc->Status == 'Y') : ?>
+					<button type="button" class="btn btn-sm btn-info" onclick="showBoxOption()"><i class="fa fa-print"></i> พิมพ์ Label</button>					
 				<?php endif; ?>
       </p>
     </div>
@@ -55,6 +54,18 @@
 		<label>ลูกค้า</label>
 		<input type="text" class="form-control input-sm" id="CardName" value="<?php echo $doc->CardName; ?>" disabled />
 	</div>
+
+	<div class="col-lg-3 col-md-3 col-sm-3 col-xs-4 padding-5">
+		<label>คลังปลายทาง</label>
+		<input type="text" class="form-control input-sm" value="<?php echo $doc->TransWhsCode; ?>" disabled />
+	</div>
+
+	<div class="col-lg-9 col-md-9 col-sm-9 col-xs-8 padding-5">
+		<label>Location ปลายทาง</label>
+		<input type="text" class="form-control input-sm" value="<?php echo $doc->TransBinCode; ?>" disabled />
+	</div>
+
+
 </div>
 <hr class="padding-5 margin-top-10 margin-bottom-10" />
 
@@ -214,6 +225,35 @@
 	</tr>
 	{{/each}}
 </script>
+
+
+
+<div class="modal fade" id="binOptionModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="max-width:500px;">
+        <div class="modal-content">
+					<div class="modal-header" style="padding-bottom:0px; border-bottom:solid 1px #CCC;">
+							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+							<h4 class="modal-title-site">ระบุ Location ปลายทาง</h4>
+					</div>
+            <div class="modal-body">
+	            <div class="row">
+	              <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 padding-5">
+									<label>คลัง</label>
+	              	<input type="text" class="form-control input-sm text-center" id="bufferWarehouse" value="<?php echo getConfig('BUFFER_WAREHOUSE'); ?>" disabled />
+	              </div>
+								<div class="col-lg-8 col-md-8 col-sm-8 col-xs-8 padding-5">
+									<label>Location</label>
+	              	<input type="text" class="form-control input-sm" id="binOption" />
+	              </div>
+								<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 text-center red" id="bin-error"></div>
+	            </div>
+            </div>
+            <div class="modal-footer">
+							<button type="button" class="btn btn-sm btn-primary" onclick="sendToSap()">Send To SAP</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 <script src="<?php echo base_url(); ?>scripts/pack/pack.js?v=<?php echo date('YmdH'); ?>"></script>

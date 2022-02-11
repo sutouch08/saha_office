@@ -1753,7 +1753,15 @@ class Quotation extends PS_Controller
 			'show_discount' => TRUE
 		);
 
-		$this->load->view('print/print_quotation', $ds);
+		if(!empty(getConfig('DEMO')))
+		{
+			$this->load->view('print/print_quotation_demo', $ds);
+		}
+		else
+		{
+			$this->load->view('print/print_quotation', $ds);
+		}
+
 	}
 
 

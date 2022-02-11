@@ -11,10 +11,11 @@ class Packing_model extends CI_Model
   public function get_box_list($code)
   {
     $rs = $this->db
-    ->select('pack_box.id, pack_box.box_no')
+    ->select('pack_box.id, pack_box.box_no, pack_box.pallet_id, pallet.code AS palletCode')
     ->select_sum('pack_details.qty')
     ->from('pack_box')
     ->join('pack_details', 'pack_box.id = pack_details.box_id AND pack_box.packCode = pack_details.packCode', 'left')
+    ->join('pallet', 'pack_box.pallet_id = pallet.id', 'left')
     ->where('pack_box.packCode', $code)
     ->group_by('pack_box.id')
     ->order_by('box_no', 'ASC')
@@ -26,6 +27,48 @@ class Packing_model extends CI_Model
     }
 
     return FALSE;
+  }
+
+
+  public function get_boxes_by_pallet_id($code, $pallet_id)
+  {
+    $rs = $this->db
+    ->select('pack_box.id AS box_id, pack_box.box_no, pack_box.pallet_id')
+    ->select_sum('pack_details.qty')
+    ->from('pack_details')
+    ->join('pack_box', 'pack_details.box_id = pack_box.id AND pack_details.packCode = pack_box.packCode', 'left')
+    ->where('pack_box.pallet_id', $pallet_id)
+    ->where('pack_details.packCode', $code)
+    ->group_by('pack_details.box_id')
+    ->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+  public function get_no_pallet_box($code)
+  {
+    $rs = $this->db
+    ->select('pack_box.id AS box_id, pack_box.box_no')
+    ->select_sum('pack_details.qty')
+    ->from('pack_details')
+    ->join('pack_box', 'pack_details.box_id = pack_box.id AND pack_details.packCode = pack_box.packCode', 'left')
+    ->where('pack_box.pallet_id IS NULL', NULL, FALSE)
+    ->where('pack_details.packCode', $code)
+    ->group_by('pack_details.box_id')
+    ->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
   }
 
 
@@ -51,6 +94,18 @@ class Packing_model extends CI_Model
     }
 
     return NULL;
+  }
+
+
+
+  public function update_pallet_box($pallet_id, array $box_list = array())
+  {
+    if(!empty($box_list))
+    {
+      return $this->db->set('pallet_id', $pallet_id)->where_in('id', $box_list)->update('pack_box');
+    }
+
+    return FALSE;
   }
 
 
@@ -129,12 +184,13 @@ class Packing_model extends CI_Model
 
 
 
-  public function add_new_box($code, $barcode, $box_no)
+  public function add_new_box($code, $barcode, $box_no, $pallet_id)
   {
     $arr = array(
       'code' => $barcode,
       'packCode' => $code,
-      'box_no' => $box_no
+      'box_no' => $box_no,
+      'pallet_id' => $pallet_id
     );
 
     $rs = $this->db->insert('pack_box', $arr);

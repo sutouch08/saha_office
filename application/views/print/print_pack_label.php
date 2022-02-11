@@ -82,6 +82,11 @@ $totalPage = count($boxes);
                 </td>
               </tr>
               <tr>
+                <td colspan="2" style="font-size:18px;">
+                  Ref : <?php echo $order->NumAtCard; ?>
+                </td>
+              </tr>
+              <tr>
                 <td colspan="2">
                   <span style="font-size:9px; display:block;">Ship To.</span>
                   <?php echo $order->Address2; ?>

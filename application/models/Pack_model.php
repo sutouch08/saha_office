@@ -100,6 +100,24 @@ class Pack_model extends CI_Model
   }
 
 
+  public function get_pack_results($code)
+  {
+    $rs = $this->db
+    ->select('pack_result.*')
+    ->select('pack_row.ItemName, pack_row.UomEntry2, pack_row.UomCode2, pack_row.unitMsr2')
+    ->from('pack_result')
+    ->join('pack_row', 'pack_result.packCode = pack_row.packCode AND pack_result.OrderCode = pack_row.orderCode AND pack_result.ItemCode = pack_row.ItemCode', 'left')
+    ->where('pack_result.packCode', $code)
+    ->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
 
   public function add(array $ds = array())
   {

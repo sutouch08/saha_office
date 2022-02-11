@@ -25,6 +25,12 @@
 			<div class="col-sm-2"><input type="text" class="form-control input-sm input-small text-center digit" required name="RUN_DIGIT_PACK_LIST" value="<?php echo $RUN_DIGIT_PACK_LIST; ?>" /></div>
 			<div class="divider-hidden"></div>
 
+			<div class="col-sm-3"><span class="form-control left-label">Prefix Transfer</span></div>
+			<div class="col-sm-2"><input type="text" class="form-control input-sm input-small text-center prefix" name="PREFIX_TRANSFER" required value="<?php echo $PREFIX_TRANSFER; ?>" /></div>
+			<div class="col-sm-1 col-1-harf padding-5"><span class="form-control left-label width-100 text-right">Run digit</span></div>
+			<div class="col-sm-2"><input type="text" class="form-control input-sm input-small text-center digit" required name="RUN_DIGIT_TRANSFER" value="<?php echo $RUN_DIGIT_TRANSFER; ?>" /></div>
+			<div class="divider-hidden"></div>
+
       <div class="divider-hidden"></div>
 			<div class="divider-hidden"></div>
 			<div class="divider-hidden"></div>

@@ -55,7 +55,7 @@
             <td class="middle text-center"><?php echo $ds->WhsCode; ?></td>
             <td class="middle text-center"><?php echo number($ds->OnHandQty,2); ?></td>
             <td class="middle text-center"><?php echo number($ds->IsCommited,2); ?></td>
-            <td class="middle text-center"><?php echo number($ds->OnOrder, 2); ?></td>
+            <td class="middle text-center"><?php echo number($ds->OnOrder, 2); ?></td>            
             <?php endif; ?>
           </tr>
           <?php $no++; ?>

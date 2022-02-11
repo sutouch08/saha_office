@@ -16,6 +16,7 @@ class Packing extends PS_Controller
 		$this->load->model('packing_model');
 		$this->load->model('pick_model');
 		$this->load->model('item_model');
+		$this->load->model('pallet_model');
 		$this->load->model('pack_logs_model');
   }
 
@@ -64,6 +65,7 @@ class Packing extends PS_Controller
 
 	public function view_process()
   {
+		$this->title = "กำลังแพ็ค";
 
 		$filter = array(
 			'code' => get_filter('code', 'pack_code', ''),
@@ -142,13 +144,13 @@ class Packing extends PS_Controller
 
 				$box_list = $this->packing_model->get_box_list($doc->code);
 
-				if(empty($box_list))
-				{
-					if($this->packing_model->add_new_box($doc->code, 1, 1))
-					{
-						$box_list = $this->packing_model->get_box_list($doc->code);
-					}
-				}
+				// if(empty($box_list))
+				// {
+				// 	if($this->packing_model->add_new_box($doc->code, 1, 1))
+				// 	{
+				// 		$box_list = $this->packing_model->get_box_list($doc->code);
+				// 	}
+				// }
 
 
 				$ds = array(
@@ -156,7 +158,8 @@ class Packing extends PS_Controller
 					'rows' => $rows,
 					'box_list' => $box_list,
 					'pack_qty' => $pack_qty,
-					'all_qty' => $all_qty
+					'all_qty' => $all_qty,
+					'pallet_list' => $this->pallet_model->get_pallet_list($doc->code)
 				);
 
 				$this->load->view('packing/packing_process', $ds);
@@ -683,10 +686,12 @@ class Packing extends PS_Controller
 		$box_id = "";
 
 		$code = $this->input->post('code');
-		if(!empty($code))
+		$pallet_id = $this->input->post('pallet_id');
+
+		if(!empty($code) && !empty($pallet_id))
 		{
 			$box_no = $this->packing_model->get_last_box_no($code) + 1;
-			$box_id = $this->packing_model->add_new_box($code, $box_no, $box_no);
+			$box_id = $this->packing_model->add_new_box($code, $box_no, $box_no, $pallet_id);
 			if(! $box_id)
 			{
 				$sc = FALSE;
@@ -703,6 +708,88 @@ class Packing extends PS_Controller
 	}
 
 
+
+	public function add_pallet() {
+		$sc = TRUE;
+		$id = "";
+
+		$code = $this->input->post('packCode');
+
+		if(!empty($code))
+		{
+			$pallet_code = $this->new_pallet_code();
+
+			if(!empty($pallet_code))
+			{
+				$id = $this->pallet_model->add($pallet_code);
+
+				if($id)
+				{
+					$arr = array(
+						'pallet_id' => $id,
+						'PackCode' => $code
+					);
+
+					$this->pallet_model->add_row($arr);
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Add pallet failed";
+			}
+
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing required parameter: PackCode";
+		}
+
+		echo $sc === TRUE ? $id : $this->error;
+	}
+
+
+
+
+	public function get_pallet_by_code()
+	{
+		$sc = TRUE;
+		$id = NULL;
+		$packCode = $this->input->get('packCode');
+		$palletCode = $this->input->get('palletCode');
+
+		$pallet = $this->pallet_model->get_pallet_by_code($palletCode);
+
+		if(!empty($pallet) && $pallet->Status == 'O')
+		{
+			$id = $pallet->id;
+
+			$row = $this->pallet_model->get_pallet_row($id, $packCode);
+
+			if(empty($row))
+			{
+				$arr = array(
+					'pallet_id' => $id,
+					'PackCode' => $packCode
+				);
+
+				if(! $this->pallet_model->add_row($arr))
+				{
+					$sc = FALSE;
+					$this->error = "Update pallet row failed";
+				}
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Invalid Pallet code";
+		}
+
+
+		echo $sc === TRUE ? $id : $this->error;
+	}
 
 
 
@@ -722,6 +809,8 @@ class Packing extends PS_Controller
         $arr = array(
           'no' => $box->box_no,
           'box_id' => $box->id,
+					'pallet_id' => $box->pallet_id,
+					'pallet_code' => $box->palletCode,
           'qty' => number($box->qty),
           'class' => $box->id == $id ? 'btn-success' : 'btn-default'
         );
@@ -740,6 +829,179 @@ class Packing extends PS_Controller
 
 
 
+	public function get_pallet_list()
+  {
+    $sc = TRUE;
+    $code = $this->input->get('code');
+    $id = $this->input->get('pallet_id');
+    $pallet_list = $this->pallet_model->get_pallet_list($code);
+
+    if(!empty($pallet_list))
+    {
+      $ds = array();
+
+      foreach($pallet_list as $rs)
+      {
+        $arr = array(
+          'id' => $rs->id,
+          'code' => $rs->code,
+					'qty' => $this->pallet_model->count_box($rs->id),
+          'class' => $rs->id == $id ? 'btn-primary' : ''
+        );
+
+        array_push($ds, $arr);
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+    }
+
+    echo $sc === TRUE ? json_encode($ds) : 'no pallet';
+
+  }
+
+
+
+	public function get_pallet_detail()
+	{
+		$sc = TRUE;
+		$ds = array();
+		$row = array();
+
+		$pallet_id = $this->input->get('pallet_id');
+		$packCode = $this->input->get('code');
+
+		$pallet = $this->pallet_model->get($pallet_id);
+
+		if(!empty($pallet))
+		{
+
+			$detail = $this->packing_model->get_boxes_by_pallet_id($packCode, $pallet_id);
+
+			if(!empty($detail))
+			{
+				foreach($detail as $rs)
+				{
+					$arr = array(
+						"box_id" => $rs->box_id,
+						"box_no" => $rs->box_no,
+						"pallet_id" => $rs->pallet_id,
+						"qty" => round($rs->qty,2)
+					);
+
+					array_push($row, $arr);
+				}
+
+				$ds = array(
+					"code" => $pallet->code,
+					"rows" => $row
+				);
+			}
+			else
+			{
+				$ds = array(
+					"code" => $pallet->code,
+					"nodata" => "nodata"
+				);
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Invalid Pallet id";
+		}
+
+
+		echo $sc === TRUE ? json_encode($ds) : $this->error;
+	}
+
+
+
+	public function get_no_pallet_box()
+	{
+		$sc = TRUE;
+		$ds = array();
+
+		$packCode = $this->input->get('code');
+
+		$boxes = $this->packing_model->get_no_pallet_box($packCode);
+
+		if(!empty($boxes))
+		{
+			foreach($boxes as $box)
+			{
+				$arr = array(
+					'box_id' => $box->box_id,
+					'box_no' => $box->box_no,
+					'qty' => round($box->qty, 2)
+				);
+
+				array_push($ds, $arr);
+			}
+		}
+
+		echo $sc === TRUE ? json_encode($ds) : $this->error;
+	}
+
+
+
+	function add_box_to_pallet()
+	{
+		$sc = TRUE;
+		$pallet_id = $this->input->post('pallet_id');
+		$box_list = explode('-', $this->input->post('box_list'));
+
+		if(!empty($box_list))
+		{
+			if(! $this->packing_model->update_pallet_box($pallet_id, $box_list))
+			{
+				$sc = FALSE;
+				$this->error = "add pallet box failed";
+			}
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
+
+
+
+	public function remove_pallet_box()
+	{
+		$sc = TRUE;
+		$box_no = $this->input->post('box_no');
+		$box_id = $this->input->post('box_id');
+
+		$arr = array(
+			'pallet_id' => NULL
+		);
+
+		if(! $this->packing_model->update_box($box_id, $arr))
+		{
+			$sc = FALSE;
+			$this->error = "Pull out Box no {{$box_no}} failed";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
+
+
+
+	public function remove_pallet_row()
+	{
+		$sc = TRUE;
+		$pallet_id = $this->input->post('pallet_id');
+		$packCode = $this->input->post('packCode');
+
+		if(! $this->pallet_model->delete_row($pallet_id, $packCode))
+		{
+			$sc = FALSE;
+			$this->error = "Remove Pallet row failed";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
+
 	public function finish_pack()
 	{
 		$sc = TRUE;
@@ -753,137 +1015,158 @@ class Packing extends PS_Controller
 		{
 			if($doc->Status == 'P')
 			{
-				$details = $this->pack_model->get_rows($code);
 
-				if(!empty($details))
+				//--- check pallet and box
+				$noPalletBox = $this->packing_model->get_no_pallet_box($code);
+
+				if(empty($noPalletBox))
 				{
-					$this->db->trans_begin();
+					$details = $this->pack_model->get_rows($code);
 
-					foreach($details as $row)
+					if(!empty($details))
 					{
-						if($sc === FALSE)
+						$this->db->trans_begin();
+
+						foreach($details as $row)
 						{
-							break;
-						}
-
-						$PackQtty = $row->PackQtty;
-
-						$buffer = $this->packing_model->get_buffer_uom($row->pickCode, $row->orderCode, $row->ItemCode, $row->UomEntry);
-
-						if(! empty($buffer))
-						{
-							foreach($buffer as $bf)
+							if($sc === FALSE)
 							{
-								if($PackQtty > 0)
+								break;
+							}
+
+							$PackQtty = $row->PackQtty;
+
+							$buffer = $this->packing_model->get_buffer_uom($row->pickCode, $row->orderCode, $row->ItemCode, $row->UomEntry);
+
+							if(! empty($buffer))
+							{
+								foreach($buffer as $bf)
 								{
-									if($sc === FALSE)
+									if($PackQtty > 0)
+									{
+										if($sc === FALSE)
+										{
+											break;
+										}
+
+										$bufferQty = $bf->Qty;
+										$packQty = $bufferQty >= $PackQtty ? $PackQtty : $bufferQty;
+										$BasePackQty = $packQty * $row->BaseQty;
+
+										$bufferQty -= $packQty;
+
+										$arr = array(
+											'packCode' => $doc->code,
+											'OrderCode' => $row->orderCode,
+											'ItemCode' => $row->ItemCode,
+											'UomEntry' => $row->UomEntry,
+											'UomCode' => $row->UomCode,
+											'unitMsr' => $row->unitMsr,
+											'BaseQty' => $row->BaseQty,
+											'Qty' => $packQty,
+											'BasePackQty' => $BasePackQty,
+											'BinCode' => $bf->BinCode,
+											'user_id' => $this->user->id
+										);
+
+										//--- Create pack result
+										if(! $this->packing_model->add_result($arr))
+										{
+											$sc = FALSE;
+											$this->error = "สร้างรายการสรุปยอดแพ็คไม่สำเร็จ : {$row->ItemCode}";
+										}
+
+										//-- Update buffer
+										if($sc === TRUE)
+										{
+											if($bufferQty == 0)
+											{
+												if(! $this->packing_model->drop_buffer($bf->id))
+												{
+													$sc = FALSE;
+													$this->error = "Delete Buffer failed : {$row->ItemCode}";
+												}
+											}
+											else
+											{
+												if(! $this->packing_model->update_buffer($bf->id, $packQty, $BasePackQty))
+												{
+													$sc = FALSE;
+													$this->error = "Update Buffer failed : $row->ItemCode;";
+												}
+											}
+										}
+
+										$PackQtty -= $packQty;
+									}
+									else
 									{
 										break;
 									}
+								} //--- end foreach
+							}
+							else
+							{
+								$sc = FALSE;
+								$this->error = "ไม่พบรายการจัดสินค้าที่ตรงกัน";
+							}
+						} //--- end foreach
 
-									$bufferQty = $bf->Qty;
-									$packQty = $bufferQty >= $PackQtty ? $PackQtty : $bufferQty;
-									$BasePackQty = $packQty * $row->BaseQty;
+						if($sc === TRUE)
+						{
+							$arr = array(
+								'Status' => 'Y',
+								'FinishPack' => now()
+							);
 
-									$bufferQty -= $packQty;
+							if(! $this->pack_model->update($id, $arr))
+							{
+								$sc = FALSE;
+								$this->error = "เปลี่ยนสถานะเอกสารไม่สำเร็จ";
+							}
 
-									$arr = array(
-										'packCode' => $doc->code,
-										'OrderCode' => $row->orderCode,
-										'ItemCode' => $row->ItemCode,
-										'UomEntry' => $row->UomEntry,
-										'UomCode' => $row->UomCode,
-										'unitMsr' => $row->unitMsr,
-										'BaseQty' => $row->BaseQty,
-										'Qty' => $packQty,
-										'BasePackQty' => $BasePackQty,
-										'BinCode' => $bf->BinCode,
-										'user_id' => $this->user->id
-									);
+							if(! $this->pack_model->set_rows_status($code, 'Y'))
+							{
+								$sc = FALSE;
+								$this->error = "เปลี่ยนสถานะรายการแพ็คไม่สำเร็จ";
+							}
+						}
 
-									//--- Create pack result
-									if(! $this->packing_model->add_result($arr))
-									{
-										$sc = FALSE;
-										$this->error = "สร้างรายการสรุปยอดแพ็คไม่สำเร็จ : {$row->ItemCode}";
-									}
-
-									//-- Update buffer
-									if($sc === TRUE)
-									{
-										if($bufferQty == 0)
-										{
-											if(! $this->packing_model->drop_buffer($bf->id))
-											{
-												$sc = FALSE;
-												$this->error = "Delete Buffer failed : {$row->ItemCode}";
-											}
-										}
-										else
-										{
-											if(! $this->packing_model->update_buffer($bf->id, $packQty, $BasePackQty))
-											{
-												$sc = FALSE;
-												$this->error = "Update Buffer failed : $row->ItemCode;";
-											}
-										}
-									}
-
-									$PackQtty -= $packQty;
-								}
-								else
-								{
-									break;
-								}
-							} //--- end foreach
+						if($sc === TRUE)
+						{
+							$this->db->trans_commit();
 						}
 						else
 						{
-							$sc = FALSE;
-							$this->error = "ไม่พบรายการจัดสินค้าที่ตรงกัน";
+							$this->db->trans_rollback();
 						}
-					} //--- end foreach
 
-					if($sc === TRUE)
-					{
-						$arr = array(
-							'Status' => 'Y',
-							'FinishPack' => now()
-						);
 
-						if(! $this->pack_model->update($id, $arr))
+						//--- add logs
+						if($sc === TRUE)
 						{
-							$sc = FALSE;
-							$this->error = "เปลี่ยนสถานะเอกสารไม่สำเร็จ";
+							$this->pack_logs_model->add('packed', $code);
 						}
-
-						if(! $this->pack_model->set_rows_status($code, 'Y'))
-						{
-							$sc = FALSE;
-							$this->error = "เปลี่ยนสถานะรายการแพ็คไม่สำเร็จ";
-						}
-					}
-
-					if($sc === TRUE)
-					{
-						$this->db->trans_commit();
 					}
 					else
 					{
-						$this->db->trans_rollback();
-					}
-
-
-					//--- add logs
-					if($sc === TRUE)
-					{
-						$this->pack_logs_model->add('packed', $code);
+						$sc = FALSE;
+						$this->error = "ไม่พบรายการแพ็คสินค้า";
 					}
 				}
 				else
 				{
+					$box_no = "";
+					$i = 1;
+
+					foreach($noPalletBox as $rs)
+					{
+						$box_no .= $i === 1 ? $rs->box_no : ", {$rs->box_no}";
+						$i++;
+					}
+
 					$sc = FALSE;
-					$this->error = "ไม่พบรายการแพ็คสินค้า";
+					$this->error = "กล่องที่ {$box_no} ไม่อยู่ใน พาเลท กรุณาตรวจสอบ";
 				}
 			}
 			else
@@ -1271,6 +1554,43 @@ class Packing extends PS_Controller
 
 
 
+	public function print_pallet($pallet_id)
+	{
+		$this->title = "Print Label";
+		$this->load->library('printer');
+
+		$arr = array($pallet_id);
+		$pallets = $this->pallet_model->get_selected_pallet($arr);
+
+		$ds = array(
+			'pallets' => $pallets
+		);
+
+		$this->load->view('print/print_pallet_label', $ds);
+	}
+
+
+
+	public function print_selected_pallet($pallet_ids)
+	{
+		$this->title = "Print Label";
+		$this->load->library('printer');
+		$arr = explode("-", $pallet_ids);
+
+		$pallets = $this->pallet_model->get_selected_pallet($arr);
+
+		$ds = array(
+			'pallets' => $pallets
+		);
+
+		$this->load->view('print/print_pallet_label', $ds);
+	}
+
+
+
+
+
+
 
 	public function print_box($code, $box_id)
 	{
@@ -1333,6 +1653,28 @@ class Packing extends PS_Controller
 		}
 
 		return NULL;
+	}
+
+
+
+	public function new_pallet_code()
+	{
+		$prefix = date('ym')."-";
+		$run_digit = 4;
+
+		$code = $this->pallet_model->get_max_code($prefix);
+
+		if(! empty($code))
+    {
+      $run_no = mb_substr($code, ($run_digit*-1), NULL, 'UTF-8') + 1;
+      $new_code = $prefix . sprintf('%0'.$run_digit.'d', $run_no);
+    }
+    else
+    {
+      $new_code = $prefix . sprintf('%0'.$run_digit.'d', '001');
+    }
+
+    return $new_code;
 	}
 
 

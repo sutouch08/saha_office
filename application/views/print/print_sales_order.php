@@ -144,17 +144,17 @@ while($total_page > 0 )
 	$top = "";
 	$top .= "<div style='width:190mm; margin:auto;'>";
 	$top .= "<div class='text-left' style='padding-top:20px; padding-bottom:0px;'>";
-	// $top .= "<table class='width-100'>
-	// 					<tr>
-	// 						<td rowspan='4' style='width:25%;'>
-	// 							<img src='{$logo_path}' class='company-logo' width='170px' />
-	// 						</td>
-	// 						<td><strong>บริษัท สหออฟฟิศ จำกัด (สำนักงานใหญ่)</strong> <span class='pull-right' style='margin-right:70px;'>SAHA OFFICE CO.,LTD.</td>
-	// 					</tr>
-	// 					<tr><td style='font-family:calibri; font-size:12px;'>186 ม.21 ซ.เพชรงาม ถ.พุทธรักษา-แพรกษา ต.บางพลีใหญ่ อ.บางพลี จ.สมุทรปราการ 10540</td></tr>
-	// 					<tr><td style='font-family:calibri; font-size:11px;'>186 M.21 SOI PETCH NGAM, PUTHARAKSA-PRAEKSA RD., T.BANGPHLI YAI, A.BANGPHLI, SAMUTPRAKARN 10540</td></tr>
-	// 					<tr><td style='font-family:calibri; font-size:12px;'>Tel: 02-115-6888 Fax: 02-101-4948 เลขประจำตัวผู้เสียภาษีอากร 0105535080569</td></tr>
-	// 					</table>";
+	$top .= "<table class='width-100'>
+						<tr>
+							<td rowspan='4' style='width:25%;'>
+								<img src='{$logo_path}' class='company-logo' width='170px' />
+							</td>
+							<td><strong>บริษัท สหออฟฟิศ จำกัด (สำนักงานใหญ่)</strong> <span class='pull-right' style='margin-right:70px;'>SAHA OFFICE CO.,LTD.</td>
+						</tr>
+						<tr><td style='font-family:calibri; font-size:12px;'>186 ม.21 ซ.เพชรงาม ถ.พุทธรักษา-แพรกษา ต.บางพลีใหญ่ อ.บางพลี จ.สมุทรปราการ 10540</td></tr>
+						<tr><td style='font-family:calibri; font-size:11px;'>186 M.21 SOI PETCH NGAM, PUTHARAKSA-PRAEKSA RD., T.BANGPHLI YAI, A.BANGPHLI, SAMUTPRAKARN 10540</td></tr>
+						<tr><td style='font-family:calibri; font-size:12px;'>Tel: 02-115-6888 Fax: 02-101-4948 เลขประจำตัวผู้เสียภาษีอากร 0105535080569</td></tr>
+						</table>";
 	$top .= "";
 	$top .= "</div>";
 	$top .= "<div class='text-center font-size-14'>";

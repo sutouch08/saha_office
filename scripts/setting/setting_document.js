@@ -3,6 +3,7 @@ function checkDocumentSetting(){
   var data = {};
   var prefix_error = 0;
   var error_message = 'รหัสเอกสารซ้ำ ';
+  var i = 1;
   $('.prefix').each(function(index, el){
     name = $(this).attr('name');
     value = $(this).val();
@@ -22,7 +23,7 @@ function checkDocumentSetting(){
 
     if(pre[value] !== undefined){
       $(this).addClass('has-error');
-      error_message = error_message + pre[value]+', ';
+      error_message = i == 1 ? error_message + pre[value] : error_message + ', ' + pre[value];
       prefix_error++;
     }else{
       $(this).removeClass('has-error');

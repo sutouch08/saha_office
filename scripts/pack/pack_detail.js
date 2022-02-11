@@ -104,3 +104,94 @@ function printSelectedBox() {
   print_url(target);
   //window.open(target, '_blank', prop);
 }
+
+
+function showBinOption() {
+  $('#binOptionModal').modal('show');
+  binOption_init();
+}
+
+
+$('#binOptionModal').on('shown.bs.modal', function() {
+  $('#binOption').focus();
+})
+
+
+
+function binOption_init() {
+  var whsCode = $('#bufferWarehouse').val();
+
+  $('#binOption').autocomplete({
+    source:HOME + 'find_bin_code/'+whsCode,
+    autoFocus:true
+  });
+}
+
+$('#binOption').keyup(function(e) {
+  if(e.keyCode === 13) {
+    if($(this).val() != "") {
+      sendToSap();
+    }
+  }
+});
+
+
+function sendToSap() {
+  let id = $('#id').val();
+  let code = $('#code').val();
+  let whsCode = $('#bufferWarehouse').val();
+  let binCode = $('#binOption').val();
+
+  $.ajax({
+    url:HOME + 'check_bin_code',
+    type:'POST',
+    cache:false,
+    data:{
+      "BinCode" : binCode
+    },
+    success:function(sc) {
+      if(sc == 'success') {
+        $('#binOptionModal').modal('hide');
+
+        load_in();
+
+        $.ajax({
+          url:HOME + 'send_to_sap',
+          type:'POST',
+          cache:false,
+          data:{
+            "id" : id,
+            "code" : code,
+            "BinCode" : binCode
+          },
+          success:function(rs) {
+            load_out();
+
+            var rs = $.trim(rs);
+            if(rs == 'success') {
+              swal({
+                title:'Success',
+                type:'success',
+                timer:1000
+              });
+
+              setTimeout(function() {
+                window.location.reload();
+              }, 1200)
+            }
+            else {
+              swal({
+                title:'Error!',
+                text:rs,
+                type:'error'
+              });
+            }
+          }
+        });
+      }
+      else {
+        $('#bin-error').text(sc);
+      }
+    }
+  })
+}

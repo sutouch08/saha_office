@@ -10,10 +10,12 @@
         <button type="button" class="btn btn-sm btn-default" onclick="goBack()"><i class="fa fa-arrow-left"></i> &nbsp; Back</button>
 
 				<?php if($doc->Status == 'N') : ?>
+				<button type="button" class="btn btn-sm btn-warning" onclick="goEdit(<?php echo $doc->AbsEntry; ?>)">แก้ไข</button>
 				<button type="button" class="btn btn-sm btn-success" onclick="releasePickList()">Release</button>
 				<?php endif; ?>
 				<?php if($doc->Status == 'R') : ?>
 					<button type="button" class="btn btn-sm btn-danger" onclick="unReleasePickList()">Unrelease</button>
+					<button type="button" class="btn btn-sm btn-info" onclick="printPickOrderLabel()">Print Pick Label</button>
 				<?php endif; ?>
       </p>
     </div>

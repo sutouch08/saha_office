@@ -35,6 +35,16 @@ function goProcess(id) {
 }
 
 
+function goPacking() {
+  window.location.href = BASE_URL + 'packing';
+}
+
+
+function goPackingProcess() {
+  window.location.href = BASE_URL + 'packing/view_process';
+}
+
+
 $("#fromDate").datepicker({
 	dateFormat: 'dd-mm-yy',
 	onClose: function(ds){
@@ -48,3 +58,73 @@ $("#toDate").datepicker({
 		$("#fromDate").datepicker("option", "maxDate", ds);
 	}
 });
+
+
+
+function viewTempDetail(code) {
+  $.ajax({
+    url:HOME + 'get_temp_detail',
+    type:'GET',
+    cache:false,
+    data:{
+      "code" : code
+    },
+    success:function(rs) {
+      if(isJson(rs)) {
+        var data = $.parseJSON(rs);
+        var source = $('#temp-template').html();
+        var output = $('#temp-table');
+
+        render(source, data, output);
+
+        $('#tempModal').modal('show');
+      }
+      else {
+        swal({
+          title:'Error',
+          text:rs,
+          type:'error'
+        })
+      }
+    }
+  })
+}
+
+
+function closeModal(name) {
+  $('#'+name).modal('hide');
+}
+
+
+
+function removeTemp(docEntry, id) {
+  $.ajax({
+    url:HOME + 'delete_temp',
+    type:'POST',
+    cache:false,
+    data:{
+      "DocEntry" : docEntry,
+      "id" : id
+    },
+    success:function(rs) {
+      if(rs == 'success') {
+        swal({
+          title:'Success',
+          type:'success',
+          timer:1000
+        });
+
+        setTimeout(function(){
+          goBack();
+        }, 1200)
+      }
+      else {
+        swal({
+          title:'Error!',
+          text:rs,
+          type:'error'
+        })
+      }
+    }
+  })
+}
