@@ -218,11 +218,18 @@ class Packing_model extends CI_Model
 
 
 
+  public function update_pack_detail($id, array $ds = array())
+  {
+    return $this->db->where('id', $id)->update('pack_details', $ds);
+  }
+
+
+
   public function update_pack_details(array $ds = array())
   {
     if(!empty($ds))
     {
-      $id = $this->get_pack_detail_id($ds['packCode'], $ds['ItemCode'], $ds['box_id']);
+      $id = $this->get_pack_detail_id($ds['packCode'], $ds['orderCode'], $ds['ItemCode'], $ds['box_id']);
 
       if($id)
       {
@@ -260,11 +267,12 @@ class Packing_model extends CI_Model
   }
 
 
-  public function get_pack_detail_id($packCode, $itemCode, $box_id)
+  public function get_pack_detail_id($packCode, $orderCode, $itemCode, $box_id)
   {
     $rs = $this->db
     ->select('id')
     ->where('packCode', $packCode)
+    ->where('orderCode', $orderCode)
     ->where('ItemCode', $itemCode)
     ->where('box_id', $box_id)
     ->get('pack_details');
@@ -297,6 +305,18 @@ class Packing_model extends CI_Model
   }
 
 
+  public function add_pack_result(array $ds = array())
+  {
+    if(!empty($ds))
+    {
+      return $this->db->insert('pack_result', $ds);
+    }
+
+    return FALSE;
+  }
+
+
+
   public function update_buffer($id, $Qty, $BasePickQty)
   {
     return $this->db
@@ -313,17 +333,6 @@ class Packing_model extends CI_Model
     return $this->db->where('id', $id)->delete('buffer');
   }
 
-
-
-  public function add_result(array $ds = array())
-  {
-    if(!empty($ds))
-    {
-      return $this->db->insert('pack_result', $ds);
-    }
-
-    return FALSE;
-  }
 
 
   public function get_list($ds = array(), $perpage = 20, $offset = 0, $status = 'N')

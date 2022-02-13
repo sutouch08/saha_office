@@ -15,6 +15,13 @@
 
 <div class="row">
 	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
+		<label>Pick Slip Barcode</label>
+		<input type="text" class="form-control input-sm text-center" id="barcode" autofocus />
+	</div>
+		
+	<div class="divider visible-xs"></div>
+
+	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
 		<label>SO No.</label>
 		<select class="form-control input-sm" id="orderCode" name="orderCode" onchange="updatePickList()">
 			<option value="">เลือก</option>

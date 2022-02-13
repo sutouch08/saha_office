@@ -15,31 +15,31 @@
 <hr class="padding-5"/>
 
 <div class="row">
-	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
 		<label>เลขที่</label>
 		<input type="text" class="form-control input-sm text-center" value="<?php echo $code; ?>" readonly />
 	</div>
-	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
 		<label>วันที่</label>
 		<input type="text" class="form-control input-sm text-center" id="docDate" value="<?php echo date('d-m-Y'); ?>" readonly />
 	</div>
-	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2-harf col-xs-6 padding-5">
 		<label>คลังปลายทาง</label>
 		<input type="text" class="form-control input-sm text-center" id="toWhsCode" value="<?php echo $toWhsCode; ?>" readonly />
 	</div>
-	<div class="col-lg-2 col-md-3 col-sm-4 col-xs-6 padding-5">
-		<label>Location ปลายทาง</label>
-		<input type="text" class="form-control input-sm text-center" id="toBinCode" value=""  placeholder="ระบุ Location ปลายทาง"/>
+	<div class="col-lg-2 col-md-2 col-sm-5-harf col-xs-6 padding-5">
+		<label>พื้นที่จัดเก็บ</label>
+		<input type="text" class="form-control input-sm text-center" id="toBinCode" value=""  placeholder="ระบุ พื้นที่จัดเก็บ"/>
 	</div>
-	<div class="col-lg-3 col-md-3-harf col-sm-4-harf col-xs-12 padding-5">
+	<div class="col-lg-3 col-md-2-harf col-sm-8 col-xs-12 padding-5">
 		<label>หมายเหตุ</label>
 		<input type="text" class="form-control input-sm" id="remark" max-length="254" />
 	</div>
-	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-6 padding-5">
 		<label>Pallet No.</label>
 		<input type="text" class="form-control input-sm text-center" id="pallet-code" placeholder="ค้นหาพาเลท" />
 	</div>
-	<div class="col-lg-1 col-md-1 col-sm-1 col-xs-6 padding-5">
+	<div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-6 padding-5">
 		<label class="display-block not-show">OK</label>
 		<button type="button" class="btn btn-xs btn-primary btn-block" id="btn-add" onclick="addToList()">Add</button>
 		<button type="button" class="btn btn-xs btn-warning btn-block hide" id="btn-change" onclick="changePallet()">Change</button>
@@ -101,8 +101,8 @@
 </div>
 
 <script id="transfer-template" type="text/x-handlebarsTemplate">
-
-<tr id="row-{{id}}">
+hu;;
+++++++++++++++++++++<tr id="row-{{id}}">
 	<td class="middle text-center no"></td>
 	<td class="middle">{{ItemCode}}</td>
 	<td class="middle">{{ItemName}}</td>

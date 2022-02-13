@@ -240,52 +240,78 @@ class Picking extends PS_Controller
 
 							if($sc === TRUE)
 							{
-								$arr = array(
-									'AbsEntry' => $absEntry,
-									'DocNum' => $docNum,
-									'OrderCode' => $orderCode,
-									'ItemCode' => $detail->ItemCode,
-									'UomEntry' => $detail->UomEntry,
-									'UomCode' => $detail->UomCode,
-									'unitMsr' => $detail->unitMsr,
-									'BaseQty' => $detail->BaseQty,
-									'Qty' => $pickQty,
-									'BasePickQty' => $invQty,
-									'BinCode' => $binCode,
-									'user_id' => $this->user->id,
-									'uname' => $this->user->uname
-								);
+								$buffer = $this->picking_model->get_unique_buffer($absEntry, $orderCode, $detail->ItemCode, $binCode, $detail->UomEntry);
 
-								if(! $this->picking_model->update_buffer($arr))
+								if(!empty($buffer))
 								{
-									$sc = FALSE;
-									$this->error = "Update Buffer failed";
+									if(! $this->picking_model->update_buffer_qty($buffer->id, $pickQty, $invQty))
+									{
+										$sc = FALSE;
+										$this->error = "Update Buffer failed";
+									}
+								}
+								else
+								{
+									$arr = array(
+										'AbsEntry' => $absEntry,
+										'DocNum' => $docNum,
+										'OrderCode' => $orderCode,
+										'ItemCode' => $detail->ItemCode,
+										'UomEntry' => $detail->UomEntry,
+										'UomCode' => $detail->UomCode,
+										'unitMsr' => $detail->unitMsr,
+										'BaseQty' => $detail->BaseQty,
+										'Qty' => $pickQty,
+										'BasePickQty' => $invQty,
+										'BinCode' => $binCode,
+										'user_id' => $this->user->id,
+										'uname' => $this->user->uname
+									);
+
+									if(! $this->picking_model->add_buffer($arr))
+									{
+										$sc = FALSE;
+										$this->error = "Add Buffer failed";
+									}
 								}
 							}
 
 
 							if($sc === TRUE)
 							{
-								$arr = array(
-									'AbsEntry' => $absEntry,
-									'DocNum' => $docNum,
-									'OrderCode' => $orderCode,
-									'ItemCode' => $detail->ItemCode,
-									'UomEntry' => $detail->UomEntry,
-									'UomCode' => $detail->UomCode,
-									'unitMsr' => $detail->unitMsr,
-									'BaseQty' => $detail->BaseQty,
-									'Qty' => $pickQty,
-									'BasePickQty' => $invQty,
-									'BinCode' => $binCode,
-									'user_id' => $this->user->id,
-									'uname' => $this->user->uname
-								);
+								$prepare = $this->picking_model->get_unique_prepare($absEntry, $orderCode, $detail->ItemCode, $binCode, $detail->UomEntry);
 
-								if(! $this->picking_model->update_prepare($arr))
+								if(!empty($prepare))
 								{
-									$sc = FALSE;
-									$this->error = "Update Picking detail failed";
+									if(! $this->picking_model->update_prepare_qty($prepare->id, $pickQty, $invQty))
+									{
+										$sc = FALSE;
+										$this->error = "Update picking detail failed";
+									}
+								}
+								else
+								{
+									$arr = array(
+										'AbsEntry' => $absEntry,
+										'DocNum' => $docNum,
+										'OrderCode' => $orderCode,
+										'ItemCode' => $detail->ItemCode,
+										'UomEntry' => $detail->UomEntry,
+										'UomCode' => $detail->UomCode,
+										'unitMsr' => $detail->unitMsr,
+										'BaseQty' => $detail->BaseQty,
+										'Qty' => $pickQty,
+										'BasePickQty' => $invQty,
+										'BinCode' => $binCode,
+										'user_id' => $this->user->id,
+										'uname' => $this->user->uname
+									);
+
+									if(! $this->picking_model->add_prepare($arr))
+									{
+										$sc = FALSE;
+										$this->error = "Add Picking detail failed";
+									}
 								}
 							}
 
@@ -389,52 +415,78 @@ class Picking extends PS_Controller
 
 										if($sc === TRUE)
 										{
-											$arr = array(
-												'AbsEntry' => $absEntry,
-												'DocNum' => $docNum,
-												'OrderCode' => $orderCode,
-												'ItemCode' => $detail->ItemCode,
-												'UomEntry' => $detail->UomEntry,
-												'UomCode' => $detail->UomCode,
-												'unitMsr' => $detail->unitMsr,
-												'BaseQty' => $detail->BaseQty,
-												'Qty' => $pickQty,
-												'BasePickQty' => $invQty,
-												'BinCode' => $binCode,
-												'user_id' => $this->user->id,
-												'uname' => $this->user->uname
-											);
+											$buffer = $this->picking_model->get_unique_buffer($absEntry, $orderCode, $detail->ItemCode, $binCode, $detail->UomEntry);
 
-											if(! $this->picking_model->update_buffer($arr))
+											if(!empty($buffer))
 											{
-												$sc = FALSE;
-												$this->error = "Update Buffer failed";
+												if(! $this->picking_model->update_buffer_qty($buffer->id, $pickQty, $invQty))
+												{
+													$sc = FALSE;
+													$this->error = "Update Buffer failed";
+												}
+											}
+											else
+											{
+												$arr = array(
+													'AbsEntry' => $absEntry,
+													'DocNum' => $docNum,
+													'OrderCode' => $orderCode,
+													'ItemCode' => $detail->ItemCode,
+													'UomEntry' => $detail->UomEntry,
+													'UomCode' => $detail->UomCode,
+													'unitMsr' => $detail->unitMsr,
+													'BaseQty' => $detail->BaseQty,
+													'Qty' => $pickQty,
+													'BasePickQty' => $invQty,
+													'BinCode' => $binCode,
+													'user_id' => $this->user->id,
+													'uname' => $this->user->uname
+												);
+
+												if(! $this->picking_model->add_buffer($arr))
+												{
+													$sc = FALSE;
+													$this->error = "Add Buffer failed";
+												}
 											}
 										}
 
 
 										if($sc === TRUE)
 										{
-											$arr = array(
-												'AbsEntry' => $absEntry,
-												'DocNum' => $docNum,
-												'OrderCode' => $orderCode,
-												'ItemCode' => $detail->ItemCode,
-												'UomEntry' => $detail->UomEntry,
-												'UomCode' => $detail->UomCode,
-												'unitMsr' => $detail->unitMsr,
-												'BaseQty' => $detail->BaseQty,
-												'Qty' => $pickQty,
-												'BasePickQty' => $invQty,
-												'BinCode' => $binCode,
-												'user_id' => $this->user->id,
-												'uname' => $this->user->uname
-											);
+											$prepare = $this->picking_model->get_unique_prepare($absEntry, $orderCode, $detail->ItemCode, $binCode, $detail->UomEntry);
 
-											if(! $this->picking_model->update_prepare($arr))
+											if(!empty($prepare))
 											{
-												$sc = FALSE;
-												$this->error = "Update Picking detail failed";
+												if(! $this->picking_model->update_prepare_qty($prepare->id, $pickQty, $invQty))
+												{
+													$sc = FALSE;
+													$this->error = "Update picking detail failed";
+												}
+											}
+											else
+											{
+												$arr = array(
+													'AbsEntry' => $absEntry,
+													'DocNum' => $docNum,
+													'OrderCode' => $orderCode,
+													'ItemCode' => $detail->ItemCode,
+													'UomEntry' => $detail->UomEntry,
+													'UomCode' => $detail->UomCode,
+													'unitMsr' => $detail->unitMsr,
+													'BaseQty' => $detail->BaseQty,
+													'Qty' => $pickQty,
+													'BasePickQty' => $invQty,
+													'BinCode' => $binCode,
+													'user_id' => $this->user->id,
+													'uname' => $this->user->uname
+												);
+
+												if(! $this->picking_model->add_prepare($arr))
+												{
+													$sc = FALSE;
+													$this->error = "Add Picking detail failed";
+												}
 											}
 										}
 
@@ -554,52 +606,80 @@ class Picking extends PS_Controller
 
 							if($sc === TRUE)
 							{
-								$arr = array(
-									'AbsEntry' => $absEntry,
-									'DocNum' => $docNum,
-									'OrderCode' => $orderCode,
-									'ItemCode' => $detail->ItemCode,
-									'UomEntry' => $detail->UomEntry,
-									'UomCode' => $detail->UomCode,
-									'unitMsr' => $detail->unitMsr,
-									'BaseQty' => $detail->BaseQty,
-									'Qty' => $pickQty,
-									'BasePickQty' => $invQty,
-									'BinCode' => $binCode,
-									'user_id' => $this->user->id,
-									'uname' => $this->user->uname
-								);
 
-								if(! $this->picking_model->update_buffer($arr))
+								$buffer = $this->picking_model->get_unique_buffer($absEntry, $orderCode, $detail->ItemCode, $binCode, $detail->UomEntry);
+
+								if(!empty($buffer))
 								{
-									$sc = FALSE;
-									$this->error = "Update Buffer failed";
+									if(! $this->picking_model->update_buffer_qty($buffer->id, $pickQty, $invQty))
+									{
+										$sc = FALSE;
+										$this->error = "Update Buffer failed";
+									}
 								}
+								else
+								{
+									$arr = array(
+										'AbsEntry' => $absEntry,
+										'DocNum' => $docNum,
+										'OrderCode' => $orderCode,
+										'ItemCode' => $detail->ItemCode,
+										'UomEntry' => $detail->UomEntry,
+										'UomCode' => $detail->UomCode,
+										'unitMsr' => $detail->unitMsr,
+										'BaseQty' => $detail->BaseQty,
+										'Qty' => $pickQty,
+										'BasePickQty' => $invQty,
+										'BinCode' => $binCode,
+										'user_id' => $this->user->id,
+										'uname' => $this->user->uname
+									);
+
+									if(! $this->picking_model->add_buffer($arr))
+									{
+										$sc = FALSE;
+										$this->error = "Add Buffer failed";
+									}
+								}
+
 							}
 
 
 							if($sc === TRUE)
 							{
-								$arr = array(
-									'AbsEntry' => $absEntry,
-									'DocNum' => $docNum,
-									'OrderCode' => $orderCode,
-									'ItemCode' => $detail->ItemCode,
-									'UomEntry' => $detail->UomEntry,
-									'UomCode' => $detail->UomCode,
-									'unitMsr' => $detail->unitMsr,
-									'BaseQty' => $detail->BaseQty,
-									'Qty' => $pickQty,
-									'BasePickQty' => $invQty,
-									'BinCode' => $binCode,
-									'user_id' => $this->user->id,
-									'uname' => $this->user->uname
-								);
+								$prepare = $this->picking_model->get_unique_prepare($absEntry, $orderCode, $detail->ItemCode, $binCode, $detail->UomEntry);
 
-								if(! $this->picking_model->update_prepare($arr))
+								if(!empty($prepare))
 								{
-									$sc = FALSE;
-									$this->error = "Update Picking detail failed";
+									if(! $this->picking_model->update_prepare_qty($prepare->id, $pickQty, $invQty))
+									{
+										$sc = FALSE;
+										$this->error = "Update picking detail failed";
+									}
+								}
+								else
+								{
+									$arr = array(
+										'AbsEntry' => $absEntry,
+										'DocNum' => $docNum,
+										'OrderCode' => $orderCode,
+										'ItemCode' => $detail->ItemCode,
+										'UomEntry' => $detail->UomEntry,
+										'UomCode' => $detail->UomCode,
+										'unitMsr' => $detail->unitMsr,
+										'BaseQty' => $detail->BaseQty,
+										'Qty' => $pickQty,
+										'BasePickQty' => $invQty,
+										'BinCode' => $binCode,
+										'user_id' => $this->user->id,
+										'uname' => $this->user->uname
+									);
+
+									if(! $this->picking_model->add_prepare($arr))
+									{
+										$sc = FALSE;
+										$this->error = "Add Picking detail failed";
+									}
 								}
 							}
 
@@ -703,52 +783,78 @@ class Picking extends PS_Controller
 
 										if($sc === TRUE)
 										{
-											$arr = array(
-												'AbsEntry' => $absEntry,
-												'DocNum' => $docNum,
-												'OrderCode' => $orderCode,
-												'ItemCode' => $detail->ItemCode,
-												'UomEntry' => $detail->UomEntry,
-												'UomCode' => $detail->UomCode,
-												'unitMsr' => $detail->unitMsr,
-												'BaseQty' => $detail->BaseQty,
-												'Qty' => $pickQty,
-												'BasePickQty' => $invQty,
-												'BinCode' => $binCode,
-												'user_id' => $this->user->id,
-												'uname' => $this->user->uname
-											);
+											$buffer = $this->picking_model->get_unique_buffer($absEntry, $orderCode, $detail->ItemCode, $binCode, $detail->UomEntry);
 
-											if(! $this->picking_model->update_buffer($arr))
+											if(!emtpy($buffer))
 											{
-												$sc = FALSE;
-												$this->error = "Update Buffer failed";
+												if(! $this->picking_model->update_buffer_qty($buffer->id, $pickQty, $invQty))
+												{
+													$sc = FALSE;
+													$this->error = "Update buffer failed";
+												}
+											}
+											else
+											{
+												$arr = array(
+													'AbsEntry' => $absEntry,
+													'DocNum' => $docNum,
+													'OrderCode' => $orderCode,
+													'ItemCode' => $detail->ItemCode,
+													'UomEntry' => $detail->UomEntry,
+													'UomCode' => $detail->UomCode,
+													'unitMsr' => $detail->unitMsr,
+													'BaseQty' => $detail->BaseQty,
+													'Qty' => $pickQty,
+													'BasePickQty' => $invQty,
+													'BinCode' => $binCode,
+													'user_id' => $this->user->id,
+													'uname' => $this->user->uname
+												);
+
+												if(! $this->picking_model->add_buffer($arr))
+												{
+													$sc = FALSE;
+													$this->error = "Add Buffer failed";
+												}
 											}
 										}
 
 
 										if($sc === TRUE)
 										{
-											$arr = array(
-												'AbsEntry' => $absEntry,
-												'DocNum' => $docNum,
-												'OrderCode' => $orderCode,
-												'ItemCode' => $detail->ItemCode,
-												'UomEntry' => $detail->UomEntry,
-												'UomCode' => $detail->UomCode,
-												'unitMsr' => $detail->unitMsr,
-												'BaseQty' => $detail->BaseQty,
-												'Qty' => $pickQty,
-												'BasePickQty' => $invQty,
-												'BinCode' => $binCode,
-												'user_id' => $this->user->id,
-												'uname' => $this->user->uname
-											);
+											$prepare = $this->picking_model->get_unique_prepare($absEntry, $orderCode, $detail->ItemCode, $binCode, $detail->UomEntry);
 
-											if(! $this->picking_model->update_prepare($arr))
+											if(!empty($prepare))
 											{
-												$sc = FALSE;
-												$this->error = "Update Picking detail failed";
+												if(! $this->picking_model->update_prepare_qty($prepare->id, $pickQty, $invQty))
+												{
+													$sc = FALSE;
+													$this->error = "Update picking detail failed";
+												}
+											}
+											else
+											{
+												$arr = array(
+													'AbsEntry' => $absEntry,
+													'DocNum' => $docNum,
+													'OrderCode' => $orderCode,
+													'ItemCode' => $detail->ItemCode,
+													'UomEntry' => $detail->UomEntry,
+													'UomCode' => $detail->UomCode,
+													'unitMsr' => $detail->unitMsr,
+													'BaseQty' => $detail->BaseQty,
+													'Qty' => $pickQty,
+													'BasePickQty' => $invQty,
+													'BinCode' => $binCode,
+													'user_id' => $this->user->id,
+													'uname' => $this->user->uname
+												);
+
+												if(! $this->picking_model->add_prepare($arr))
+												{
+													$sc = FALSE;
+													$this->error = "Add Picking detail failed";
+												}
 											}
 										}
 

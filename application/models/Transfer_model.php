@@ -7,6 +7,33 @@ class Transfer_model extends CI_Model
   }
 
 
+  public function get_pallet_boxes($id)
+  {
+    $rs = $this->db->where('pallet_id', $id)->get('pack_box');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+  public function get_pack_details_by_box_id($box_id)
+  {
+    $rs = $this->db->where('box_id', $box_id)->get('pack_details');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+
   public function get($id)
   {
     $rs = $this->db->where('id', $id)->get('transfer');
@@ -84,20 +111,18 @@ class Transfer_model extends CI_Model
   }
 
 
-  public function get_pallet_items($palletCode)
+
+
+  public function get_pallet_items($pallet_id)
   {
     $rs = $this->db
-    ->select('pa.code AS palletCode')
-    ->select('pd.id AS id, pd.ItemCode, pd.UomEntry, pd.UomCode, pd.unitMsr, pd.BaseQty, pd.qty')
-    ->select('pr.OrderCode, pr.packCode, pr.BinCode AS fromBin')
-    ->select('pw.pickCode, pw.UomEntry2, pw.UomCode2, pw.unitMsr2, pb.id AS box_id, pb.box_no')
-    ->from('pack_details AS pd')
-    ->join('pack_result AS pr', 'pd.packCode = pr.packCode AND pd.ItemCode = pr.ItemCode', 'left')
-    ->join('pack_row AS pw', 'pr.packCode = pw.packCode AND pr.ItemCode = pw.ItemCode', 'left')
-    ->join('pack_box AS pb', 'pd.box_id = pb.id', 'left')
-    ->join('pallet AS pa', 'pb.pallet_id = pa.id', 'left')
-    ->where('pa.code', $palletCode)
+    ->select('pack_result.*')
+    ->select('pack_row.UomEntry2, pack_row.UomCode2, pack_row.unitMsr2')
+    ->from('pack_result')
+    ->join('pack_row', 'pack_result.packCode = pack_row.packCode AND pack_result.pickCode = pack_row.pickCode AND pack_result.orderCode = pack_row.orderCode AND pack_result.ItemCode = pack_row.ItemCode AND pack_result.UomEntry = pack_row.UomEntry', 'left')
+    ->where('pack_result.pallet_id', $pallet_id)
     ->get();
+
 
     if($rs->num_rows() > 0)
     {
@@ -106,6 +131,7 @@ class Transfer_model extends CI_Model
 
     return NULL;
   }
+
 
 
   public function count_rows(array $ds = array())

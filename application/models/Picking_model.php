@@ -123,91 +123,87 @@ class Picking_model extends CI_Model
   }
 
 
-  public function update_buffer(array $ds = array())
+  public function add_buffer(array $ds = array())
   {
     if(!empty($ds))
     {
-      if(! $this->is_exists_buffer($ds['AbsEntry'], $ds['ItemCode'], $ds['BinCode'], $ds['UomEntry']))
-      {
-        return $this->db->insert('buffer', $ds);
-      }
-      else
-      {
-        return $this->db
-        ->set("Qty", "Qty + {$ds['Qty']}", FALSE)
-        ->set("BasePickQty", "BasePickQty + {$ds['BasePickQty']}", FALSE)
-        ->where("AbsEntry", $ds['AbsEntry'])
-        ->where("ItemCode", $ds['ItemCode'])
-        ->where("UomEntry", $ds['UomEntry'])
-        ->where("BinCode", $ds['BinCode'])
-        ->update("buffer");
-      }
+      return $this->db->insert('buffer', $ds);
     }
-
 
     return FALSE;
   }
 
 
-  public function is_exists_buffer($absEntry, $itemCode, $binCode, $UomEntry)
+  public function update_buffer_qty($id, $Qty, $InvQty)
+  {
+    return $this->db
+    ->set("Qty", "Qty + {$Qty}", FALSE)
+    ->set("BasePickQty", "BasePickQty + {$InvQty}", FALSE)
+    ->where("id", $id)
+    ->update("buffer");
+  }
+
+
+
+  public function get_unique_buffer($absEntry, $orderCode, $itemCode, $binCode, $UomEntry)
   {
     $rs = $this->db
     ->where('AbsEntry', $absEntry)
+    ->where('OrderCode', $orderCode)
     ->where('ItemCode', $itemCode)
     ->where('BinCode', $binCode)
     ->where('UomEntry', $UomEntry)
     ->get('buffer');
 
-    if($rs->num_rows() > 0)
+    if($rs->num_rows() === 1)
     {
-      return TRUE;
+      return $rs->row();
     }
 
-    return FALSE;
+    return NULL;
   }
 
 
 
-  public function update_prepare(array $ds = array())
+  public function add_prepare(array $ds = array())
   {
     if(!empty($ds))
     {
-      if(! $this->is_exists_prepare($ds['AbsEntry'], $ds['ItemCode'], $ds['BinCode'], $ds['UomEntry']))
-      {
-        return $this->db->insert('picking_detail', $ds);
-      }
-      else
-      {
-        return $this->db
-        ->set("Qty", "Qty + {$ds['Qty']}", FALSE)
-        ->set("BasePickQty", "BasePickQty + {$ds['BasePickQty']}", FALSE)
-        ->where("AbsEntry", $ds['AbsEntry'])
-        ->where("ItemCode", $ds['ItemCode'])
-        ->where("UomEntry", $ds['UomEntry'])
-        ->where("BinCode", $ds['BinCode'])
-        ->update("picking_detail");
-      }
+      return $this->db->insert('picking_detail', $ds);
     }
 
     return FALSE;
   }
 
 
-  public function is_exists_prepare($absEntry, $itemCode, $binCode, $UomEntry)
+
+  public function update_prepare_qty($id, $Qty, $InvQty)
+  {
+    return $this->db
+    ->set("Qty", "Qty + {$Qty}", FALSE)
+    ->set("BasePickQty", "BasePickQty + {$InvQty}", FALSE)
+    ->where('id', $id)
+    ->update('picking_detail');
+  }
+
+
+
+  public function get_unique_prepare($absEntry, $orderCode, $itemCode, $binCode, $UomEntry)
   {
     $rs = $this->db
     ->where('AbsEntry', $absEntry)
+    ->where('OrderCode', $orderCode)
     ->where('ItemCode', $itemCode)
     ->where('BinCode', $binCode)
     ->where('UomEntry', $UomEntry)
     ->get('picking_detail');
 
-    if($rs->num_rows() > 0)
+    if($rs->num_rows() === 1)
     {
-      return TRUE;
+      return $rs->row();
     }
 
-    return FALSE;
+    return NULL;
   }
 
 

@@ -13,6 +13,7 @@ class Transfer extends PS_Controller
     parent::__construct();
     $this->home = base_url().'transfer';
 		$this->load->model('transfer_model');
+		$this->load->model('transfer_bin_model');
 		$this->load->model('pallet_model');
 		$this->load->model('item_model');
   }
@@ -86,7 +87,7 @@ class Transfer extends PS_Controller
 		//--- check bin code
 		$whsCode = getConfig('BUFFER_WAREHOUSE');
 
-		$existsBin = $this->warehouse_model->is_exists_bin_code($whsCode, $toBinCode);
+		$existsBin = $this->transfer_bin_model->is_exists_code($toBinCode);
 
 		if($existsBin)
 		{
@@ -97,25 +98,26 @@ class Transfer extends PS_Controller
 			{
 				if($pallet->Status == 'O')
 				{
-					$details = $this->transfer_model->get_pallet_items($palletCode);
+
+					$details = $this->transfer_model->get_pallet_items($pallet->id);
 
 					if(!empty($details))
 					{
-						$this->db->trans_begin();
-
+						//--- add transfer  header
 						$code = $this->get_new_code($docDate);
-						//--- add new document
+
 						$arr = array(
 							'code' => $code,
 							'toWhsCode' => $whsCode,
-							'toBinCode' => $toBinCode,
-							'palletCode' => $palletCode,
-							'CreateDate' => now(),
+							'transfer_bin_code' => $toBinCode,
+							'palletCode' => $pallet->code,
 							'DocDate' => $docDate,
 							'user_id' => $this->user->id,
 							'uname' => $this->user->uname,
 							'remark' => $remark
 						);
+
+						$this->db->trans_begin();
 
 						$id = $this->transfer_model->add($arr);
 
@@ -132,10 +134,8 @@ class Transfer extends PS_Controller
 									'transfer_id' => $id,
 									'ItemCode' => $rs->ItemCode,
 									'ItemName' => $this->item_model->getName($rs->ItemCode),
-									'fromWhsCode' => $this->warehouse_model->get_warehouse_code($rs->fromBin),
-									'fromBinCode' => $rs->fromBin,
-									'toWhsCode' => $whsCode,
-									'toBinCode' => $toBinCode,
+									'fromWhsCode' => $this->warehouse_model->get_warehouse_code($rs->BinCode),
+									'fromBinCode' => $rs->BinCode,
 									'UomEntry' => $rs->UomEntry,
 									'UomEntry2' => $rs->UomEntry2,
 									'UomCode' => $rs->UomCode,
@@ -143,12 +143,12 @@ class Transfer extends PS_Controller
 									'unitMsr' => $rs->unitMsr,
 									'unitMsr2' => $rs->unitMsr2,
 									'BaseQty' => $rs->BaseQty,
-									'Qty' => $rs->qty,
-									'InvQty' => $rs->qty * $rs->BaseQty,
+									'Qty' => $rs->Qty,
+									'InvQty' => $rs->BasePackQty,
 									'pickCode' => $rs->pickCode,
 									'packCode' => $rs->packCode,
 									'orderCode' => $rs->OrderCode,
-									'palletCode' => $rs->palletCode
+									'palletCode' => $pallet->code
 								);
 
 								if(! $this->transfer_model->add_detail($arr))
@@ -156,7 +156,7 @@ class Transfer extends PS_Controller
 									$sc = FALSE;
 									$this->error = "Insert detail failed";
 								}
-							}
+							} //--- endforeach
 
 							if($sc === TRUE)
 							{
@@ -183,6 +183,7 @@ class Transfer extends PS_Controller
 							$sc = FALSE;
 							$this->error = "Insert Document failed";
 						}
+
 					}
 					else
 					{
@@ -313,7 +314,7 @@ class Transfer extends PS_Controller
 		echo $sc === TRUE ? 'success' : $this->error;
 	}
 
-	
+
 
 
 	public function view_detail($id)
@@ -460,7 +461,7 @@ class Transfer extends PS_Controller
 		                  'Price' => 0.000000,
 		                  'TotalFrgn' => 0.000000,
 		                  'FromWhsCod' => $rs->fromWhsCode,
-		                  'WhsCode' => $rs->toWhsCode,
+		                  'WhsCode' => $doc->toWhsCode,
 		                  'F_FROM_BIN' => $rs->fromBinCode,
 		                  'TaxStatus' => 'Y',
 		                  'VatPrcnt' => 0.000000,
@@ -557,24 +558,25 @@ class Transfer extends PS_Controller
 	{
 		$sc = array();
 
-		$whsCode = getConfig('BUFFER_WAREHOUSE');
-
 		$txt = trim($_REQUEST['term']);
 
-		$this->ms->select('BinCode')->where('WhsCode', $whsCode);
+		$this->db->select('code, name');
 
 		if($txt != '*')
 		{
-			$this->ms->like('BinCode', $txt);
+			$this->db
+			->group_start()
+			->like('code', $txt)
+			->or_like('name', $txt);
 		}
 
-		$qs = $this->ms->order_by('BinCode', 'ASC')->limit(50)->get('OBIN');
+		$qs = $this->db->order_by('code', 'ASC')->limit(50)->get('transfer_bin');
 
 		if($qs->num_rows() > 0)
 		{
 			foreach($qs->result() as $rs)
 			{
-				$sc[] = $rs->BinCode;
+				$sc[] = $rs->code. ' | '.$rs->name;
 			}
 		}
 		else
@@ -585,7 +587,6 @@ class Transfer extends PS_Controller
 
 		echo json_encode($sc);
 	}
-
 
 
 
@@ -602,7 +603,7 @@ class Transfer extends PS_Controller
 		{
 			if($pallet->Status == 'O')
 			{
-				$details = $this->transfer_model->get_pallet_items($palletCode);
+				$details = $this->transfer_model->get_pallet_items($pallet->id);
 
 				if(!empty($details))
 				{
@@ -614,13 +615,13 @@ class Transfer extends PS_Controller
 							'id' => $rs->id,
 							'ItemCode' => $rs->ItemCode,
 							'ItemName' => $this->item_model->getName($rs->ItemCode),
-							'palletCode' => $rs->palletCode,
+							'palletCode' => $pallet->code,
 							'orderCode' => $rs->OrderCode,
 							'pickCode' => $rs->pickCode,
 							'packCode' => $rs->packCode,
-							'fromBin' => $rs->fromBin,
+							'fromBin' => $rs->BinCode,
 							'toBin' => $toBin,
-							'qty' => number($rs->qty, 2),
+							'qty' => number($rs->Qty, 2),
 							'unitMsr' => $rs->unitMsr
 						);
 

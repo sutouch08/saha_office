@@ -15,7 +15,9 @@
 				<?php endif; ?>
 				<?php if($doc->Status == 'R') : ?>
 					<button type="button" class="btn btn-sm btn-danger" onclick="unReleasePickList()">Unrelease</button>
-					<button type="button" class="btn btn-sm btn-info" onclick="printPickOrderLabel()">Print Pick Label</button>
+				<?php endif; ?>
+				<?php if($doc->Status !== 'N') : ?>
+					<button type="button" class="btn btn-sm btn-info" onclick="printPickLabel()">Print Pick Slip</button>
 				<?php endif; ?>
       </p>
     </div>
@@ -38,6 +40,7 @@
 	<div class="col-xs-6 visible-xs">	</div>
 
 	<input type="hidden" id="AbsEntry" value="<?php echo $doc->AbsEntry; ?>" />
+	<input type="hidden" id="pickCode" value="<?php echo $doc->DocNum; ?>" />
 </div>
 <hr class="padding-5 margin-top-10 margin-bottom-10">
 

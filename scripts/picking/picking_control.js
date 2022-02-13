@@ -205,7 +205,7 @@ function pickWithOption() {
           let ds = data[i];
           $('#pick-'+ds.id).text(ds.picked);
           $('#balance-'+ds.id).text(ds.balance);
-          $('#details-table').prepend($('#row-'+ds.id));
+          //$('#details-table').prepend($('#row-'+ds.id));
           $('.row-tr').removeClass('blue');
           $('#row-'+ds.id).addClass('blue');
 
@@ -274,7 +274,7 @@ function pickItem() {
             let ds = data[i];
             $('#pick-'+ds.id).text(ds.picked);
             $('#balance-'+ds.id).text(ds.balance);
-            $('#details-table').prepend($('#row-'+ds.id));
+            //$('#details-table').prepend($('#row-'+ds.id));
             $('.row-tr').removeClass('blue');
             $('#row-'+ds.id).addClass('blue');
 
@@ -382,10 +382,10 @@ function finishPick() {
 function is_all_picked() {
   var balance = 0;
 
-  $('.row-no').each(function() {
-    let no = $(this).val();
-    let relqty = parseDefault(parseFloat($('#release-'+no).text()), 0);
-    let picked = parseDefault(parseFloat($('#pick-'+no).text()), 0);
+  $('.row-tr').each(function() {
+    let id = $(this).data('id');
+    let relqty = parseDefault(parseFloat($('#release-'+id).text()), 0);
+    let picked = parseDefault(parseFloat($('#pick-'+id).text()), 0);
 
     if(relqty > picked) {
       balance++;
@@ -409,7 +409,7 @@ function toggleOrderCode(id, orderCode) {
   $('.order-btn').removeClass('btn-primary');
   $('#order-'+id).addClass('btn-primary');
 
-  $('#details-table').prepend($('#row-'+id));
+  //$('#details-table').prepend($('#row-'+id));
 
   if(binCode.length > 0) {
     $('#barcode-item').focus();

@@ -60,6 +60,30 @@ class Pick_model extends CI_Model
   }
 
 
+  public function get_pick_orders($code)
+  {
+    $rs = $this->db
+    ->distinct()
+    ->select('pick_list.AbsEntry, pick_list.DocNum, pick_list.CreateDate, pick_row.OrderCode, pick_row.OrderEntry')
+    ->from('pick_row')
+    ->join('pick_list', 'pick_row.AbsEntry = pick_list.AbsEntry', 'left')
+    ->where('pick_list.DocNum', $code)
+    ->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+  public function count_order_rows($AbsEntry, $orderCode)
+  {
+    return $this->db->where('AbsEntry', $AbsEntry)->where('OrderCode', $orderCode)->count_all_results('pick_row');
+  }
+
 
   public function get_pick_rows_by_item($AbsEntry, $ItemCode)
   {
@@ -397,6 +421,12 @@ class Pick_model extends CI_Model
     ->where('PickEntry', $pickEntry);
 
     return $this->db->update('pick_row');
+  }
+
+
+  public function set_row_status($absEntry, $pickEntry, $status)
+  {
+    return $this->db->set('PickStatus', $status)->where('AbsEntry', $absEntry)->where('PickEntry', $pickEntry)->update('pick_row');
   }
 
 

@@ -200,7 +200,7 @@ class Pick extends PS_Controller
 		echo $sc === TRUE ? 'success' : $this->error;
 	}
 
-	
+
 
 
 	public function get_committed_stock($ItemCode)
@@ -984,6 +984,47 @@ class Pick extends PS_Controller
     return $new_code;
   }
 
+
+
+
+	public function print_pick_order_slip($code)
+	{
+		$this->title = "Print Pick Slip";
+		$this->load->model('sales_order_model');
+
+		$orders = $this->pick_model->get_pick_orders($code);
+
+		if(!empty($orders))
+		{
+			foreach($orders as $rs)
+			{
+				$order = $this->getOrder($rs->OrderCode);
+				$rs->ItemRows = $this->pick_model->count_order_rows($rs->AbsEntry, $rs->OrderCode);
+				$rs->prefix = $this->sales_order_model->get_prefix($order->Series);
+				$rs->DocDate = $order->DocDate; //-- So date
+				$rs->CardCode = $order->CardCode;
+				$rs->CardName = $order->CardName;
+				$rs->NumAtCard = $order->NumAtCard;
+				$rs->shipTo = $order->Address2;
+			}
+
+			$this->load->view('print/print_pick_label', array("orders" => $orders));
+		}
+	}
+
+
+
+	public function getOrder($SoNo)
+	{
+		$rs = $this->ms->where('DocNum', $SoNo)->get('ORDR');
+
+		if($rs->num_rows() === 1)
+		{
+			return $rs->row();
+		}
+
+		return NULL;
+	}
 
 
 

@@ -64,6 +64,22 @@ class Pack_model extends CI_Model
   }
 
 
+
+  public function get_pack_details($code)
+  {
+    $rs = $this->db->where('packCode', $code)->get('pack_details');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+
+
   public function get_detail_by_item_uom($code, $itemCode, $UomEntry)
   {
     $rs = $this->db
@@ -273,11 +289,6 @@ class Pack_model extends CI_Model
       $this->db->like('CardName', $ds['CardName']);
     }
 
-    if(!empty($ds['transferCode']))
-    {
-      $this->db->like('SapNo', $ds['transferCode']);
-    }
-
     if(!empty($ds['uname']))
     {
       $this->db->like('uname', $ds['uname']);
@@ -330,11 +341,6 @@ class Pack_model extends CI_Model
     if(!empty($ds['CardName']))
     {
       $this->db->like('CardName', $ds['CardName']);
-    }
-
-    if(!empty($ds['transferCode']))
-    {
-      $this->db->like('SapNo', $ds['transferCode']);
     }
 
 

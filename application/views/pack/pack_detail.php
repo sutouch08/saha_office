@@ -20,12 +20,13 @@
 			<p class="pull-right top-p hidden-xs">
 
 				<button type="button" class="btn btn-sm btn-default" onclick="goBack()"><i class="fa fa-arrow-left"></i> &nbsp; Back</button>
+				<button type="button" class="btn btn-sm btn-success" onclick="goAdd()"><i class="fa fa-plus"></i> &nbsp; เพิ่มใหม่</button>
 				<?php if($doc->Status == 'N' OR $doc->Status == 'P') : ?>
 				<button type="button" class="btn btn-sm btn-primary" onclick="goProcess(<?php echo $doc->id; ?>)">แพ็คสินค้า</button>
 				<button type="button" class="btn btn-sm btn-danger" onclick="canclePack()">ยกเลิก</button>
 				<?php endif; ?>
 				<?php if($doc->Status == 'Y') : ?>
-					<button type="button" class="btn btn-sm btn-info" onclick="showBoxOption()"><i class="fa fa-print"></i> พิมพ์ Label</button>					
+					<button type="button" class="btn btn-sm btn-info" onclick="showBoxOption()"><i class="fa fa-print"></i> พิมพ์ Label</button>
 				<?php endif; ?>
       </p>
     </div>
@@ -54,17 +55,6 @@
 		<label>ลูกค้า</label>
 		<input type="text" class="form-control input-sm" id="CardName" value="<?php echo $doc->CardName; ?>" disabled />
 	</div>
-
-	<div class="col-lg-3 col-md-3 col-sm-3 col-xs-4 padding-5">
-		<label>คลังปลายทาง</label>
-		<input type="text" class="form-control input-sm" value="<?php echo $doc->TransWhsCode; ?>" disabled />
-	</div>
-
-	<div class="col-lg-9 col-md-9 col-sm-9 col-xs-8 padding-5">
-		<label>Location ปลายทาง</label>
-		<input type="text" class="form-control input-sm" value="<?php echo $doc->TransBinCode; ?>" disabled />
-	</div>
-
 
 </div>
 <hr class="padding-5 margin-top-10 margin-bottom-10" />

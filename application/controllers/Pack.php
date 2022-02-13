@@ -12,7 +12,7 @@ class Pack extends PS_Controller
   {
     parent::__construct();
     $this->home = base_url().'pack';
-		$this->load->model('pack_model');		
+		$this->load->model('pack_model');
 		$this->load->model('pick_model');
 		$this->load->model('pack_logs_model');
   }
@@ -28,7 +28,6 @@ class Pack extends PS_Controller
 			'orderCode' => get_filter('orderCode', 'pack_orderCode', ''),
 			'pickCode' => get_filter('pickCode', 'pack_pickCode', ''),
 			'CardName' => get_filter('CardName', 'pack_CardName', ''),
-			'transferCode' => get_filter('transferCode', 'transferCode', ''),
 			'uname' => get_filter('uname', 'pack_uname', ''),
 			'Status' => get_filter('Status', 'pack_Status', 'all'),
 			'fromDate' => get_filter('fromDate', 'pack_fromDate', ''),
@@ -85,6 +84,7 @@ class Pack extends PS_Controller
 		{
 			if(!empty($pickListNo))
 			{
+
 				$pick = $this->pick_model->get_by_code($pickListNo);
 
 				if(!empty($pick))
@@ -148,7 +148,7 @@ class Pack extends PS_Controller
 										}
 										else
 										{
-											if(! $this->pick_model->set_rows_status($rs->AbsEntry, 'C')) //--- loaded to pack
+											if(! $this->pick_model->set_row_status($rs->AbsEntry, $rs->PickEntry, 'C')) //--- loaded to pack
 											{
 												$sc = FALSE;
 												$this->error = "Change Pick row Status failed";
@@ -209,7 +209,8 @@ class Pack extends PS_Controller
 				}
 				else
 				{
-					$sc = "Invalid Pick List No.";
+					$sc = FALSE;
+					$this->error = "Invalid Pick List No.";
 				}
 
 			}

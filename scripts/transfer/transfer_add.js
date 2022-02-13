@@ -156,8 +156,17 @@ $('#toBinCode').autocomplete({
   source:HOME + 'get_buffer_bin_code',
   autoFocus:true,
   close:function() {
-    let code = $(this).val();
-    if(code == 'not found') {
+    let text = $(this).val();
+    if(text == 'not found') {
+      $(this).val('');
+    }
+
+    let arr = text.split(' | ');
+
+    if(arr.length == 2) {
+      $(this).val(arr[0])
+    }
+    else {
       $(this).val('');
     }
   }

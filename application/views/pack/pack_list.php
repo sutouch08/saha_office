@@ -36,11 +36,6 @@
     <input type="text" class="form-control input-sm text-center search-box" name="pickCode" value="<?php echo $pickCode; ?>" />
   </div>
 
-	<div class="col-lg-1 col-md-2 col-sm-2 col-xs-6 padding-5">
-    <label class="search-label">Transfer No</label>
-    <input type="text" class="form-control input-sm text-center search-box" name="transferCode" value="<?php echo $transferCode; ?>" />
-  </div>
-
 	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label class="search-label">ลูกค้า</label>
     <input type="text" class="form-control input-sm text-center search-box" name="CardName" value="<?php echo $CardName; ?>" />
@@ -96,7 +91,6 @@
 	$sort_Status = get_sort('Status', $order_by, $sort_by);
   $sort_date = get_sort('date_add', $order_by, $sort_by);
   $sort_CardName = get_sort('CardName', $order_by, $sort_by);
-	$sort_transferCode = get_sort('transferCode', $order_by, $sort_by);
  ?>
 
 <div class="row">
@@ -109,7 +103,6 @@
 					<th style="width:110px;" class="middle text-center sorting <?php echo $sort_code; ?>" id="sort_code" onclick="sort('code')">เลขที่</th>
           <th style="width:100px;" class="middle text-center sorting <?php echo $sort_orderCode; ?>" id="sort_orderCode" onclick="sort('orderCode')">SO No.</th>
           <th style="width:110px;" class="middle text-center sorting <?php echo $sort_pickCode; ?>" id="sort_pickCode" onclick="sort('pickCode')">Pick List No.</th>
-					<th style="width:100px;" class="middle text-center sorting <?php echo $sort_transferCode; ?>" id="sort_transferCode" onclick="sort('transferCode')">Transfer No.</th>
           <th style="min-width:150px;" class="middle sorting <?php echo $sort_CardName; ?>" id="sort_CardName" onclick="sort('CardName')">ลูกค้า</th>
 					<th style="width:150px;" class="middle sorting <?php echo $sort_uname; ?>" id="sort_uname" onclick="sort('uname')">User</th>
 					<th style="width:100px;" class="middle text-center sorting <?php echo $sort_Status; ?>" id="sort_Status" onclick="sort('Status')">สถานะ</th>
@@ -126,8 +119,7 @@
 						<td class="middle text-center"><?php echo thai_date($rs->date_add, FALSE,'/'); ?></td>
 						<td class="middle text-center"><?php echo $rs->code; ?></td>
             <td class="middle text-center"><?php echo $rs->orderCode; ?></td>
-            <td class="middle text-center"><?php echo $rs->pickCode; ?></td>
-						<td class="middle text-center"><?php echo $rs->SapNo; ?></td>
+            <td class="middle text-center"><?php echo $rs->pickCode; ?></td>						
             <td class="middle" style="white-space:pre-wrap;"><?php echo $rs->CardName; ?></td>
 						<td class="middle"><?php echo $rs->uname; ?></td>
 						<td class="middle text-center">

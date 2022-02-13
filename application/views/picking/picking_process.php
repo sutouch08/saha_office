@@ -90,13 +90,13 @@
 						<?php $id = $rs->id; ?>
 						<?php $color = $rs->RelQtty <= $rs->PickQtty ? 'background-color:#ebf1e2' : ''; ?>
 						<?php $balance = $rs->RelQtty - $rs->PickQtty; ?>
-						<tr id="row-<?php echo $id; ?>" class="row-tr" style="<?php echo $color; ?>">
+						<tr id="row-<?php echo $id; ?>" class="row-tr" data-id="<?php echo $id; ?>" style="<?php echo $color; ?>">
 							<td class="middle" style="white-space:normal;">
 								<?php if(is_null($rs->barcode)) : ?>
 									<a href="javascript:void(0)" onclick="showPickOption('<?php echo $rs->ItemCode; ?>', <?php echo $rs->UomEntry; ?>)">
 									<!--<button type="button" class="btn btn-sm btn-primary" onclick="showPickOption('<?php echo $rs->ItemCode; ?>', <?php echo $rs->UomEntry; ?>)">Options</button>-->
 								<?php endif; ?>
-								<?php echo $rs->ItemCode; ?> | <?php echo $rs->ItemName; ?>
+								<?php echo $rs->barcode; ?> | <?php echo $rs->ItemCode; ?> | <?php echo $rs->ItemName; ?>
 								<?php if(is_null($rs->barcode)) : ?>
 									</a>
 								<?php endif; ?>

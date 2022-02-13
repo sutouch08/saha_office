@@ -30,16 +30,16 @@
             $red = $rs->RelQtty > $rs->OnHand ? 'red' : '';
             $rowNum = $rs->OrderEntry.$rs->OrderLine;
             ?>
-            <tr class="<?php echo $red; ?>" id="row-<?php echo $rowNum; ?>">
+            <tr class="row-tr <?php echo $red; ?>" id="row-<?php echo $rowNum; ?>" data-no="<?php echo $rowNum; ?>">
               <td class="middle text-center no"><?php echo $no; ?></td>
               <td class="middle text-center"><?php echo $rs->OrderCode; ?></td>
               <td class="middle"><?php echo $rs->CardName; ?></td>
               <td class="middle"><?php echo $rs->ItemCode; ?> | <?php echo $rs->ItemName; ?></td>
               <td class="middle text-right"><?php echo $rs->unitMsr; ?></td>
-              <td class="middle text-right"><?php echo number($rs->OrderQty, 2); ?></td>
-              <td class="middle text-right"><?php echo number($rs->OpenQty, 2); ?></td>
-              <td class="middle text-right"><?php echo number($rs->PrevRelease, 2); ?></td>
-              <td class="middle text-right"><?php echo number($rs->RelQtty, 2); ?></td>
+              <td class="middle text-right" id="orderQty-<?php echo $rowNum; ?>"><?php echo number($rs->OrderQty, 2); ?></td>
+              <td class="middle text-right" id="openQty-<?php echo $rowNum; ?>"><?php echo number($rs->OpenQty, 2); ?></td>
+              <td class="middle text-right" id="released-<?php echo $rowNum; ?>"><?php echo number($rs->PrevRelease, 2); ?></td>
+              <td class="middle text-right" id="qty-<?php echo $rowNum; ?>"><?php echo number($rs->RelQtty, 2); ?></td>
               <td class="middle text-right" id="onhand-<?php echo $rowNum; ?>"><?php echo number($rs->OnHand, 2); ?>(<?php echo $rs->unitMsr2; ?>)</td>
               <td class="middle text-center">
                 <button type="button"

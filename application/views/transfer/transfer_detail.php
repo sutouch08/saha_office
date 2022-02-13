@@ -40,7 +40,7 @@
 	</div>
 	<div class="col-lg-2 col-md-3 col-sm-4 col-xs-6 padding-5">
 		<label>Location ปลายทาง</label>
-		<input type="text" class="form-control input-sm text-center" value="<?php echo $doc->toBinCode; ?>" disabled/>
+		<input type="text" class="form-control input-sm text-center" value="<?php echo $doc->transfer_bin_code; ?>" disabled/>
 	</div>
 	<div class="col-lg-3 col-md-3-harf col-sm-4-harf col-xs-12 padding-5">
 		<label>หมายเหตุ</label>

@@ -184,6 +184,7 @@ function packWithOption() {
   let id = $('#id').val();
   let code = $('#code').val();
   let box_id = $('#box_id').val();
+  let pallet_id = $('#pallet_id').val();
   let qty = parseDefault(parseFloat($('#option-qty').val()), 0);
   let itemCode = $('#option-item').val();
   let uom = $('#option-uom').val();
@@ -230,6 +231,7 @@ function packWithOption() {
       'id' : id,
       'code' : code,
       'box_id' : box_id,
+      'pallet_id' : pallet_id,
       'ItemCode' : itemCode,
       'UomEntry' : uom,
       'qty' : qty
@@ -279,6 +281,7 @@ function packWithOption() {
 
 function doPacking() {
   let box_id = parseDefault(parseInt($('#box_id').val()), 0);
+  let pallet_id = $('#pallet_id').val();
   let code = $('#code').val();
   let barcode = $('#barcode-item').val();
   let qty = parseDefault(parseFloat($('#qty').val()), 0);
@@ -306,6 +309,7 @@ function doPacking() {
     data:{
       'code' : code,
       'box_id' : box_id,
+      'pallet_id' : pallet_id,
       'barcode' : barcode,
       'qty' : qty
     },
