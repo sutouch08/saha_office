@@ -1,11 +1,13 @@
 <?php
 
 
-function barcodeImage($barcode, $height = 8, $width = NULL, $fontsize = 18)
+function barcodeImage($barcode, $height = 8, $width = NULL, $fontsize = 18, $css = NULL)
 {
 	$style = "";
 	$style .= empty($width) ? "" : "width:".$width."mm;";
 	$style .= empty($height) ? "" : "height:".$height."mm;";
+	$style .= empty($css) ? "" : $css;
+	
 	return '<img src="'.base_url().'assets/barcode/barcode.php?text='.$barcode.'&font_size='.$fontsize.'" style="'.$style.'" />';
 }
 

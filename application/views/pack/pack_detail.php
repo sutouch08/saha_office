@@ -8,10 +8,15 @@
     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-8 padding-5">
     	<p class="pull-right top-p visible-xs">
         <button type="button" class="btn btn-sm btn-default" onclick="goBack()"><i class="fa fa-arrow-left"></i></button>
+
 				<?php if($doc->Status == 'N' OR $doc->Status == 'P') : ?>
 				<button type="button" class="btn btn-sm btn-primary" onclick="goProcess(<?php echo $doc->id; ?>)">แพ็คสินค้า</button>
-				<button type="button" class="btn btn-sm btn-danger" onclick="canclePack()">ยกเลิก</button>
 				<?php endif; ?>
+
+				<?php if($doc->Status != 'D' && $doc->Status != 'C') : ?>
+					<button type="button" class="btn btn-sm btn-danger" onclick="canclePack(<?php echo $doc->id; ?>, '<?php echo $doc->code; ?>')">ยกเลิก</button>
+				<?php endif; ?>
+
 				<?php if($doc->Status == 'Y') : ?>
 					<button type="button" class="btn btn-sm btn-info" onclick="showBoxOption()"><i class="fa fa-print"></i></button>
 					<button type="button" class="btn btn-sm btn-primary" onclick="showBinOption()"><i class="fa fa-send"></i></button>
@@ -23,8 +28,12 @@
 				<button type="button" class="btn btn-sm btn-success" onclick="goAdd()"><i class="fa fa-plus"></i> &nbsp; เพิ่มใหม่</button>
 				<?php if($doc->Status == 'N' OR $doc->Status == 'P') : ?>
 				<button type="button" class="btn btn-sm btn-primary" onclick="goProcess(<?php echo $doc->id; ?>)">แพ็คสินค้า</button>
-				<button type="button" class="btn btn-sm btn-danger" onclick="canclePack()">ยกเลิก</button>
 				<?php endif; ?>
+
+				<?php if($doc->Status != 'D' && $doc->Status != 'C') : ?>
+					<button type="button" class="btn btn-sm btn-danger" onclick="canclePack(<?php echo $doc->id; ?>, '<?php echo $doc->code; ?>')"><i class="fa fa-times"></i> ยกเลิก</button>				
+				<?php endif; ?>
+
 				<?php if($doc->Status == 'Y') : ?>
 					<button type="button" class="btn btn-sm btn-info" onclick="showBoxOption()"><i class="fa fa-print"></i> พิมพ์ Label</button>
 				<?php endif; ?>
@@ -32,6 +41,10 @@
     </div>
 </div><!-- End Row -->
 <hr class="padding-5"/>
+
+<?php if($doc->Status == 'D') : ?>
+	<?php $this->load->view('cancle_watermark'); ?>
+<?php endif; ?>
 
 <div class="row">
 	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">

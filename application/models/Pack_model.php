@@ -173,6 +173,23 @@ class Pack_model extends CI_Model
   }
 
 
+  public function update_by_code($code, $ds)
+  {
+    if(!empty($ds))
+    {
+      return $this->db->where('code', $code)->update('pack_list', $ds);
+    }
+
+    return FALSE;
+  }
+
+
+  public function delete_pack_boxes($code)
+  {
+    return $this->db->where('packCode', $code)->delete('pack_box');
+  }
+
+
 
   public function set_rows_status($code, $status)
   {
@@ -202,14 +219,19 @@ class Pack_model extends CI_Model
 
   public function get_pick_rows_by_so($pickId, $orderCode)
   {
+
     $rs = $this->db
+    ->select('AbsEntry, OrderCode, ItemCode, ItemName, UomEntry, UomEntry2, UomCode, UomCode2, unitMsr, unitMsr2, BaseQty')
+    ->select_sum('PickQtty')
+    ->select_sum('BasePickQty')
     ->where('AbsEntry', $pickId)
     ->where('OrderCode', $orderCode)
     ->where('PickStatus', 'Y')
     ->where('LineStatus', 'O')
+    ->group_by(array("OrderCode", "ItemCode", "UomEntry"))
     ->order_by('ItemCode', 'ASC')
     ->get('pick_row');
-
+    
     if($rs->num_rows() > 0)
     {
       return $rs->result();
@@ -217,6 +239,9 @@ class Pack_model extends CI_Model
 
     return NULL;
   }
+
+
+
 
   public function get_finish_so_list()
   {

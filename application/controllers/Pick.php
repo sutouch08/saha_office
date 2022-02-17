@@ -530,7 +530,7 @@ class Pick extends PS_Controller
 
 				if(!empty($doc))
 				{
-					if($doc->Canceled == 'N')
+					if($doc->Status != 'D')
 					{
 						if($doc->Status == 'N')
 						{
@@ -664,11 +664,11 @@ class Pick extends PS_Controller
 			$doc = $this->pick_model->get($absEntry);
 			if(!empty($doc))
 			{
-				if($doc->Canceled == 'N')
+				if($doc->Status != 'D')
 				{
 					if($doc->Status == 'N')
 					{
-						$rows = $this->pick_model->get_pick_rows($absEntry);
+						$rows = $this->pick_model->get_sum_pick_rows($absEntry);
 
 						if(!empty($rows))
 						{
@@ -819,7 +819,7 @@ class Pick extends PS_Controller
 			$doc = $this->pick_model->get($absEntry);
 			if(!empty($doc))
 			{
-				if($doc->Canceled == 'N')
+				if($doc->Status != 'D')
 				{
 					if($doc->Status == 'R')
 					{
@@ -1024,6 +1024,129 @@ class Pick extends PS_Controller
 		}
 
 		return NULL;
+	}
+
+
+
+	public function cancle_pick()
+	{
+		$sc = TRUE;
+
+		$id = $this->input->post('id');
+		$code = $this->input->post('code');
+
+		$this->load->model('buffer_model');
+		$this->load->model('cancle_model');
+
+		$doc = $this->pick_model->get($id);
+
+		if(!empty($doc))
+		{
+			if($doc->Status != 'C')
+			{
+				if($doc->Status != 'D')
+				{
+					//--- check ว่ามีรายการใน pick list ถูกดึงไปเปิด
+					if($this->pick_model->is_all_open($id))
+					{
+						$this->db->trans_begin();
+
+						//--- move buffer to cancle
+						$buffer = $this->buffer_model->get_details($doc->DocNum);
+
+						if(!empty($buffer))
+						{
+							foreach($buffer as $bf)
+							{
+								if($sc === FALSE)
+								{
+									break;
+								}
+
+								$arr = array(
+									'AbsEntry' => $bf->AbsEntry,
+									'DocNum' => $bf->DocNum,
+									'OrderCode' => $bf->OrderCode,
+									'ItemCode' => $bf->ItemCode,
+									'ItemName' => $bf->ItemName,
+									'UomEntry' => $bf->UomEntry,
+									'UomCode' => $bf->UomCode,
+									'unitMsr' => $bf->unitMsr,
+									'BaseQty' => $bf->BaseQty,
+									'Qty' => $bf->Qty,
+									'BasePickQty' => $bf->BasePickQty,
+									'BinCode' => $bf->BinCode,
+									'user_id' => $this->user->id,
+									'uname' => $this->user->uname
+								);
+
+								if(! $this->cancle_model->add($arr))
+								{
+									$sc = FALSE;
+									$this->error = "บันทึกรายการยกเลิกไม่สำเร็จ";
+								}
+								else
+								{
+									if(! $this->buffer_model->delete($bf->id))
+									{
+										$sc = FALSE;
+										$this->error = "ลบ Buffer ไม่สำเร็จ";
+									}
+								}
+							}
+						}
+
+
+						//--- change rows status
+						if($sc === TRUE)
+						{
+							if(! $this->pick_model->set_rows_status($id, 'D'))
+							{
+								$sc = FALSE;
+								$this->error = "ยกเลิกสถานะรายการไม่สำเร็จ";
+							}
+							else
+							{
+								if(! $this->pick_model->update($id, array('Status' => 'D')))
+								{
+									$sc = FALSE;
+									$this->error = "ยกเลิกสถานะเอกสารไม่สำเร็จ";
+								}
+							}
+						}
+
+
+						if($sc === TRUE)
+						{
+							$this->db->trans_commit();
+						}
+						else
+						{
+							$this->db->trans_rollback();
+						}
+					}
+					else
+					{
+						$sc = FALSE;
+						$this->error = "บางรายการถูกดึงไปแพ็คแล้ว ไม่สามารถยกเลิกได้";
+					}
+				}
+
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "เอกสารถูกดึงไปแพ็คแล้ว ไม่สามารถยกเลิกได้";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "ไม่พบเลขที่เอกสาร";
+		}
+
+
+		$this->response($sc);
 	}
 
 

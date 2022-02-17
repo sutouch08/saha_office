@@ -53,8 +53,9 @@
 			<option value="all">ทั้งหมด</option>
 			<option value="N" <?php echo is_selected('N', $Status); ?>>รอแพ็ค</option>
 			<option value="P" <?php echo is_selected('P', $Status); ?>>กำลังแพ็ค</option>
-			<option value="Y" <?php echo is_selected('Y', $Status); ?>>แพ็คเสร็จแล้ว</option>
-      <option value="D" <?php echo is_selected('D', $Status); ?>>Canceled</option>
+			<option value="Y" <?php echo is_selected('Y', $Status); ?>>แพ็คแล้ว</option>
+			<option value="C" <?php echo is_selected('C', $Status); ?>>โอนแล้ว</option>
+      <option value="D" <?php echo is_selected('D', $Status); ?>>ยกเลิก</option>
 		</select>
   </div>
 
@@ -119,7 +120,7 @@
 						<td class="middle text-center"><?php echo thai_date($rs->date_add, FALSE,'/'); ?></td>
 						<td class="middle text-center"><?php echo $rs->code; ?></td>
             <td class="middle text-center"><?php echo $rs->orderCode; ?></td>
-            <td class="middle text-center"><?php echo $rs->pickCode; ?></td>						
+            <td class="middle text-center"><?php echo $rs->pickCode; ?></td>
             <td class="middle" style="white-space:pre-wrap;"><?php echo $rs->CardName; ?></td>
 						<td class="middle"><?php echo $rs->uname; ?></td>
 						<td class="middle text-center">
@@ -127,6 +128,8 @@
                 <span class="red">ยกเลิก</span>
               <?php elseif($rs->Status == 'Y') : ?>
                 <span class="green">แพ็คแล้ว</span>
+							<?php elseif($rs->Status == 'C') : ?>
+								<span class="green">โอนแล้ว</span>
               <?php elseif($rs->Status == 'P') : ?>
                 <span class="blue">กำลังแพ็ค</span>
               <?php elseif($rs->Status == 'N') : ?>

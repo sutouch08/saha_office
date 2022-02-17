@@ -26,10 +26,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 //$doc_folder = 'saha';
 $config['base_url'] = '/saha_office';
 // $config['image_path'] = 'images/';
-// $config['upload_path'] = 'upload/';
+ $config['upload_path'] = 'upload/';
 // $config['company_logo'] = 'images/company/company_logo.png';
 // $config['image_file_path'] = $_SERVER['DOCUMENT_ROOT'] ."/{$doc_folder}/images/";
-// $config['upload_file_path'] = $_SERVER['DOCUMENT_ROOT']."/{$doc_folder}/upload/";
+ $config['upload_file_path'] = $_SERVER['DOCUMENT_ROOT']."/upload/";
 // $config['company_logo_file'] = $_SERVER['DOCUMENT_ROOT']."/{$doc_folder}/images/company/company_logo.jpg";
 /*
 |--------------------------------------------------------------------------

@@ -101,7 +101,7 @@ class Picking extends PS_Controller
 	{
 		$this->title = "จัดสินค้า";
 		$doc = $this->pick_model->get($absEntry);
-		if(!empty($doc) && $doc->Canceled == 'N' && ($doc->Status == 'R' OR $doc->Status == 'P'))
+		if(!empty($doc) && ($doc->Status == 'R' OR $doc->Status == 'P'))
 		{
 			if($doc->Status == 'R')
 			{
@@ -257,6 +257,7 @@ class Picking extends PS_Controller
 										'DocNum' => $docNum,
 										'OrderCode' => $orderCode,
 										'ItemCode' => $detail->ItemCode,
+										'ItemName' => $detail->ItemName,
 										'UomEntry' => $detail->UomEntry,
 										'UomCode' => $detail->UomCode,
 										'unitMsr' => $detail->unitMsr,
@@ -296,6 +297,7 @@ class Picking extends PS_Controller
 										'DocNum' => $docNum,
 										'OrderCode' => $orderCode,
 										'ItemCode' => $detail->ItemCode,
+										'ItemName' => $detail->ItemName,
 										'UomEntry' => $detail->UomEntry,
 										'UomCode' => $detail->UomCode,
 										'unitMsr' => $detail->unitMsr,
@@ -432,6 +434,7 @@ class Picking extends PS_Controller
 													'DocNum' => $docNum,
 													'OrderCode' => $orderCode,
 													'ItemCode' => $detail->ItemCode,
+													'ItemName' => $detail->ItemName,
 													'UomEntry' => $detail->UomEntry,
 													'UomCode' => $detail->UomCode,
 													'unitMsr' => $detail->unitMsr,
@@ -471,6 +474,7 @@ class Picking extends PS_Controller
 													'DocNum' => $docNum,
 													'OrderCode' => $orderCode,
 													'ItemCode' => $detail->ItemCode,
+													'ItemName' => $detail->ItemName,
 													'UomEntry' => $detail->UomEntry,
 													'UomCode' => $detail->UomCode,
 													'unitMsr' => $detail->unitMsr,
@@ -624,6 +628,7 @@ class Picking extends PS_Controller
 										'DocNum' => $docNum,
 										'OrderCode' => $orderCode,
 										'ItemCode' => $detail->ItemCode,
+										'ItemName' => $detail->ItemName,
 										'UomEntry' => $detail->UomEntry,
 										'UomCode' => $detail->UomCode,
 										'unitMsr' => $detail->unitMsr,
@@ -664,6 +669,7 @@ class Picking extends PS_Controller
 										'DocNum' => $docNum,
 										'OrderCode' => $orderCode,
 										'ItemCode' => $detail->ItemCode,
+										'ItemName' => $detail->ItemName,
 										'UomEntry' => $detail->UomEntry,
 										'UomCode' => $detail->UomCode,
 										'unitMsr' => $detail->unitMsr,
@@ -785,7 +791,7 @@ class Picking extends PS_Controller
 										{
 											$buffer = $this->picking_model->get_unique_buffer($absEntry, $orderCode, $detail->ItemCode, $binCode, $detail->UomEntry);
 
-											if(!emtpy($buffer))
+											if(!empty($buffer))
 											{
 												if(! $this->picking_model->update_buffer_qty($buffer->id, $pickQty, $invQty))
 												{
@@ -800,6 +806,7 @@ class Picking extends PS_Controller
 													'DocNum' => $docNum,
 													'OrderCode' => $orderCode,
 													'ItemCode' => $detail->ItemCode,
+													'ItemName' => $detail->ItemName,
 													'UomEntry' => $detail->UomEntry,
 													'UomCode' => $detail->UomCode,
 													'unitMsr' => $detail->unitMsr,
@@ -839,6 +846,7 @@ class Picking extends PS_Controller
 													'DocNum' => $docNum,
 													'OrderCode' => $orderCode,
 													'ItemCode' => $detail->ItemCode,
+													'ItemName' => $detail->ItemName,
 													'UomEntry' => $detail->UomEntry,
 													'UomCode' => $detail->UomCode,
 													'unitMsr' => $detail->unitMsr,
@@ -914,6 +922,239 @@ class Picking extends PS_Controller
 		echo $sc === TRUE ? json_encode($ds) : $this->error;
 	}
 
+
+
+
+	public function pick_from_cancle()
+	{
+		$this->load->model('cancle_model');
+		$sc = TRUE;
+		$ds = array();
+		$absEntry = $this->input->post('AbsEntry');
+		$docNum = trim($this->input->post('DocNum'));
+		$pick_detail_id = $this->input->post('pick_detail_id');
+		$cancle_id = $this->input->post('cancle_id');
+		$qty = $this->input->post('qty');
+
+		if($this->input->post())
+		{
+
+			//--- get cancle data
+			$cancle = $this->cancle_model->get($cancle_id);
+
+			if(!empty($cancle))
+			{
+				$binCode = $cancle->BinCode;
+				$ItemCode = $cancle->ItemCode;
+				$UomEntry = $cancle->UomEntry;
+
+				if($qty <= $cancle->Qty)
+				{
+					$detail = $this->picking_model->get_detail($pick_detail_id);
+
+					//--- ถ้ามีแสดงว่า หน่วยนับตรงกัน
+					if(! empty($detail))
+					{
+						$orderCode = $detail->OrderCode;
+						
+						//---- ตัวคูณ หน่วยนับที่ยิงมา
+						$baseQty = $this->item_model->get_base_qty($ItemCode, $UomEntry);
+
+						//--- ถ้าไม่มี แปลงเป็น หน่วยนับย่อย
+						$invQty = $qty * $baseQty;
+
+						//--- ตรวจสอบว่า ยอดที่ยิงมา มากกว่า ยอดคงเหลือในรายการจัดหรือไม่
+						$remain = $detail->BaseRelQty - $detail->BasePickQty;
+
+						if($remain >= $invQty)
+						{
+							//--- ตรวจสอบสต็อกในโซน พอจัดมั้ย
+							$stock = $this->get_stock_zone($ItemCode, $binCode);
+
+							//--- ถ้ามีสต็อกพอ จัดได้
+							if($stock >= $invQty)
+							{
+								//----- แปลงจำนวนจากหน่วยย่อยไปเป็นหน่วยที่สั่งจัด
+								$pickQty = $invQty/$detail->BaseQty;
+
+								$picked = $detail->PickQtty + $pickQty;
+								$balance = $detail->RelQtty - $picked;
+
+								$this->db->trans_begin();
+
+								if(! $this->picking_model->update_picked_qty($detail->id, $pickQty, $invQty))
+								{
+									$sc = FALSE;
+									$this->error = "Update Pick Detail failed";
+								}
+
+								if($sc === TRUE)
+								{
+
+									$buffer = $this->picking_model->get_unique_buffer($absEntry, $orderCode, $detail->ItemCode, $binCode, $detail->UomEntry);
+
+									if(!empty($buffer))
+									{
+										if(! $this->picking_model->update_buffer_qty($buffer->id, $pickQty, $invQty))
+										{
+											$sc = FALSE;
+											$this->error = "Update Buffer failed";
+										}
+									}
+									else
+									{
+										$arr = array(
+											'AbsEntry' => $absEntry,
+											'DocNum' => $docNum,
+											'OrderCode' => $orderCode,
+											'ItemCode' => $detail->ItemCode,
+											'ItemName' => $detail->ItemName,
+											'UomEntry' => $detail->UomEntry,
+											'UomCode' => $detail->UomCode,
+											'unitMsr' => $detail->unitMsr,
+											'BaseQty' => $detail->BaseQty,
+											'Qty' => $pickQty,
+											'BasePickQty' => $invQty,
+											'BinCode' => $binCode,
+											'user_id' => $this->user->id,
+											'uname' => $this->user->uname
+										);
+
+										if(! $this->picking_model->add_buffer($arr))
+										{
+											$sc = FALSE;
+											$this->error = "Add Buffer failed";
+										}
+									}
+
+								}
+
+
+								if($sc === TRUE)
+								{
+									$prepare = $this->picking_model->get_unique_prepare($absEntry, $orderCode, $detail->ItemCode, $binCode, $detail->UomEntry);
+
+									if(!empty($prepare))
+									{
+										if(! $this->picking_model->update_prepare_qty($prepare->id, $pickQty, $invQty))
+										{
+											$sc = FALSE;
+											$this->error = "Update picking detail failed";
+										}
+									}
+									else
+									{
+										$arr = array(
+											'AbsEntry' => $absEntry,
+											'DocNum' => $docNum,
+											'OrderCode' => $orderCode,
+											'ItemCode' => $detail->ItemCode,
+											'ItemName' => $detail->ItemName,
+											'UomEntry' => $detail->UomEntry,
+											'UomCode' => $detail->UomCode,
+											'unitMsr' => $detail->unitMsr,
+											'BaseQty' => $detail->BaseQty,
+											'Qty' => $pickQty,
+											'BasePickQty' => $invQty,
+											'BinCode' => $binCode,
+											'user_id' => $this->user->id,
+											'uname' => $this->user->uname
+										);
+
+										if(! $this->picking_model->add_prepare($arr))
+										{
+											$sc = FALSE;
+											$this->error = "Add Picking detail failed";
+										}
+									}
+								}
+
+								//--- update cancle
+								if($sc === TRUE)
+								{
+									$cancle_balance = $cancle->Qty - $qty;
+
+									if($cancle_balance == 0) {
+										if(! $this->cancle_model->delete($cancle->id))
+										{
+											$sc = FALSE;
+											$this->error = "Remove Cancle failed";
+										}
+									}
+									else
+									{
+										$arr = array(
+											'Qty' => $cancle_balance,
+											'BasePickQty' => $cancle_balance * $cancle->BaseQty
+										);
+
+										if(! $this->cancle_model->update($cancle->id, $arr))
+										{
+											$sc = FALSE;
+											$this->error = "Update Cancle failed";
+										}
+									}
+								}
+
+
+								if($sc === TRUE)
+								{
+									$this->db->trans_commit();
+
+									$arr = array(
+										'id' => $detail->id,
+										'picked' => round($picked, 2),
+										'balance' => round($balance, 2)
+									);
+
+									array_push($ds, $arr);
+								}
+								else
+								{
+									$this->db->trans_rollback();
+								}
+							}
+							else
+							{
+								$sc = FALSE;
+								$this->error = "สินค้าใน Location ที่กำหนดไม่เพียงพอ กรุณากำหนดจำนวนสินค้าใหม่";
+							}
+						}
+						else
+						{
+							$sc = FALSE;
+							$this->error = "จำนวนสินค้าเกิน กรุณาคืนสินค้าแล้วจัดสินค้าใหม่อีกครั้ง";
+						}
+					}
+					else
+					{
+						$sc = FALSE;
+						$this->error = "Invalid Pick detail id";
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "จำนวนที่ต้องการ เกินกว่าจำนวนที่มีใน Canceled";
+				}
+
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "ไม่พบรายการในโซนยกเลิก";
+			}
+
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing required parameter";
+		}
+
+
+		echo $sc === TRUE ? json_encode($ds) : $this->error;
+	}
 
 
 
@@ -1086,7 +1327,7 @@ class Picking extends PS_Controller
 
 		if(!empty($doc))
 		{
-			if($doc->Canceled == 'Y')
+			if($doc->Status == 'D')
 			{
 				$sc = "Canceled";
 			}

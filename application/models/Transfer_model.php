@@ -7,19 +7,6 @@ class Transfer_model extends CI_Model
   }
 
 
-  public function get_pallet_boxes($id)
-  {
-    $rs = $this->db->where('pallet_id', $id)->get('pack_box');
-
-    if($rs->num_rows() > 0)
-    {
-      return $rs->result();
-    }
-
-    return NULL;
-  }
-
-
   public function get_pack_details_by_box_id($box_id)
   {
     $rs = $this->db->where('box_id', $box_id)->get('pack_details');
@@ -56,6 +43,25 @@ class Transfer_model extends CI_Model
     {
       return $rs->result();
     }
+
+    return NULL;
+  }
+
+
+  public function get_sum_order_item_details($transfer_id)
+  {
+    $rs = $this->db
+    ->select_sum('Qty')
+    ->select('pickCode, orderCode, ItemCode, UomEntry')
+    ->where('transfer_id', $transfer_id)
+    ->group_by(array('orderCode', 'ItemCode', 'UomEntry'))
+    ->get('transfer_details');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
 
     return NULL;
   }
@@ -105,11 +111,75 @@ class Transfer_model extends CI_Model
   }
 
 
+
+  public function update_order_line($DocEntry, $LineNum, $ds = array())
+  {
+    if(!empty($ds))
+    {
+      return $this->ms->where('DocEntry', $DocEntry)->where('LineNum', $LineNum)->update('RDR1', $ds);
+    }
+
+    return FALSE;
+  }
+
+
+
   public function cancle_details($transfer_id)
   {
     return $this->db->set('is_cancle', 1)->where('transfer_id', $transfer_id)->update('transfer_details');
   }
 
+
+
+  public function get_pick_id_by_code($pickCode)
+  {
+    $rs = $this->db->select('AbsEntry')->where('DocNum', $pickCode)->get('pick_list');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->AbsEntry;
+    }
+
+    return NULL;
+  }
+
+
+
+  public function get_pick_rows_by_item_uom($AbsEntry, $OrderCode, $ItemCode, $UomEntry)
+  {
+    $rs = $this->db
+    ->where('AbsEntry', $AbsEntry)
+    ->where('ItemCode', $ItemCode)
+    ->where('OrderCode', $OrderCode)
+    ->where('UomEntry', $UomEntry)
+    ->order_by('PickEntry', 'ASC')
+    ->get('pick_row');
+
+    if($rs->num_rows()> 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+
+  public function get_order_line($DocEntry, $LineNum)
+  {
+    $rs = $this->ms
+    ->select('DocEntry, OpenQty, U_Packed, U_PrevPacked, U_TransferCode')
+    ->where('DocEntry', $DocEntry)
+    ->where('LineNum', $LineNum)
+    ->get('RDR1');
+
+    if($rs->num_rows() == 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
 
 
 
@@ -118,8 +188,9 @@ class Transfer_model extends CI_Model
     $rs = $this->db
     ->select('pack_result.*')
     ->select('pack_row.UomEntry2, pack_row.UomCode2, pack_row.unitMsr2')
-    ->from('pack_result')
+    ->from('pack_result')     
     ->join('pack_row', 'pack_result.packCode = pack_row.packCode AND pack_result.pickCode = pack_row.pickCode AND pack_result.orderCode = pack_row.orderCode AND pack_result.ItemCode = pack_row.ItemCode AND pack_result.UomEntry = pack_row.UomEntry', 'left')
+    ->where_in('pack_row.Status', array('Y', 'C'))
     ->where('pack_result.pallet_id', $pallet_id)
     ->get();
 

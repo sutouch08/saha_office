@@ -66,21 +66,27 @@
 		<label class="display-block not-show">label</label>
 		<button type="button" class="btn btn-xs btn-primary btn-block" id="btn-submit-item" onclick="pickItem()" disabled>Pick</button>
 	</div>
+
+	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
+		<label class="display-block not-show">label</label>
+		<button type="button" class="btn btn-xs btn-purple btn-block" onclick="showCancleOption()">Show Canceled Items</button>
+	</div>
 </div>
 <hr class="margin-top-10 margin-bottom-10 padding-5"/>
 <input type="hidden" id="BinCode" value="">
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-		<table class="table table-stripped table-bordered border-1 dataTable" id="pick-table">
+		<table class="table table-stripped table-bordered border-1 dataTable" id="pick-table" style="min-width:700px;">
 			<thead>
 				<tr>
-					<th class="middle text-center">สินค้า</th>
-					<th class="middle text-center">SO No</th>
-					<th class="middle text-center">UOM</th>
-					<th class="width-10 middle text-center">จำนวน</th>
-					<th class="width-10 middle text-center">จัดแล้ว</th>
-					<th class="width-10 middle text-center">คงเหลือ</th>
-					<th class="width-10 middle text-center">ที่เก็บ</th>
+					<th class="middle text-center" style="min-width:100px;">สินค้า</th>
+					<th class="middle text-center" style="width:100px;">SO No</th>
+					<th class="middle text-center" style="width:100px;">UOM</th>
+					<th class="middle text-center" style="width:80px;">จำนวน</th>
+					<th class="middle text-center" style="width:80px;">จัดแล้ว</th>
+					<th class="middle text-center" style="width:80px;">คงเหลือ</th>
+					<th class="middle text-center" style="min-width:100px;">ที่เก็บ</th>
+					<th class="middle text-center" style="max-width:80px;"></th>
 				</tr>
 			</thead>
 			<tbody id="details-table">
@@ -110,11 +116,21 @@
 								</button>
 							</td>
 							<td class="middle text-center"><?php echo $rs->unitMsr; ?></td>
-							<td class="middle text-right" id="release-<?php echo $id; ?>"><?php echo round($rs->RelQtty,2); ?></td>
-							<td class="middle text-right" id="pick-<?php echo $id; ?>"><?php echo round($rs->PickQtty, 2); ?></td>
-							<td class="middle text-right" id="balance-<?php echo $id; ?>"><?php echo round($balance, 2); ?></td>
+							<td class="middle text-center" id="release-<?php echo $id; ?>"><?php echo round($rs->RelQtty,2); ?></td>
+							<td class="middle text-center" id="pick-<?php echo $id; ?>"><?php echo round($rs->PickQtty, 2); ?></td>
+							<td class="middle text-center" id="balance-<?php echo $id; ?>"><?php echo round($balance, 2); ?></td>
 							<td class="middle text-right">
 								<?php echo $rs->stock_in_zone; ?>
+							</td>
+							<td class="middle text-center">
+								<?php if($rs->RelQtty > $rs->PickQtty) : ?>
+								<button type="button"
+									class="btn btn-purple btn-sm"
+									id="btn-cancle-pick-<?php echo $rs->id; ?>"
+									onclick="showCancleOption('<?php echo $rs->ItemCode; ?>', <?php echo $rs->OrderCode; ?>, <?php echo $rs->id; ?>)">
+									<i class="fa fa-bolt"></i>
+								</button>
+								<?php endif; ?>
 							</td>
 						</tr>
 						<?php $totalBalance += round($balance, 2); ?>
@@ -179,6 +195,60 @@
     </div>
 </div>
 
+
+
+<div class="modal fade" id="cancleOptionModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="max-width:700px;">
+        <div class="modal-content">
+            <div class="modal-header" style="border-bottom:solid 1px #CCC">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title-site text-center">Canceled Items</h4>
+            </div>
+            <div class="modal-body">
+							<input type="hidden" id="pick-id">
+							<input type="hidden" id="limit">
+	            <div class="row">
+								<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 table-responsive">
+									<table class="table table-striped border-1" style="min-width:700px;">
+										<thead>
+											<tr>
+												<th style="width:100px;">Pick No</th>
+												<th style="width:100px;">SO No</th>
+												<th style="min-width:100px;">สินค้า</th>
+												<th style="width:80px;">จำนวน</th>
+												<th style="min-width:80px;">Qty</th>
+												<th style="width:80px;">Uom</th>
+												<th></th>
+												<th style="width:100px;">Bin Code</th>
+											</tr>
+										</thead>
+										<tbody id="cancle-option-table">
+
+										</tbody>
+		              </table>
+								</div>
+	            </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script id="cancle-option-template" type="text/x-handlebarsTemplate">
+	{{#each this}}
+		<tr id="option-{{id}}" class="option-row" data-id="{{id}}">
+			<td>{{DocNum}}</td>
+			<td>{{OrderCode}}</td>
+			<td>{{ItemCode}} </td>
+			<td class="text-center">{{Qty}}</td>
+			<td>
+				<input type="number" id="pick-qty-{{id}}" class="form-control input-sm text-right pick-qty" />
+			</td>
+			<td>{{unitMsr}}</td>
+			<td><button type="button" class="btn btn-sm btn-primary" onclick="addToPick({{id}})">Add</button></td>
+			<td>{{BinCode}}</td>
+		</tr>
+	{{/each}}
+</script>
 
 <script>
 	$('.btn-pop').popover({html:true});

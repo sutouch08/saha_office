@@ -68,6 +68,19 @@ class Pallet_model extends CI_Model
 
 
 
+  public function get_pack_list_by_pallet($pallet_id)
+  {
+    $rs = $this->db->where('pallet_id', $pallet_id)->get('pallet_row');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
   public function add($code)
   {
     $arr = array('code' => $code);
@@ -112,6 +125,12 @@ class Pallet_model extends CI_Model
   public function delete_row($pallet_id, $packCode)
   {
     return $this->db->where('pallet_id', $pallet_id)->where('PackCode', $packCode)->delete('pallet_row');
+  }
+
+
+  public function delete_pack_rows($packCode)
+  {
+    return $this->db->where('PackCode', $packCode)->delete('pallet_row');
   }
 
 

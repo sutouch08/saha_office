@@ -89,7 +89,7 @@ class Pack extends PS_Controller
 
 				if(!empty($pick))
 				{
-					if($pick->Canceled == 'N')
+					if($pick->Status != 'N')
 					{
 						if($pick->Status == 'Y')
 						{
@@ -144,11 +144,10 @@ class Pack extends PS_Controller
 										{
 											$sc = FALSE;
 											$this->error = "Insert pack row failed @ {$rs->ItemCode}";
-
 										}
 										else
 										{
-											if(! $this->pick_model->set_row_status($rs->AbsEntry, $rs->PickEntry, 'C')) //--- loaded to pack
+											if(! $this->pick_model->set_row_status($rs->AbsEntry, $rs->OrderCode, $rs->ItemCode, $rs->UomEntry, 'C')) //--- loaded to pack
 											{
 												$sc = FALSE;
 												$this->error = "Change Pick row Status failed";
@@ -255,6 +254,163 @@ class Pack extends PS_Controller
 
 
 
+	public function cancle_pack()
+	{
+		$sc = TRUE;
+
+		$id = $this->input->post('id');
+		$code = $this->input->post('code');
+
+		$doc = $this->pack_model->get($id);
+
+		if(!empty($doc))
+		{
+			if($doc->Status != 'C')
+			{
+				if($doc->Status != 'D')
+				{
+					$this->load->model('pallet_model');
+					$this->load->model('picking_model');
+
+					$this->db->trans_begin();
+
+					//--- remove pallet row
+					if(! $this->pallet_model->delete_pack_rows($doc->code))
+					{
+						$sc = FALSE;
+						$this->error = "ลบการเชื่อมโยงพาเลทไม่สำเร็จ";
+					}
+					else
+					{
+						//--- remove pack box
+						if(! $this->pack_model->delete_pack_boxes($doc->code))
+						{
+							$sc = FALSE;
+							$this->error = "ลบกล่องไม่สำเร็จ";
+						}
+						else
+						{
+							//--- set pack row status
+							if(! $this->pack_model->set_rows_status($doc->code, 'D'))
+							{
+								$sc = FALSE;
+								$this->error = "ยกเลิกรายการแพ็คไม่สำเร็จ";
+							}
+							else
+							{
+								//--- set pack list status
+								if(! $this->pack_model->update($doc->id, array('Status' => 'D')))
+								{
+									$sc = FALSE;
+									$this->error = "ยกเลิกเอกสารแพ็คไม่สำเร็จ";
+								}
+								else
+								{
+									$pick = $this->pick_model->get_by_code($doc->pickCode);
+
+									if(!empty($pick))
+									{
+										//---- restore buffer
+										$details = $this->pick_model->get_picking_details($doc->pickCode, $doc->orderCode);
+
+										if(!empty($details))
+										{
+											foreach($details as $detail)
+											{
+												if($sc === FALSE)
+												{
+													break;
+												}
+
+
+												$arr = array(
+													'AbsEntry' => $detail->AbsEntry,
+													'DocNum' => $detail->DocNum,
+													'OrderCode' => $detail->OrderCode,
+													'ItemCode' => $detail->ItemCode,
+													'ItemName' => $detail->ItemName,
+													'UomEntry' => $detail->UomEntry,
+													'UomCode' => $detail->UomCode,
+													'unitMsr' => $detail->unitMsr,
+													'BaseQty' => $detail->BaseQty,
+													'Qty' => $detail->Qty,
+													'BasePickQty' => $detail->BasePickQty,
+													'BinCode' => $detail->BinCode,
+													'user_id' => $detail->user_id,
+													'uname' => $detail->uname,
+													'date_upd' => $detail->date_upd
+												);
+
+												if(! $this->picking_model->add_buffer($arr))
+												{
+													$sc = FALSE;
+													$this->error = "Restore buffer failed";
+												}
+											}
+										}
+
+
+										if($sc === TRUE)
+										{
+											//--- change pick status
+											if(! $this->pick_model->un_close_rows($pick->AbsEntry, $doc->orderCode))
+											{
+												$sc = FALSE;
+												$this->error = "เปลียนสถานะ Pick details ไม่สำเร็จ";
+											}
+											else
+											{
+												if($this->pick_model->is_all_open($pick->AbsEntry))
+												{
+													if(! $this->pick_model->update($pick->AbsEntry, array('Status' => 'Y')))
+													{
+														$sc = FALSE;
+														$this->error = "เปลี่ยนสถานะ Pick list ไม่สำเร็จ";
+													}
+												}
+											}
+										}
+
+										//--- add logs
+										if($sc === TRUE)
+										{
+											$this->pack_logs_model->add('cancle', $doc->code);
+										}
+									}
+								}
+							}
+						}
+					}
+
+
+					if($sc === TRUE)
+					{
+						$this->db->trans_commit();
+					}
+					else
+					{
+						$this->db->trans_rollback();
+					}
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "กรุณายกเลิกใบโอนสินค้าก่อนยกเลิก Pack list";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Invalid Document";
+		}
+
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
+
+
+
 	public function get_pick_list_by_so()
 	{
 		$sc = TRUE;
@@ -282,351 +438,6 @@ class Pack extends PS_Controller
 	}
 
 
-
-	public function send_to_sap()
-	{
-		$this->load->model('warehouse_model');
-
-		$sc = TRUE;
-		$id = $this->input->post('id');
-		$code = $this->input->post('code');
-		$binCode = trim($this->input->post('BinCode'));
-
-		//--- check BinCode
-		$BufferWhsCode = getConfig('BUFFER_WAREHOUSE');
-
-		$WhsCode = $this->warehouse_model->get_warehouse_code($binCode);
-
-		if($WhsCode == $BufferWhsCode)
-		{
-			//--- Update warehouse and bin for transfer
-			$arr = array(
-				'TransWhsCode' => $WhsCode,
-				'TransBinCode' => $binCode
-			);
-
-			if($this->pack_model->update($id, $arr))
-			{
-				if(! $this->doExport($id))
-				{
-					$sc = FALSE;
-				}
-			}
-			else
-			{
-				$sc = FALSE;
-				$this->error = "Update Pack list Transfer Warehouse and Bin Location failed";
-			}
-		}
-		else
-		{
-			$sc = FALSE;
-			$this->error = "คลังสินค้าไม่ถูกต้อง";
-		}
-
-
-		echo $sc === TRUE ? 'success' : $this->error;
-	}
-
-
-
-
-	public function doExport($id)
-	{
-		$sc = TRUE;
-		$this->load->model('warehouse_model');
-		$this->load->model('transfer_model');
-		$doc = $this->pack_model->get($id);
-
-		if(!empty($doc))
-		{
-			if($doc->Status == 'Y')
-			{
-				//---- check TR already in SAP
-				$tr = $this->transfer_model->get_sap_transfer($doc->code);
-
-				if(empty($tr))
-				{
-					//---- drop exists temp data
-					$temp = $this->transfer_model->get_temp_transfer($doc->code);
-
-					if(!empty($temp))
-		      {
-		        foreach($temp as $rows)
-		        {
-		          if($this->transfer_model->drop_transfer_temp_data($rows->DocEntry) === FALSE)
-		          {
-		            $sc = FALSE;
-		            $this->error = "ลบรายการที่ค้างใน Temp ไม่สำเร็จ";
-		          }
-		        }
-		      }
-
-					if($sc === TRUE)
-					{
-						$currency = getConfig('CURRENCY');
-						$currency = empty($currency) ? 'THB' : $currency;
-
-						$this->mc->trans_begin();
-
-						//--- insert heade OWTR ก่อน แล้วได้ DocEntry มาเอาไปใส่ที่อื่นต่อ
-						$header = array(
-	            'DocDate' => sap_date(now(), TRUE),
-	            'DocDueDate' => sap_date(now(), TRUE),
-	            'CardCode' => NULL,
-	            'CardName' => NULL,
-	            'VatPercent' => 0.000000,
-	            'VatSum' => 0.000000,
-	            'VatSumFc' => 0.000000,
-	            'DiscPrcnt' => 0.000000,
-	            'DiscSum' => 0.000000,
-	            'DiscSumFC' => 0.000000,
-	            'DocCur' => $currency,
-	            'DocRate' => 1,
-	            'DocTotal' => 0.000000,
-	            'DocTotalFC' => 0.000000,
-							'U_WEBORDER' => $doc->code,
-	            'F_Web' => 'A',
-	            'F_WebDate' => sap_date(now(), TRUE)
-						);
-
-						$docEntry = $this->transfer_model->add_sap_transfer($header);
-
-						if($docEntry !== FALSE)
-						{
-							$details = $this->pack_model->get_pack_results($doc->code);
-
-							if(!empty($details))
-							{
-								$line = 0;
-	              foreach($details as $rs)
-	              {
-									if($sc === FALSE)
-									{
-										break;
-									}
-
-									if($rs->Qty > 0)
-									{
-										$arr = array(
-		                  'DocEntry' => $docEntry,
-		                  'U_WEBORDER' => $rs->packCode,
-		                  'LineNum' => $line,
-		                  'ItemCode' => $rs->ItemCode,
-		                  'Dscription' => limitText($rs->ItemName, 95),
-		                  'Quantity' => $rs->Qty,
-											'UomCode' => $rs->UomCode,
-											'UomEntry' => $rs->UomEntry,
-		                  'unitMsr' => $rs->unitMsr,
-											'UomCode2' => $rs->UomCode2,
-											'UomEntry2' => $rs->UomEntry2,
-											'unitMsr2' => $rs->unitMsr2,
-		                  'PriceBefDi' => 0.000000,
-		                  'LineTotal' => 0.000000,
-		                  'ShipDate' => sap_date(now(), TRUE),
-		                  'Currency' => $currency,
-		                  'Rate' => 1,
-		                  'DiscPrcnt' => 0.000000,
-		                  'Price' => 0.000000,
-		                  'TotalFrgn' => 0.000000,
-		                  'FromWhsCod' => $this->warehouse_model->get_warehouse_code($rs->BinCode),
-		                  'WhsCode' => $doc->TransWhsCode,
-		                  'F_FROM_BIN' => $rs->BinCode,
-		                  'F_TO_BIN' => $doc->TransBinCode,
-		                  'TaxStatus' => 'Y',
-		                  'VatPrcnt' => 0.000000,
-		                  'VatGroup' => NULL,
-		                  'PriceAfVAT' => 0.000000,
-		                  'VatSum' => 0.000000,
-		                  'TaxType' => 'Y'
-		                );
-
-										if( ! $this->transfer_model->add_sap_transfer_detail($arr))
-		                {
-		                  $sc = FALSE;
-		                  $this->error = 'เพิ่มรายการไม่สำเร็จ';
-		                }
-
-		                $line++;
-									}
-	              }
-							} //-- end if empty details
-
-						} //--- end if docEntry
-
-						if($sc === TRUE)
-						{
-							$this->mc->trans_commit();
-						}
-						else
-						{
-							$this->mc->trans_rollback();
-						}
-					}
-				}
-				else
-				{
-					$sc = FALSE;
-					$this->error = "เอกสารถูกนำเข้า SAP แล้ว";
-				}
-			}
-			else
-			{
-				$sc = FALSE;
-				$this->error = "Invalid Document Status";
-			}
-		}
-
-		if($sc === TRUE)
-		{
-			$arr = array(
-				'tempStatus' => 'P',
-				'tempDate' => now()
-			);
-
-			$this->pack_model->update($id, $arr);
-		}
-
-
-		return $sc;
-	}
-
-
-
-	public function find_bin_code($whsCode)
-	{
-		$txt = trim($_REQUEST['term']);
-		$ds = array();
-
-		$qr  = "SELECT BinCode FROM OBIN ";
-		$qr .= "WHERE WhsCode LIKE '{$whsCode}' ";
-		$qr .= "AND BinCode LIKE N'%{$txt}%' ";
-		$qr .= "ORDER BY BinCode ASC ";
-		$qr .= "OFFSET 0 ROW FETCH NEXT 50 ROWS ONLY";
-
-		$rs = $this->ms->query($qr);
-
-		if($rs->num_rows() > 0)
-		{
-			foreach($rs->result() as $rd)
-			{
-				$ds[] = $rd->BinCode;
-			}
-		}
-
-		echo json_encode($ds);
-	}
-
-
-	public function check_bin_code()
-	{
-		$sc = FALSE;
-		$whsCode = getConfig('BUFFER_WAREHOUSE');
-		$binCode = trim($this->input->post('BinCode'));
-
-		$rs = $this->ms
-		->select('AbsEntry')
-		->where('WhsCode', $whsCode)
-		->where('BinCode', $binCode)
-		->get('OBIN');
-
-		if($rs->num_rows() == 1) {
-			$sc = TRUE;
-		}
-
-		echo $sc === TRUE ? 'success' : 'Location ไม่ถูกต้อง';
-	}
-
-
-
-	public function get_temp_detail()
-	{
-		$this->load->model('transfer_model');
-		$this->load->model('sales_order_model');
-
-		$sc = TRUE;
-		$code = trim($this->input->get('code'));
-
-		$doc = $this->pack_model->get_by_code($code);
-
-		$ds = array();
-
-		if(!empty($doc))
-		{
-			if($doc->tempStatus != NULL && $doc->tempStatus != 'N')
-			{
-				$temp = $this->transfer_model->get_last_temp_transfer($code);
-
-				if(!empty($temp))
-				{
-					$prefix = $this->sales_order_model->get_prefix_by_docNum($doc->orderCode);
-					$ds = array(
-						'id' => $doc->id,
-						'DocEntry' => $temp->DocEntry,
-						'U_WEBORDER' => $code,
-						'OrderCode' => $prefix.'-'.$doc->orderCode,
-						'PickCode' => $doc->pickCode,
-						'TransWhsCode' => $doc->TransWhsCode,
-						'TransBinCode' => $doc->TransBinCode,
-						'F_WebDate' => thai_date($temp->F_WebDate, TRUE),
-						'F_SapDate' => $temp->F_Sap == NULL ? '-' : thai_date($temp->F_SapDate, TRUE),
-						'F_Sap' => $temp->F_Sap == 'Y' ? 'Success' :($temp->F_Sap == 'N' ? 'Failed' : 'Pending'),
-						'Message' => $temp->F_Sap == 'Y' ? '' : $temp->Message,
-					);
-
-					if($temp->F_Sap != 'Y')
-					{
-						$ds['del_btn'] = 'Y';
-					}
-				}
-				else
-				{
-					$sc = FALSE;
-					$this->error = "No Temp data";
-				}
-			}
-			else
-			{
-				$sc = FALSE;
-				$this->error = "Invalid Temp Status OR Document not in Temp";
-			}
-		}
-		else
-		{
-			$sc = FALSE;
-			$this->error = "{$code} not found";
-		}
-
-		echo $sc === TRUE ? json_encode($ds) : $this->error;
-	}
-
-
-
-	public function delete_temp()
-	{
-		$this->load->model('transfer_model');
-		$sc = TRUE;
-		$DocEntry = $this->input->post('DocEntry');
-		$id = $this->input->post('id');
-
-		if(! $this->transfer_model->drop_transfer_temp_data($DocEntry))
-		{
-			$sc = FALSE;
-			$this->error = "Delete Temp Failed";
-		}
-		else
-		{
-			$arr = array(
-				'tempStatus' => 'N',
-				'tempDate' => NULL
-			);
-
-			$this->pack_model->update($id, $arr);
-		}
-
-
-		echo $sc === TRUE ? 'success' : $this->error;
-	}
 
 
 

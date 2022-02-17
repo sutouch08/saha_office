@@ -21,6 +21,10 @@ function sendToSap() {
             type:'success',
             timer:1000
           });
+
+          setTimeout(function() {
+            window.location.reload();
+          }, 1200)
         }
         else {
           swal({
@@ -32,4 +36,29 @@ function sendToSap() {
       }
     })
   }
+}
+
+
+
+function updateOrder() {
+  let id = $('#id').val();
+
+  $.ajax({
+    url:HOME + 'manual_update_order_line/'+id,
+    type:'POST',
+    cache:false,
+    success:function(rs) {
+      if(rs == 'success') {
+        swal({
+          title:'Success',
+          type:'success',
+          timer:1000
+        });
+
+        setTimeout(function() {
+          window.location.reload();
+        }, 1200);
+      }
+    }
+  })
 }

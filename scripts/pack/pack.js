@@ -61,6 +61,52 @@ $("#toDate").datepicker({
 
 
 
+function canclePack(id, code)
+{
+	swal({
+		title: "คุณแน่ใจ ?",
+		text: "ต้องการยกเลิก '"+code+"' หรือไม่?",
+		type: "warning",
+		showCancelButton: true,
+		confirmButtonColor: "#DD6B55",
+		confirmButtonText: 'ยืนยัน',
+		cancelButtonText: 'ยกเลิก',
+		closeOnConfirm: false
+		}, function() {
+			load_in();
+
+			$.ajax({
+				url: HOME + 'cancle_pack',
+				type:"POST",
+        cache:"false",
+				data:{
+          'id' : id,
+					'code' : code
+				},
+				success: function(rs){
+					load_out();
+					var rs = $.trim(rs);
+					if( rs == 'success' ){
+						swal({
+							title:'Success',
+							text:'ยกเลิกรายการเรียบร้อยแล้ว',
+							type:'success',
+							timer:1000
+						});
+
+						setTimeout(function(){
+							window.location.reload();
+						},1200);
+					}else{
+						swal("Error !", rs , "error");
+					}
+				}
+			});
+	});
+}
+
+
+
 function viewTempDetail(code) {
   $.ajax({
     url:HOME + 'get_temp_detail',

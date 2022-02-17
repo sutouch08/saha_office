@@ -78,6 +78,7 @@ class Transfer extends PS_Controller
 	{
 		$sc = TRUE;
 		$this->load->model('warehouse_model');
+		$this->load->model('pack_model');
 
 		$docDate = db_date($this->input->post('docDate'));
 		$toBinCode = trim($this->input->post('toBinCode'));
@@ -165,8 +166,46 @@ class Transfer extends PS_Controller
 									'transferCode' => $code
 								);
 
-								$this->pallet_model->update($pallet->id, $arr);
+								if(! $this->pallet_model->update($pallet->id, $arr))
+								{
+									$sc = FALSE;
+									$this->error = "Update Pallet Status failed";
+								}
 							}
+
+							if($sc === TRUE)
+							{
+								//--- close pack list
+								$packlist = $this->pallet_model->get_pack_list_by_pallet($pallet->id);
+
+								if(!empty($packlist))
+								{
+									foreach($packlist as $rs)
+									{
+										if($sc === FALSE)
+										{
+											break;
+										}
+
+										if(! $this->pack_model->set_rows_status($rs->PackCode, 'C'))
+										{
+											$sc = FALSE;
+											$this->error = "Update Pack rows status failed";
+										}
+
+										if($sc === TRUE)
+										{
+											if(! $this->pack_model->update_by_code($rs->PackCode, array('Status' => 'C')))
+											{
+												$sc = FALSE;
+												$this->error = "Update pack list status failed";
+											}
+										}
+									}
+								}
+							}
+
+
 
 							if($sc === TRUE)
 							{
@@ -218,6 +257,8 @@ class Transfer extends PS_Controller
 	public function cancle_transfer()
 	{
 		$sc = TRUE;
+		$this->load->model('pack_model');
+
 		$id = $this->input->post('id');
 		$code = $this->input->post('code');
 
@@ -280,6 +321,45 @@ class Transfer extends PS_Controller
 							{
 								$sc = FALSE;
 								$this->error = "Update pallet Status failed";
+							}
+						}
+
+
+						//--- update packed status
+						if($sc === TRUE)
+						{
+							$pallet = $this->pallet_model->get_pallet_by_code($doc->palletCode);
+
+							if(!empty($pallet))
+							{
+								//--- Unclose pack list
+								$packlist = $this->pallet_model->get_pack_list_by_pallet($pallet->id);
+
+								if(!empty($packlist))
+								{
+									foreach($packlist as $rs)
+									{
+										if($sc === FALSE)
+										{
+											break;
+										}
+
+										if(! $this->pack_model->set_rows_status($rs->PackCode, 'Y'))
+										{
+											$sc = FALSE;
+											$this->error = "Update Pack rows status failed";
+										}
+
+										if($sc === TRUE)
+										{
+											if(! $this->pack_model->update_by_code($rs->PackCode, array('Status' => 'Y')))
+											{
+												$sc = FALSE;
+												$this->error = "Update pack list status failed";
+											}
+										}
+									}
+								}
 							}
 						}
 
@@ -518,6 +598,12 @@ class Transfer extends PS_Controller
 		}
 
 
+		if($sc === TRUE)
+		{
+			$this->update_order_line($id);
+		}
+
+
 		return $sc;
 	}
 
@@ -646,8 +732,6 @@ class Transfer extends PS_Controller
 			$this->error = "Invalid Pallet No.";
 		}
 
-
-
 		echo $sc === TRUE ? json_encode($ds) : $this->error;
 	}
 
@@ -737,6 +821,185 @@ class Transfer extends PS_Controller
 
     $this->response($sc);
   }
+
+
+
+	public function update_order_line($transfer_id)
+	{
+		$sc= TRUE;
+
+		$doc = $this->transfer_model->get($transfer_id);
+
+		if(!empty($doc))
+		{
+			$details = $this->transfer_model->get_sum_order_item_details($transfer_id);
+
+			if(!empty($details))
+			{
+				foreach($details as $detail)
+				{
+					if($sc === FALSE)
+					{
+						break;
+					}
+
+					if($detail->Qty > 0)
+					{
+						$Qty = $detail->Qty;
+
+						$pick_id = $this->transfer_model->get_pick_id_by_code($detail->pickCode);
+
+						if(!empty($pick_id))
+						{
+							$rows = $this->transfer_model->get_pick_rows_by_item_uom($pick_id, $detail->orderCode, $detail->ItemCode, $detail->UomEntry);
+
+							if(!empty($rows))
+							{
+								foreach($rows as $row)
+								{
+									if($sc === FALSE)
+									{
+										break;
+									}
+
+									if($Qty > 0)
+									{
+										//--- get RDR1 data
+										$line = $this->transfer_model->get_order_line($row->OrderEntry, $row->OrderLine);
+
+										if(!empty($line))
+										{
+											if($line->U_TransferCode != $doc->code)
+											{
+												$packed = $Qty >= $row->PickQtty ? $row->PickQtty : $Qty;
+												$prevPacked = $line->U_PrevPacked + $line->U_Packed;
+
+												$arr = array(
+													'U_Packed' => $packed,
+													'U_PrevPacked' => $prevPacked,
+													'U_TransferCode' => $doc->code
+												);
+
+												if( ! $this->transfer_model->update_order_line($row->OrderEntry, $row->OrderLine, $arr) )
+												{
+													$sc = FALSE;
+													$this->error = "Update Order Packed failed";
+												}
+
+												$Qty += $packed;
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
+			if($sc === TRUE)
+			{
+				$this->transfer_model->update($transfer_id, array('SO_Updated' => 'Y'));
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Invalid Document";
+		}
+
+		return $sc;
+
+	}
+
+
+
+	public function manual_update_order_line($transfer_id)
+	{
+		$sc= TRUE;
+
+		$doc = $this->transfer_model->get($transfer_id);
+
+		if(!empty($doc))
+		{
+			$details = $this->transfer_model->get_sum_order_item_details($transfer_id);
+
+			if(!empty($details))
+			{
+				foreach($details as $detail)
+				{
+					if($sc === FALSE)
+					{
+						break;
+					}
+
+					if($detail->Qty > 0)
+					{
+						$Qty = $detail->Qty;
+
+						$pick_id = $this->transfer_model->get_pick_id_by_code($detail->pickCode);
+
+						if(!empty($pick_id))
+						{
+							$rows = $this->transfer_model->get_pick_rows_by_item_uom($pick_id, $detail->orderCode, $detail->ItemCode, $detail->UomEntry);
+
+							if(!empty($rows))
+							{
+								foreach($rows as $row)
+								{
+									if($sc === FALSE)
+									{
+										break;
+									}
+
+									if($Qty > 0)
+									{
+										//--- get RDR1 data
+										$line = $this->transfer_model->get_order_line($row->OrderEntry, $row->OrderLine);
+
+										if(!empty($line))
+										{
+											if($line->U_TransferCode != $doc->code)
+											{
+												$packed = $Qty >= $row->PickQtty ? $row->PickQtty : $Qty;
+												$prevPacked = $line->U_PrevPacked + $line->U_Packed;
+
+												$arr = array(
+													'U_Packed' => $packed,
+													'U_PrevPacked' => $prevPacked,
+													'U_TransferCode' => $doc->code
+												);
+
+												if( ! $this->transfer_model->update_order_line($row->OrderEntry, $row->OrderLine, $arr) )
+												{
+													$sc = FALSE;
+													$this->error = "Update Order Packed failed";
+												}
+
+												$Qty += $packed;
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
+			if($sc === TRUE)
+			{
+				$this->transfer_model->update($transfer_id, array('SO_Updated' => 'Y'));
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Invalid Document";
+		}
+
+		$this->response($sc);
+	}
 
 
 	public function get_new_code($date = NULL)

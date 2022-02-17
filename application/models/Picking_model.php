@@ -20,6 +20,19 @@ class Picking_model extends CI_Model
   }
 
 
+  public function get_detail($id)
+  {
+    $rs = $this->db->where('id', $id)->get('pick_details');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
+
   public function get_details_by_item($absEntry, $ItemCode)
   {
     $rs = $this->db
@@ -213,7 +226,7 @@ class Picking_model extends CI_Model
     $order_by = empty($ds['order_by']) ? 'code' : $ds['order_by'];
     $sort_by = empty($ds['sort_by']) ? 'DESC' : $ds['sort_by'];
 
-    $qr = "SELECT * FROM pick_list WHERE Status = '{$status}' AND Canceled = 'N' ";
+    $qr = "SELECT * FROM pick_list WHERE Status = '{$status}' ";
 
     if(!empty($ds['WebCode']))
     {
@@ -252,7 +265,7 @@ class Picking_model extends CI_Model
 
   public function count_rows($ds = array(), $status = 'R')
   {
-    $qr = "SELECT COUNT(*) AS rows FROM pick_list WHERE Status = '{$status}' AND Canceled = 'N' ";
+    $qr = "SELECT COUNT(*) AS rows FROM pick_list WHERE Status = '{$status}' ";
 
     if(!empty($ds['WebCode']))
     {

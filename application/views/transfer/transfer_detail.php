@@ -10,6 +10,9 @@
         <button type="button" class="btn btn-sm btn-default" onclick="goBack()"><i class="fa fa-arrow-left"></i> &nbsp; Back</button>
 				<?php if($doc->Status != 'C') : ?>
 				<button type="button" class="btn btn-sm btn-success" onclick="sendToSap()"><i class="fa fa-send"></i> &nbsp; Send to SAP</button>
+					<?php if($doc->Status == 'N') : ?>
+						<button type="button" class="btn btn-sm btn-danger" onclick="getDelete(<?php echo $doc->id; ?>, '<?php echo $doc->code; ?>')"><i class="fa fa-times"></i> ยกเลิก</button>
+					<?php endif; ?>
 				<?php endif; ?>
       </p>
     </div>

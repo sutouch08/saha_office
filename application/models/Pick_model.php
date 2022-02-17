@@ -60,6 +60,45 @@ class Pick_model extends CI_Model
   }
 
 
+  public function get_sum_pick_rows($AbsEntry)
+  {
+    $rs = $this->db
+    ->select('OrderCode, CardName, ItemCode, ItemName, UomEntry, UomEntry2, UomCode, unitMsr, BaseQty')
+    ->select_sum('RelQtty')
+    ->select_sum('BaseRelQty')
+    ->where('AbsEntry', $AbsEntry)
+    ->group_by(array("OrderCode", "ItemCode", "UomEntry"))
+    ->get('pick_row');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+
+  public function get_order_list($absEntry)
+  {
+    $rs = $this->db
+    ->select('OrderCode')
+    ->where('AbsEntry', $absEntry)
+    ->group_by('OrderCode')
+    ->order_by('OrderCode', 'ASC')
+    ->get('pick_row');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+
   public function get_pick_orders($code)
   {
     $rs = $this->db
@@ -116,6 +155,21 @@ class Pick_model extends CI_Model
     ->get('pick_row');
 
     if($rs->num_rows()> 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+
+
+  public function get_picking_details($docNum, $orderCode)
+  {
+    $rs = $this->db->where('DocNum', $docNum)->where('OrderCode', $orderCode)->get('picking_detail');
+
+    if($rs->num_rows() > 0)
     {
       return $rs->result();
     }
@@ -219,8 +273,8 @@ class Pick_model extends CI_Model
     ->select_sum('RelQtty')
     ->where('OrderEntry', $OrderEntry)
     ->where('OrderLine', $OrderLine)
-    //->where('PickStatus !=', 'N')
-    ->where('LineStatus !=', 'D')
+    ->where('PickStatus !=', 'D')
+    //->where('LineStatus !=', 'D')
     ->get('pick_row');
 
     if($rs->num_rows() === 1)
@@ -424,15 +478,27 @@ class Pick_model extends CI_Model
   }
 
 
-  public function set_row_status($absEntry, $pickEntry, $status)
+  public function set_row_status($absEntry, $orderCode, $ItemCode, $UomEntry, $status)
   {
-    return $this->db->set('PickStatus', $status)->where('AbsEntry', $absEntry)->where('PickEntry', $pickEntry)->update('pick_row');
+    return $this->db
+    ->set('PickStatus', $status)
+    ->where('AbsEntry', $absEntry)
+    ->where('OrderCode', $orderCode)
+    ->where('ItemCode', $ItemCode)
+    ->where('UomEntry', $UomEntry)
+    ->update('pick_row');
   }
 
 
   public function set_rows_status($absEntry, $status)
   {
     return $this->db->set('PickStatus', $status)->where('AbsEntry', $absEntry)->update('pick_row');
+  }
+
+
+  public function un_close_rows($absEntry, $orderCode)
+  {
+    return $this->db->set('PickStatus', 'Y')->where('AbsEntry', $absEntry)->where('OrderCode', $orderCode)->update('pick_row');
   }
 
 
@@ -465,6 +531,20 @@ class Pick_model extends CI_Model
 
     return TRUE;
   }
+
+
+  public function is_all_open($absEntry)
+  {
+    $row = $this->db->where('AbsEntry', $absEntry)->where('PickStatus', 'C')->count_all_results('pick_row');
+
+    if($row > 0)
+    {
+      return FALSE;
+    }
+
+    return TRUE;
+  }
+
 
 
 
@@ -525,7 +605,7 @@ class Pick_model extends CI_Model
 
   public function get_state($AbsEntry)
   {
-    $rs = $this->db->select('Canceled, Status')->where('AbsEntry', $AbsEntry)->get('pick_list');
+    $rs = $this->db->select('Status')->where('AbsEntry', $AbsEntry)->get('pick_list');
 
     if($rs->num_rows() === 1)
     {

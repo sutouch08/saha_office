@@ -38,10 +38,10 @@
     <label class="search-label">Status</label>
     <select class="form-control input-sm" name="Status" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
-			<option value="N" <?php echo is_selected('N', $Status); ?>>Pending</option>
-			<option value="R" <?php echo is_selected('R', $Status); ?>>Released</option>
-			<option value="P" <?php echo is_selected('P', $Status); ?>>Picking</option>
-			<option value="Y" <?php echo is_selected('Y', $Status); ?>>Finished</option>
+			<option value="N" <?php echo is_selected('N', $Status); ?>>รอดำเนินการ</option>
+			<option value="R" <?php echo is_selected('R', $Status); ?>>รอจัด</option>
+			<option value="P" <?php echo is_selected('P', $Status); ?>>กำลังจัด</option>
+			<option value="Y" <?php echo is_selected('Y', $Status); ?>>จัดแล้ว</option>
 			<option value="C" <?php echo is_selected('C', $Status); ?>>Closed</option>
 		</select>
   </div>
@@ -102,24 +102,22 @@
 						<td class="middle text-center"><?php echo $rs->DocNum; ?></td>
 						<td class="middle text-center"><?php echo $rs->uname; ?></td>
 						<td class="middle text-center">
-							<?php if($rs->Canceled == 'Y') : ?>
-								<span class="red">Canceled</span>
-							<?php else : ?>
-								<?php if($rs->Status == 'R') : ?>
-									<span class="blue">Released</span>
-								<?php elseif($rs->Status == 'Y') : ?>
-									<span class="green">Finished</span>
-								<?php elseif($rs->Status == 'P') : ?>
-									<span class="blue">Picking</span>
-								<?php elseif($rs->Status == 'C') : ?>
-									<span class="green">Closed</span>
-								<?php elseif($rs->Status == 'N') : ?>
-									<span class="orange">Pending</span>
-								<?php endif; ?>
+							<?php if($rs->Status == 'R') : ?>
+								<span class="blue">รอจัด</span>
+							<?php elseif($rs->Status == 'D') : ?>
+								<span class="red">ยกเลิก</span>
+							<?php elseif($rs->Status == 'Y') : ?>
+								<span class="green">จัดแล้ว</span>
+							<?php elseif($rs->Status == 'P') : ?>
+								<span class="blue">กำลังจัด</span>
+							<?php elseif($rs->Status == 'C') : ?>
+								<span class="green">Closed</span>
+							<?php elseif($rs->Status == 'N') : ?>
+								<span class="orange">รอดำเนินการ</span>
 							<?php endif; ?>
 						</td>
 						<td class="middle text-right">
-							<button type="button" class="btn btn-minier btn-primary" title="View Details" onclick="goDetail('<?php echo $rs->AbsEntry; ?>')"><i class="fa fa-eye"></i></button>
+							<button type="button" class="btn btn-minier btn-primary" title="View Details" onclick="goDetail('<?php echo $rs->AbsEntry; ?>')">รายละเอียด</button>
 							<?php if($rs->Status == 'N') : ?>
 							<button type="button" class="btn btn-minier btn-warning" title="Edit" onclick="goEdit('<?php echo $rs->AbsEntry; ?>')"><i class="fa fa-pencil"></i></button>
 							<?php endif; ?>

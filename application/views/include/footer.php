@@ -4,7 +4,7 @@
 					</div><!-- /.page-content -->
 
 
-			<div class="footer">
+			<div class="footer hidden-print">
 				<div class="footer-inner">
 					<!-- #section:basics/footer -->
 					<div class="footer-content">

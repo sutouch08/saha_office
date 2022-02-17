@@ -125,7 +125,7 @@
 								<?php endif; ?>
 						</td>
 						<td class="middle text-right">
-							<button type="button" class="btn btn-minier btn-primary" title="View Details" onclick="goDetail('<?php echo $rs->id; ?>')"><i class="fa fa-eye"></i></button>
+							<button type="button" class="btn btn-minier btn-primary" title="View Details" onclick="goDetail('<?php echo $rs->id; ?>')">รายละเอียด</button>
 							<?php if($rs->Status == 'N') : ?>
 							<button type="button" class="btn btn-minier btn-danger" title="Cancle" onclick="getDelete(<?php echo $rs->id; ?>, '<?php echo $rs->code; ?>')"><i class="fa fa-trash"></i></button>
 							<?php endif; ?>

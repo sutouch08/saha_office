@@ -19,10 +19,16 @@
 				<?php if($doc->Status !== 'N') : ?>
 					<button type="button" class="btn btn-sm btn-info" onclick="printPickLabel()">Print Pick Slip</button>
 				<?php endif; ?>
+				<?php if($doc->Status != 'D' && $doc->Status != 'C') : ?>
+					<button type="button" class="btn btn-sm btn-danger" onclick="canclePick(<?php echo $doc->AbsEntry; ?>, '<?php echo $doc->DocNum; ?>')"><i class="fa fa-times"></i> ยกเลิก</button>
+				<?php endif; ?>
       </p>
     </div>
 </div><!-- End Row -->
 <hr class="padding-5"/>
+<?php if($doc->Status == 'D') : ?>
+	<?php $this->load->view('cancle_watermark'); ?>
+<?php endif; ?>
 
 <div class="row">
 	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
