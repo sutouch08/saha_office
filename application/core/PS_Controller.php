@@ -37,6 +37,14 @@ class PS_Controller extends CI_Controller
     $this->ms = $this->load->database('ms', TRUE); //--- SAP database
     $this->mc = $this->load->database('mc', TRUE); //--- Temp Database
 
+
+    $this->close_system   = getConfig('CLOSE_SYSTEM'); //--- ปิดระบบทั้งหมดหรือไม่
+
+    if($this->close_system == 1 && $this->isSuperAdmin === FALSE)
+    {
+      redirect(base_url().'maintenance');
+    }
+
     // $valid_date = date('Y-m-d', strtotime('2021-07-31'));
     // if(date('Y-m-d') > $valid_date)
     // {

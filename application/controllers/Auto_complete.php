@@ -48,21 +48,6 @@ class Auto_complete extends PS_Controller
     $qr .= "FROM OCRD ";
     $qr .= "WHERE CardType IN('C', 'L') ";
 
-    // if(!$this->isAdmin && !$this->isSalesAdmin && !$this->isSuperAdmin)
-    // {
-    //   $sale_in = $this->user_model->get_sale_in();
-    //
-    //   if(!empty($sale_in))
-    //   {
-    //     $qr .= "AND (SlpCode IN({$sale_in}) OR SlpCode = -1) ";
-    //   }
-    //   else
-    //   {
-    //     $qr .= "AND (SlpCode = {$this->user->sale_id} OR SlpCode = -1)";
-    //   }
-    // }
-
-
     $qr .= "AND validFor = 'Y' ";
 
     if($txt !== '*')

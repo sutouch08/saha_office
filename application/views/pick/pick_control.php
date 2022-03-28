@@ -144,6 +144,7 @@
         <td class="middle text-center" style="width:100px;">Order No.</td>
         <td class="middle" style="width:150px;">ItemCode</td>
         <td class="middle" style="width:250px;">Description</td>
+        <td class="middle text-center" style="width:150;">UOM</td>
         <td class="middle text-right" style="width:150px;">Ordered</td>
         <td class="middle text-right" style="width:150px;">Open</td>
         <td class="middle text-right" style="width:150px;">Released</td>
@@ -155,7 +156,7 @@
       {{#each this}}
   			<tr class="{{red}}">
           <td class="middle text-center">
-            {{#if red}}
+            {{#if disabled}}
 
             {{else}}
             <label>
@@ -172,6 +173,7 @@
           <td class="middle text-center">{{OrderCode}}</td>
           <td class="middle">{{ItemCode}}</td>
           <td class="middle">{{ItemName}}</td>
+          <td class="middle text-center">{{unitMsr}}</td>
           <td class="middle text-right">{{OrderQty}}</td>
           <td class="middle text-right">{{OpenQty}}</td>
           <td class="middle text-right">{{PrevRelease}}</td>

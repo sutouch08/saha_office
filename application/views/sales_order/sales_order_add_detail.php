@@ -115,13 +115,13 @@
           </td>
 
           <td class="middle">
-            <input type="number" class="form-control input-sm text-right whs-qty" id="whsQty-<?php echo $no; ?>" readonly disabled/>
+            <input type="text" class="form-control input-sm text-right whs-qty" id="whsQty-<?php echo $no; ?>" readonly disabled/>
           </td>
           <td class="middle">
-            <input type="number" class="form-control input-sm text-right commit-qty" id="commitQty-<?php echo $no; ?>" readonly disabled/>
+            <input type="text" class="form-control input-sm text-right commit-qty" id="commitQty-<?php echo $no; ?>" readonly disabled/>
           </td>
           <td class="middle">
-            <input type="number" class="form-control input-sm text-right ordered-qty" id="orderedQty-<?php echo $no; ?>" readonly disabled/>
+            <input type="text" class="form-control input-sm text-right ordered-qty" id="orderedQty-<?php echo $no; ?>" readonly disabled/>
           </td>
         </tr>
 
@@ -205,13 +205,13 @@
     </td>
 
     <td class="middle">
-      <input type="number" class="form-control input-sm text-right whs-qty" id="whsQty-{{no}}" disabled />
+      <input type="text" class="form-control input-sm text-right whs-qty" id="whsQty-{{no}}" disabled />
     </td>
     <td class="middle">
-      <input type="number" class="form-control input-sm text-right commit-qty" id="commitQty-{{no}}" disabled/>
+      <input type="text" class="form-control input-sm text-right commit-qty" id="commitQty-{{no}}" disabled/>
     </td>
     <td class="middle">
-      <input type="number" class="form-control input-sm text-right ordered-qty" id="orderedQty-{{no}}" disabled/>
+      <input type="text" class="form-control input-sm text-right ordered-qty" id="orderedQty-{{no}}" disabled/>
     </td>
   </tr>
 </script>
@@ -286,13 +286,13 @@
 </td>
 
 <td class="middle">
-  <input type="number" class="form-control input-sm text-right whs-qty" id="whsQty-{{no}}" disabled/>
+  <input type="text" class="form-control input-sm text-right whs-qty" id="whsQty-{{no}}" disabled/>
 </td>
 <td class="middle">
-  <input type="number" class="form-control input-sm text-right commit-qty" id="commitQty-{{no}}" disabled/>
+  <input type="text" class="form-control input-sm text-right commit-qty" id="commitQty-{{no}}" disabled/>
 </td>
 <td class="middle">
-  <input type="number" class="form-control input-sm text-right ordered-qty" id="orderedQty-{{no}}" disabled/>
+  <input type="text" class="form-control input-sm text-right ordered-qty" id="orderedQty-{{no}}" disabled/>
 </td>
 </script>
 

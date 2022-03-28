@@ -18,7 +18,7 @@
   <div class="col-lg-5 col-md-6 col-sm-5-harf col-xs-12">
     <div class="row">
       <div class="col-lg-4-harf col-md-4-harf col-sm-5 col-xs-5 padding-5">
-        <input type="text" class="form-control input-sm text-center" id="pallet-code" placeholder="Pallet Code">
+        <input type="text" class="form-control input-sm text-center" id="pallet-code" placeholder="Pallet Code" autofocus />
       </div>
       <div class="col-lg-2-harf col-md-2-harf col-sm-2 col-xs-2 padding-5">
         <button type="button" class="btn btn-xs btn-success btn-block visible-sm visible-xs" style="margin-bottom:3px;" onclick="getPallet()">Set</button>

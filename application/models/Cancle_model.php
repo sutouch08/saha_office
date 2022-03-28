@@ -26,13 +26,32 @@ class Cancle_model extends CI_Model
 
     return NULL;
   }
-  
+
 
   public function add(array $ds = array())
   {
-    return $this->db->insert('cancle', $ds);
+    if(!empty($ds))
+    {
+      return $this->db->insert('cancle', $ds);
+    }
+
+    return FALSE;
   }
 
+
+
+  public function update($id, $ds = array())
+  {
+    if(! empty($ds))
+    {
+      return $this->db->where('id', $id)->update('cancle', $ds);
+    }
+
+    return FALSE;
+
+  }
+
+  
 
   public function delete($id)
   {

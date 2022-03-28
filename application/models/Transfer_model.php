@@ -34,10 +34,42 @@ class Transfer_model extends CI_Model
   }
 
 
+  public function get_by_code($code)
+  {
+    $rs = $this->db->where('code', $code)->get('transfer');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
+
 
   public function get_details($transfer_id)
   {
     $rs = $this->db->where('transfer_id', $transfer_id)->get('transfer_details');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+  public function get_details_by_code($code)
+  {
+    $rs = $this->db
+    ->select('transfer.code, transfer_details.*, pick_list.AbsEntry AS pick_list_id')
+    ->from('transfer_details')
+    ->join('transfer', 'transfer_details.transfer_id = transfer.id', 'left')
+    ->join('pick_list', 'pick_list.DocNum = transfer_details.pickCode', 'left')
+    ->where('transfer.code', $code)
+    ->get();
 
     if($rs->num_rows() > 0)
     {
@@ -62,6 +94,24 @@ class Transfer_model extends CI_Model
       return $rs->result();
     }
 
+
+    return NULL;
+  }
+
+
+
+  public function get_order_codes($transfer_id)
+  {
+    $rs = $this->db
+    ->distinct()
+    ->select('orderCode')
+    ->where('transfer_id', $transfer_id)
+    ->get('transfer_details');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
 
     return NULL;
   }
@@ -111,7 +161,6 @@ class Transfer_model extends CI_Model
   }
 
 
-
   public function update_order_line($DocEntry, $LineNum, $ds = array())
   {
     if(!empty($ds))
@@ -120,6 +169,13 @@ class Transfer_model extends CI_Model
     }
 
     return FALSE;
+  }
+
+
+
+  public function update_order_location($docNum, $bin_loc)
+  {
+    return $this->ms->set('U_locknum', $bin_loc)->where('DocNum', $docNum)->update('ORDR');
   }
 
 
@@ -188,7 +244,7 @@ class Transfer_model extends CI_Model
     $rs = $this->db
     ->select('pack_result.*')
     ->select('pack_row.UomEntry2, pack_row.UomCode2, pack_row.unitMsr2')
-    ->from('pack_result')     
+    ->from('pack_result')
     ->join('pack_row', 'pack_result.packCode = pack_row.packCode AND pack_result.pickCode = pack_row.pickCode AND pack_result.orderCode = pack_row.orderCode AND pack_result.ItemCode = pack_row.ItemCode AND pack_result.UomEntry = pack_row.UomEntry', 'left')
     ->where_in('pack_row.Status', array('Y', 'C'))
     ->where('pack_result.pallet_id', $pallet_id)
@@ -325,6 +381,25 @@ class Transfer_model extends CI_Model
   }
 
 
+  public function get_sap_doc_num($code)
+  {
+    $rs = $this->ms
+    ->select('DocNum')
+    ->where('U_WEBORDER', $code)
+    ->where('CANCELLED', 'N')
+    ->order_by('DocEntry', 'DESC')
+    ->get('OWTR');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row()->DocNum;
+    }
+
+    return NULL;
+  }
+
+
+
   public function get_sap_transfer($code)
   {
     $rs = $this->ms
@@ -454,6 +529,25 @@ class Transfer_model extends CI_Model
     ->get('transfer');
 
     return $rs->row()->code;
+  }
+
+
+
+  public function getSyncList($limit = 100)
+  {
+    $rs = $this->db
+    ->select('code')
+    ->where_in('Status', array('P', 'F'))
+    ->order_by('code', 'ASC')
+    ->limit($limit)
+    ->get('transfer');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
   }
 
 }

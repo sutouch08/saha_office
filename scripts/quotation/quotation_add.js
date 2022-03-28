@@ -1,7 +1,13 @@
+function saveAsDraft() {
+	$('#is_draft').val(1);
+
+	saveAdd();
+}
 
 function saveAdd() {
 	var ds = {
 		//---- Right column
+		'isDraft' : $('#is_draft').val(),
 		'SlpCode' : $('#sale_id').val(),
 		'CardCode' : $.trim($('#CardCode').val()),  //****** required
 		'CardName' : $('#CardName').val(),
@@ -255,10 +261,18 @@ function saveAdd() {
 }
 
 
+
+function updateAsDraft() {
+	$('#is_draft').val(1);
+
+	update();
+}
+
 function update() {
 	var code = $('#code').val();
 	var ds = {
 		//---- Right column
+		'isDraft' : $('#is_draft').val(),
 		'SlpCode' : $('#sale_id').val(),
 		'CardCode' : $.trim($('#CardCode').val()),  //****** required
 		'CardName' : $('#CardName').val(),

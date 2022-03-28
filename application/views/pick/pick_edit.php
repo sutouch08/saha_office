@@ -7,8 +7,8 @@
     </div>
     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5">
     	<p class="pull-right top-p">
-        <button type="button" class="btn btn-sm btn-default" onclick="goBack()"><i class="fa fa-arrow-left"></i> &nbsp; Back</button>
-				<button type="button" class="btn btn-sm btn-success" onclick="save()"><i class="fa fa-save"></i> &nbsp; Save</button>
+        <button type="button" class="btn btn-xs btn-default" onclick="goBack()"><i class="fa fa-arrow-left"></i> &nbsp; Back</button>
+				<button type="button" class="btn btn-xs btn-success" onclick="save()"><i class="fa fa-save"></i> &nbsp; Save</button>
       </p>
     </div>
 </div><!-- End Row -->
@@ -23,13 +23,12 @@
 		<label>วันที่</label>
 		<input type="text" class="form-control input-sm text-center" value="<?php echo thai_date($doc->CreateDate, FALSE); ?>" disabled />
 	</div>
-	<div class="col-lg-9 col-md-7-harf col-sm-7-harf col-xs-12 padding-5">
+	<div class="col-lg-9 col-md-7-harf col-sm-7-harf col-xs-9 padding-5">
 		<label>หมายเหตุ</label>
 		<input type="text" class="form-control input-sm" id="remark" value="<?php echo $doc->remark; ?>" disabled/>
 	</div>
-	<div class="col-xs-6 visible-xs">	</div>
-
-	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+	
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
 		<label class="display-block not-show">btn</label>
 		<button type="button" class="btn btn-xs btn-warning btn-block" id="btn-edit" onclick="edit()">แก้ไข</button>
 		<button type="button" class="btn btn-xs btn-success btn-block hide" id="btn-update" onclick="updateHeader()">Update</button>

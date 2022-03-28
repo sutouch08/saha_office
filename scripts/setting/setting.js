@@ -71,3 +71,11 @@ $('#transform-warehouse').autocomplete({
 		}
 	}
 })
+
+
+function changeURL(tab)
+{
+	var url = HOME + 'index/'+tab;
+	var stObj = { stage: 'stage' };
+	window.history.pushState(stObj, 'setting', url);
+}

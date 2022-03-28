@@ -218,6 +218,10 @@ function addToList() {
           $('#btn-change').removeClass('hide');
           $('#pallet-code').attr('disabled', 'disabled');
           $('#btn-save').removeAttr('disabled');
+
+          if($('#toBinCode').val() == "") {
+            $('#toBinCode').focus();
+          }
         }
       }
       else {

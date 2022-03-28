@@ -88,10 +88,12 @@
   <input type="hidden" id="vat_code" value="<?php echo getConfig('SALE_VAT_CODE'); //--- default sale vat code?>" />
   <input type="hidden" id="user_sale_name" value="<?php echo $user_sale_name; ?>" />
   <input type="hidden" id="user_sale_id" value="<?php echo $this->user->sale_id; ?>" />
+  <input type="hidden" id="is_draft" value="0">
 
   <div class="col-sm-6 col-xs-6 padding-5">
-    <button type="button" class="btn btn-sm btn-primary" onclick="update()">Update</button>
+    <button type="button" class="btn btn-sm btn-primary" onclick="update()">Save</button>
     <button type="button" class="btn btn-sm btn-warning" onclick="leave()">Cancel</button>
+    <button type="button" class="btn btn-sm btn-info" onclick="updateAsDraft()">Save AS Draft</button>
   </div>
   <div class="col-sm-6 col-xs-6 padding-5">
     <?php if(!empty($logs)) : ?>

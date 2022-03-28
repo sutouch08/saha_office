@@ -50,9 +50,17 @@ class Pack extends PS_Controller
 		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
 		$init	= pagination_config($this->home.'/index/', $rows, $perpage, $segment);
 
-		$rs = $this->pack_model->get_list($filter, $perpage, $this->uri->segment($segment));
+		$ds = $this->pack_model->get_list($filter, $perpage, $this->uri->segment($segment));
 
-    $filter['data'] = $rs;
+		if(!empty($ds))
+		{
+			foreach($ds as $rs)
+			{
+				$rs->palletNo = ($rs->Status == 'Y' OR $rs->Status == 'C' OR $rs->Status == 'P') ? add_commas($this->pack_model->get_pallet_code($rs->code)) : NULL;
+			}
+		}
+
+    $filter['data'] = $ds;
 
 		$this->pagination->initialize($init);
     $this->load->view('pack/pack_list', $filter);

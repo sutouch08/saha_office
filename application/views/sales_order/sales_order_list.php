@@ -91,6 +91,7 @@
 			<option value="1" <?php echo is_selected('1', $Status); ?>>Pending</option>
 			<option value="2" <?php echo is_selected('2', $Status); ?>>Success</option>
 			<option value="3" <?php echo is_selected('3', $Status); ?>>Error</option>
+			<option value="9" <?php echo is_selected('9', $Status); ?>>Draft</option>
 		</select>
   </div>
 
@@ -186,12 +187,14 @@
 							<?php endif; ?>
 						</td>
 						<td class="middle text-center">
-							<?php if($rs->Approved == 'A') : ?>
-								<span class="label label-success">อนุมัติ</span>
-							<?php elseif($rs->Approved == 'P') : ?>
-								<span class="label label-warning">รออนุมัติ</span>
-							<?php elseif($rs->Approved == 'R') : ?>
-								<span class="label label-danger">ไม่อนุมัติ</span>
+							<?php if($rs->Status != 9) : ?>
+								<?php if($rs->Approved == 'A') : ?>
+									<span class="label label-success">อนุมัติ</span>
+								<?php elseif($rs->Approved == 'P') : ?>
+									<span class="label label-warning">รออนุมัติ</span>
+								<?php elseif($rs->Approved == 'R') : ?>
+									<span class="label label-danger">ไม่อนุมัติ</span>
+								<?php endif; ?>
 							<?php endif; ?>
 						</td>
 						<td class="middle text-center">
@@ -204,13 +207,14 @@
 							<?php if($rs->Status == 1) : ?>
 								<button type="button" class="btn btn-minier btn-warning btn-block" onclick="viewDetail('<?php echo $rs->code; ?>')">Pending</button>
 							<?php endif; ?>
-							<?php if($rs->Status == 0) : ?>
-								<span class="label label-danger">Not Export</span>
+							
+							<?php if($rs->Status == 9) : ?>
+								<span class="label label-purple">Draft</span>
 							<?php endif; ?>
 						</td>
 						<td class="middle text-right">
 							<button type="button" class="btn btn-minier btn-primary" title="Preview" onclick="goDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
-							<?php if($rs->Status != 2 && $rs->Status != 4 && $rs->Approved !== 'A' && $rs->Status != -1 ) : ?>
+							<?php if($rs->Status == 0 OR $rs->Status == 9 ) : ?>
 							<button type="button" class="btn btn-minier btn-warning" title="Edit" onclick="goEdit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil"></i></button>
 							<?php endif; ?>
 							<?php if($rs->Status == 2) : ?>

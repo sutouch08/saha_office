@@ -52,7 +52,7 @@ class Quotation_model extends CI_Model
 
     if($rs->num_rows() === 1)
     {
-      return $rs->row();
+      return $rs->row()->DocNum;
     }
 
     return NULL;
@@ -765,6 +765,71 @@ class Quotation_model extends CI_Model
     $this->mc->trans_complete();
     return $this->mc->trans_status();
   }
+
+
+
+
+  public function getSyncList($limit = 100)
+  {
+    $rs = $this->db
+    ->select('code')
+    ->where_in('Status', array(1, 3))
+    ->order_by('code', 'ASC')
+    ->limit($limit)
+    ->get('quotation');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+
+  public function getSoSyncList($limit = 100)
+  {
+    $rs = $this->db
+    ->select('code, DocNum')
+    ->where('DocNum IS NOT NULL', NULL, FALSE)
+    ->where('SoNo IS NULL', NULL, FALSE)
+    ->where('Status', 2)
+    ->group_start()
+    ->where('SapStatus !=', 'E')
+    ->or_where('SapStatus IS NULL', NULL, FALSE)
+    ->group_end()
+    ->order_by('code', 'ASC')
+    ->limit($limit)
+    ->get('quotation');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+
+  }
+
+
+  public function getSoNo($code)
+  {
+    $rs = $this->ms
+    ->select('DocNum')
+    ->where('Ref1', $code)
+    ->where('CANCELED', 'N')
+    ->order_by('DocNum', 'DESC')
+    ->get('ORDR');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row()->DocNum;
+    }
+
+    return NULL;
+  }
+
 
 
 } //---- End class

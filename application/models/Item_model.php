@@ -280,30 +280,39 @@ class Item_model extends CI_Model
   }
 
 
-  public function getItemBarcode($ItemCode)
+  public function getItemByBarcode($barcode)
   {
-    $rs = $this->ms->select('CodeBars AS barcode')->where('ItemCode', $ItemCode)->get('OITM');
+    $rs = $this->ms
+    ->select('OITM.ItemCode, OITM.ItemName, OBCD.UomEntry, UOM.UomCode, OUOM.UomName, UGP1.BaseQty')
+    ->from('OBCD')
+    ->join('OITM', 'OITM.ItemCode = OBCD.ItemCode')
+    ->join('UGP1', 'OITM.UgpEntry = UGP1.UgpEntry AND OBCD.UomEntry = UGP1.UomEntry', 'left')
+    ->join('OUOM', 'OBCD.UomEntry = OUOM.UomEntry', 'left')
+    ->where('OBCD.BcdCode', $barcode)
+    ->get();
 
     if($rs->num_rows() === 1)
     {
-      return $rs->row()->barcode;
+      return $rs->row();
     }
 
     return NULL;
   }
 
 
-  public function getItemByBarcode($barcode)
+  public function getItemByCode($ItemCode)
   {
     $rs = $this->ms
-    ->select('ItemCode')
-    ->where('CodeBars', $barcode)
-    ->or_where('ItemCode', $barcode)
-    ->get('OITM');
+    ->select('OITM.ItemCode, OITM.ItemName, UGP1.UomEntry, UGP1.BaseQty, OUOM.UomCode, OUOM.UomName')
+    ->from('OITM')
+    ->join('UGP1', 'OITM.UgpEntry = UGP1.UgpEntry AND OITM.IUoMEntry = UGP1.UomEntry', 'left')
+    ->join('OUOM', 'UGP1.UomEntry = OUOM.UomEntry', 'left')
+    ->where('OITM.ItemCode', $ItemCode)
+    ->get();
 
     if($rs->num_rows() === 1)
     {
-      return $rs->row()->ItemCode;
+      return $rs->row();
     }
 
     return NULL;
@@ -324,6 +333,24 @@ class Item_model extends CI_Model
     }
 
     return NULL;
+  }
+
+
+  public function get_barcode($ItemCode)
+  {
+    $rs = $this->ms
+    ->select('OBCD.BcdCode AS barcode')
+    ->from('OITM')
+    ->join('OBCD', 'OITM.ItemCode = OBCD.ItemCode AND OITM.IUoMEntry = OBCD.UomEntry')
+    ->where('OITM.ItemCode', $ItemCode)
+    ->get();
+
+    if($rs->num_rows() == 1)
+    {
+      return $rs->row()->barcode;
+    }
+
+    return $ItemCode;
   }
 
 

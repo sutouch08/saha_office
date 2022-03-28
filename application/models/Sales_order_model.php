@@ -55,7 +55,7 @@ class Sales_order_model extends CI_Model
 
     if($rs->num_rows() === 1)
     {
-      return $rs->row();
+      return $rs->row()->DocNum;
     }
 
     return NULL;
@@ -854,6 +854,25 @@ class Sales_order_model extends CI_Model
     $this->mc->where('U_WEBORDER', $code)->delete('ORDR');
     $this->mc->trans_complete();
     return $this->mc->trans_status();
+  }
+
+
+
+  public function getSyncList($limit = 100)
+  {
+    $rs = $this->db
+    ->select('code')
+    ->where_in('Status', array(1, 3, 4))
+    ->order_by('code', 'ASC')
+    ->limit($limit)
+    ->get('sales_order');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
   }
 
 

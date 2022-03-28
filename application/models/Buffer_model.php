@@ -30,6 +30,17 @@ class Buffer_model extends CI_Model
   }
 
 
+  public function update($id, $ds = array())
+  {
+    if(! empty($ds))
+    {
+      return $this->db->where('id', $id)->update('buffer', $ds);
+    }
+
+    return FALSE;
+  }
+
+
   public function delete($id)
   {
     return $this->db->where('id', $id)->delete('buffer');

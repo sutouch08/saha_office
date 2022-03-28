@@ -50,23 +50,24 @@
   </div>
 
 	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
-    <label class="search-label">SAP Status</label>
-    <select class="form-control input-sm" name="SapStatus" onchange="getSearch()">
-			<option value="all">ทั้งหมด</option>
-			<option value="O" <?php echo is_selected('O', $SapStatus); ?>>Open</option>
-			<option value="C" <?php echo is_selected('C', $SapStatus); ?>>Closed</option>
-			<option value="E" <?php echo is_selected('E', $SapStatus); ?>>Canceled</option>
-		</select>
-  </div>
-
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
-    <label class="search-label">Temp Status</label>
+    <label class="search-label">Status</label>
     <select class="form-control input-sm" name="Status" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
 			<option value="0" <?php echo is_selected('0', $Status); ?>>Not Export</option>
 			<option value="1" <?php echo is_selected('1', $Status); ?>>Pending</option>
 			<option value="2" <?php echo is_selected('2', $Status); ?>>Success</option>
 			<option value="3" <?php echo is_selected('3', $Status); ?>>Error</option>
+			<option value="9" <?php echo is_selected('9', $Status); ?>>Draft</option>
+		</select>
+  </div>
+
+	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+    <label class="search-label">SAP Status</label>
+    <select class="form-control input-sm" name="SapStatus" onchange="getSearch()">
+			<option value="all">ทั้งหมด</option>
+			<option value="O" <?php echo is_selected('O', $SapStatus); ?>>Open</option>
+			<option value="C" <?php echo is_selected('C', $SapStatus); ?>>Closed</option>
+			<option value="E" <?php echo is_selected('E', $SapStatus); ?>>Canceled</option>
 		</select>
   </div>
 
@@ -153,12 +154,14 @@
 						<td class="middle text-right"><?php echo number($rs->DocTotal, 2); ?></td>
 						<td class="middle text-center"><?php echo $rs->uname; ?></td>
 						<td class="middle text-center">
-							<?php if($rs->Approved == 'A') : ?>
-								<span class="label label-success">อนุมัติ</span>
-							<?php elseif($rs->Approved == 'P') : ?>
-								<span class="label label-warning">รออนุมัติ</span>
-							<?php elseif($rs->Approved == 'R') : ?>
-								<span class="label label-danger">ไม่อนุมัติ</span>
+							<?php if($rs->Status != 9) : ?>
+								<?php if($rs->Approved == 'A') : ?>
+									<span class="label label-success">อนุมัติ</span>
+								<?php elseif($rs->Approved == 'P') : ?>
+									<span class="label label-warning">รออนุมัติ</span>
+								<?php elseif($rs->Approved == 'R') : ?>
+									<span class="label label-danger">ไม่อนุมัติ</span>
+								<?php endif; ?>
 							<?php endif; ?>
 						</td>
 						<td class="middle text-center">
@@ -176,14 +179,14 @@
 							<?php endif; ?>
 							<?php if($rs->Status == -1) : ?>
 								<button type="button" class="btn btn-minier btn-danger btn-block">Canceled</button>
-							<?php endif; ?>
-							<?php if($rs->Status == 0) : ?>
-								<span class="label label-danger">Not Export</span>
+							<?php endif; ?>							
+							<?php if($rs->Status == 9) : ?>
+								<span class="label label-purple">Draft</span>
 							<?php endif; ?>
 						</td>
 						<td class="middle text-right">
 							<button type="button" class="btn btn-minier btn-primary" title="Preview" onclick="goDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
-							<?php if($rs->Status != -1 && $rs->Status != 2 && $rs->Status != 4 && $rs->Approved !== 'A' ) : ?>
+							<?php if(($rs->Status == 0 OR $rs->Status == 9)) : ?>
 							<button type="button" class="btn btn-minier btn-warning" title="Edit" onclick="goEdit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil"></i></button>
 							<?php endif; ?>
 							<?php if($rs->Status == 2) : ?>

@@ -366,6 +366,7 @@ class Transfer extends PS_Controller
 						if($sc === TRUE)
 						{
 							$this->db->trans_commit();
+							$this->update_order_line($id, -1);
 						}
 						else
 						{
@@ -567,6 +568,7 @@ class Transfer extends PS_Controller
 						if($sc === TRUE)
 						{
 							$this->mc->trans_commit();
+							$this->update_order_location($id);
 						}
 						else
 						{
@@ -824,7 +826,7 @@ class Transfer extends PS_Controller
 
 
 
-	public function update_order_line($transfer_id)
+	public function update_order_line($transfer_id, $method = 1)
 	{
 		$sc= TRUE;
 
@@ -869,15 +871,16 @@ class Transfer extends PS_Controller
 
 										if(!empty($line))
 										{
-											if($line->U_TransferCode != $doc->code)
+											if($method < 0 OR $line->U_TransferCode != $doc->code)
 											{
 												$packed = $Qty >= $row->PickQtty ? $row->PickQtty : $Qty;
-												$prevPacked = $line->U_PrevPacked + $line->U_Packed;
+												$packed = $packed * $method;
+												$prevPacked = $line->U_PrevPacked + $packed;
 
 												$arr = array(
-													'U_Packed' => $packed,
+													'U_Packed' => ($packed + $line->U_Packed),
 													'U_PrevPacked' => $prevPacked,
-													'U_TransferCode' => $doc->code
+													'U_TransferCode' => $method > 0 ? $doc->code : NULL
 												);
 
 												if( ! $this->transfer_model->update_order_line($row->OrderEntry, $row->OrderLine, $arr) )
@@ -886,7 +889,7 @@ class Transfer extends PS_Controller
 													$this->error = "Update Order Packed failed";
 												}
 
-												$Qty += $packed;
+												$Qty -= ($packed * $method);
 											}
 										}
 									}
@@ -914,7 +917,7 @@ class Transfer extends PS_Controller
 
 
 
-	public function manual_update_order_line($transfer_id)
+	public function manual_update_order_line($transfer_id, $method = 1)
 	{
 		$sc= TRUE;
 
@@ -959,15 +962,16 @@ class Transfer extends PS_Controller
 
 										if(!empty($line))
 										{
-											if($line->U_TransferCode != $doc->code)
+											if($method < 0 OR $line->U_TransferCode != $doc->code)
 											{
 												$packed = $Qty >= $row->PickQtty ? $row->PickQtty : $Qty;
-												$prevPacked = $line->U_PrevPacked + $line->U_Packed;
+												$packed = $packed * $method;
+												$prevPacked = $line->U_PrevPacked + $packed;
 
 												$arr = array(
-													'U_Packed' => $packed,
+													'U_Packed' => ($packed + $line->U_Packed),
 													'U_PrevPacked' => $prevPacked,
-													'U_TransferCode' => $doc->code
+													'U_TransferCode' => $method > 0 ? $doc->code : NULL
 												);
 
 												if( ! $this->transfer_model->update_order_line($row->OrderEntry, $row->OrderLine, $arr) )
@@ -976,7 +980,7 @@ class Transfer extends PS_Controller
 													$this->error = "Update Order Packed failed";
 												}
 
-												$Qty += $packed;
+												$Qty -= ($packed * $method);
 											}
 										}
 									}
@@ -1001,6 +1005,34 @@ class Transfer extends PS_Controller
 		$this->response($sc);
 	}
 
+
+
+
+	public function update_order_location($id)
+	{
+		$sc = TRUE;
+		$doc = $this->transfer_model->get($id);
+
+		if(!empty($doc))
+		{
+			$orders = $this->transfer_model->get_order_codes($id);
+
+			if(!empty($orders))
+			{
+				foreach($orders as $rs)
+				{
+					$this->transfer_model->update_order_location($rs->orderCode, $doc->transfer_bin_code);
+				}
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Invalid Document";
+		}
+	}
+
+	
 
 	public function get_new_code($date = NULL)
   {

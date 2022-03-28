@@ -231,7 +231,7 @@ class Pack_model extends CI_Model
     ->group_by(array("OrderCode", "ItemCode", "UomEntry"))
     ->order_by('ItemCode', 'ASC')
     ->get('pick_row');
-    
+
     if($rs->num_rows() > 0)
     {
       return $rs->result();
@@ -390,6 +390,32 @@ class Pack_model extends CI_Model
     return $this->db->count_all_results('pack_list');
   }
 
+
+
+  public function get_pallet_code($packCode)
+  {
+    $rs = $this->db
+    ->distinct()
+    ->select('pallet.code')
+    ->from('pack_details')
+    ->join('pallet', 'pack_details.pallet_id = pallet.id', 'left')
+    ->where('pack_details.packCode', $packCode)
+    ->get();
+
+    if($rs->num_rows() > 0)
+    {
+      $arr = array();
+
+      foreach($rs->result() as $row)
+      {
+        $arr[] = $row->code;
+      }
+
+      return $arr;
+    }
+
+    return NULL;
+  }
 
 
   public function get_max_code($pre)

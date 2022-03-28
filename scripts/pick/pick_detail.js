@@ -30,7 +30,7 @@ function releasePickList() {
               for(let i = 0; i < ds.length; i++) {
                 let no = ds[i].rowNum;
                 $('#row-'+no).addClass('red');
-                $('#onhand-'+no).text(addCommas(ds[i].onHand.toFixed(2)));
+                //$('#onhand-'+no).text(addCommas(ds[i].onHand.toFixed(2)) + "&nbps; "+ds[i].unitMsr+"");
               }
 
               swal("สินค้าไม่พอ");

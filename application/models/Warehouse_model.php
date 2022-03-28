@@ -48,5 +48,18 @@ class Warehouse_model extends CI_Model
     return FALSE;
   }
 
+
+  public function is_exists_warehouse($whsCode)
+  {
+    $rs = $this->ms->select('WhsCode')->where('WhsCode', $whsCode)->get('OWHS');
+
+    if($rs->num_rows() === 1)
+    {
+      return TRUE;
+    }
+
+    return FALSE;
+  }
+
 }
 ?>

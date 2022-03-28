@@ -28,6 +28,24 @@ function limitText($str, $length)
 }
 
 
+function add_commas(array $ds = array())
+{
+	$text = "";
+
+	if(!empty($ds))
+	{
+		$i = 1;
+		foreach($ds as $rs)
+		{
+			$text .= $i == 1 ? $rs : ", {$rs}";
+			$i++;
+		}
+	}
+
+	return $text;
+}
+
+
 
 
 function is_selected($val, $select)
@@ -296,6 +314,18 @@ function is_true($value)
 }
 
 
+//--- Escape quot chars in input text
+function escape_quot($text = "")
+{
+	if($text != "" && $text !== NULL)
+	{
+		return str_replace('"', '&quot;',$text);
+	}
+
+	return $text;
+}
+
+
 
 function logs_action_name($name)
 {
@@ -312,7 +342,7 @@ function logs_action_name($name)
 		'pick' => 'เริ่มจัด โดย',
 		'picked' => 'จัดเสร็จ โดย',
 		'pack' => 'เริ่มแพ็ค โดย',
-		'packed' => 'แพ็คเสร็จ โดย' 
+		'packed' => 'แพ็คเสร็จ โดย'
   );
 
   return $arr[$name];

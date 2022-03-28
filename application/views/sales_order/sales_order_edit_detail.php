@@ -123,13 +123,13 @@
             </td>
 
             <td class="middle">
-              <input type="number" class="form-control input-sm text-right whs-qty" id="whsQty-<?php echo $no; ?>" value="<?php echo number($ds->OnHandQty); ?>" disabled/>
+              <input type="text" class="form-control input-sm text-right whs-qty" id="whsQty-<?php echo $no; ?>" value="<?php echo number($ds->OnHandQty); ?>" disabled/>
             </td>
             <td class="middle">
-              <input type="number" class="form-control input-sm text-right commit-qty" id="commitQty-<?php echo $no; ?>" value="<?php echo number($ds->IsCommited); ?>" disabled/>
+              <input type="text" class="form-control input-sm text-right commit-qty" id="commitQty-<?php echo $no; ?>" value="<?php echo number($ds->IsCommited); ?>" disabled/>
             </td>
             <td class="middle">
-              <input type="number" class="form-control input-sm text-right ordered-qty" id="orderedQty-<?php echo $no; ?>" value="<?php echo number($ds->OnOrder); ?>" disabled/>
+              <input type="text" class="form-control input-sm text-right ordered-qty" id="orderedQty-<?php echo $no; ?>" value="<?php echo number($ds->OnOrder); ?>" disabled/>
             </td>
 
           <?php endif; ?>
@@ -210,13 +210,13 @@
           </td>
 
           <td class="middle">
-            <input type="number" class="form-control input-sm text-right whs-qty" id="whsQty-<?php echo $no; ?>" value="" disabled/>
+            <input type="text" class="form-control input-sm text-right whs-qty" id="whsQty-<?php echo $no; ?>" value="" disabled/>
           </td>
           <td class="middle">
-            <input type="number" class="form-control input-sm text-right commit-qty" id="commitQty-<?php echo $no; ?>" value="" disabled/>
+            <input type="text" class="form-control input-sm text-right commit-qty" id="commitQty-<?php echo $no; ?>" value="" disabled/>
           </td>
           <td class="middle">
-            <input type="number" class="form-control input-sm text-right ordered-qty" id="orderedQty-<?php echo $no; ?>" value="" disabled/>
+            <input type="text" class="form-control input-sm text-right ordered-qty" id="orderedQty-<?php echo $no; ?>" value="" disabled/>
           </td>
         </tr>
           <?php $no++; ?>
@@ -300,13 +300,13 @@
     </td>
 
     <td class="middle">
-      <input type="number" class="form-control input-sm text-right whs-qty" id="whsQty-{{no}}" disabled />
+      <input type="text" class="form-control input-sm text-right whs-qty" id="whsQty-{{no}}" disabled />
     </td>
     <td class="middle">
-      <input type="number" class="form-control input-sm text-right commit-qty" id="commitQty-{{no}}" disabled/>
+      <input type="text" class="form-control input-sm text-right commit-qty" id="commitQty-{{no}}" disabled/>
     </td>
     <td class="middle">
-      <input type="number" class="form-control input-sm text-right ordered-qty" id="orderedQty-{{no}}" disabled/>
+      <input type="text" class="form-control input-sm text-right ordered-qty" id="orderedQty-{{no}}" disabled/>
     </td>
   </tr>
 </script>
@@ -380,13 +380,13 @@
 </td>
 
 <td class="middle">
-  <input type="number" class="form-control input-sm text-right whs-qty" id="whsQty-{{no}}" disabled/>
+  <input type="text" class="form-control input-sm text-right whs-qty" id="whsQty-{{no}}" disabled/>
 </td>
 <td class="middle">
-  <input type="number" class="form-control input-sm text-right commit-qty" id="commitQty-{{no}}" disabled/>
+  <input type="text" class="form-control input-sm text-right commit-qty" id="commitQty-{{no}}" disabled/>
 </td>
 <td class="middle">
-  <input type="number" class="form-control input-sm text-right ordered-qty" id="orderedQty-{{no}}" disabled/>
+  <input type="text" class="form-control input-sm text-right ordered-qty" id="orderedQty-{{no}}" disabled/>
 </td>
 </script>
 

@@ -177,6 +177,36 @@ class Picking_model extends CI_Model
   }
 
 
+  public function get_prepare($absEntry, $orderCode, $itemCode, $UomEntry)
+  {
+    $rs = $this->db
+    ->where('AbsEntry', $absEntry)
+    ->where('OrderCode', $orderCode)
+    ->where('ItemCode', $itemCode)
+    ->where('UomEntry', $UomEntry)
+    ->get('picking_detail');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+  public function get_prepare_by_id($id)
+  {
+    $rs = $this->db->where('id', $id)->get('picking_detail');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
 
   public function add_prepare(array $ds = array())
   {
@@ -217,6 +247,12 @@ class Picking_model extends CI_Model
     }
 
     return NULL;
+  }
+
+
+  public function delete_prepare($id)
+  {
+    return $this->db->where('id', $id)->delete('picking_detail');
   }
 
 

@@ -1,5 +1,5 @@
 
-<div class="tab-pane fade" id="LABEL">
+
 	<form id="labelForm" method="post" action="<?php echo $this->home; ?>/update_config">
   	<div class="row">
     	<div class="col-lg-3 col-md-3 col-sm-3 col-xs-6">
@@ -90,4 +90,3 @@
 
   	</div><!--/ row -->
   </form>
-</div>

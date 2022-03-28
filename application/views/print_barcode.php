@@ -60,7 +60,7 @@
 			{
 				foreach($data as $rs)
 				{
-					echo barcodeImage($rs['A'], $height, $width, $font_size, "margin-left:10px; margin-bottom:10px;");
+					echo barcodeImage($rs['A'], $height, $width, $font_size, "margin-left:20px; margin-bottom:20px;");
 				}
 			}
 	?>

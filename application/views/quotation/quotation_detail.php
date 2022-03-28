@@ -28,10 +28,11 @@
 				<?php if($header->Status == 2 && $in_so == FALSE) : ?>
 				<button type="button" class="btn btn-xs btn-primary" onclick="createSalesOrder('<?php echo $header->code; ?>')"><i class="fa fa-copy"></i> สร้างใบสั่งขาย</button>
 				<?php endif; ?>
-				<?php if($header->Approved !== 'A' && !$in_sap && ($header->Status == 0 OR $header->Status == 1 OR $header->Status == 3)) : ?>
+				<?php if($header->Approved !== 'A' && !$in_sap && ($header->Status == 0 OR $header->Status == 9)) : ?>
 					<button type="button" class="btn btn-xs btn-warning" onclick="goEdit('<?php echo $header->code; ?>')"><i class="fa fa-pencil"></i> แก้ไข</button>
+					<button type="button" class="btn btn-xs btn-danger" onclick="cancleQuotation('<?php echo $header->code; ?>')"><i class="fa fa-times"></i> ยกเลิก</button>
 				<?php endif; ?>
-				<?php if($header->must_approve == 1 && $header->Approved === 'P' && $can_approve) : ?>
+				<?php if($header->Status == 0 && $header->must_approve == 1 && $header->Approved === 'P' && ($can_approve OR $this->isSuperAdmin)) : ?>
 					<button type="button" class="btn btn-xs btn-success" onclick="doApprove()"><i class="fa fa-check"></i> อนุมัติ</button>
 					<button type="button" class="btn btn-xs btn-danger" onclick="doReject()"><i class="fa fa-times"></i> ไม่อนุมัติ</button>
 				<?php endif; ?>

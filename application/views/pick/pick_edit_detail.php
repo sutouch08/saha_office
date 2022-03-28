@@ -35,7 +35,7 @@
         <?php if(!empty($details)) : ?>
           <?php $no = 1; ?>
           <?php foreach($details as $rs) : ?>
-            <?php $red = ($rs->Qty > $rs->OnHand) ? 'red' : ''; ?>
+            <?php $red = ($rs->BaseRelQty > $rs->OnHand) ? 'red' : ''; ?>
             <tr id="row-<?php echo $rs->rowNum; ?>" class="<?php echo $red; ?>">
               <td class="middle text-center">
                 <label>
@@ -69,8 +69,8 @@
                   <input type="hidden" id="unitMsr-<?php echo $rs->rowNum; ?>" value="<?php echo $rs->unitMsr; ?>">
                   <input type="hidden" id="unitMsr2-<?php echo $rs->rowNum; ?>" value="<?php echo $rs->unitMsr2; ?>">
               </td>
-              <td class="middle text-right" style="padding-right:0px;" id="available-<?php echo $rs->rowNum; ?>"><?php echo number($rs->OnHand, 2); ?></td>
-              <td class="middle" style="padding-right:0px; padding-left:5px;"><?php echo "({$rs->unitMsr2})"; ?></td>
+              <td class="middle text-right" style="padding-right:0px;" id="available-<?php echo $rs->rowNum; ?>"><?php echo number(($rs->OnHand/$rs->BaseQty), 2); ?></td>
+              <td class="middle text-center" style="padding-right:0px; padding-left:5px;"><?php echo "{$rs->unitMsr}"; ?></td>
               <td class="middle text-right">
                 <button type="button" class="btn btn-minier btn-danger" onclick="removeRow(<?php echo $rs->rowNum; ?>)"><i class="fa fa-trash"></i></button>
               </td>

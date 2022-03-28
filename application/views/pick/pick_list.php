@@ -12,7 +12,7 @@
   </div>
   <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5">
   	<p class="pull-right top-p">
-      <button type="button" class="btn btn-sm btn-success" onclick="goAdd()"><i class="fa fa-plus"></i> New Pick List</button>
+      <button type="button" class="btn btn-xs btn-success" onclick="goAdd()"><i class="fa fa-plus"></i> New Pick List</button>
     </p>
   </div>
 </div><!-- End Row -->
@@ -54,13 +54,12 @@
 		</div>
 	</div>
 
-	<div class="col-xs-12 visible-xs"></div>
 
-  <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+  <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
     <label class="search-label display-block not-show">buton</label>
     <button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
   </div>
-	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
     <label class="search-label display-block not-show">buton</label>
     <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
   </div>

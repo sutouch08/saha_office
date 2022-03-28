@@ -63,7 +63,7 @@ class Pick_model extends CI_Model
   public function get_sum_pick_rows($AbsEntry)
   {
     $rs = $this->db
-    ->select('OrderCode, CardName, ItemCode, ItemName, UomEntry, UomEntry2, UomCode, unitMsr, BaseQty')
+    ->select('AbsEntry, OrderCode, OrderEntry, OrderLine, CardName, ItemCode, ItemName, UomEntry, UomEntry2, UomCode, unitMsr, unitMsr2, BaseQty')
     ->select_sum('RelQtty')
     ->select_sum('BaseRelQty')
     ->where('AbsEntry', $AbsEntry)
@@ -270,16 +270,15 @@ class Pick_model extends CI_Model
   public function get_prev_release_qty($OrderEntry, $OrderLine)
   {
     $rs = $this->db
-    ->select_sum('RelQtty')
+    ->select_sum('BaseRelQty')
     ->where('OrderEntry', $OrderEntry)
     ->where('OrderLine', $OrderLine)
-    ->where('PickStatus !=', 'D')
-    //->where('LineStatus !=', 'D')
+    ->where('PickStatus !=', 'D')    
     ->get('pick_row');
 
     if($rs->num_rows() === 1)
     {
-      return $rs->row()->RelQtty;
+      return $rs->row()->BaseRelQty;
     }
 
     return 0;
@@ -289,39 +288,35 @@ class Pick_model extends CI_Model
   public function get_committed_stock($ItemCode)
   {
     $rs = $this->db
-    ->select_sum('RelQtty')
-    ->select('UomEntry, UomEntry2')
+    ->select_sum('BaseRelQty')
     ->where('ItemCode', $ItemCode)
     ->where('LineStatus', 'O')
-    ->group_by('UomEntry')
     ->get('pick_row');
 
-    if($rs->num_rows() > 0)
+    if($rs->num_rows() === 1)
     {
-      return $rs->result();
+      return $rs->row()->BaseRelQty;
     }
 
-    return NULL;
+    return 0;
   }
 
 
   public function get_committed_stock_by_pick_list($absEntry, $ItemCode)
   {
     $rs = $this->db
-    ->select_sum('RelQtty')
-    ->select('UomEntry, UomEntry2')
+    ->select_sum('BaseRelQty')
     ->where('AbsEntry', $absEntry)
     ->where('ItemCode', $ItemCode)
     ->where('LineStatus', 'O')
-    ->group_by('UomEntry')
     ->get('pick_row');
 
-    if($rs->num_rows() > 0)
+    if($rs->num_rows() === 1)
     {
-      return $rs->result();
+      return $rs->row()->BaseRelQty;
     }
 
-    return NULL;
+    return 0;
   }
 
 
@@ -487,6 +482,13 @@ class Pick_model extends CI_Model
     ->where('ItemCode', $ItemCode)
     ->where('UomEntry', $UomEntry)
     ->update('pick_row');
+  }
+
+
+
+  public function cancle_pick_rows($absEntry)
+  {
+    return $this->db->set('PickStatus', 'D')->set('LineStatus', 'D')->where('AbsEntry', $absEntry)->update('pick_row');
   }
 
 

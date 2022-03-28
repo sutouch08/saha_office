@@ -117,6 +117,10 @@ ul.tree ul li label {
 	margin-bottom:0px;
 }
 
+h4.title {
+  margin-top:14px;
+}
+
 
 
 .label-left{
@@ -624,6 +628,7 @@ hr.padding-5 {
 
  .active > a {
 	border-left:solid 5px lightsalmon;
+  background-color: #f5f7fa;
 }
 
 
@@ -631,7 +636,7 @@ hr.padding-5 {
 .active > a:hover {
   text-decoration: none;
 	border-left:solid 5px lightsalmon;
-	background-color:White;
+	background-color:#f5f7fa;;
 	transition:linear 0.1s;
 }
 
@@ -737,6 +742,12 @@ hr.padding-5 {
 
 .has-success {
   border: solid 1px green !important;
+}
+
+
+
+.bg-green {
+  background-color: #ebf1e2;
 }
 
 
@@ -899,7 +910,7 @@ hr.padding-5 {
 
 
 
-.col-1-harf, col-2-harf, col-3-harf, col-4-harf, col-5-harf, col-6-harf, col-7-harf, col-8-harf, col-9-harf, col-10-harf, col-11-harf {
+.col-1-harf, .col-2-harf, .col-3-harf, .col-4-harf, .col-5-harf, .col-6-harf, .col-7-harf, .col-8-harf, .col-9-harf, .col-10-harf, .col-11-harf {
 	float:left;
 }
 
@@ -978,7 +989,7 @@ hr.padding-5 {
 
 }
 
-.col-xs-1-harf, col-xs-2-harf, col-xs-3-harf, col-xs-4-harf, col-xs-5-harf, col-xs-6-harf, col-xs-7-harf, col-xs-8-harf, col-xs-9-harf, col-xs-10-harf, col-xs-11-harf {
+.col-xs-1-harf, .col-xs-2-harf, .col-xs-3-harf, .col-xs-4-harf, .col-xs-5-harf, .col-xs-6-harf, .col-xs-7-harf, .col-xs-8-harf, .col-xs-9-harf, .col-xs-10-harf, .col-xs-11-harf {
 	float:left;
 }
 
@@ -1051,7 +1062,7 @@ hr.padding-5 {
 }
 
 
-.col-sm-1-harf, col-sm-2-harf, col-sm-3-harf, col-sm-4-harf, col-sm-5-harf, col-sm-6-harf, col-sm-7-harf, col-sm-8-harf, col-sm-9-harf, col-sm-10-harf, col-sm-11-harf {
+.col-sm-1-harf, .col-sm-2-harf, .col-sm-3-harf, .col-sm-4-harf, .col-sm-5-harf, .col-sm-6-harf, .col-sm-7-harf, .col-sm-8-harf, .col-sm-9-harf, .col-sm-10-harf, .col-sm-11-harf {
 	float:left;
 }
 
@@ -1125,7 +1136,7 @@ hr.padding-5 {
 
 
 
-.col-md-1-harf, col-md-2-harf, col-md-3-harf, col-md-4-harf, col-md-5-harf, col-md-6-harf, col-md-7-harf, col-md-8-harf, col-md-9-harf, col-md-10-harf, col-md-11-harf {
+.col-md-1-harf, .col-md-2-harf, .col-md-3-harf, .col-md-4-harf, .col-md-5-harf, .col-md-6-harf, .col-md-7-harf, .col-md-8-harf, .col-md-9-harf, .col-md-10-harf, .col-md-11-harf {
 	float:left;
 }
 
@@ -1200,7 +1211,7 @@ hr.padding-5 {
 
 
 
-.col-lg-1-harf, col-lg-2-harf, col-lg-3-harf, col-lg-4-harf, col-lg-5-harf, col-lg-6-harf, col-lg-7-harf, col-lg-8-harf, col-lg-9-harf, col-lg-10-harf, col-lg-11-harf {
+.col-lg-1-harf, .col-lg-2-harf, .col-lg-3-harf, .col-lg-4-harf, .col-lg-5-harf, .col-lg-6-harf, .col-lg-7-harf, .col-lg-8-harf, .col-lg-9-harf, .col-lg-10-harf, .col-lg-11-harf {
 	float:left;
 }
 

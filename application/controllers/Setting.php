@@ -15,14 +15,17 @@ class Setting extends PS_Controller{
 
 
 
-  public function index()
+  public function index($tab = 'company')
   {
 		if($this->isAdmin OR $this->isSuperAdmin)
 		{
 
 			$groups = array('Company', 'Document', 'SAP', 'LABEL');
 
-	    $ds = array();
+	    $ds = array(
+				'tab' => $tab
+			);
+
 	    foreach($groups as $rs)
 	    {
 	       $group = $this->config_model->get_config_by_group($rs);

@@ -66,51 +66,6 @@ class Sales_order extends PS_Controller
   }
 
 
-	private function update_status($limit = 100)
-	{
-		$ds = $this->sales_order_model->get_non_so_code($limit);
-		if(!empty($ds))
-    {
-      foreach($ds as $rs)
-      {
-        $temp = $this->sales_order_model->get_temp_status($rs->code);
-        if(!empty($temp))
-        {
-          if($temp->F_Sap === 'Y')
-          {
-            $sap = $this->sales_order_model->get_sap_doc_num($rs->code);
-
-            if(!empty($sap))
-            {
-              $arr = array(
-                'DocNum' => $sap->DocNum,
-                'sap_date' => $temp->F_SapDate,
-                'Status' => 2, //--- เข้า SAP แล้ว
-                'Message' => NULL
-              );
-
-              $this->sales_order_model->update($rs->code, $arr);
-            }
-          }
-          else
-          {
-            if($temp->F_Sap === 'N')
-            {
-              $arr = array(
-                'Status' => 3,
-                'Message' => $temp->Message
-              );
-
-              $this->sales_order_model->update($rs->code, $arr);
-            }
-          }
-        }
-      }
-    }
-	}
-
-
-
 	public function add_new()
 	{
 		$this->title = "New Sales Order";
@@ -162,6 +117,7 @@ class Sales_order extends PS_Controller
 				'Address2' => get_null($ds->ShipTo),
 				'Series' => $ds->Series,
 				'BeginStr' => $this->sales_order_model->get_prefix($ds->Series),
+				'Status' => $ds->isDraft == 1 ? 9 : 0,
 				'DocDate' => sap_date($ds->DocDate, TRUE),
 				'DocDueDate' => sap_date($ds->DocDueDate, TRUE),
 				'TextDate' => sap_date($ds->TextDate, TRUE),
@@ -260,7 +216,7 @@ class Sales_order extends PS_Controller
 
 				$this->sales_order_model->update($code, $arr);
 
-				if(! $must_approve)
+				if(! $must_approve && $ds->isDraft == 0)
 				{
 					//--- export to Middle
 					$this->doExport($code);
@@ -321,6 +277,7 @@ class Sales_order extends PS_Controller
 					'Address2' => $ds->Address2,
 					'Series' => $ds->Series,
 					'BeginStr' => $ds->BeginStr,
+					'Status' => 9,
 					'DocDate' => $date,
 					'DocDueDate' => $valid_till,
 					'TextDate' => $date,
@@ -515,6 +472,7 @@ class Sales_order extends PS_Controller
 								'Address2' => $ds->Address2,
 								'Series' => $Series->code,
 								'BeginStr' => $Series->prefix,
+								'Status' => 9,
 								'DocDate' => date('Y-m-d'),
 								'DocDueDate' => NULL,
 								'TextDate' => date('Y-m-d'),
@@ -777,6 +735,11 @@ class Sales_order extends PS_Controller
 							'sale_team' => $this->user->sale_team
 						);
 
+						if($ds->isDraft == 1)
+						{
+							$arr['Status'] = 9;
+						}
+
 						$this->db->trans_begin();
 
 						if(!$this->sales_order_model->update($code, $arr))
@@ -871,7 +834,7 @@ class Sales_order extends PS_Controller
 
 							$this->sales_order_model->update($code, $arr);
 
-							if(! $must_approve)
+							if(! $must_approve && $ds->isDraft == 0)
 							{
 								//--- export to Middle
 								$this->doExport($code);

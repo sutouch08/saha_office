@@ -174,9 +174,8 @@ function goDetail(code){
 
 
 
-function getDelete(code)
+function cancleQuotation(code)
 {
-
 	swal({
 		title: "คุณแน่ใจ ?",
 		text: "ต้องการยกเลิก '"+code+"' หรือไม่?",
@@ -189,8 +188,8 @@ function getDelete(code)
 		}, function(){
 			load_in();
 			$.ajax({
-				url: BASE_URL + 'orders/quotation/cancle_quotation',
-				type:"GET",
+				url: HOME + 'cancle_quotation',
+				type:"POST",
         cache:"false",
 				data:{
 					'code' : code
@@ -224,7 +223,7 @@ function printQuotation(code) {
   var prop 		= "width=800, height=900. left="+center+", scrollbars=yes";
   var center  = ($(document).width() - 800)/2;
   var target  = HOME + 'print_quotation/'+code;
-  
+
   window.open(target, '_blank', prop);
 }
 

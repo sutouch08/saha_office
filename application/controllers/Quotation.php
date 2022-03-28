@@ -23,7 +23,6 @@ class Quotation extends PS_Controller
 
   public function index()
   {
-		$this->update_status(100);
 
 		$filter = array(
 			'WebCode' => get_filter('WebCode', 'sq_WebCode', ''),
@@ -64,48 +63,52 @@ class Quotation extends PS_Controller
   }
 
 
-	private function update_status($limit = 100)
+	public function cancle_quotation()
 	{
-		$ds = $this->quotation_model->get_non_sq_code($limit);
-		if(!empty($ds))
-    {
-      foreach($ds as $rs)
-      {
-        $temp = $this->quotation_model->get_temp_status($rs->code);
-        if(!empty($temp))
-        {
-          if($temp->F_Sap === 'Y')
-          {
-            $sap = $this->quotation_model->get_sap_doc_num($rs->code);
+		$sc = TRUE;
+		$code = $this->input->post('code');
 
-            if(!empty($sap))
-            {
-              $arr = array(
-                'DocNum' => $sap->DocNum,
-                'sap_date' => $temp->F_SapDate,
-                'Status' => 2, //--- เข้า SAP แล้ว
-                'Message' => NULL
-              );
+		$doc = $this->quotation_model->get($code);
 
-              $this->quotation_model->update($rs->code, $arr);
-            }
-          }
-          else
-          {
-            if($temp->F_Sap === 'N')
-            {
-              $arr = array(
-                'Status' => 3,
-                'Message' => $temp->Message
-              );
+		if(!empty($doc))
+		{
+			if($doc->Status == 9 OR $doc->Status == 0)
+			{
+				$DocNum = $this->quotation_model->get_sap_doc_num($code);
+				if(empty($DocNum))
+				{
+					$arr = array(
+						'Status' => (-1)
+					);
 
-              $this->quotation_model->update($rs->code, $arr);
-            }
-          }
-        }
-      }
-    }
+					if(! $this->quotation_model->update($code, $arr))
+					{
+						$sc = FALSE;
+						$this->error = "ยกเลิกเอกสารไม่สำเร็จ";
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "ไม่สามารถยกเลิกได้เนื่องจากเอกสารเข้า SAP แล้ว";
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "เอกสารอยู่ในสถานะที่ไม่สามารถยกเลิกได้";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "เลขที่เอกสารไม่ถูกต้อง";
+		}
+		
+
+		echo $sc === TRUE ? 'success' : $this->error;
 	}
+
 
 	public function add_new()
 	{
@@ -117,9 +120,6 @@ class Quotation extends PS_Controller
 
 		$this->load->view('quotation/quotation_add', $ds);
 	}
-
-
-
 
 
 
@@ -158,6 +158,7 @@ class Quotation extends PS_Controller
 				'Address2' => get_null($ds->ShipTo),
 				'Series' => $ds->Series,
 				'BeginStr' => $this->quotation_model->get_prefix($ds->Series),
+				'Status' => $ds->isDraft == 1 ? 9 : 0,
 				'DocDate' => sap_date($ds->DocDate, TRUE),
 				'DocDueDate' => sap_date($ds->DocDueDate, TRUE),
 				'TextDate' => sap_date($ds->TextDate, TRUE),
@@ -255,7 +256,7 @@ class Quotation extends PS_Controller
 
 				$this->quotation_model->update($code, $arr);
 
-				if(! $must_approve)
+				if(! $must_approve && $ds->isDraft == 0)
 				{
 					//--- export to Middle
 					$this->doExport($code);
@@ -318,6 +319,7 @@ class Quotation extends PS_Controller
 					'Series' => $ds->Series,
 					'BeginStr' => $ds->BeginStr,
 					'DocDate' => $date,
+					'Status' => 9,
 					'DocDueDate' => $valid_till,
 					'TextDate' => $date,
 					'U_ORIGINALSQ' => $OriginalSQ,
@@ -454,10 +456,13 @@ class Quotation extends PS_Controller
 		}
 	}
 
+
+
+
+
 	function edit($code)
 	{
 		$in_sap = $this->quotation_model->is_sap_exists_code($code);
-		//$in_darft = $this->quotation_model->is_sap_exists_draft($code);
 
 		if(!$in_sap)
 		{
@@ -580,6 +585,12 @@ class Quotation extends PS_Controller
 							'sale_team' => $this->user->sale_team
 						);
 
+
+						if($ds->isDraft == 1)
+						{
+							$arr['Status'] = 9;
+						}
+
 						$this->db->trans_begin();
 
 						if(!$this->quotation_model->update($code, $arr))
@@ -675,7 +686,7 @@ class Quotation extends PS_Controller
 
 							$this->quotation_model->update($code, $arr);
 
-							if(! $must_approve)
+							if(! $must_approve && $ds->isDraft == 0)
 							{
 								//--- export to Middle
 								$this->doExport($code);
@@ -1530,7 +1541,7 @@ class Quotation extends PS_Controller
 				$max_discount = $this->quotation_model->get_max_line_disc($code);
 				$can_approve = $this->quotation_model->can_approve($this->user->uname, $doc->sale_team, $max_discount);
 
-				if($can_approve === TRUE)
+				if($can_approve === TRUE OR $this->isSuperAdmin)
 				{
 					$arr = array(
 						'Approved' => 'A',
@@ -1570,6 +1581,7 @@ class Quotation extends PS_Controller
 	{
 		$sc = TRUE;
 		$doc = $this->quotation_model->get($code);
+
 		if(!empty($doc))
 		{
 			//--- ตัองอนุมัติแล้ว และ ยังไม่เข้า SAP และ ยังไม่มีเลขที่เอกสารใน SAP
@@ -1579,7 +1591,7 @@ class Quotation extends PS_Controller
 				$max_discount = $this->quotation_model->get_max_line_disc($code);
 				$can_approve = $this->quotation_model->can_approve($this->user->uname, $doc->sale_team, $max_discount);
 				$must_approve = $this->must_approve($code);
-				if($can_approve === TRUE OR $must_approve === FALSE)
+				if($can_approve === TRUE OR $this->isSuperAdmin OR $must_approve === FALSE)
 				{
 					$arr = array(
 						'Approved' => 'P',

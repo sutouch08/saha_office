@@ -57,7 +57,6 @@ function changeZone() {
   $('#barcode-item').attr('disabled', 'disabled');
 
   $('#BinCode').val('');
-  $('#soNo').val('');
   $('#zoneCode').val('');
   $('#zoneCode').removeAttr('disabled', 'disabled');
   $('#btn-change-zone').addClass('hide');
@@ -205,12 +204,12 @@ function pickWithOption() {
           let ds = data[i];
           $('#pick-'+ds.id).text(ds.picked);
           $('#balance-'+ds.id).text(ds.balance);
-          //$('#details-table').prepend($('#row-'+ds.id));
+
           $('.row-tr').removeClass('blue');
           $('#row-'+ds.id).addClass('blue');
 
           if(ds.balance == 0) {
-            $('#row-'+ds.id).css('background-color', '#ebf1e2');
+            $('#row-'+ds.id).addClass('bg-green');
             $('#btn-cancle-pick-'+ds.id).addClass('hide');
           }
         }
@@ -275,12 +274,12 @@ function pickItem() {
             let ds = data[i];
             $('#pick-'+ds.id).text(ds.picked);
             $('#balance-'+ds.id).text(ds.balance);
-            //$('#details-table').prepend($('#row-'+ds.id));
+
             $('.row-tr').removeClass('blue');
             $('#row-'+ds.id).addClass('blue');
 
             if(ds.balance == 0) {
-              $('#row-'+ds.id).css('background-color', '#ebf1e2');
+              $('#row-'+ds.id).addClass('bg-green');
               $('#btn-cancle-pick-'+ds.id).addClass('hide');
             }
           }
@@ -391,6 +390,9 @@ function is_all_picked() {
 
     if(relqty > picked) {
       balance++;
+    }
+    else {
+      changeZone();
     }
   });
 
@@ -570,6 +572,98 @@ function addToPick(id) {
           text:rs,
           type:'error'
         })
+      }
+    }
+  });
+}
+
+
+
+function showPickedOption(id) {
+  let picked = parseDefault(parseFloat($('#pick-'+id).text()), 0);
+
+  if(picked <= 0) {
+    return false;
+  }
+
+  $('#picked-id').val(id);
+
+  $.ajax({
+    url:HOME + 'get_picking_details',
+    type:'POST',
+    cache:false,
+    data:{
+      "pick_detail_id" : id
+    },
+    success:function(rs) {
+      if(isJson(rs)) {
+        var ds = $.parseJSON(rs);
+        var source = $('#picked-option-template').html();
+        var output = $('#picked-option-table');
+
+        render(source, ds, output);
+
+        $('#pickedOptionModal').modal('show');
+      }
+      else {
+        swal({
+          title:'Error!',
+          text:rs,
+          type:'error'
+        });
+      }
+    }
+  })
+}
+
+
+
+function updatePicked(id) {
+  const pick_detail_id = $('#picked-id').val();
+  let qty = parseDefault(parseFloat($('#picked-qty-'+id).val()), 0);
+  let limit = parseDefault(parseFloat($('#picked-limit-'+id).val()), 0);
+  let released = parseDefault(parseFloat($('#release-'+pick_detail_id).text()), 0);
+  let picked = parseDefault(parseFloat($('#pick-'+pick_detail_id).text()), 0);
+
+  if(qty <= 0 || qty > limit) {
+    $('#picked-qty-'+id).addClass('has-error');
+    return false;
+  }
+  else {
+    $('#picked-qty-'+id).removeClass('has-error');
+  }
+
+  $.ajax({
+    url:HOME + 'update_picking_qty',
+    type:'POST',
+    cache:false,
+    data:{
+      'pick_detail_id' : pick_detail_id,
+      'picking_id' : id,
+      'qty' : qty
+    },
+    success:function(rs) {
+      if(rs === 'success') {
+        remain = limit - qty;
+        picked = picked - qty;
+        balance = released - picked;
+
+        $('#picked-label-'+id).text(addCommas(remain));
+        $('#picked-limit-'+id).val(remain);
+        $('#pick-' + pick_detail_id).text(picked);
+        $('#balance-'+ pick_detail_id).text(balance);
+        $('#picked-qty-'+id).val('').focus();
+
+        $('#row-'+pick_detail_id).removeClass('blue');
+        $('#row-'+pick_detail_id).removeClass('bg-green');
+        is_all_picked();
+      }
+      else {
+        swal({
+          title:"Error!",
+          text:rs,
+          type:"error"
+        });
       }
     }
   });

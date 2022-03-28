@@ -18,11 +18,11 @@
     <div>
         <p>Sorry for the inconvenience but we&rsquo;re performing some maintenance at the moment. If you need to you can always contact us, otherwise we&rsquo;ll be back online shortly!</p>
         <p>&mdash; The Team</p>
-				<?php if($this->pm->can_add OR $this->pm->can_edit OR $this->pm->can_delete) : ?>
+				<?php if($this->isAdmin OR $this->isSuperAdmin) : ?>
 					<p style="float:right;"><button style="padding:15px;" onclick="openSystem()">OPEN SYSTEM</button></p>
 					<script>
 						function openSystem(){
-							$.get(BASE_URL + 'setting/maintenance/open_system',function(rs){
+							$.get(BASE_URL + 'maintenance/open_system',function(rs){
 								if(rs == 'success'){
 									window.location.href = BASE_URL;
 								}
@@ -30,7 +30,7 @@
 						}
 
 						setInterval(function(){
-							$.get(BASE_URL + 'setting/maintenance/check_open_system', function(rs){
+							$.get(BASE_URL + 'maintenance/check_open_system', function(rs){
 								if(rs == 'open'){
 									window.location.href = BASE_URL;
 								}

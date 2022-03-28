@@ -195,7 +195,7 @@ while($total_page > 0 )
 	$top .= 			"</tr>";
 	$top .= 			"<tr style='font-size:11px;'>";
 	$top .= 				"<td style='vertical-align:text-top;'>หมายเหตุ </td>";
-	$top .= 				"<td style='white-space:pre-wrap; vertical-align:text-top; padding-top:10px;'>: &nbsp;{$doc->Comments}</td>";
+	$top .= 				"<td style='white-space:pre-wrap; vertical-align:text-top; padding-top:10px;'>: &nbsp;{$doc->Address2} : {$doc->Comments}</td>";
 	$top .= 			"</tr>";
 	$top .= 		"</table>";
 	$top .= 	"</div>";

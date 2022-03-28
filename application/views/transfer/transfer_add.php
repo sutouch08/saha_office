@@ -37,7 +37,7 @@
 	</div>
 	<div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-6 padding-5">
 		<label>Pallet No.</label>
-		<input type="text" class="form-control input-sm text-center" id="pallet-code" placeholder="ค้นหาพาเลท" />
+		<input type="text" class="form-control input-sm text-center" id="pallet-code" placeholder="ค้นหาพาเลท" autofocus/>
 	</div>
 	<div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-6 padding-5">
 		<label class="display-block not-show">OK</label>

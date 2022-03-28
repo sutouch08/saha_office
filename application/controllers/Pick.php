@@ -108,6 +108,8 @@ class Pick extends PS_Controller
 
 			if(!empty($rows))
 			{
+				$onhand = array();
+
 				foreach($rows as $rs)
 				{
 					$Line = $this->pick_model->getOrderRow($rs->OrderEntry, $rs->OrderLine);
@@ -118,10 +120,18 @@ class Pick extends PS_Controller
 					$rs->OrderQty = empty($Line) ? 0 : $Line->Quantity;
 					$rs->OpenQty = empty($Line) ? 0 : $Line->OpenQty;
 					$rs->AvailableQty = empty($Line) ? 0 : (($rs->OrderQty - $rs->PrevRelease) > 0 ? $rs->OrderQty - $rs->PrevRelease : 0);
-					$rs->Qty = $rs->AvailableQty;
-					$onhand = $this->stock_model->get_onhand_stock($rs->ItemCode);
-					$commit = $this->get_committed_stock($rs->ItemCode);
-					$rs->OnHand = $onhand - $commit;
+					$rs->Qty = empty($rs->RelQtty) ? $rs->AvailableQty : round($rs->RelQtty, 2);
+
+					if(! isset($onhand[$rs->ItemCode]))
+					{
+						$onHandStock = $this->stock_model->get_onhand_stock($rs->ItemCode);
+						$committed = $this->get_committed_stock($rs->ItemCode);
+						$thisPickList = $this->get_committed_stock_by_pick_list($AbsEntry, $rs->ItemCode);
+						$onhand[$rs->ItemCode] = $onHandStock - ($committed - $thisPickList);
+					}
+
+					$rs->OnHand = $onhand[$rs->ItemCode];
+					$onhand[$rs->ItemCode] -= $rs->BaseRelQty;
 				}
 			}
 
@@ -154,17 +164,16 @@ class Pick extends PS_Controller
 
 				foreach($rows as $rs)
 				{
-					if(empty($onhand[$rs->ItemCode]))
+					if(! isset($onhand[$rs->ItemCode]))
 					{
-						$onhand[$rs->ItemCode] = $this->stock_model->get_onhand_stock($rs->ItemCode);
+						$onHandStock = $this->stock_model->get_onhand_stock($rs->ItemCode);
 						$committed = $this->get_committed_stock($rs->ItemCode);
-						$onhand[$rs->ItemCode] -= $committed;
+						$thisPickList = $this->get_committed_stock_by_pick_list($AbsEntry, $rs->ItemCode);
+						$onhand[$rs->ItemCode] = $onHandStock - ($committed - $thisPickList);
 					}
 
 					$rs->OnHand = $onhand[$rs->ItemCode];
-
-					$baseQty = ($rs->UomEntry == $rs->UomEntry2) ? 1 : $this->item_model->get_base_qty($rs->ItemCode, $rs->UomEntry);
-					$onhand[$rs->ItemCode] -= ($rs->RelQtty * $baseQty);
+					$onhand[$rs->ItemCode] -= $rs->BaseRelQty;
 				}
 			}
 
@@ -205,54 +214,14 @@ class Pick extends PS_Controller
 
 	public function get_committed_stock($ItemCode)
 	{
-		$rows = $this->pick_model->get_committed_stock($ItemCode);
-
-		$commit = 0;
-
-		if(!empty($rows))
-		{
-			foreach($rows as $rs)
-			{
-				if($rs->UomEntry != $rs->UomEntry2)
-				{
-					$baseQty = $this->item_model->get_base_qty($ItemCode, $rs->UomEntry);
-					$commit += $rs->RelQtty * $baseQty;
-				}
-				else
-				{
-					$commit += $rs->RelQtty;
-				}
-			}
-		}
-
-		return $commit;
+		return $this->pick_model->get_committed_stock($ItemCode);
 	}
 
 
 
 	public function get_committed_stock_by_pick_list($absEntry, $ItemCode)
 	{
-		$rows = $this->pick_model->get_committed_stock_by_pick_list($absEntry, $ItemCode);
-
-		$commit = 0;
-
-		if(!empty($rows))
-		{
-			foreach($rows as $rs)
-			{
-				if($rs->UomEntry != $rs->UomEntry2)
-				{
-					$baseQty = $this->item_model->get_base_qty($ItemCode, $rs->UomEntry);
-					$commit += $rs->RelQtty * $baseQty;
-				}
-				else
-				{
-					$commit += $rs->RelQtty;
-				}
-			}
-		}
-
-		return $commit;
+		return $this->pick_model->get_committed_stock_by_pick_list($absEntry, $ItemCode);
 	}
 
 
@@ -365,11 +334,16 @@ class Pick extends PS_Controller
 				if(!empty($rs))
 				{
 					$PrevRelease = $this->pick_model->get_prev_release_qty($rs->DocEntry, $rs->LineNum);
-					$AvailableQty = ($rs->Quantity - $PrevRelease) > 0 ? $rs->Quantity - $PrevRelease : 0;
 					$baseQty = ($rs->UomEntry == $rs->UomEntry2) ? 1 : $this->item_model->get_base_qty($rs->ItemCode, $rs->UomEntry);
+					$invQty = $rs->Quantity * $baseQty;
+					$AvailableQty = ($invQty - $PrevRelease) > 0 ? $invQty - $PrevRelease : 0;
 					$onhand = $this->stock_model->get_onhand_stock($rs->ItemCode);
 					$commit = $this->get_committed_stock($rs->ItemCode);
 					$OnHand = $onhand - $commit;
+
+					$OnHand = $OnHand > 0 ? ($OnHand/$baseQty) : 0;
+					$AvailableQty = $AvailableQty > 0 ? ($AvailableQty/$baseQty) : 0;
+					$PrevRelease = $PrevRelease > 0 ? ($PrevRelease/$baseQty) : 0;
 
 					$arr = array(
 						'rowNum' => $rs->DocEntry.$rs->LineNum,
@@ -433,10 +407,16 @@ class Pick extends PS_Controller
 					foreach($details as $rs)
 					{
 						$PrevRelease = $this->pick_model->get_prev_release_qty($rs->DocEntry, $rs->LineNum);
-						$AvailableQty = ($rs->Quantity - $PrevRelease) > 0 ? $rs->Quantity - $PrevRelease : 0;
+						$baseQty = $this->item_model->get_base_qty($rs->ItemCode, $rs->UomEntry);
+						$invQty = $rs->Quantity * $baseQty;
+						$AvailableQty = ($invQty - $PrevRelease) > 0 ? $invQty - $PrevRelease : 0;
 						$onhand = $this->stock_model->get_onhand_stock($rs->ItemCode);
 						$commit = $this->get_committed_stock($rs->ItemCode);
 						$OnHand = $onhand - $commit;
+
+						$OnHand = $OnHand > 0 ? ($OnHand/$baseQty) : 0;
+						$AvailableQty = $AvailableQty > 0 ? ($AvailableQty/$baseQty) : 0;
+						$PrevRelease = $PrevRelease > 0 ? ($PrevRelease/$baseQty) : 0;
 
 						$arr = array(
 							'rowNum' => $rs->DocEntry.$rs->LineNum,
@@ -451,7 +431,9 @@ class Pick extends PS_Controller
 							'PrevRelease' => number($PrevRelease, 2),
 							'AvailableQty' => number($AvailableQty, 2),
 							'OnHand' => number($OnHand, 2),
-							'red' => ($AvailableQty <= 0 OR $AvailableQty > $OnHand) ? 'red' : ''
+							'unitMsr' => $rs->unitMsr,
+							'red' => ($AvailableQty <= 0 OR $AvailableQty > $OnHand) ? 'red' : '',
+							'disabled' => ($OnHand <= 0 OR $AvailableQty <= 0) ? 'yes' : ''
 						);
 
 						array_push($ds, $arr);
@@ -668,13 +650,13 @@ class Pick extends PS_Controller
 				{
 					if($doc->Status == 'N')
 					{
-						$rows = $this->pick_model->get_sum_pick_rows($absEntry);
+						$rows = $this->pick_model->get_pick_rows($absEntry);
 
 						if(!empty($rows))
 						{
 							foreach($rows as $rs)
 							{
-								if(empty($onhand[$rs->ItemCode]))
+								if(! isset($onhand[$rs->ItemCode]))
 								{
 									$onHandStock = $this->stock_model->get_onhand_stock($rs->ItemCode);
 									$committed = $this->get_committed_stock($rs->ItemCode);
@@ -686,7 +668,8 @@ class Pick extends PS_Controller
 								{
 									$arr = array(
 										'rowNum' => $rs->OrderEntry.$rs->OrderLine,
-										'onHand' => $onhand[$rs->ItemCode]
+										'onHand' => round($onhand[$rs->ItemCode], 2),
+										'unitMsr' => $rs->unitMsr2
 									);
 
 									array_push($error, $arr);
@@ -1100,7 +1083,7 @@ class Pick extends PS_Controller
 						//--- change rows status
 						if($sc === TRUE)
 						{
-							if(! $this->pick_model->set_rows_status($id, 'D'))
+							if(! $this->pick_model->cancle_pick_rows($id))
 							{
 								$sc = FALSE;
 								$this->error = "ยกเลิกสถานะรายการไม่สำเร็จ";

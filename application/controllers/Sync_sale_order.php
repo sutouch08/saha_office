@@ -3,7 +3,7 @@ class Sync_sale_order extends CI_Controller
 {
   public $ms;
   public $mc;
-  public $limit = 50;
+  public $limit = 100;
 
   public function __construct()
   {
@@ -11,27 +11,29 @@ class Sync_sale_order extends CI_Controller
     $this->ms = $this->load->database('ms', TRUE); //--- SAP database
     $this->mc = $this->load->database('mc', TRUE); //--- Temp Database
     $this->load->model('sync_data_model');
+    $this->load->model('sales_order_model');
+
+    $limit = getConfig('SYNC_LIMIT');
+    $this->limit = $limit > 0 ? $limit : 100;
   }
 
 
   public function index()
   {
-    $list = $this->getSyncList();
-    $count = 0;
-    $update = 0;
+    $list = $this->sales_order_model->getSyncList($this->limit);
 
     if(!empty($list))
     {
       foreach($list as $ds)
       {
-        $count++;
-        $temp = $this->get_temp_status($ds->code);
+        $temp = $this->sales_order_model->get_temp_status($ds->code);
+
         if(!empty($temp))
         {
 
           if($temp->F_Sap === 'Y')
           {
-            $DocNum = $this->get_sap_doc_num($ds->code);
+            $DocNum = $this->sales_order_model->get_sap_doc_num($ds->code);
 
             if(!empty($DocNum))
             {
@@ -43,25 +45,29 @@ class Sync_sale_order extends CI_Controller
                 'Message' => NULL
               );
 
-              $this->update($ds->code, $arr);
-              $update++;
-            }
+              $this->sales_order_model->update($ds->code, $arr);
 
-            // else
-            // {
-            //   $draft_code = $this->get_sap_draft_code($ds->code);
-            //   if(!empty($draft_code))
-            //   {
-            //     $arr = array(
-            //       'sap_date' => $temp->F_SapDate,
-            //       'Status' => 4,  //-- เข้า Darft ใน SAP แล้ว
-            //       'Message' => NULL
-            //     );
-            //
-            //     $this->update($ds->code, $arr);
-            //     $update++;
-            //   }
-            // }
+              $logs = array(
+                'code' => $ds->code,
+                'sync_code' => 'SO',
+                'DocNum' => $DocNum,
+                'status' => 1
+              );
+
+              $this->sync_data_model->add_logs($logs);
+            }
+            else
+            {
+              $logs = array(
+                'code' => $ds->code,
+                'sync_code' => 'SO',
+                'DocNum' => NULL,
+                'status' => 3,
+                'message' => 'Mark as success in Temp But not found in SAP'
+              );
+
+              $this->sync_data_model->add_logs($logs);
+            }
           }
           else
           {
@@ -72,94 +78,61 @@ class Sync_sale_order extends CI_Controller
                 'Message' => $temp->Message
               );
 
-              $this->update($ds->code, $arr);
+              $this->sales_order_model->update($ds->code, $arr);
+
+              $logs = array(
+                'code' => $ds->code,
+                'sync_code' => 'SO',
+                'DocNum' => NULL,
+                'status' => 3,
+                'message' => $temp->Message
+              );
+
+              $this->sync_data_model->add_logs($logs);
+            }
+
+            if($temp->F_Sap === NULL)
+            {
+              $logs = array(
+                'code' => $ds->code,
+                'sync_code' => 'SO',
+                'DocNum' => NULL,
+                'status' => 2,
+                'message' => 'Pending'
+              );
+
+              $this->sync_data_model->add_logs($logs);
             }
           }
+        }
+        else
+        {
+          $logs = array(
+            'code' => $ds->code,
+            'sync_code' => 'SO',
+            'DocNum' => NULL,
+            'status' => 3,
+            'message' => 'Order not in temp'
+          );
+
+          $this->sync_data_model->add_logs($logs);
         } //--- end temp
+
       } //--- endforeach
     }
-
-
-    //---- add logs
-    $logs = array(
-      'sync_item' => 'SO',
-      'get_item' => $count,
-      'update_item' => $update
-    );
-
-    //--- add logs
-    $this->sync_data_model->add_logs($logs);
-  }
-
-
-  private function getSyncList()
-  {
-    $rs = $this->db
-    ->select('code')
-    ->where_in('Status', array(1, 3, 4))
-    ->order_by('code', 'ASC')
-    ->limit($this->limit)
-    ->get('sales_order');
-
-    if($rs->num_rows() > 0)
+    else
     {
-      return $rs->result();
+      $arr = array(
+        'code' => 'Sync',
+        'sync_code' => 'SO',
+        'DocNum' => NULL,
+        'status' => 0,
+        'message' => 'No Document to Sync'
+      );
+
+      $this->sync_data_model->add_logs($arr);
     }
-
-    return NULL;
   }
-
-
-  private function get_temp_status($code)
-  {
-    $rs = $this->mc->select('F_Sap, F_SapDate, Message')->where('U_WEBORDER', $code)->get('ORDR');
-    if($rs->num_rows() > 0)
-    {
-      return $rs->row();
-    }
-
-    return NULL;
-  }
-
-
-  private function get_sap_doc_num($code)
-  {
-    $rs = $this->ms
-    ->select('DocNum')
-    ->where('U_WEBORDER', $code)
-    ->get('ORDR');
-
-    if($rs->num_rows() > 0)
-    {
-      return $rs->row()->DocNum;
-    }
-
-    return NULL;
-  }
-
-  private function get_sap_draft_code($code)
-  {
-    $rs = $this->ms
-    ->select('DocNum')
-    ->where('ObjType', 17)
-    ->where('U_WEBORDER', $code)
-    ->get('ODRF');
-
-    if($rs->num_rows() > 0)
-    {
-      return $rs->row()->DocNum;
-    }
-
-    return NULL;
-  }
-
-
-  private function update($code, array $ds = array())
-  {
-    return $this->db->where('code', $code)->update('sales_order', $ds);
-  }
-
-
 
 
 } //--- end class

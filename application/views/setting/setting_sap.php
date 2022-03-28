@@ -1,5 +1,3 @@
-
-<div class="tab-pane fade" id="SAP">
 	<form id="sapForm" method="post" action="<?php echo $this->home; ?>/update_config">
   	<div class="row">
     	<div class="col-sm-4">
@@ -144,4 +142,3 @@
 			}
 		});
 	</script>
-</div>

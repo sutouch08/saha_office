@@ -6,9 +6,9 @@
 </style>
 <div class="row">
 	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-4 padding-5">
-    <h3 class="title">
+    <h4 class="title">
       <?php echo $this->title; ?>
-    </h3>
+    </h4>
   </div>
   <div class="col-lg-6 col-md-6 col-sm-6 col-xs-8 padding-5">
   	<p class="pull-right top-p">
@@ -21,17 +21,17 @@
 <hr class="padding-5"/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-lg-1 col-md-2 col-sm-2 col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label class="search-label">เลขที่</label>
     <input type="text" class="form-control input-sm text-center search-box" name="code" value="<?php echo $code; ?>" />
   </div>
 
-	<div class="col-lg-1 col-md-2 col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label class="search-label">SO No.</label>
     <input type="text" class="form-control input-sm text-center search-box" name="orderCode" value="<?php echo $orderCode; ?>" />
   </div>
 
-  <div class="col-lg-1 col-md-2 col-sm-2 col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label class="search-label">Pick List No.</label>
     <input type="text" class="form-control input-sm text-center search-box" name="pickCode" value="<?php echo $pickCode; ?>" />
   </div>
@@ -47,7 +47,7 @@
     <input type="text" class="form-control input-sm text-center search-box" name="uname" value="<?php echo $uname; ?>" />
   </div>
 
-	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1 col-md-2 col-sm-2 col-xs-6 padding-5">
     <label class="search-label">สถานะ</label>
     <select class="form-control input-sm" name="Status" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -67,13 +67,11 @@
 		</div>
 	</div>
 
-	<div class="col-xs-12 visible-xs"></div>
-
-  <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
     <label class="search-label display-block not-show">buton</label>
     <button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
   </div>
-	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
     <label class="search-label display-block not-show">buton</label>
     <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
   </div>
@@ -104,6 +102,7 @@
 					<th style="width:110px;" class="middle text-center sorting <?php echo $sort_code; ?>" id="sort_code" onclick="sort('code')">เลขที่</th>
           <th style="width:100px;" class="middle text-center sorting <?php echo $sort_orderCode; ?>" id="sort_orderCode" onclick="sort('orderCode')">SO No.</th>
           <th style="width:110px;" class="middle text-center sorting <?php echo $sort_pickCode; ?>" id="sort_pickCode" onclick="sort('pickCode')">Pick List No.</th>
+					<th style="width:80px;" class="middle text-center">Pallet No.</th>
           <th style="min-width:150px;" class="middle sorting <?php echo $sort_CardName; ?>" id="sort_CardName" onclick="sort('CardName')">ลูกค้า</th>
 					<th style="width:150px;" class="middle sorting <?php echo $sort_uname; ?>" id="sort_uname" onclick="sort('uname')">User</th>
 					<th style="width:100px;" class="middle text-center sorting <?php echo $sort_Status; ?>" id="sort_Status" onclick="sort('Status')">สถานะ</th>
@@ -121,6 +120,7 @@
 						<td class="middle text-center"><?php echo $rs->code; ?></td>
             <td class="middle text-center"><?php echo $rs->orderCode; ?></td>
             <td class="middle text-center"><?php echo $rs->pickCode; ?></td>
+						<td class="middle text-center"><?php echo $rs->palletNo; ?></td>
             <td class="middle" style="white-space:pre-wrap;"><?php echo $rs->CardName; ?></td>
 						<td class="middle"><?php echo $rs->uname; ?></td>
 						<td class="middle text-center">

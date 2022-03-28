@@ -901,7 +901,7 @@ class Picking extends PS_Controller
 					else
 					{
 						$sc = FALSE;
-						$this->error = "สินค้าไม่ถูกต้อง";
+						$this->error = "สินค้าไม่ตรงกับ SO";
 					}
 				}
 			}
@@ -956,7 +956,7 @@ class Picking extends PS_Controller
 					if(! empty($detail))
 					{
 						$orderCode = $detail->OrderCode;
-						
+
 						//---- ตัวคูณ หน่วยนับที่ยิงมา
 						$baseQty = $this->item_model->get_base_qty($ItemCode, $UomEntry);
 
@@ -1155,6 +1155,164 @@ class Picking extends PS_Controller
 
 		echo $sc === TRUE ? json_encode($ds) : $this->error;
 	}
+
+
+
+
+	//----- ดึงรายการที่ pick ไปแล้ว เพื่อไปแก้ไข
+	public function get_picking_details()
+	{
+		$sc = TRUE;
+		$data = array();
+
+		$id = $this->input->post('pick_detail_id');
+
+		$ds = $this->picking_model->get_detail($id);
+
+		if(!empty($ds))
+		{
+			//--- get picking details
+			$details = $this->picking_model->get_prepare($ds->AbsEntry, $ds->OrderCode, $ds->ItemCode, $ds->UomEntry);
+
+			if(!empty($details))
+			{
+				$this->load->model('zone_model');
+
+				foreach($details as $rs)
+				{
+					$arr = array(
+						'id' => $rs->id,
+						'OrderCode' => $rs->OrderCode,
+						'ItemCode' => $rs->ItemCode,
+						'ItemName' => $rs->ItemName,
+						'unitMsr' => $rs->unitMsr,
+						'Qty' => round($rs->Qty, 2),
+						'QtyLabel' => number($rs->Qty, 2),
+						'BinCode' => $this->zone_model->getName($rs->BinCode)
+					);
+
+					array_push($data, $arr);
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "No item found";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "ไม่พบรายการ";
+		}
+
+		echo $sc === TRUE ? json_encode($data) : $this->error;
+	}
+
+
+
+	public function update_picking_qty()
+	{
+		$sc = TRUE;
+
+		$pick_detail_id = $this->input->post('pick_detail_id');
+		$picking_id = $this->input->post('picking_id');
+		$qty = $this->input->post('qty');
+
+		//--- picking detail
+		$ds = $this->picking_model->get_prepare_by_id($picking_id);
+
+		if(!empty($ds))
+		{
+			$limit = $ds->Qty;
+
+			if( $qty <= 0 OR $qty > $limit )
+			{
+				$sc = FALSE;
+				$this->error = "จำนวนต้องมากกว่า 0 หรือต้องไม่มากกว่ายอดที่จัดไปแล้ว";
+			}
+
+			if($sc === TRUE)
+			{
+				$this->load->model('buffer_model');
+				$buffer = $this->picking_model->get_unique_buffer($ds->AbsEntry, $ds->OrderCode, $ds->ItemCode, $ds->BinCode, $ds->UomEntry);
+
+				$InvQty = ($qty * $ds->BaseQty) * -1;
+				$Qty = $qty * -1;
+
+				$this->db->trans_begin();
+				//--- ถ้าจำนวนเท่ากับที่เคยจัดไป ลบรายการจัดออกได้เลย
+				if($qty == $limit)
+				{
+					//--- delete buffer
+					if(!empty($buffer))
+					{
+						if(! $this->buffer_model->delete($buffer->id))
+						{
+							$sc = FALSE;
+							$this->error = "ลบ Buffer ไม่สำเร็จ";
+						}
+					}
+
+					//--- delete picking detail
+					if(! $this->picking_model->delete_prepare($ds->id))
+					{
+						$sc = FALSE;
+						$this->error = "ลบรายการจัดไม่สำเร็จ";
+					}
+				}
+				else
+				{
+					//--- update buffer
+					if(! $this->picking_model->update_buffer_qty($buffer->id, $Qty, $InvQty))
+					{
+						$sc = FALSE;
+						$this->error = "แก้ไขจำนวนใน Buffer ไม่สำเร็จ";
+					}
+
+					if($sc === TRUE)
+					{
+						//---- update picking detail
+						if(! $this->picking_model->update_prepare_qty($ds->id, $Qty, $InvQty))
+						{
+							$sc = FALSE;
+							$this->error = "แก้ไขยอดจัดไม่สำเร็จ";
+						}
+					}
+				}
+
+
+				if($sc === TRUE)
+				{
+					//--- update pick detail
+					if(! $this->picking_model->update_picked_qty($pick_detail_id, $Qty, $InvQty))
+					{
+						$sc = FALSE;
+						$this->error = "แก้ไขยอดจัดรวมไม่สำเร็จ";
+					}
+				}
+
+
+				if($sc === TRUE)
+				{
+					$this->db->trans_commit();
+				}
+				else
+				{
+					$this->db->trans_rollback();
+				}
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "ไม่พบรายการ";
+		}
+
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
+
 
 
 

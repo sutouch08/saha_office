@@ -85,12 +85,14 @@
   <input type="hidden" id="vat_code" value="<?php echo getConfig('SALE_VAT_CODE'); //--- default sale vat code?>" />
   <input type="hidden" id="user_sale_name" value="<?php echo $sale_name; ?>" />
   <input type="hidden" id="user_sale_id" value="<?php echo $this->user->sale_id; ?>" />
+  <input type="hidden" id="is_draft" value="0">
   <div class="divider-hidden"></div>
   <div class="divider-hidden"></div>
   <div class="divider-hidden"></div>
 
   <div class="col-sm-12 col-xs-12 padding-5">
-    <button type="button" class="btn btn-sm btn-primary" onclick="saveAdd()">Add</button>
+    <button type="button" class="btn btn-sm btn-primary" onclick="saveAdd()">Save</button>
     <button type="button" class="btn btn-sm btn-warning" onclick="leave()">Cancel</button>
+    <button type="button" class="btn btn-sm btn-info" onclick="saveAsDraft()">Save AS Draft</button>
   </div>
 </div>

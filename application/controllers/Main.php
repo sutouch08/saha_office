@@ -17,7 +17,7 @@ class Main extends PS_Controller
 
 
 	public function index()
-	{
+	{		
 		$this->load->view('main_view');
 	}
 
