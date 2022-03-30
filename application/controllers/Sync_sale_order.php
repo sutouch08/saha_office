@@ -58,6 +58,13 @@ class Sync_sale_order extends CI_Controller
             }
             else
             {
+              $arr = array(
+                'Status' => 3, //--- error
+                'Message' => 'Mark as success in Temp But not found in SAP'
+              );
+
+              $this->sales_order_model->update($ds->code, $arr);
+
               $logs = array(
                 'code' => $ds->code,
                 'sync_code' => 'SO',

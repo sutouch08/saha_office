@@ -9,6 +9,18 @@ $('#barcode-item').keyup(function(e) {
 })
 
 
+$('#qty').focus(function() {
+  $(this).select();
+});
+
+
+$('#qty').keyup(function(e) {
+  if(e.keyCode === 13) {
+    $('#barcode-item').focus();
+  }
+});
+
+
 function setBox(id) {
 
   let pallet_id = $('#pallet_id').val();
@@ -413,9 +425,9 @@ function finish_pack() {
             timer:1000
           });
 
-          setTimeout(function() {
-            goBack();
-          }, 1200);
+          $('#btn-finish').attr('disabled', 'disabled');
+          $('#barcode-item').attr('disabled', 'disabled');
+          $('#btn-item').attr('disabled', 'disabled');
         }
         else {
           swal({

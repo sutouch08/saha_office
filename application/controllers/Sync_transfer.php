@@ -55,6 +55,13 @@ class Sync_transfer extends CI_Controller
             }
             else
             {
+              $arr = array(
+                'Status' => 'F', //--- error
+                'message' => "Mark as success in Temp But not found in SAP"
+              );
+
+              $this->transfer_model->update_by_code($ds->code, $arr);
+
               $logs = array(
                 'code' => $ds->code,
                 'sync_code' => 'TR',
@@ -119,18 +126,15 @@ class Sync_transfer extends CI_Controller
     }
     else
     {
-      else
-      {
-        $arr = array(
-          'code' => 'Sync',
-          'sync_code' => 'TR',
-          'DocNum' => NULL,
-          'status' => 0,
-          'message' => 'No Document to Sync'
-        );
+      $arr = array(
+        'code' => 'Sync',
+        'sync_code' => 'TR',
+        'DocNum' => NULL,
+        'status' => 0,
+        'message' => 'No Document to Sync'
+      );
 
-        $this->sync_data_model->add_logs($arr);
-      }
+      $this->sync_data_model->add_logs($arr);
     }
 
   }

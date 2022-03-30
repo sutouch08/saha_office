@@ -7,6 +7,23 @@ class Picking_model extends CI_Model
   }
 
 
+  public function get_order_code($absEntry, $itemCode)
+  {
+    $rs = $this->db
+    ->select('OrderCode')
+    ->where('AbsEntry', $absEntry)
+    ->where('ItemCode', $itemCode)
+    ->get('pick_details');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->OrderCode;
+    }
+
+    return NULL;
+  }
+
+
   public function get_details($absEntry)
   {
     $rs = $this->db->where('AbsEntry', $absEntry)->get('pick_details');

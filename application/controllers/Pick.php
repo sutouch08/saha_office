@@ -895,7 +895,7 @@ class Pick extends PS_Controller
 		$fromDate = $this->input->get('fromDate');
 		$toDate = $this->input->get('toDate');
 
-		$qr  = "SELECT DocEntry, DocNum, CardCode, CardName, DocDate ";
+		$qr  = "SELECT DocEntry, DocNum, CardCode, CardName, DocDate, Address2, Comments ";
 		$qr .= "FROM ORDR ";
 		$qr .= "WHERE DocStatus = 'O' ";
 
@@ -928,7 +928,9 @@ class Pick extends PS_Controller
 					'DocNum' => $rd->DocNum,
 					'CardCode' => $rd->CardCode,
 					'CardName' => $rd->CardName,
-					'DocDate' => thai_date($rd->DocDate, FALSE, '.')
+					'DocDate' => thai_date($rd->DocDate, FALSE, '.'),
+					'ShipTo' => escape_quot($rd->Address2),
+					'remark' => escape_quot($rd->Comments)
 				);
 
 				array_push($ds, $arr);

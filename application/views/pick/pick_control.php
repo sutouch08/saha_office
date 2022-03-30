@@ -76,19 +76,21 @@
 
 
 <script id="order-template" type="text/x-handlebarsTemplate">
-  <table class="table table-striped border-1" style="margin-bottom:5px; min-width:800px;">
+  <table class="table table-striped border-1" style="margin-bottom:5px; min-width:1000px;">
     <tbody>
       <tr>
-      <td class="width-10 middle text-center">
+      <td class="middle text-center" style="width:25px;">
         <label>
           <input type="checkbox" class="ace" id="check-order-all" onchange="checkAllOrder()">
           <span class="lbl"></span>
         </label>
       </td>
-      <td class="width-15">SO No.</td>
-      <td class="width-15">รหัสลูกค้า</td>
-      <td class="width-40">ชื่อลูกค้า</td>
-      <td class="width-10">วันที่</td>
+      <td style="width:90px;">SO No.</td>
+      <td style="width:100px;">รหัสลูกค้า</td>
+      <td style="min-width:250px;">ชื่อลูกค้า</td>
+      <td style="width:100px;">วันที่</td>
+      <td style="min-width:250px;">Ship to</td>
+      <td style="">Remark</td>
       </tr>
       {{#each this}}
         <tr>
@@ -102,6 +104,8 @@
           <td class="middle">{{CardCode}}</td>
           <td class="middle">{{CardName}}</td>
           <td class="middle">{{DocDate}}</td>
+          <td class="middle">{{ShipTo}}</td>
+          <td class="middle">{{remark}}</td>
       {{/each}}
     </tbody>
   </table>

@@ -144,15 +144,6 @@ class Packing extends PS_Controller
 
 				$box_list = $this->packing_model->get_box_list($doc->code);
 
-				// if(empty($box_list))
-				// {
-				// 	if($this->packing_model->add_new_box($doc->code, 1, 1))
-				// 	{
-				// 		$box_list = $this->packing_model->get_box_list($doc->code);
-				// 	}
-				// }
-
-
 				$ds = array(
 					'doc' => $doc,
 					'rows' => $rows,

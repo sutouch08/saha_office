@@ -202,317 +202,137 @@ class Picking extends PS_Controller
 
 			if(! empty($item))
 			{
-				$detail = $this->picking_model->get_detail_by_item_uom($absEntry, $orderCode, $item->ItemCode, $item->UomEntry);
+				$orderCode = empty($orderCode) ? $this->picking_model->get_order_code($absEntry, $item->ItemCode) : $orderCode;
 
-				//--- ถ้ามีแสดงว่า หน่วยนับตรงกัน
-				if(! empty($detail))
+				if(! empty($orderCode))
 				{
-					//---- ตัวคูณ หน่วยนับที่ยิงมา
-					$baseQty = $this->item_model->get_base_qty($item->ItemCode, $item->UomEntry);
+					$detail = $this->picking_model->get_detail_by_item_uom($absEntry, $orderCode, $item->ItemCode, $item->UomEntry);
 
-					//--- แปลงเป็น หน่วยนับย่อย
-					$invQty = $qty * $baseQty;
-
-					//--- ตรวจสอบว่า ยอดที่ยิงมา มากกว่า ยอดคงเหลือในรายการจัดหรือไม่
-					$remain = $detail->BaseRelQty - $detail->BasePickQty;
-
-					if($remain >= $invQty)
-					{
-						//--- ตรวจสอบสต็อกในโซน พอจัดมั้ย
-						$stock = $this->get_stock_zone($item->ItemCode, $binCode);
-
-						//--- ถ้ามีสต็อกพอ จัดได้
-						if($stock >= $invQty)
-						{
-							//----- แปลงจำนวนจากหน่วยย่อยไปเป็นหน่วยที่สั่งจัด
-							$pickQty = $invQty/$detail->BaseQty;
-
-							$picked = $detail->PickQtty + $pickQty;
-							$balance = $detail->RelQtty - $picked;
-
-							$this->db->trans_begin();
-
-							if(! $this->picking_model->update_picked_qty($detail->id, $pickQty, $invQty))
-							{
-								$sc = FALSE;
-								$this->error = "Update Pick Detail failed";
-							}
-
-							if($sc === TRUE)
-							{
-								$buffer = $this->picking_model->get_unique_buffer($absEntry, $orderCode, $detail->ItemCode, $binCode, $detail->UomEntry);
-
-								if(!empty($buffer))
-								{
-									if(! $this->picking_model->update_buffer_qty($buffer->id, $pickQty, $invQty))
-									{
-										$sc = FALSE;
-										$this->error = "Update Buffer failed";
-									}
-								}
-								else
-								{
-									$arr = array(
-										'AbsEntry' => $absEntry,
-										'DocNum' => $docNum,
-										'OrderCode' => $orderCode,
-										'ItemCode' => $detail->ItemCode,
-										'ItemName' => $detail->ItemName,
-										'UomEntry' => $detail->UomEntry,
-										'UomCode' => $detail->UomCode,
-										'unitMsr' => $detail->unitMsr,
-										'BaseQty' => $detail->BaseQty,
-										'Qty' => $pickQty,
-										'BasePickQty' => $invQty,
-										'BinCode' => $binCode,
-										'user_id' => $this->user->id,
-										'uname' => $this->user->uname
-									);
-
-									if(! $this->picking_model->add_buffer($arr))
-									{
-										$sc = FALSE;
-										$this->error = "Add Buffer failed";
-									}
-								}
-							}
-
-
-							if($sc === TRUE)
-							{
-								$prepare = $this->picking_model->get_unique_prepare($absEntry, $orderCode, $detail->ItemCode, $binCode, $detail->UomEntry);
-
-								if(!empty($prepare))
-								{
-									if(! $this->picking_model->update_prepare_qty($prepare->id, $pickQty, $invQty))
-									{
-										$sc = FALSE;
-										$this->error = "Update picking detail failed";
-									}
-								}
-								else
-								{
-									$arr = array(
-										'AbsEntry' => $absEntry,
-										'DocNum' => $docNum,
-										'OrderCode' => $orderCode,
-										'ItemCode' => $detail->ItemCode,
-										'ItemName' => $detail->ItemName,
-										'UomEntry' => $detail->UomEntry,
-										'UomCode' => $detail->UomCode,
-										'unitMsr' => $detail->unitMsr,
-										'BaseQty' => $detail->BaseQty,
-										'Qty' => $pickQty,
-										'BasePickQty' => $invQty,
-										'BinCode' => $binCode,
-										'user_id' => $this->user->id,
-										'uname' => $this->user->uname
-									);
-
-									if(! $this->picking_model->add_prepare($arr))
-									{
-										$sc = FALSE;
-										$this->error = "Add Picking detail failed";
-									}
-								}
-							}
-
-
-							if($sc === TRUE)
-							{
-								$this->db->trans_commit();
-
-								$arr = array(
-									'id' => $detail->id,
-									'picked' => round($picked, 2),
-									'balance' => round($balance, 2)
-								);
-
-								array_push($ds, $arr);
-							}
-							else
-							{
-								$this->db->trans_rollback();
-							}
-						}
-						else
-						{
-							$sc = FALSE;
-							$this->error = "สินค้าใน Location ที่กำหนดไม่เพียงพอ กรุณากำหนดจำนวนสินค้าใหม่";
-						}
-					}
-					else
-					{
-						$sc = FALSE;
-						$this->error = "จำนวนสินค้าเกิน กรุณาคืนสินค้าแล้วจัดสินค้าใหม่อีกครั้ง";
-					}
-				}
-				else
-				{
-					//---- กรณีหน่วนนับไม่ตรงกับในรายการ
-					//---- ดึงรายการที่หน่วยนับ ไม่ตรงกับที่ยิงมา
-					$details = $this->picking_model->get_details_by_item_other_uom($absEntry, $orderCode, $item->ItemCode, $item->UomEntry);
-
-					if(!empty($details))
+					//--- ถ้ามีแสดงว่า หน่วยนับตรงกัน
+					if(! empty($detail))
 					{
 						//---- ตัวคูณ หน่วยนับที่ยิงมา
 						$baseQty = $this->item_model->get_base_qty($item->ItemCode, $item->UomEntry);
 
-						//--- ถ้าไม่มี แปลงเป็น หน่วยนับย่อย
-						$bcQty = $qty * $baseQty;
+						//--- แปลงเป็น หน่วยนับย่อย
+						$invQty = $qty * $baseQty;
 
-						$testQty = $bcQty;
+						//--- ตรวจสอบว่า ยอดที่ยิงมา มากกว่า ยอดคงเหลือในรายการจัดหรือไม่
+						$remain = $detail->BaseRelQty - $detail->BasePickQty;
 
-						//---- ทดสอบว่ายอดที่ยิงมามัันเกินที่เหลือมั้ย
-						foreach($details as $detail)
-						{
-							//--- ตรวจสอบว่า ยอดที่ยิงมา มากกว่า ยอดคงเหลือในรายการจัดหรือไม่
-							$remain = $detail->BaseRelQty - $detail->BasePickQty;
-
-							$pickQty = $testQty <= $remain ? $testQty : $remain;
-							$testQty -= $pickQty;
-						}
-
-						if($testQty > 0)
-						{
-							$sc = FALSE;
-							$this->error = "จำนวนสินค้าเกิน กรุณาคืนสินค้าแล้วจัดสินค้าใหม่อีกครั้ง";
-						}
-						else
+						if($remain >= $invQty)
 						{
 							//--- ตรวจสอบสต็อกในโซน พอจัดมั้ย
 							$stock = $this->get_stock_zone($item->ItemCode, $binCode);
 
 							//--- ถ้ามีสต็อกพอ จัดได้
-							if($stock >= $bcQty)
+							if($stock >= $invQty)
 							{
+								//----- แปลงจำนวนจากหน่วยย่อยไปเป็นหน่วยที่สั่งจัด
+								$pickQty = $invQty/$detail->BaseQty;
+
+								$picked = $detail->PickQtty + $pickQty;
+								$balance = $detail->RelQtty - $picked;
 
 								$this->db->trans_begin();
 
-								//--- วนเพื่อจัดจริง
-								foreach($details as $detail)
+								if(! $this->picking_model->update_picked_qty($detail->id, $pickQty, $invQty))
 								{
-									if($sc === FALSE)
+									$sc = FALSE;
+									$this->error = "Update Pick Detail failed";
+								}
+
+								if($sc === TRUE)
+								{
+									$buffer = $this->picking_model->get_unique_buffer($absEntry, $orderCode, $detail->ItemCode, $binCode, $detail->UomEntry);
+
+									if(!empty($buffer))
 									{
-										break;
-									}
-
-									if($bcQty > 0)
-									{
-										//--- ตรวจสอบว่า ยอดที่ยิงมา มากกว่า ยอดคงเหลือในรายการจัดหรือไม่
-										$remain = $detail->BaseRelQty - $detail->BasePickQty;
-
-										$invQty = $bcQty <= $remain ? $bcQty : $remain;
-
-										$pickQty = $invQty / $detail->BaseQty;
-
-										$picked = $detail->PickQtty + $pickQty;
-										$balance = $detail->RelQtty - $picked;
-
-										if(! $this->picking_model->update_picked_qty($detail->id, $pickQty, $invQty))
+										if(! $this->picking_model->update_buffer_qty($buffer->id, $pickQty, $invQty))
 										{
 											$sc = FALSE;
-											$this->error = "Update Pick Detail failed";
+											$this->error = "Update Buffer failed";
 										}
+									}
+									else
+									{
+										$arr = array(
+											'AbsEntry' => $absEntry,
+											'DocNum' => $docNum,
+											'OrderCode' => $orderCode,
+											'ItemCode' => $detail->ItemCode,
+											'ItemName' => $detail->ItemName,
+											'UomEntry' => $detail->UomEntry,
+											'UomCode' => $detail->UomCode,
+											'unitMsr' => $detail->unitMsr,
+											'BaseQty' => $detail->BaseQty,
+											'Qty' => $pickQty,
+											'BasePickQty' => $invQty,
+											'BinCode' => $binCode,
+											'user_id' => $this->user->id,
+											'uname' => $this->user->uname
+										);
 
-										if($sc === TRUE)
+										if(! $this->picking_model->add_buffer($arr))
 										{
-											$buffer = $this->picking_model->get_unique_buffer($absEntry, $orderCode, $detail->ItemCode, $binCode, $detail->UomEntry);
-
-											if(!empty($buffer))
-											{
-												if(! $this->picking_model->update_buffer_qty($buffer->id, $pickQty, $invQty))
-												{
-													$sc = FALSE;
-													$this->error = "Update Buffer failed";
-												}
-											}
-											else
-											{
-												$arr = array(
-													'AbsEntry' => $absEntry,
-													'DocNum' => $docNum,
-													'OrderCode' => $orderCode,
-													'ItemCode' => $detail->ItemCode,
-													'ItemName' => $detail->ItemName,
-													'UomEntry' => $detail->UomEntry,
-													'UomCode' => $detail->UomCode,
-													'unitMsr' => $detail->unitMsr,
-													'BaseQty' => $detail->BaseQty,
-													'Qty' => $pickQty,
-													'BasePickQty' => $invQty,
-													'BinCode' => $binCode,
-													'user_id' => $this->user->id,
-													'uname' => $this->user->uname
-												);
-
-												if(! $this->picking_model->add_buffer($arr))
-												{
-													$sc = FALSE;
-													$this->error = "Add Buffer failed";
-												}
-											}
+											$sc = FALSE;
+											$this->error = "Add Buffer failed";
 										}
+									}
+								}
 
 
-										if($sc === TRUE)
+								if($sc === TRUE)
+								{
+									$prepare = $this->picking_model->get_unique_prepare($absEntry, $orderCode, $detail->ItemCode, $binCode, $detail->UomEntry);
+
+									if(!empty($prepare))
+									{
+										if(! $this->picking_model->update_prepare_qty($prepare->id, $pickQty, $invQty))
 										{
-											$prepare = $this->picking_model->get_unique_prepare($absEntry, $orderCode, $detail->ItemCode, $binCode, $detail->UomEntry);
-
-											if(!empty($prepare))
-											{
-												if(! $this->picking_model->update_prepare_qty($prepare->id, $pickQty, $invQty))
-												{
-													$sc = FALSE;
-													$this->error = "Update picking detail failed";
-												}
-											}
-											else
-											{
-												$arr = array(
-													'AbsEntry' => $absEntry,
-													'DocNum' => $docNum,
-													'OrderCode' => $orderCode,
-													'ItemCode' => $detail->ItemCode,
-													'ItemName' => $detail->ItemName,
-													'UomEntry' => $detail->UomEntry,
-													'UomCode' => $detail->UomCode,
-													'unitMsr' => $detail->unitMsr,
-													'BaseQty' => $detail->BaseQty,
-													'Qty' => $pickQty,
-													'BasePickQty' => $invQty,
-													'BinCode' => $binCode,
-													'user_id' => $this->user->id,
-													'uname' => $this->user->uname
-												);
-
-												if(! $this->picking_model->add_prepare($arr))
-												{
-													$sc = FALSE;
-													$this->error = "Add Picking detail failed";
-												}
-											}
+											$sc = FALSE;
+											$this->error = "Update picking detail failed";
 										}
+									}
+									else
+									{
+										$arr = array(
+											'AbsEntry' => $absEntry,
+											'DocNum' => $docNum,
+											'OrderCode' => $orderCode,
+											'ItemCode' => $detail->ItemCode,
+											'ItemName' => $detail->ItemName,
+											'UomEntry' => $detail->UomEntry,
+											'UomCode' => $detail->UomCode,
+											'unitMsr' => $detail->unitMsr,
+											'BaseQty' => $detail->BaseQty,
+											'Qty' => $pickQty,
+											'BasePickQty' => $invQty,
+											'BinCode' => $binCode,
+											'user_id' => $this->user->id,
+											'uname' => $this->user->uname
+										);
 
-										if($sc === TRUE)
+										if(! $this->picking_model->add_prepare($arr))
 										{
-											$arr = array(
-												'id' => $detail->id,
-												'picked' => round($picked,2),
-												'balance' => round($balance, 2)
-											);
-
-											array_push($ds, $arr);
+											$sc = FALSE;
+											$this->error = "Add Picking detail failed";
 										}
+									}
+								}
 
-										$bcQty -= $invQty;
-
-									} //--- end if
-								} //--- end foreach
 
 								if($sc === TRUE)
 								{
 									$this->db->trans_commit();
+
+									$arr = array(
+										'id' => $detail->id,
+										'picked' => round($picked, 2),
+										'balance' => round($balance, 2)
+									);
+
+									array_push($ds, $arr);
 								}
 								else
 								{
@@ -522,15 +342,205 @@ class Picking extends PS_Controller
 							else
 							{
 								$sc = FALSE;
-								$this->error = "สินค้าใน Location ไม่เพียงพอ กรุณากำหนดจำนวนสินค้าใหม่";
+								$this->error = "สินค้าใน Location ที่กำหนดไม่เพียงพอ กรุณากำหนดจำนวนสินค้าใหม่";
 							}
+						}
+						else
+						{
+							$sc = FALSE;
+							$this->error = "จำนวนสินค้าเกิน กรุณาคืนสินค้าแล้วจัดสินค้าใหม่อีกครั้ง";
 						}
 					}
 					else
 					{
-						$sc = FALSE;
-						$this->error = "สินค้าไม่ถูกต้อง";
+						//---- กรณีหน่วนนับไม่ตรงกับในรายการ
+						//---- ดึงรายการที่หน่วยนับ ไม่ตรงกับที่ยิงมา
+						$details = $this->picking_model->get_details_by_item_other_uom($absEntry, $orderCode, $item->ItemCode, $item->UomEntry);
+
+						if(!empty($details))
+						{
+							//---- ตัวคูณ หน่วยนับที่ยิงมา
+							$baseQty = $this->item_model->get_base_qty($item->ItemCode, $item->UomEntry);
+
+							//--- ถ้าไม่มี แปลงเป็น หน่วยนับย่อย
+							$bcQty = $qty * $baseQty;
+
+							$testQty = $bcQty;
+
+							//---- ทดสอบว่ายอดที่ยิงมามัันเกินที่เหลือมั้ย
+							foreach($details as $detail)
+							{
+								//--- ตรวจสอบว่า ยอดที่ยิงมา มากกว่า ยอดคงเหลือในรายการจัดหรือไม่
+								$remain = $detail->BaseRelQty - $detail->BasePickQty;
+
+								$pickQty = $testQty <= $remain ? $testQty : $remain;
+								$testQty -= $pickQty;
+							}
+
+							if($testQty > 0)
+							{
+								$sc = FALSE;
+								$this->error = "จำนวนสินค้าเกิน กรุณาคืนสินค้าแล้วจัดสินค้าใหม่อีกครั้ง";
+							}
+							else
+							{
+								//--- ตรวจสอบสต็อกในโซน พอจัดมั้ย
+								$stock = $this->get_stock_zone($item->ItemCode, $binCode);
+
+								//--- ถ้ามีสต็อกพอ จัดได้
+								if($stock >= $bcQty)
+								{
+
+									$this->db->trans_begin();
+
+									//--- วนเพื่อจัดจริง
+									foreach($details as $detail)
+									{
+										if($sc === FALSE)
+										{
+											break;
+										}
+
+										if($bcQty > 0)
+										{
+											//--- ตรวจสอบว่า ยอดที่ยิงมา มากกว่า ยอดคงเหลือในรายการจัดหรือไม่
+											$remain = $detail->BaseRelQty - $detail->BasePickQty;
+
+											$invQty = $bcQty <= $remain ? $bcQty : $remain;
+
+											$pickQty = $invQty / $detail->BaseQty;
+
+											$picked = $detail->PickQtty + $pickQty;
+											$balance = $detail->RelQtty - $picked;
+
+											if(! $this->picking_model->update_picked_qty($detail->id, $pickQty, $invQty))
+											{
+												$sc = FALSE;
+												$this->error = "Update Pick Detail failed";
+											}
+
+											if($sc === TRUE)
+											{
+												$buffer = $this->picking_model->get_unique_buffer($absEntry, $orderCode, $detail->ItemCode, $binCode, $detail->UomEntry);
+
+												if(!empty($buffer))
+												{
+													if(! $this->picking_model->update_buffer_qty($buffer->id, $pickQty, $invQty))
+													{
+														$sc = FALSE;
+														$this->error = "Update Buffer failed";
+													}
+												}
+												else
+												{
+													$arr = array(
+														'AbsEntry' => $absEntry,
+														'DocNum' => $docNum,
+														'OrderCode' => $orderCode,
+														'ItemCode' => $detail->ItemCode,
+														'ItemName' => $detail->ItemName,
+														'UomEntry' => $detail->UomEntry,
+														'UomCode' => $detail->UomCode,
+														'unitMsr' => $detail->unitMsr,
+														'BaseQty' => $detail->BaseQty,
+														'Qty' => $pickQty,
+														'BasePickQty' => $invQty,
+														'BinCode' => $binCode,
+														'user_id' => $this->user->id,
+														'uname' => $this->user->uname
+													);
+
+													if(! $this->picking_model->add_buffer($arr))
+													{
+														$sc = FALSE;
+														$this->error = "Add Buffer failed";
+													}
+												}
+											}
+
+
+											if($sc === TRUE)
+											{
+												$prepare = $this->picking_model->get_unique_prepare($absEntry, $orderCode, $detail->ItemCode, $binCode, $detail->UomEntry);
+
+												if(!empty($prepare))
+												{
+													if(! $this->picking_model->update_prepare_qty($prepare->id, $pickQty, $invQty))
+													{
+														$sc = FALSE;
+														$this->error = "Update picking detail failed";
+													}
+												}
+												else
+												{
+													$arr = array(
+														'AbsEntry' => $absEntry,
+														'DocNum' => $docNum,
+														'OrderCode' => $orderCode,
+														'ItemCode' => $detail->ItemCode,
+														'ItemName' => $detail->ItemName,
+														'UomEntry' => $detail->UomEntry,
+														'UomCode' => $detail->UomCode,
+														'unitMsr' => $detail->unitMsr,
+														'BaseQty' => $detail->BaseQty,
+														'Qty' => $pickQty,
+														'BasePickQty' => $invQty,
+														'BinCode' => $binCode,
+														'user_id' => $this->user->id,
+														'uname' => $this->user->uname
+													);
+
+													if(! $this->picking_model->add_prepare($arr))
+													{
+														$sc = FALSE;
+														$this->error = "Add Picking detail failed";
+													}
+												}
+											}
+
+											if($sc === TRUE)
+											{
+												$arr = array(
+													'id' => $detail->id,
+													'picked' => round($picked,2),
+													'balance' => round($balance, 2)
+												);
+
+												array_push($ds, $arr);
+											}
+
+											$bcQty -= $invQty;
+
+										} //--- end if
+									} //--- end foreach
+
+									if($sc === TRUE)
+									{
+										$this->db->trans_commit();
+									}
+									else
+									{
+										$this->db->trans_rollback();
+									}
+								}
+								else
+								{
+									$sc = FALSE;
+									$this->error = "สินค้าใน Location ไม่เพียงพอ กรุณากำหนดจำนวนสินค้าใหม่";
+								}
+							}
+						}
+						else
+						{
+							$sc = FALSE;
+							$this->error = "สินค้าไม่ถูกต้อง";
+						}
 					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "กรุณาระบุ SO";
 				}
 			}
 			else
@@ -572,319 +582,139 @@ class Picking extends PS_Controller
 
 			if(! empty($item))
 			{
-				$detail = $this->picking_model->get_detail_by_item_uom($absEntry, $orderCode, $ItemCode, $UomEntry);
+				$orderCode = empty($orderCode) ? $this->picking_model->get_order_code($absEntry, $ItemCode) : $orderCode;
 
-				//--- ถ้ามีแสดงว่า หน่วยนับตรงกัน
-				if(! empty($detail))
+				if(!empty($orderCode))
 				{
-					//---- ตัวคูณ หน่วยนับที่ยิงมา
-					$baseQty = $this->item_model->get_base_qty($ItemCode, $UomEntry);
+					$detail = $this->picking_model->get_detail_by_item_uom($absEntry, $orderCode, $ItemCode, $UomEntry);
 
-					//--- ถ้าไม่มี แปลงเป็น หน่วยนับย่อย
-					$invQty = $qty * $baseQty;
-
-					//--- ตรวจสอบว่า ยอดที่ยิงมา มากกว่า ยอดคงเหลือในรายการจัดหรือไม่
-					$remain = $detail->BaseRelQty - $detail->BasePickQty;
-
-					if($remain >= $invQty)
-					{
-						//--- ตรวจสอบสต็อกในโซน พอจัดมั้ย
-						$stock = $this->get_stock_zone($ItemCode, $binCode);
-
-						//--- ถ้ามีสต็อกพอ จัดได้
-						if($stock >= $invQty)
-						{
-							//----- แปลงจำนวนจากหน่วยย่อยไปเป็นหน่วยที่สั่งจัด
-							$pickQty = $invQty/$detail->BaseQty;
-
-							$picked = $detail->PickQtty + $pickQty;
-							$balance = $detail->RelQtty - $picked;
-
-							$this->db->trans_begin();
-
-							if(! $this->picking_model->update_picked_qty($detail->id, $pickQty, $invQty))
-							{
-								$sc = FALSE;
-								$this->error = "Update Pick Detail failed";
-							}
-
-							if($sc === TRUE)
-							{
-
-								$buffer = $this->picking_model->get_unique_buffer($absEntry, $orderCode, $detail->ItemCode, $binCode, $detail->UomEntry);
-
-								if(!empty($buffer))
-								{
-									if(! $this->picking_model->update_buffer_qty($buffer->id, $pickQty, $invQty))
-									{
-										$sc = FALSE;
-										$this->error = "Update Buffer failed";
-									}
-								}
-								else
-								{
-									$arr = array(
-										'AbsEntry' => $absEntry,
-										'DocNum' => $docNum,
-										'OrderCode' => $orderCode,
-										'ItemCode' => $detail->ItemCode,
-										'ItemName' => $detail->ItemName,
-										'UomEntry' => $detail->UomEntry,
-										'UomCode' => $detail->UomCode,
-										'unitMsr' => $detail->unitMsr,
-										'BaseQty' => $detail->BaseQty,
-										'Qty' => $pickQty,
-										'BasePickQty' => $invQty,
-										'BinCode' => $binCode,
-										'user_id' => $this->user->id,
-										'uname' => $this->user->uname
-									);
-
-									if(! $this->picking_model->add_buffer($arr))
-									{
-										$sc = FALSE;
-										$this->error = "Add Buffer failed";
-									}
-								}
-
-							}
-
-
-							if($sc === TRUE)
-							{
-								$prepare = $this->picking_model->get_unique_prepare($absEntry, $orderCode, $detail->ItemCode, $binCode, $detail->UomEntry);
-
-								if(!empty($prepare))
-								{
-									if(! $this->picking_model->update_prepare_qty($prepare->id, $pickQty, $invQty))
-									{
-										$sc = FALSE;
-										$this->error = "Update picking detail failed";
-									}
-								}
-								else
-								{
-									$arr = array(
-										'AbsEntry' => $absEntry,
-										'DocNum' => $docNum,
-										'OrderCode' => $orderCode,
-										'ItemCode' => $detail->ItemCode,
-										'ItemName' => $detail->ItemName,
-										'UomEntry' => $detail->UomEntry,
-										'UomCode' => $detail->UomCode,
-										'unitMsr' => $detail->unitMsr,
-										'BaseQty' => $detail->BaseQty,
-										'Qty' => $pickQty,
-										'BasePickQty' => $invQty,
-										'BinCode' => $binCode,
-										'user_id' => $this->user->id,
-										'uname' => $this->user->uname
-									);
-
-									if(! $this->picking_model->add_prepare($arr))
-									{
-										$sc = FALSE;
-										$this->error = "Add Picking detail failed";
-									}
-								}
-							}
-
-
-							if($sc === TRUE)
-							{
-								$this->db->trans_commit();
-
-								$arr = array(
-									'id' => $detail->id,
-									'picked' => round($picked, 2),
-									'balance' => round($balance, 2)
-								);
-
-								array_push($ds, $arr);
-							}
-							else
-							{
-								$this->db->trans_rollback();
-							}
-						}
-						else
-						{
-							$sc = FALSE;
-							$this->error = "สินค้าใน Location ที่กำหนดไม่เพียงพอ กรุณากำหนดจำนวนสินค้าใหม่";
-						}
-					}
-					else
-					{
-						$sc = FALSE;
-						$this->error = "จำนวนสินค้าเกิน กรุณาคืนสินค้าแล้วจัดสินค้าใหม่อีกครั้ง";
-					}
-				}
-				else
-				{
-					//---- กรณีหน่วนนับไม่ตรงกับในรายการ
-					//---- ดึงรายการที่หน่วยนับ ไม่ตรงกับที่ยิงมา
-					$details = $this->picking_model->get_details_by_item_other_uom($absEntry, $orderCode, $ItemCode, $UomEntry);
-
-					if(!empty($details))
+					//--- ถ้ามีแสดงว่า หน่วยนับตรงกัน
+					if(! empty($detail))
 					{
 						//---- ตัวคูณ หน่วยนับที่ยิงมา
 						$baseQty = $this->item_model->get_base_qty($ItemCode, $UomEntry);
 
 						//--- ถ้าไม่มี แปลงเป็น หน่วยนับย่อย
-						$bcQty = $qty * $baseQty;
+						$invQty = $qty * $baseQty;
 
-						$testQty = $bcQty;
+						//--- ตรวจสอบว่า ยอดที่ยิงมา มากกว่า ยอดคงเหลือในรายการจัดหรือไม่
+						$remain = $detail->BaseRelQty - $detail->BasePickQty;
 
-						//---- ทดสอบว่ายอดที่ยิงมามัันเกินที่เหลือมั้ย
-						foreach($details as $detail)
-						{
-							//--- ตรวจสอบว่า ยอดที่ยิงมา มากกว่า ยอดคงเหลือในรายการจัดหรือไม่
-							$remain = $detail->BaseRelQty - $detail->BasePickQty;
-
-							$pickQty = $testQty <= $remain ? $testQty : $remain;
-							$testQty -= $pickQty;
-						}
-
-						if($testQty > 0)
-						{
-							$sc = FALSE;
-							$this->error = "จำนวนสินค้าเกิน กรุณาคืนสินค้าแล้วจัดสินค้าใหม่อีกครั้ง";
-						}
-						else
+						if($remain >= $invQty)
 						{
 							//--- ตรวจสอบสต็อกในโซน พอจัดมั้ย
 							$stock = $this->get_stock_zone($ItemCode, $binCode);
 
 							//--- ถ้ามีสต็อกพอ จัดได้
-							if($stock >= $bcQty)
+							if($stock >= $invQty)
 							{
+								//----- แปลงจำนวนจากหน่วยย่อยไปเป็นหน่วยที่สั่งจัด
+								$pickQty = $invQty/$detail->BaseQty;
+
+								$picked = $detail->PickQtty + $pickQty;
+								$balance = $detail->RelQtty - $picked;
 
 								$this->db->trans_begin();
 
-								//--- วนเพื่อจัดจริง
-								foreach($details as $detail)
+								if(! $this->picking_model->update_picked_qty($detail->id, $pickQty, $invQty))
 								{
-									if($sc === FALSE)
+									$sc = FALSE;
+									$this->error = "Update Pick Detail failed";
+								}
+
+								if($sc === TRUE)
+								{
+
+									$buffer = $this->picking_model->get_unique_buffer($absEntry, $orderCode, $detail->ItemCode, $binCode, $detail->UomEntry);
+
+									if(!empty($buffer))
 									{
-										break;
-									}
-
-									if($bcQty > 0)
-									{
-										//--- ตรวจสอบว่า ยอดที่ยิงมา มากกว่า ยอดคงเหลือในรายการจัดหรือไม่
-										$remain = $detail->BaseRelQty - $detail->BasePickQty;
-
-										$invQty = $bcQty <= $remain ? $bcQty : $remain;
-
-										$pickQty = $invQty / $detail->BaseQty;
-
-										$picked = $detail->PickQtty + $pickQty;
-										$balance = $detail->RelQtty - $picked;
-
-										if(! $this->picking_model->update_picked_qty($detail->id, $pickQty, $invQty))
+										if(! $this->picking_model->update_buffer_qty($buffer->id, $pickQty, $invQty))
 										{
 											$sc = FALSE;
-											$this->error = "Update Pick Detail failed";
+											$this->error = "Update Buffer failed";
 										}
+									}
+									else
+									{
+										$arr = array(
+											'AbsEntry' => $absEntry,
+											'DocNum' => $docNum,
+											'OrderCode' => $orderCode,
+											'ItemCode' => $detail->ItemCode,
+											'ItemName' => $detail->ItemName,
+											'UomEntry' => $detail->UomEntry,
+											'UomCode' => $detail->UomCode,
+											'unitMsr' => $detail->unitMsr,
+											'BaseQty' => $detail->BaseQty,
+											'Qty' => $pickQty,
+											'BasePickQty' => $invQty,
+											'BinCode' => $binCode,
+											'user_id' => $this->user->id,
+											'uname' => $this->user->uname
+										);
 
-										if($sc === TRUE)
+										if(! $this->picking_model->add_buffer($arr))
 										{
-											$buffer = $this->picking_model->get_unique_buffer($absEntry, $orderCode, $detail->ItemCode, $binCode, $detail->UomEntry);
-
-											if(!empty($buffer))
-											{
-												if(! $this->picking_model->update_buffer_qty($buffer->id, $pickQty, $invQty))
-												{
-													$sc = FALSE;
-													$this->error = "Update buffer failed";
-												}
-											}
-											else
-											{
-												$arr = array(
-													'AbsEntry' => $absEntry,
-													'DocNum' => $docNum,
-													'OrderCode' => $orderCode,
-													'ItemCode' => $detail->ItemCode,
-													'ItemName' => $detail->ItemName,
-													'UomEntry' => $detail->UomEntry,
-													'UomCode' => $detail->UomCode,
-													'unitMsr' => $detail->unitMsr,
-													'BaseQty' => $detail->BaseQty,
-													'Qty' => $pickQty,
-													'BasePickQty' => $invQty,
-													'BinCode' => $binCode,
-													'user_id' => $this->user->id,
-													'uname' => $this->user->uname
-												);
-
-												if(! $this->picking_model->add_buffer($arr))
-												{
-													$sc = FALSE;
-													$this->error = "Add Buffer failed";
-												}
-											}
+											$sc = FALSE;
+											$this->error = "Add Buffer failed";
 										}
+									}
+
+								}
 
 
-										if($sc === TRUE)
+								if($sc === TRUE)
+								{
+									$prepare = $this->picking_model->get_unique_prepare($absEntry, $orderCode, $detail->ItemCode, $binCode, $detail->UomEntry);
+
+									if(!empty($prepare))
+									{
+										if(! $this->picking_model->update_prepare_qty($prepare->id, $pickQty, $invQty))
 										{
-											$prepare = $this->picking_model->get_unique_prepare($absEntry, $orderCode, $detail->ItemCode, $binCode, $detail->UomEntry);
-
-											if(!empty($prepare))
-											{
-												if(! $this->picking_model->update_prepare_qty($prepare->id, $pickQty, $invQty))
-												{
-													$sc = FALSE;
-													$this->error = "Update picking detail failed";
-												}
-											}
-											else
-											{
-												$arr = array(
-													'AbsEntry' => $absEntry,
-													'DocNum' => $docNum,
-													'OrderCode' => $orderCode,
-													'ItemCode' => $detail->ItemCode,
-													'ItemName' => $detail->ItemName,
-													'UomEntry' => $detail->UomEntry,
-													'UomCode' => $detail->UomCode,
-													'unitMsr' => $detail->unitMsr,
-													'BaseQty' => $detail->BaseQty,
-													'Qty' => $pickQty,
-													'BasePickQty' => $invQty,
-													'BinCode' => $binCode,
-													'user_id' => $this->user->id,
-													'uname' => $this->user->uname
-												);
-
-												if(! $this->picking_model->add_prepare($arr))
-												{
-													$sc = FALSE;
-													$this->error = "Add Picking detail failed";
-												}
-											}
+											$sc = FALSE;
+											$this->error = "Update picking detail failed";
 										}
+									}
+									else
+									{
+										$arr = array(
+											'AbsEntry' => $absEntry,
+											'DocNum' => $docNum,
+											'OrderCode' => $orderCode,
+											'ItemCode' => $detail->ItemCode,
+											'ItemName' => $detail->ItemName,
+											'UomEntry' => $detail->UomEntry,
+											'UomCode' => $detail->UomCode,
+											'unitMsr' => $detail->unitMsr,
+											'BaseQty' => $detail->BaseQty,
+											'Qty' => $pickQty,
+											'BasePickQty' => $invQty,
+											'BinCode' => $binCode,
+											'user_id' => $this->user->id,
+											'uname' => $this->user->uname
+										);
 
-										if($sc === TRUE)
+										if(! $this->picking_model->add_prepare($arr))
 										{
-											$arr = array(
-												'id' => $detail->id,
-												'picked' => round($picked,2),
-												'balance' => round($balance, 2)
-											);
-
-											array_push($ds, $arr);
+											$sc = FALSE;
+											$this->error = "Add Picking detail failed";
 										}
+									}
+								}
 
-										$bcQty -= $invQty;
-
-									} //--- end if
-								} //--- end foreach
 
 								if($sc === TRUE)
 								{
 									$this->db->trans_commit();
+
+									$arr = array(
+										'id' => $detail->id,
+										'picked' => round($picked, 2),
+										'balance' => round($balance, 2)
+									);
+
+									array_push($ds, $arr);
 								}
 								else
 								{
@@ -894,16 +724,207 @@ class Picking extends PS_Controller
 							else
 							{
 								$sc = FALSE;
-								$this->error = "สินค้าใน Location ไม่เพียงพอ กรุณากำหนดจำนวนสินค้าใหม่";
+								$this->error = "สินค้าใน Location ที่กำหนดไม่เพียงพอ กรุณากำหนดจำนวนสินค้าใหม่";
 							}
+						}
+						else
+						{
+							$sc = FALSE;
+							$this->error = "จำนวนสินค้าเกิน กรุณาคืนสินค้าแล้วจัดสินค้าใหม่อีกครั้ง";
 						}
 					}
 					else
 					{
-						$sc = FALSE;
-						$this->error = "สินค้าไม่ตรงกับ SO";
+						//---- กรณีหน่วนนับไม่ตรงกับในรายการ
+						//---- ดึงรายการที่หน่วยนับ ไม่ตรงกับที่ยิงมา
+						$details = $this->picking_model->get_details_by_item_other_uom($absEntry, $orderCode, $ItemCode, $UomEntry);
+
+						if(!empty($details))
+						{
+							//---- ตัวคูณ หน่วยนับที่ยิงมา
+							$baseQty = $this->item_model->get_base_qty($ItemCode, $UomEntry);
+
+							//--- ถ้าไม่มี แปลงเป็น หน่วยนับย่อย
+							$bcQty = $qty * $baseQty;
+
+							$testQty = $bcQty;
+
+							//---- ทดสอบว่ายอดที่ยิงมามัันเกินที่เหลือมั้ย
+							foreach($details as $detail)
+							{
+								//--- ตรวจสอบว่า ยอดที่ยิงมา มากกว่า ยอดคงเหลือในรายการจัดหรือไม่
+								$remain = $detail->BaseRelQty - $detail->BasePickQty;
+
+								$pickQty = $testQty <= $remain ? $testQty : $remain;
+								$testQty -= $pickQty;
+							}
+
+							if($testQty > 0)
+							{
+								$sc = FALSE;
+								$this->error = "จำนวนสินค้าเกิน กรุณาคืนสินค้าแล้วจัดสินค้าใหม่อีกครั้ง";
+							}
+							else
+							{
+								//--- ตรวจสอบสต็อกในโซน พอจัดมั้ย
+								$stock = $this->get_stock_zone($ItemCode, $binCode);
+
+								//--- ถ้ามีสต็อกพอ จัดได้
+								if($stock >= $bcQty)
+								{
+
+									$this->db->trans_begin();
+
+									//--- วนเพื่อจัดจริง
+									foreach($details as $detail)
+									{
+										if($sc === FALSE)
+										{
+											break;
+										}
+
+										if($bcQty > 0)
+										{
+											//--- ตรวจสอบว่า ยอดที่ยิงมา มากกว่า ยอดคงเหลือในรายการจัดหรือไม่
+											$remain = $detail->BaseRelQty - $detail->BasePickQty;
+
+											$invQty = $bcQty <= $remain ? $bcQty : $remain;
+
+											$pickQty = $invQty / $detail->BaseQty;
+
+											$picked = $detail->PickQtty + $pickQty;
+											$balance = $detail->RelQtty - $picked;
+
+											if(! $this->picking_model->update_picked_qty($detail->id, $pickQty, $invQty))
+											{
+												$sc = FALSE;
+												$this->error = "Update Pick Detail failed";
+											}
+
+											if($sc === TRUE)
+											{
+												$buffer = $this->picking_model->get_unique_buffer($absEntry, $orderCode, $detail->ItemCode, $binCode, $detail->UomEntry);
+
+												if(!empty($buffer))
+												{
+													if(! $this->picking_model->update_buffer_qty($buffer->id, $pickQty, $invQty))
+													{
+														$sc = FALSE;
+														$this->error = "Update buffer failed";
+													}
+												}
+												else
+												{
+													$arr = array(
+														'AbsEntry' => $absEntry,
+														'DocNum' => $docNum,
+														'OrderCode' => $orderCode,
+														'ItemCode' => $detail->ItemCode,
+														'ItemName' => $detail->ItemName,
+														'UomEntry' => $detail->UomEntry,
+														'UomCode' => $detail->UomCode,
+														'unitMsr' => $detail->unitMsr,
+														'BaseQty' => $detail->BaseQty,
+														'Qty' => $pickQty,
+														'BasePickQty' => $invQty,
+														'BinCode' => $binCode,
+														'user_id' => $this->user->id,
+														'uname' => $this->user->uname
+													);
+
+													if(! $this->picking_model->add_buffer($arr))
+													{
+														$sc = FALSE;
+														$this->error = "Add Buffer failed";
+													}
+												}
+											}
+
+
+											if($sc === TRUE)
+											{
+												$prepare = $this->picking_model->get_unique_prepare($absEntry, $orderCode, $detail->ItemCode, $binCode, $detail->UomEntry);
+
+												if(!empty($prepare))
+												{
+													if(! $this->picking_model->update_prepare_qty($prepare->id, $pickQty, $invQty))
+													{
+														$sc = FALSE;
+														$this->error = "Update picking detail failed";
+													}
+												}
+												else
+												{
+													$arr = array(
+														'AbsEntry' => $absEntry,
+														'DocNum' => $docNum,
+														'OrderCode' => $orderCode,
+														'ItemCode' => $detail->ItemCode,
+														'ItemName' => $detail->ItemName,
+														'UomEntry' => $detail->UomEntry,
+														'UomCode' => $detail->UomCode,
+														'unitMsr' => $detail->unitMsr,
+														'BaseQty' => $detail->BaseQty,
+														'Qty' => $pickQty,
+														'BasePickQty' => $invQty,
+														'BinCode' => $binCode,
+														'user_id' => $this->user->id,
+														'uname' => $this->user->uname
+													);
+
+													if(! $this->picking_model->add_prepare($arr))
+													{
+														$sc = FALSE;
+														$this->error = "Add Picking detail failed";
+													}
+												}
+											}
+
+											if($sc === TRUE)
+											{
+												$arr = array(
+													'id' => $detail->id,
+													'picked' => round($picked,2),
+													'balance' => round($balance, 2)
+												);
+
+												array_push($ds, $arr);
+											}
+
+											$bcQty -= $invQty;
+
+										} //--- end if
+									} //--- end foreach
+
+									if($sc === TRUE)
+									{
+										$this->db->trans_commit();
+									}
+									else
+									{
+										$this->db->trans_rollback();
+									}
+								}
+								else
+								{
+									$sc = FALSE;
+									$this->error = "สินค้าใน Location ไม่เพียงพอ กรุณากำหนดจำนวนสินค้าใหม่";
+								}
+							}
+						}
+						else
+						{
+							$sc = FALSE;
+							$this->error = "สินค้าไม่ตรงกับ SO";
+						}
 					}
 				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "กรุณาระบุ SO";
+				}
+
 			}
 			else
 			{

@@ -58,6 +58,13 @@ class Sync_quotation extends CI_Controller
             }
             else
             {
+              $arr = array(
+                'Status' => 3, //--- error
+                'Message' => "Mark as success in Temp But not found in SAP"
+              );
+
+              $this->quotation_model->update($ds->code, $arr);
+              
               $logs = array(
                 'code' => $ds->code,
                 'sync_code' => 'SQ',

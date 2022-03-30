@@ -386,7 +386,7 @@ class Transfer_model extends CI_Model
     $rs = $this->ms
     ->select('DocNum')
     ->where('U_WEBORDER', $code)
-    ->where('CANCELLED', 'N')
+    ->where('CANCELED', 'N')
     ->order_by('DocEntry', 'DESC')
     ->get('OWTR');
 

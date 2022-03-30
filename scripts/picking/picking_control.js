@@ -14,6 +14,18 @@ $('#zoneCode').keyup(function(e) {
 });
 
 
+$('#qty').focus(function() {
+  $(this).select();
+});
+
+
+$('#qty').keyup(function(e) {
+  if(e.keyCode === 13) {
+    $('#barcode-item').focus();
+  }
+})
+
+
 
 function setZone() {
   let code = $.trim($('#zoneCode').val());
@@ -91,10 +103,10 @@ function showPickOption(itemCode, uomEntry) {
     return false;
   }
 
-  if(orderCode.length == 0) {
-    swal("กรุณาระบุเลขที่ SO");
-    return false;
-  }
+  // if(orderCode.length == 0) {
+  //   swal("กรุณาระบุเลขที่ SO");
+  //   return false;
+  // }
 
 
   if(binCode.length) {
@@ -150,10 +162,10 @@ function pickWithOption() {
     return false;
   }
 
-  if(orderCode.length == 0) {
-    swal("กรุณาระบุเลขที่ SO");
-    return false;
-  }
+  // if(orderCode.length == 0) {
+  //   swal("กรุณาระบุเลขที่ SO");
+  //   return false;
+  // }
 
   if(qty <= 0) {
     swal("จำนวนไม่ถูกต้อง");
@@ -211,6 +223,7 @@ function pickWithOption() {
           if(ds.balance == 0) {
             $('#row-'+ds.id).addClass('bg-green');
             $('#btn-cancle-pick-'+ds.id).addClass('hide');
+            changeZone();
           }
         }
 
@@ -249,10 +262,10 @@ function pickItem() {
       return false;
     }
 
-    if(orderCode.length == 0) {
-      swal("กรุณาระบุเลขที่ SO");
-      return false;
-    }
+    // if(orderCode.length == 0) {
+    //   swal("กรุณาระบุเลขที่ SO");
+    //   return false;
+    // }
 
     $.ajax({
       url:HOME + 'pick_item',
@@ -281,6 +294,7 @@ function pickItem() {
             if(ds.balance == 0) {
               $('#row-'+ds.id).addClass('bg-green');
               $('#btn-cancle-pick-'+ds.id).addClass('hide');
+              changeZone();
             }
           }
 
@@ -389,10 +403,8 @@ function is_all_picked() {
     let picked = parseDefault(parseFloat($('#pick-'+id).text()), 0);
 
     if(relqty > picked) {
+      
       balance++;
-    }
-    else {
-      changeZone();
     }
   });
 
@@ -403,7 +415,6 @@ function is_all_picked() {
     $('#finish-row').addClass('hide');
   }
 }
-
 
 
 
@@ -561,6 +572,7 @@ function addToPick(id) {
           if(ds.balance == 0) {
             $('#row-'+ds.id).css('background-color', '#ebf1e2');
             $('#btn-cancle-pick-'+ds.id).addClass('hide');
+            changeZone();
           }
         }
 

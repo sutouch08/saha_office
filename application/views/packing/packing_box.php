@@ -1,6 +1,6 @@
 <!-- แสดงผลกล่อง  -->
 <div class="row">
-  <div class="col-lg-9-harf col-md-9-harf col-sm-9 col-xs-12 padding-5" id="box-row">
+  <div class="col-lg-9-harf col-md-9 col-sm-9 col-xs-12 padding-5" id="box-row">
   <?php if(!empty($box_list)) : ?>
   <?php   foreach($box_list as $rs) : ?>
         <button type="button"
@@ -17,13 +17,13 @@
   </div>
   <div class="divider visible-xs"></div>
 
-  <div class="col-lg-2-harf col-md-2-harf col-sm-3 col-xs-12">
+  <div class="col-lg-2-harf col-md-3 col-sm-3 col-xs-12">
     <div class="row">
-      <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5">
-        <button type="button" class="btn btn-sm btn-primary btn-block" style="margin-bottom:3px;" onclick="addBox()">Add Box</button>
+      <div class="col-lg-6 col-md-5 col-sm-6 col-xs-6 padding-5">
+        <button type="button" class="btn btn-xs btn-primary btn-block" style="margin-bottom:3px;" onclick="addBox()">Add Box</button>
       </div>
-      <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5">
-        <button type="button" class="btn btn-sm btn-info btn-block" style="margin-bottom:3px;" onclick="showBoxOption()">Option</button>
+      <div class="col-lg-6 col-md-7 col-sm-6 col-xs-6 padding-5">
+        <button type="button" class="btn btn-xs btn-info btn-block" style="margin-bottom:3px;" onclick="showBoxOption()">Print/Option</button>
       </div>
     </div>
   </div>

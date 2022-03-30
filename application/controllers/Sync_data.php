@@ -200,6 +200,13 @@ class Sync_data extends PS_Controller
             }
             else
             {
+              $arr = array(
+                'Status' => 3, //--- error
+                'Message' => 'Mark as success in Temp But not found in SAP'
+              );
+
+              $this->sales_order_model->update($ds->code, $arr);
+              
               $logs = array(
                 'code' => $rs->code,
                 'sync_code' => 'SO',
@@ -321,6 +328,13 @@ class Sync_data extends PS_Controller
             }
             else
             {
+              $arr = array(
+                'Status' => 3, //--- error
+                'Message' => "Mark as success in Temp But not found in SAP"
+              );
+
+              $this->quotation_model->update($ds->code, $arr);
+
               $logs = array(
                 'code' => $ds->code,
                 'sync_code' => 'SQ',
@@ -463,6 +477,13 @@ class Sync_data extends PS_Controller
             }
             else
             {
+              $arr = array(
+                'Status' => 'F', //--- error
+                'message' => "Mark as success in Temp But not found in SAP"
+              );
+
+              $this->transfer_model->update_by_code($ds->code, $arr);
+
               $logs = array(
                 'code' => $ds->code,
                 'sync_code' => 'TR',

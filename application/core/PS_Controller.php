@@ -75,6 +75,12 @@ class PS_Controller extends CI_Controller
   {
     return $this->load->view('page_error');
   }
+
+
+  public function page_error()
+  {
+    return $this->load->view('page_error');
+  }
 }
 
 ?>
