@@ -83,18 +83,18 @@ function getDelete(id, uname){
 
 function saveAdd() {
   var arr = [
-    {'el' : 'uname', 'label':'uname-error', 'error':'uname_error'},
-    {'el' : 'emp', 'label' : 'emp-error', 'error' : 'emp_error'},
-    {'el' : 'sale_team', 'label' : 'sale-team-error', 'error' : 'team_error'},
-    {'el' : 'ugroup', 'label' : 'ugroup-error', 'error' : 'ugroup_error'},
-    {'el' : 'department', 'label' : 'department-error', 'error' : 'dep_error'},
-    {'el' : 'division', 'label' : 'division-error', 'error' : 'div_error'}
+    {'el' : 'uname', 'label':'uname-error', 'error':'uname_error'}
+    //{'el' : 'emp', 'label' : 'emp-error', 'error' : 'emp_error'},
+    //{'el' : 'sale_team', 'label' : 'sale-team-error', 'error' : 'team_error'},
+    //{'el' : 'ugroup', 'label' : 'ugroup-error', 'error' : 'ugroup_error'},
+    //{'el' : 'department', 'label' : 'department-error', 'error' : 'dep_error'},
+    //{'el' : 'division', 'label' : 'division-error', 'error' : 'div_error'}
   ];
 
   arr.forEach(check_value);
 
 
-  var error = uname_error + emp_error + pwd_error + team_error + ugroup_error + dep_error + div_error;
+  var error = uname_error + pwd_error; // + emp_error + team_error + ugroup_error + dep_error + div_error;
 
   if( error > 0) {
     return false;
@@ -161,17 +161,17 @@ function saveAdd() {
 
 function update() {
   var arr = [
-    {'el' : 'uname', 'label':'uname-error', 'error':'uname_error'},
+    {'el' : 'uname', 'label':'uname-error', 'error':'uname_error'}/*,
     {'el' : 'emp', 'label' : 'emp-error', 'error' : 'emp_error'},
     {'el' : 'sale_team', 'label' : 'sale-team-error', 'error' : 'team_error'},
     {'el' : 'ugroup', 'label' : 'ugroup-error', 'error' : 'ugroup_error'},
     {'el' : 'department', 'label' : 'department-error', 'error' : 'dep_error'},
-    {'el' : 'division', 'label' : 'division-error', 'error' : 'div_error'}
+    {'el' : 'division', 'label' : 'division-error', 'error' : 'div_error'}*/
   ];
 
   arr.forEach(check_value);
 
-  var error = uname_error + emp_error + team_error + ugroup_error + dep_error + div_error;
+  var error = uname_error; // + emp_error + team_error + ugroup_error + dep_error + div_error;
 
   if( error > 0) {
     return false;

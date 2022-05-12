@@ -273,7 +273,7 @@ class Pick_model extends CI_Model
     ->select_sum('BaseRelQty')
     ->where('OrderEntry', $OrderEntry)
     ->where('OrderLine', $OrderLine)
-    ->where('PickStatus !=', 'D')    
+    ->where('PickStatus !=', 'D')
     ->get('pick_row');
 
     if($rs->num_rows() === 1)
@@ -627,6 +627,18 @@ class Pick_model extends CI_Model
     ->get('pick_list');
 
     return $rs->row()->DocNum;
+  }
+
+
+  public function count_so($absEntry)
+  {
+    return $this->db->where('AbsEntry', $absEntry)->group_by('OrderCode')->count_all_results('pick_row');
+  }
+
+
+  public function count_item_line($absEntry)
+  {
+    return $this->db->where('AbsEntry', $absEntry)->count_all_results('pick_row');
   }
 
 

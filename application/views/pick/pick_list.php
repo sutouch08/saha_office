@@ -87,6 +87,8 @@
 					<th style="width:150px;" class="middle text-center sorting <?php echo $sort_DocNum; ?>" id="sort_DocNum" onclick="sort('DocNum')">Web Code</th>
 					<th style="width:150px;" class="middle text-center sorting <?php echo $sort_uname; ?>" id="sort_Uname" onclick="sort('Uname')">User</th>
 					<th style="width:100px;" class="middle text-center sorting <?php echo $sort_Status; ?>" id="sort_Status" onclick="sort('Status')">Status</th>
+					<th style="width:100px;" class="middle text-center" >SO</th>
+					<th style="width:100px;" class="middle text-center" >Item Line</th>
 					<th class="middle text-right"></th>
 				</tr>
 			</thead>
@@ -115,6 +117,8 @@
 								<span class="orange">รอดำเนินการ</span>
 							<?php endif; ?>
 						</td>
+						<td class="middle text-center"><?php echo $rs->sum_so; ?></td>
+						<td class="middle text-center"><?php echo $rs->sum_item_line; ?></td>
 						<td class="middle text-right">
 							<button type="button" class="btn btn-minier btn-primary" title="View Details" onclick="goDetail('<?php echo $rs->AbsEntry; ?>')">รายละเอียด</button>
 							<?php if($rs->Status == 'N') : ?>
@@ -126,7 +130,7 @@
 				<?php endforeach; ?>
 			<?php else : ?>
 				<tr>
-					<td colspan="6" class="middle text-center">ไม่พบรายการ</td>
+					<td colspan="8" class="middle text-center">ไม่พบรายการ</td>
 				</tr>
 			<?php endif; ?>
 			</tbody>

@@ -74,6 +74,8 @@
 					<th style="width:100px;" class="middle text-center sorting <?php echo $sort_PostingDate; ?>" id="sort_CreateDate" onclick="sort('CreateDate')">Date</th>
 					<th style="width:150px;" class="middle text-center sorting <?php echo $sort_DocNum; ?>" id="sort_DocNum" onclick="sort('DocNum')">Web Code</th>
 					<th style="width:150px;" class="middle text-center sorting <?php echo $sort_uname; ?>" id="sort_Uname" onclick="sort('Uname')">User</th>
+					<th style="width:100px;" class="middle text-center" >SO</th>
+					<th style="width:100px;" class="middle text-center" >Item Line</th>
 					<th class="middle text-right"></th>
 				</tr>
 			</thead>
@@ -87,6 +89,8 @@
 						<td class="middle text-center"><?php echo thai_date($rs->CreateDate, FALSE,'/'); ?></td>
 						<td class="middle text-center"><?php echo $rs->DocNum; ?></td>
 						<td class="middle text-center"><?php echo $rs->uname; ?></td>
+						<td class="middle text-center"><?php echo $rs->sum_so; ?></td>
+						<td class="middle text-center"><?php echo $rs->sum_item_line; ?></td>
 						<td class="middle text-right">
 							<button type="button" class="btn btn-sm btn-primary" title="View Details" onclick="goPicking('<?php echo $rs->AbsEntry; ?>')">จัดสินค้า</button>
 						</td>
@@ -95,7 +99,7 @@
 				<?php endforeach; ?>
 			<?php else : ?>
 				<tr>
-					<td colspan="6" class="middle text-center">ไม่พบรายการ</td>
+					<td colspan="8" class="middle text-center">ไม่พบรายการ</td>
 				</tr>
 			<?php endif; ?>
 			</tbody>

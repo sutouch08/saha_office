@@ -60,6 +60,77 @@ class Move extends PS_Controller
   }
 
 
+
+	public function save($move_id)
+	{
+		$sc = TRUE;
+
+		$doc = $this->move_model->get($move_id);
+
+		if( ! empty($doc))
+		{
+			if($doc->Status === 'N')
+			{
+				$this->db->trans_begin();
+
+				if(! $this->move_model->valid_details($move_id, 1))
+				{
+					$sc = FALSE;
+					$this->error = "Update move item failed";
+				}
+
+				if($sc === TRUE)
+				{
+					$arr = array('Status' => 'P');
+
+					if( ! $this->move_model->update($move_id, $arr))
+					{
+						$sc = FALSE;
+						$this->error = "Update document status failed";
+					}
+				}
+
+				if($sc === TRUE)
+				{
+					$this->db->trans_commit();
+				}
+				else
+				{
+					$this->db->trans_rollback();
+				}
+
+
+				if($sc === TRUE)
+				{
+					$this->doExport($move_id);
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Invalid Document Status : '{$doc->Status}'";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Invalid Document No.";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
+
+
+
+	public function export_move($id)
+	{
+		$sc = $this->doExport($id);
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
+
+
+
 	public function add_new()
 	{
 		$ds = array('code' => $this->get_new_code());
@@ -122,7 +193,6 @@ class Move extends PS_Controller
 	public function edit($id, $method = 'barcode')
 	{
 		//--- method  'barcode', 'normal'
-		$sc = TRUE;
 		$doc = $this->move_model->get($id);
 
 		if(!empty($doc))
@@ -199,6 +269,156 @@ class Move extends PS_Controller
 
 
 
+	public function delete_detail()
+	{
+		$sc = TRUE;
+
+		$move_id = $this->input->post('move_id');
+		$id = $this->input->post('id');
+
+		if( ! empty($move_id) && ! empty($id))
+		{
+
+			$doc = $this->move_model->get($move_id);
+
+			if( ! empty($doc))
+			{
+				if($doc->Status === 'N')
+				{
+					if( ! $this->move_model->delete_detail($id))
+					{
+						$sc = FALSE;
+						$this->error = "Delete failed";
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "Invalid document status";
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Invalid Document id";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing required parameter : id";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
+
+
+
+
+	public function view_detail($id)
+	{
+		$doc = $this->move_model->get($id);
+
+		if(!empty($doc))
+		{
+			$details = $this->move_model->get_details($id);
+
+			$ds = array(
+				'doc' => $doc,
+				'details' => $details
+			);
+
+			$this->load->view('move/move_view_detail', $ds);
+		}
+		else
+		{
+			$this->error_page();
+		}
+	}
+
+	public function delete_temp()
+	{
+		$sc = TRUE;
+
+		$move_id = $this->input->post('move_id');
+		$id = $this->input->post('id');
+
+		if( ! empty($move_id) && ! empty($id))
+		{
+			if( ! $this->move_model->delete_temp($id))
+			{
+				$sc = FALSE;
+				$this->error = "Delete failed";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing required parameter : id";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
+
+
+
+	public function cancle_move($id)
+	{
+		$sc = TRUE;
+		$doc = $this->move_model->get($id);
+
+		if( ! empty($doc))
+		{
+			if( $doc->Status === 'N')
+			{
+				$this->db->trans_begin();
+
+				if( ! $this->move_model->delete_all_temp($id))
+				{
+					$sc = FALSE;
+					$this->error = "Delete move temp failed";
+				}
+
+				if($sc === TRUE)
+				{
+					$arr = array(
+						'Status' => 'C'
+					);
+
+					if( ! $this->move_model->update($id, $arr))
+					{
+						$sc = FALSE;
+						$this->error = "Update document failed";
+					}
+				}
+
+				if($sc === TRUE)
+				{
+					$this->db->trans_commit();
+				}
+				else
+				{
+					$this->db->trans_rollback();
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Invalid document status";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Invalid Document Id";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
+
+
+
+
 	public function get_move_table($id)
   {
     $ds = array();
@@ -222,7 +442,7 @@ class Move extends PS_Controller
           'id' => $rs->id,
           'no' => $no,
           'barcode' => $rs->barcode,
-          'products' => $rs->ItemCode,
+          'products' => $rs->ItemCode." : ".$rs->ItemName,
           'from_zone' => $rs->fromBinCode,
           'to_zone' => $rs->toBinCode,
           'qty' => number($rs->Qty),
@@ -260,6 +480,7 @@ class Move extends PS_Controller
     if(!empty($temp))
     {
       $no = 1;
+			$total_qty = 0;
 
       foreach($temp as $rs)
       {
@@ -267,7 +488,7 @@ class Move extends PS_Controller
           'no' => $no,
           'id' => $rs->id,
           'barcode' => $rs->barcode,
-          'products' => $rs->ItemCode,
+          'products' => $rs->ItemCode." : ".$rs->ItemName,
           'from_zone' => $rs->BinCode,
           'qty' => round($rs->Qty, 2),
 					'unitMsr' => $rs->unitMsr
@@ -275,7 +496,14 @@ class Move extends PS_Controller
 
         array_push($ds, $arr);
         $no++;
+				$total_qty += round($rs->Qty, 2);
       }
+
+			$arr = array(
+        'total' => number($total_qty)
+      );
+
+      array_push($ds, $arr);
     }
     else
     {
@@ -327,34 +555,43 @@ class Move extends PS_Controller
       $this->load->model('item_model');
 
       $zone_code = $this->input->get('zone_code');
+
       $move_id = $this->input->get('move_id');
+
       $stock = $this->stock_model->get_all_stock_in_zone($zone_code);
 
       if(!empty($stock))
       {
         $no = 1;
+
         foreach($stock as $rs)
         {
-          //--- จำนวนที่อยู่ใน temp
-          $temp_qty = $this->move_model->get_temp_qty($move_id, $rs->ItemCode, $zone_code);
-          //--- จำนวนที่อยู่ใน move_detail และยังไม่ valid
-          $move_qty = get_zero($this->move_model->get_move_qty($move_id, $rs->ItemCode, $zone_code));
-          //--- จำนวนที่โอนได้คงเหลือ
-          $qty = $rs->qty - ($temp_qty + $move_qty);
+					if($rs->qty > 0)
+					{
+						//--- จำนวนที่อยู่ใน temp
+						$temp_qty = $this->move_model->get_temp_qty($move_id, $rs->ItemCode, $zone_code);
+						//--- จำนวนที่อยู่ใน move_detail และยังไม่ valid
+						$move_qty = get_zero($this->move_model->get_move_qty($move_id, $rs->ItemCode, $zone_code));
+						//--- จำนวนที่โอนได้คงเหลือ
+						$qty = $rs->qty - ($temp_qty + $move_qty);
 
-          if($qty > 0)
-          {
-            $arr = array(
-              'no' => $no,
-              'barcode' => $this->item_model->get_barcode($rs->ItemCode),
-              'products' => $rs->ItemCode .' | '.$rs->ItemName,
-              'qty' => $qty,
-							'unitMsr' => $rs->unitMsr
-            );
+						if($qty > 0)
+						{
+							$arr = array(
+								'no' => $no,
+								'barcode' => $this->item_model->get_barcode($rs->ItemCode),
+								'products' => $rs->ItemCode .' | '.$rs->ItemName,
+								'qty' => $qty,
+								'unitMsr' => $rs->unitMsr,
+								'temp_qty' => $temp_qty,
+								'move_qty' => $move_qty,
+								'move_id' => $move_id
+							);
 
-            array_push($sc, $arr);
-            $no++;
-          }
+							array_push($sc, $arr);
+							$no++;
+						}
+					}
         }
       }
       else
@@ -373,6 +610,7 @@ class Move extends PS_Controller
   {
     $sc = TRUE;
 		$ds = array();
+
     if($this->input->post('move_id'))
     {
       $this->load->model('item_model');
@@ -389,6 +627,8 @@ class Move extends PS_Controller
 
       if(! empty($item))
       {
+				$qty = $qty * $item->BaseQty;
+
         $stock = $this->stock_model->getStockZone($item->ItemCode, $zone_code);
         //--- จำนวนที่อยู่ใน temp
         $temp_qty = $this->move_model->get_temp_qty($move_id, $item->ItemCode, $zone_code);
@@ -416,11 +656,12 @@ class Move extends PS_Controller
 	            'move_code' => $move_code,
 							'barcode' => $barcode,
 	            'ItemCode' => $item->ItemCode,
+							'ItemName' => $item->ItemName,
 	            'BinCode' => $zone_code,
 							'UomEntry' => $item->UomEntry,
 							'UomCode' => $item->UomCode,
 							'unitMsr' => $item->UomName,
-	            'Qty' => round($qty * $item->BaseQty),
+	            'Qty' => $qty,
 							'uname' => $this->user->uname
 	          );
 
@@ -429,10 +670,11 @@ class Move extends PS_Controller
 	            $sc = FALSE;
 	            $this->error = 'ย้ายสินค้าเข้า temp ไม่สำเร็จ';
 	          }
-						else
-						{
-							$ds['current_qty'] = round($qty * $item->BaseQty);
-						}
+					}
+
+					if($sc === TRUE)
+					{
+						$ds['current_qty'] = $cqty - $qty;
 					}
         }
         else
@@ -459,6 +701,159 @@ class Move extends PS_Controller
 
 
 
+	public function move_to_zone()
+  {
+    $sc = TRUE;
+    if($this->input->post('id'))
+    {
+      $move_id = $this->input->post('id');
+			$move_code = $this->input->post('move_code');
+      $barcode = trim($this->input->post('barcode'));
+      $toBinCode = $this->input->post('zone_code');
+      $qty = $this->input->post('qty');
+
+			$item = $this->item_model->getItemByBarcode($barcode);
+
+			$item = empty($item) ? $this->item_model->getItemByCode($barcode) : $item;
+
+
+      if(!empty($item))
+      {
+				$qty = $qty * $item->BaseQty;
+
+        //--- ย้ายจำนวนใน temp มาเพิ่มเข้า move detail
+        //--- โดยเอา temp ออกมา(อาจมีหลายรายการ เพราะอาจมาจากหลายโซน
+        //--- ดึงรายการจาก temp ตามรายการสินค้า (อาจมีหลายบรรทัด)
+        $temp = $this->move_model->get_temp_product($move_id, $item->ItemCode);
+
+        if(!empty($temp))
+        {
+          //--- เริ่มใช้งาน transction
+          $this->db->trans_begin();
+
+          foreach($temp as $rs)
+          {
+            if($sc === FALSE)
+            {
+              break;
+            }
+
+            if($rs->BinCode != $toBinCode)
+            {
+              if($qty > 0 && $rs->Qty > 0)
+              {
+                //---- ยอดที่ต้องการย้าย น้อยกว่าหรือเท่ากับ ยอดใน temp มั้ย
+                //---- ถ้าใช่ ใช้ยอดที่ต้องการย้ายได้เลย
+                //---- แต่ถ้ายอดที่ต้องการย้ายมากว่ายอดใน temp แล้วยกยอดที่เหลือไปย้ายในรอบถัดไป(ถ้ามี)
+                $temp_qty = $qty <= $rs->Qty ? $qty : $rs->Qty;
+
+                $id = $this->move_model->get_detail_id($move_id, $item->ItemCode, $rs->BinCode, $toBinCode);
+
+                //--- ถ้าพบไอดีให้แก้ไขจำนวน
+                if(!empty($id))
+                {
+                  if($this->move_model->update_move_qty($id, $temp_qty) === FALSE)
+                  {
+                    $sc = FALSE;
+                    $this->error = 'แก้ไขยอดในรายการไม่สำเร็จ';
+                  }
+                }
+                else
+                {
+                  //--- ถ้ายังไม่มีรายการ ให้เพิ่มใหม่
+                  $ds = array(
+                    'move_id' => $move_id,
+										'move_code' => $move_code,
+										'barcode' => $this->item_model->get_barcode($item->ItemCode),
+                    'ItemCode' => $item->ItemCode,
+                    'ItemName' => $item->ItemName,
+                    'fromWhsCode' => $this->zone_model->getWhsCode($rs->BinCode),
+										'fromBinCode' => $rs->BinCode,
+										'toWhsCode' => $this->zone_model->getWhsCode($toBinCode),
+										'toBinCode' => $toBinCode,
+										'UomEntry' => $item->UomEntry,
+										'UomCode' => $item->UomCode,
+										'unitMsr' => $item->UomName,
+                    'Qty' => $temp_qty,
+										'uname' => $this->user->uname
+                  );
+
+                  if($this->move_model->add_detail($ds) === FALSE)
+                  {
+                    $sc = FALSE;
+                    $this->error = 'เพิ่มรายการไม่สำเร็จ';
+                  }
+                }
+
+								if($sc === TRUE)
+								{
+									//--- ถ้าเพิ่มหรือแก้ไข detail เสร็จแล้ว ทำการ ลดยอดใน temp ตามยอดที่เพิ่มเข้า detail
+									if($this->move_model->update_temp_qty($rs->id, ($temp_qty * -1)) === FALSE)
+									{
+										$sc = FALSE;
+										$this->error = 'แก้ไขยอดใน temp ไม่สำเร็จ';
+									}
+								}
+
+                //--- ตัดยอดที่ต้องการย้ายออก เพื่อยกยอดไปรอบต่อไป
+                $qty -= $temp_qty;
+              }
+              else
+              {
+                break;
+              } //-- end if qty > 0
+            }
+            else
+            {
+              $sc = FALSE;
+              $message = 'โซนต้นทาง - ปลายทาง ต้องไม่ใช่โซนเดียวกัน';
+            }
+
+
+            //--- ลบ temp ที่ยอดเป็น 0
+            $this->move_model->drop_zero_temp();
+          } //--- end foreach
+
+
+          //--- เมื่อทำงานจนจบแล้ว ถ้ายังเหลือยอด แสดงว่ายอดที่ต้องการย้ายเข้า มากกว่ายอดที่ย้ายออกมา
+          //--- จะให้ทำกร roll back แล้วแจ้งกลับ
+          if($qty > 0)
+          {
+            $sc = FALSE;
+            $message = 'ยอดที่ย้ายเข้ามากกว่ายอดที่ย้ายออกมา';
+          }
+
+          if($sc === FALSE)
+          {
+            $this->db->trans_rollback();
+          }
+          else
+          {
+            $this->db->trans_commit();
+          }
+        }
+        else
+        {
+          $sc = FALSE;
+          $message = 'ไม่พบรายการใน temp';
+        }
+      }
+      else
+      {
+        $sc = FALSE;
+        $message = 'บาร์โค้ดไม่ถูกต้อง';
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $message = 'ไม่พบเลขที่เอกสาร';
+    }
+
+    echo $sc === TRUE ? 'success' : $message;
+  }
+
+
 
 	public function is_exists_zone()
 	{
@@ -474,6 +869,275 @@ class Move extends PS_Controller
 		}
 	}
 
+
+
+	public function is_exists_temp($move_id)
+	{
+		$temp = $this->move_model->is_exists_temp($move_id);
+
+		if( ! empty($temp))
+		{
+			echo "พบสินค้าค้างใน Temp กรุณาตรวจสอบ";
+		}
+		else
+		{
+			echo "success";
+		}
+	}
+
+
+
+	public function doExport($id)
+	{
+		$sc = TRUE;
+
+		$doc = $this->move_model->get($id);
+
+		if(!empty($doc))
+		{
+			if($doc->Status !== 'Y')
+			{
+				//---- check TR already in SAP
+				$mv = $this->move_model->get_sap_transfer($doc->code);
+
+				if(empty($mv))
+				{
+					//---- drop exists temp data
+					$temp = $this->move_model->get_temp_transfer($doc->code);
+
+					if(!empty($temp))
+		      {
+		        foreach($temp as $rows)
+		        {
+		          if($this->move_model->drop_transfer_temp_data($rows->DocEntry) === FALSE)
+		          {
+		            $sc = FALSE;
+		            $this->error = "ลบรายการที่ค้างใน Temp ไม่สำเร็จ";
+		          }
+		        }
+		      }
+
+					if($sc === TRUE)
+					{
+						$currency = getConfig('CURRENCY');
+						$currency = empty($currency) ? 'THB' : $currency;
+
+						$this->mc->trans_begin();
+
+						//--- insert heade OWTR ก่อน แล้วได้ DocEntry มาเอาไปใส่ที่อื่นต่อ
+						$header = array(
+	            'DocDate' => sap_date($doc->DocDate, TRUE),
+	            'DocDueDate' => sap_date($doc->DocDate, TRUE),
+	            'CardCode' => NULL,
+	            'CardName' => NULL,
+	            'VatPercent' => 0.000000,
+	            'VatSum' => 0.000000,
+	            'VatSumFc' => 0.000000,
+	            'DiscPrcnt' => 0.000000,
+	            'DiscSum' => 0.000000,
+	            'DiscSumFC' => 0.000000,
+	            'DocCur' => $currency,
+	            'DocRate' => 1,
+	            'DocTotal' => 0.000000,
+	            'DocTotalFC' => 0.000000,
+							'U_WEBORDER' => $doc->code,
+	            'F_Web' => 'A',
+	            'F_WebDate' => sap_date(now(), TRUE),
+							'U_BookCode' => 'MV'
+						);
+
+						$docEntry = $this->move_model->add_sap_transfer($header);
+
+						if($docEntry !== FALSE)
+						{
+							$details = $this->move_model->get_details($id);
+
+							if(!empty($details))
+							{
+								$line = 0;
+
+	              foreach($details as $rs)
+	              {
+									if($sc === FALSE)
+									{
+										break;
+									}
+
+									if($rs->Qty > 0 && $rs->valid == 1)
+									{
+										$arr = array(
+		                  'DocEntry' => $docEntry,
+		                  'U_WEBORDER' => $doc->code,
+		                  'LineNum' => $line,
+		                  'ItemCode' => $rs->ItemCode,
+		                  'Dscription' => $rs->ItemName,
+		                  'Quantity' => $rs->Qty,
+											'InvQty' => $rs->Qty,
+											'UomCode' => $rs->UomCode,
+											'UomEntry' => $rs->UomEntry,
+		                  'unitMsr' => $rs->unitMsr,
+											'NumPerMsr' => 1.000000,
+											'UomCode2' => $rs->UomCode,
+											'UomEntry2' => $rs->UomEntry,
+											'unitMsr2' => $rs->unitMsr,
+											'NumPerMsr2' => 1.000000,
+		                  'PriceBefDi' => 0.000000,
+		                  'LineTotal' => 0.000000,
+		                  'ShipDate' => sap_date($doc->DocDate, TRUE),
+		                  'Currency' => $currency,
+		                  'Rate' => 1,
+		                  'DiscPrcnt' => 0.000000,
+		                  'Price' => 0.000000,
+		                  'TotalFrgn' => 0.000000,
+		                  'FromWhsCod' => $rs->fromWhsCode,
+		                  'WhsCode' => $doc->toWhsCode,
+		                  'F_FROM_BIN' => $rs->fromBinCode,
+											'F_TO_BIN' => $rs->toBinCode,
+		                  'TaxStatus' => 'Y',
+		                  'VatPrcnt' => 0.000000,
+		                  'VatGroup' => NULL,
+		                  'PriceAfVAT' => 0.000000,
+		                  'VatSum' => 0.000000,
+		                  'TaxType' => 'Y'
+		                );
+
+										if( ! $this->move_model->add_sap_transfer_detail($arr))
+		                {
+		                  $sc = FALSE;
+		                  $this->error = 'เพิ่มรายการไม่สำเร็จ';
+		                }
+
+		                $line++;
+									}
+	              }
+							} //-- end if empty details
+
+						} //--- end if docEntry
+
+						if($sc === TRUE)
+						{
+							$this->mc->trans_commit();
+						}
+						else
+						{
+							$this->mc->trans_rollback();
+						}
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "เอกสารถูกนำเข้า SAP แล้ว";
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Invalid Document Status";
+			}
+		}
+
+		if($sc === TRUE)
+		{
+			$arr = array(
+				'Status' => 'P',
+				'tempDate' => now()
+			);
+
+			$this->move_model->update($id, $arr);
+		}
+
+		return $sc;
+	}
+
+
+
+	public function get_sap_temp()
+  {
+    $code = $this->input->get('code'); //--- U_WEBORDER
+
+    $data = $this->move_model->get_temp_data($code);
+
+    if(!empty($data))
+    {
+
+			$status = 'Pending';
+
+			if($data->F_Sap === NULL)
+			{
+				$status = "Pending";
+			}
+			else if($data->F_Sap === 'N')
+			{
+				$status = "Failed";
+			}
+			else if($data->F_Sap === 'Y')
+			{
+				$status = "Success";
+			}
+
+
+      $arr = array(
+        'U_WEBORDER' => $data->U_WEBORDER,
+        'F_WebDate' => thai_date($data->F_WebDate, TRUE),
+        'F_SapDate' => empty($data->F_SapDate) ? '-' : thai_date($data->F_SapDate, TRUE),
+        'F_Sap' => $status,
+        'Message' => empty($data->Message) ? '' : $data->Message,
+				'del_btn' => ($status === "Pending" OR $status === "Failed") ? 'ok' : ''
+      );
+
+      echo json_encode($arr);
+    }
+    else
+    {
+      echo 'No data found';
+    }
+  }
+
+
+	public function remove_sap_temp()
+  {
+    $sc = TRUE;
+    $code = $this->input->post('U_WEBORDER');
+    $temp = $this->move_model->get_temp_status($code);
+
+    if(empty($temp))
+    {
+      $sc = FALSE;
+      $this->error = "Temp data not exists";
+    }
+    else if($temp->F_Sap === 'Y')
+    {
+      $sc = FALSE;
+      $this->error = "Delete Failed : Temp Data already in SAP";
+    }
+
+    if($sc === TRUE)
+    {
+      if(! $this->move_model->drop_transfer_temp_data($temp->DocEntry))
+      {
+        $sc = FALSE;
+        $this->error = "Delete Failed : Delete Temp Failed";
+      }
+			else
+			{
+
+				$arr = array(
+					'Status' => 'N',
+					'DocNum' => NULL,
+					'message' => NULL,
+					'SapDate' => NULL,
+					'tempDate' => NULL
+				);
+
+				$this->move_model->update_by_code($code, $arr);
+				$this->move_model->valid_details_by_code($code, 0);
+			}
+    }
+
+
+    $this->response($sc);
+  }
 
 
 	public function get_new_code($date = NULL)

@@ -51,6 +51,15 @@ class Picking extends PS_Controller
 
 		$rs = $this->picking_model->get_list($filter, $perpage, $this->uri->segment($segment), 'R');
 
+		if(!empty($rs))
+		{
+			foreach($rs as $rd)
+			{
+				$rd->sum_so = $this->pick_model->count_so($rd->AbsEntry);
+				$rd->sum_item_line = $this->pick_model->count_item_line($rd->AbsEntry);
+			}
+		}
+
     $filter['data'] = $rs;
 
 		$this->pagination->initialize($init);
@@ -87,6 +96,15 @@ class Picking extends PS_Controller
 		$init	= pagination_config($this->home.'/index/', $rows, $perpage, $segment);
 
 		$rs = $this->picking_model->get_list($filter, $perpage, $this->uri->segment($segment), 'P');
+
+		if(!empty($rs))
+		{
+			foreach($rs as $rd)
+			{
+				$rd->sum_so = $this->pick_model->count_so($rd->AbsEntry);
+				$rd->sum_item_line = $this->pick_model->count_item_line($rd->AbsEntry);
+			}
+		}
 
     $filter['data'] = $rs;
 

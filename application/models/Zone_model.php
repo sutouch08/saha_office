@@ -33,6 +33,19 @@ class Zone_model extends CI_Model
     return NULL;
   }
 
+
+  public function getWhsCode($binCode)
+  {
+    $rs = $this->ms->select('WhsCode')->where('BinCode', $binCode)->get('OBIN');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->WhsCode;
+    }
+
+    return NULL;
+  }
+
 }
 
 ?>

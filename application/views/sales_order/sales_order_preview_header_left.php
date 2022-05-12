@@ -30,9 +30,9 @@
       <td class="width-40 bg-green">แผนก</td>
       <td class="width-60"><?php echo $header->OcrCode1 .(!empty($header->division_name) ? ' : '.$header->division_name : ''); ?></td>
     </tr>
-    
+
     <tr>
-      <td class="width-40 bg-green">Ship To</td>
+      <td class="width-40 bg-green">Ship To :  (สาขาที่ <?php echo $header->ShipToCode; ?>)</td>
       <td class="width-60"><?php echo $header->Address2; ?></td>
     </tr>
   </table>

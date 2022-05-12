@@ -36,29 +36,33 @@
 <hr class="padding-5 margin-top-10 margin-bottom-10"/>
 
 <div class="row">
-	<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
+	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
 		<label>Location</label>
 		<input type="text" class="form-control input-sm text-center" id="zoneCode" autofocus/>
 	</div>
-	<div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-3 padding-5">
+	<div class="col-lg-1 col-md-1 col-sm-1 col-xs-3 padding-5">
 		<label class="display-block not-show">label</label>
 		<button type="button" class="btn btn-xs btn-primary btn-block" id="btn-submit-zone" onclick="setZone()">Submit</button>
 		<button type="button" class="btn btn-xs btn-info btn-block hide" id="btn-change-zone" onclick="changeZone()">Change</button>
 	</div>
 
-	<div class="col-lg-1 col-md-2 col-sm-2 col-xs-3 padding-5">
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
 		<label>SO No.</label>
 		<input type="text" class="form-control input-sm text-center" id="soNo" disabled/>
+	</div>
+	<div class="col-lg-1 col-md-1 col-sm-1 col-xs-2 padding-5">
+		<label class="display-block not-show">so</label>
+		<button type="button" class="btn btn-xs btn-primary btn-block" onclick="clearSO()">Clear</button>
 	</div>
 
 	<div class="col-xs-12 visible-xs">&nbsp;</div>
 
-	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-2 padding-5">
 		<label>Qty</label>
 		<input type="number" class="form-control input-sm text-center" id="qty" value="1" disabled />
 	</div>
 
-	<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
+	<div class="col-lg-2 col-md-3 col-sm-3 col-xs-7 padding-5">
 		<label>Barcode</label>
 		<input type="text" class="form-control input-sm text-center" inputmode="none" id="barcode-item" value="" disabled />
 	</div>

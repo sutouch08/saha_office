@@ -1,10 +1,9 @@
 <?php
 $this->load->helper('print');
-$pageWidth = getConfig('PALLET_LABEL_WIDTH');
-$pageHeight = getConfig('PALLET_LABEL_HEIGHT');
-$contentWidth = getConfig('PALLET_LABEL_CONTENT_WIDTH');
-$fontSize = getConfig('PALLET_LABEL_FONT_SIZE');
-$fontSize = empty($fontSize) ? 24 : $fontSize;
+$pageWidth = getConfig('PALLET_LABEL_WIDTH', 80);
+$pageHeight = getConfig('PALLET_LABEL_HEIGHT', 80);
+$contentWidth = getConfig('PALLET_LABEL_CONTENT_WIDTH', 75);
+$fontSize = getConfig('PALLET_LABEL_FONT_SIZE', 24);
 $currentPage = 1;
 $totalPage = count($pallets);
 ?>

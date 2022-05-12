@@ -1,17 +1,18 @@
 function doExport()
 {
-	var code = $('#move_code').val();
+	var id = $('#id').val();
+
 	load_in();
+
 	$.ajax({
-		url:HOME + 'export_move/' + code,
+		url:HOME + 'export_move/' + id,
 		type:'POST',
 		cache:false,
 		success:function(rs){
 			load_out();
 			if(rs == 'success'){
 				swal({
-					title:'Success',
-					text:'ส่งข้อมูลไป SAP เรียบร้อยแล้ว',
+					title:'Success',					
 					type:'success',
 					timer:1000
 				});
@@ -27,9 +28,79 @@ function doExport()
 }
 
 
+
+function save(temp_status) {
+
+	if(temp_status === undefined) {
+		check_temp();
+	}
+	else {
+
+		load_in();
+
+		const move_id = $('#id').val();
+
+		$.ajax({
+			url:HOME + 'save/'+move_id,
+			type:'POST',
+			cache:false,
+			success:function(rs) {
+				load_out();
+
+				var rs = $.trim(rs);
+				if(rs === 'success') {
+					swal({
+						title:'Success',
+						type:'success',
+						timer:1000
+					});
+
+					setTimeout(function() {
+						goDetail(move_id);
+					}, 1500);
+				}
+				else {
+					swal({
+						title:'Error!',
+						text:rs,
+						type:'error'
+					});
+				}
+			}
+		});
+	}
+}
+
+
+
+function check_temp() {
+
+	const move_id = $('#id').val();
+
+	$.ajax({
+		url:HOME + 'is_exists_temp/'+move_id,
+		type:'GET',
+		cache:false,
+		success:function(rs) {
+			if(rs === 'success') {
+				save(move_id);
+			}
+			else {
+				swal({
+					title:"Error",
+					text:rs,
+					type:'error'
+				});
+			}
+		}
+	});
+}
+
+
 function deleteMoveItem(id, code)
 {
-	var code = $('#move_code').val();
+	const move_id = $('#id').val();
+
   swal({
 		title: 'คุณแน่ใจ ?',
 		text: 'ต้องการลบ '+ code +' หรือไม่ ?',
@@ -41,15 +112,18 @@ function deleteMoveItem(id, code)
 		closeOnConfirm: false
 	}, function(){
 		$.ajax({
-			url:HOME + 'delete_detail/'+ id,
+			url:HOME + 'delete_detail',
 			type:"POST",
       cache:"false",
+			data:{
+				"id" : id,
+				"move_id" : move_id
+			},
 			success: function(rs){
 				var rs = $.trim(rs);
 				if( rs == 'success' ){
 					swal({
 						title:'Success',
-						text: 'ดำเนินการเรียบร้อยแล้ว',
 						type: 'success',
 						timer: 1000
 					});
@@ -66,8 +140,52 @@ function deleteMoveItem(id, code)
 }
 
 
+
+function deleteTemp(id, name) {
+	const move_id = $('#id').val();
+
+  swal({
+		title: 'คุณแน่ใจ ?',
+		text: 'ต้องการลบ '+ name +' หรือไม่ ?',
+		type: 'warning',
+		showCancelButton: true,
+		comfirmButtonColor: '#DD6855',
+		confirmButtonText: 'ใช่ ฉันต้องการ',
+		cancelButtonText: 'ไม่ใช่',
+		closeOnConfirm: false
+	}, function(){
+		$.ajax({
+			url:HOME + 'delete_temp',
+			type:"POST",
+      cache:"false",
+			data:{
+				"id" : id,
+				"move_id" : move_id
+			},
+			success: function(rs){
+				var rs = $.trim(rs);
+				if( rs == 'success' ){
+					swal({
+						title:'Success',
+						type: 'success',
+						timer: 1000
+					});
+
+					$('#row-temp-'+id).remove();
+					reIndex();
+					reCal();
+				}else{
+					swal("ข้อผิดพลาด", rs, "error");
+				}
+			}
+		});
+	});
+}
+
+
 function reCal(){
 	var total = 0;
+
 	$('.qty').each(function(){
 		var qty = parseFloat(removeCommas($(this).text()));
 		if(!isNaN(qty))

@@ -163,13 +163,13 @@ function ac_format($val, $digit = 0)
 }
 
 
-function getConfig($code)
+function getConfig($code, $default = NULL)
 {
   $CI =& get_instance();
   $rs = $CI->db->select('value')->where('code', $code)->get('config');
   if($rs->num_rows() == 1)
   {
-    return $rs->row()->value;
+    return ($rs->row()->value != "" && $rs->row()->value != NULL) ? $rs->row()->value : $default ;
   }
 
 	return NULL;

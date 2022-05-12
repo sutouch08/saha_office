@@ -283,7 +283,7 @@ class Item_model extends CI_Model
   public function getItemByBarcode($barcode)
   {
     $rs = $this->ms
-    ->select('OITM.ItemCode, OITM.ItemName, OBCD.UomEntry, UOM.UomCode, OUOM.UomName, UGP1.BaseQty')
+    ->select('OITM.ItemCode, OITM.ItemName, OBCD.UomEntry, OUOM.UomCode, OUOM.UomName, UGP1.BaseQty')
     ->from('OBCD')
     ->join('OITM', 'OITM.ItemCode = OBCD.ItemCode')
     ->join('UGP1', 'OITM.UgpEntry = UGP1.UgpEntry AND OBCD.UomEntry = UGP1.UomEntry', 'left')

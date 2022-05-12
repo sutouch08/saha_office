@@ -23,7 +23,7 @@
   <div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">Employee Name</label>
     <div class="col-xs-12 col-sm-4">
-			<input type="text" name="emp" id="emp" class="width-100" value="<?php echo $data->emp_name; ?>" required />
+			<input type="text" name="emp" id="emp" class="width-100" value="<?php echo $data->emp_name; ?>" />
     </div>
 		<div class="help-block col-xs-12 col-sm-reset inline red" id="emp-error"></div>
   </div>

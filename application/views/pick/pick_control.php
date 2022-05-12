@@ -1,3 +1,10 @@
+<style>
+  thead {
+    position: webkit-sticky;
+    position: sticky;
+    top:0;
+  }
+</style>
 <div class="row">
   <div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-6 padding-5">
 		<label class="search-label">วันที่</label>
@@ -79,18 +86,19 @@
   <table class="table table-striped border-1" style="margin-bottom:5px; min-width:1000px;">
     <tbody>
       <tr>
-      <td class="middle text-center" style="width:25px;">
-        <label>
-          <input type="checkbox" class="ace" id="check-order-all" onchange="checkAllOrder()">
-          <span class="lbl"></span>
-        </label>
-      </td>
-      <td style="width:90px;">SO No.</td>
-      <td style="width:100px;">รหัสลูกค้า</td>
-      <td style="min-width:250px;">ชื่อลูกค้า</td>
-      <td style="width:100px;">วันที่</td>
-      <td style="min-width:250px;">Ship to</td>
-      <td style="">Remark</td>
+        <td class="middle text-center" style="width:25px;">
+          <label>
+            <input type="checkbox" class="ace" id="check-order-all" onchange="checkAllOrder()">
+            <span class="lbl"></span>
+          </label>
+        </td>
+        <td style="width:90px;">SO No.</td>
+        <td style="width:100px;">รหัสลูกค้า</td>
+        <td style="min-width:250px;">ชื่อลูกค้า</td>
+        <td style="width:100px;">วันที่</td>
+        <td style="width:100px;">วันที่จัดส่ง</td>
+        <td style="min-width:250px;">Ship to</td>
+        <td style="">Remark</td>
       </tr>
       {{#each this}}
         <tr>
@@ -104,6 +112,7 @@
           <td class="middle">{{CardCode}}</td>
           <td class="middle">{{CardName}}</td>
           <td class="middle">{{DocDate}}</td>
+          <td class="middle">{{DocDueDate}}</td>
           <td class="middle">{{ShipTo}}</td>
           <td class="middle">{{remark}}</td>
       {{/each}}

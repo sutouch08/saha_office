@@ -169,7 +169,7 @@ class Stock_model extends CI_Model
   public function get_all_stock_in_zone($binCode)
   {
     $rs = $this->ms
-    ->select('OITM.ItemCode, OITM.ItemName, OITM.InvntryUom AS unitMsr, OIBQ.OnHandQty AS qty, OITM.ItemName')
+    ->select('OITM.ItemCode, OITM.ItemName, OITM.InvntryUom AS unitMsr, OIBQ.OnHandQty AS qty')
     ->from('OIBQ')
     ->join('OBIN', 'OBIN.WhsCode = OIBQ.WhsCode AND OBIN.AbsEntry = OIBQ.BinAbs', 'left')
     ->join('OITM', 'OIBQ.ItemCode = OITM.ItemCode')

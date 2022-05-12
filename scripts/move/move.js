@@ -58,11 +58,10 @@ function goUseKeyboard(){
 
 
 
-function goDelete(code, status){
+function getDelete(id, code) {
+
   var title = 'ต้องการยกเลิก '+ code +' หรือไม่ ?';
-  if(status == 1){
-    title = 'หากต้องการยกเลิก คุณต้องยกเลิกเอกสารนี้ใน SAP ก่อน ต้องการยกเลิก '+ code +' หรือไม่ ?';
-  }
+  
 	swal({
 		title: 'คุณแน่ใจ ?',
 		text: title,
@@ -74,7 +73,7 @@ function goDelete(code, status){
 		closeOnConfirm: false
 	}, function(){
 		$.ajax({
-			url:HOME + 'delete_move/'+code,
+			url:HOME + 'cancle_move/'+id,
 			type:"POST",
       cache:"false",
 			success: function(rs){
@@ -147,10 +146,70 @@ $('#date').datepicker({
 });
 
 
+//---- view temp detail
+function viewDetail(code) {
+  $.ajax({
+    url:HOME + 'get_sap_temp',
+    type:'GET',
+    data:{
+      'code' : code //--- U_WEBORDER
+    },
+    success:function(rs) {
+      var rs = $.trim(rs);
+      if(isJson(rs)) {
+        var data = $.parseJSON(rs);
+        var source = $('#temp-template').html();
+        var output = $('#temp-table');
 
-function printMove(){
-	var center = ($(document).width() - 800) /2;
-  var code = $('#move_code').val();
-  var target = HOME + 'print_move/'+code;
-  window.open(target, "_blank", "width=800, height=900, left="+center+", scrollbars=yes");
+        render(source, data, output);
+
+        $('#tempModal').modal('show');
+      }
+      else {
+        swal({
+          title:'Error!',
+          text:rs,
+          type:'error'
+        })
+      }
+    }
+  })
+}
+
+
+function removeTemp() {
+  $('#tempModal').modal('hide');
+  var U_WEBORDER = $('#U_WEBORDER').val();
+  $.ajax({
+    url:HOME + 'remove_sap_temp',
+    type:'POST',
+    data:{
+      'U_WEBORDER' : U_WEBORDER
+    },
+    success:function(rs) {
+      var rs = $.trim(rs);
+      if(rs === 'success') {
+        swal({
+          title:'Success',
+          type:'success',
+          timer:1000
+        });
+
+        setTimeout(function(){
+          window.location.reload();
+        }, 1000);
+      }
+      else {
+        swal({
+          title:'Error!',
+          text:rs,
+          type:'error'
+        })
+      }
+    }
+  })
+}
+
+function closeModal(name) {
+  $('#'+name).modal('hide');
 }

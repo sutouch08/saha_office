@@ -495,7 +495,8 @@ class Transfer extends PS_Controller
 	            'DocTotalFC' => 0.000000,
 							'U_WEBORDER' => $doc->code,
 	            'F_Web' => 'A',
-	            'F_WebDate' => sap_date(now(), TRUE)
+	            'F_WebDate' => sap_date(now(), TRUE),
+							'U_BookCode' => "TR"
 						);
 
 						$docEntry = $this->transfer_model->add_sap_transfer($header);
@@ -1032,7 +1033,7 @@ class Transfer extends PS_Controller
 		}
 	}
 
-	
+
 
 	public function get_new_code($date = NULL)
   {

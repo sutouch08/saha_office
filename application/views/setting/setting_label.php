@@ -2,12 +2,46 @@
 
 	<form id="labelForm" method="post" action="<?php echo $this->home; ?>/update_config">
   	<div class="row">
+			<div class="col-lg-3 col-md-3 col-sm-3 col-xs-6">
+        <span class="form-control left-label">Pick Label width</span>
+      </div>
+      <div class="col-lg-1-harf col-md-2-harf col-sm-3 col-xs-6">
+				<div class="input-group">
+        	<input type="text" class="form-control input-sm input-small" name="PICK_LABEL_WIDTH"  value="<?php echo $PICK_LABEL_WIDTH; ?>" />
+					<span class="input-group-addon">mm.</span>
+				</div>
+      </div>
+      <div class="divider-hidden"></div>
+
+      <div class="col-lg-3 col-md-3 col-sm-3 col-xs-6">
+        <span class="form-control left-label">Pick Label height</span>
+      </div>
+      <div class="col-lg-1-harf col-md-2-harf col-sm-3 col-xs-6">
+				<div class="input-group">
+        <input type="text" class="form-control input-sm input-small" name="PICK_LABEL_HEIGHT" value="<?php echo $PICK_LABEL_HEIGHT; ?>" />
+				<span class="input-group-addon">mm.</span>
+			</div>
+      </div>
+      <div class="divider-hidden"></div>
+
+      <div class="col-lg-3 col-md-3 col-sm-3 col-xs-6">
+        <span class="form-control left-label">Pick Content width</span>
+      </div>
+      <div class="col-lg-1-harf col-md-2-harf col-sm-3 col-xs-6">
+				<div class="input-group">
+        <input type="text" class="form-control input-sm input-small" name="PICK_LABEL_CONTENT_WIDTH" value="<?php echo $PICK_LABEL_CONTENT_WIDTH; ?>" />
+				<span class="input-group-addon">mm.</span>
+			</div>
+      </div>
+      <div class="divider-hidden"></div>
+
+
     	<div class="col-lg-3 col-md-3 col-sm-3 col-xs-6">
         <span class="form-control left-label">Pack Label width</span>
       </div>
       <div class="col-lg-1-harf col-md-2-harf col-sm-3 col-xs-6">
 				<div class="input-group">
-        	<input type="text" class="form-control input-sm input-small" name="PRINT_LABEL_WIDTH"  value="<?php echo $PRINT_LABEL_WIDTH; ?>" />
+        	<input type="text" class="form-control input-sm input-small" name="PACK_LABEL_WIDTH"  value="<?php echo $PACK_LABEL_WIDTH; ?>" />
 					<span class="input-group-addon">mm.</span>
 				</div>
       </div>
@@ -18,7 +52,7 @@
       </div>
       <div class="col-lg-1-harf col-md-2-harf col-sm-3 col-xs-6">
 				<div class="input-group">
-        <input type="text" class="form-control input-sm input-small" name="PRINT_LABEL_HEIGHT" value="<?php echo $PRINT_LABEL_HEIGHT; ?>" />
+        <input type="text" class="form-control input-sm input-small" name="PACK_LABEL_HEIGHT" value="<?php echo $PACK_LABEL_HEIGHT; ?>" />
 				<span class="input-group-addon">mm.</span>
 			</div>
       </div>
@@ -29,7 +63,7 @@
       </div>
       <div class="col-lg-1-harf col-md-2-harf col-sm-3 col-xs-6">
 				<div class="input-group">
-        <input type="text" class="form-control input-sm input-small" name="PRINT_LABEL_CONTENT_WIDTH" value="<?php echo $PRINT_LABEL_CONTENT_WIDTH; ?>" />
+        <input type="text" class="form-control input-sm input-small" name="PACK_LABEL_CONTENT_WIDTH" value="<?php echo $PACK_LABEL_CONTENT_WIDTH; ?>" />
 				<span class="input-group-addon">mm.</span>
 			</div>
       </div>

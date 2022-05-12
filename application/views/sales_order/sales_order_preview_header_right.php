@@ -50,7 +50,7 @@
     </tr>
     <?php endif; ?>
     <tr>
-      <td class="width-40 bg-green">Bill To</td>
+      <td class="width-40 bg-green">Bill To :  (สาขาที่ <?php echo $header->PayToCode; ?>)</td>
       <td class="width-60"><?php echo $header->Address; ?></td>
     </tr>
   </table>

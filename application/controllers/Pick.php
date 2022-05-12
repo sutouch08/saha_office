@@ -51,6 +51,15 @@ class Pick extends PS_Controller
 
 		$rs = $this->pick_model->get_list($filter, $perpage, $this->uri->segment($segment));
 
+		if(!empty($rs))
+		{
+			foreach($rs as $rd)
+			{
+				$rd->sum_so = $this->pick_model->count_so($rd->AbsEntry);
+				$rd->sum_item_line = $this->pick_model->count_item_line($rd->AbsEntry);
+			}
+		}
+
     $filter['data'] = $rs;
 
 		$this->pagination->initialize($init);
@@ -895,7 +904,7 @@ class Pick extends PS_Controller
 		$fromDate = $this->input->get('fromDate');
 		$toDate = $this->input->get('toDate');
 
-		$qr  = "SELECT DocEntry, DocNum, CardCode, CardName, DocDate, Address2, Comments ";
+		$qr  = "SELECT DocEntry, DocNum, CardCode, CardName, DocDate, DocDueDate, Address2, Comments ";
 		$qr .= "FROM ORDR ";
 		$qr .= "WHERE DocStatus = 'O' ";
 
@@ -929,6 +938,7 @@ class Pick extends PS_Controller
 					'CardCode' => $rd->CardCode,
 					'CardName' => $rd->CardName,
 					'DocDate' => thai_date($rd->DocDate, FALSE, '.'),
+					'DocDueDate' => thai_date($rd->DocDueDate, FALSE, '.'),
 					'ShipTo' => escape_quot($rd->Address2),
 					'remark' => escape_quot($rd->Comments)
 				);

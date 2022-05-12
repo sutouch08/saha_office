@@ -1,8 +1,8 @@
 <?php
 $this->load->helper('print');
-$pageWidth = 80;
-//$pageHeight = 80;
-$contentWidth = 75;
+$pageWidth = getConfig('PICK_LABEL_WIDTH', 80);
+//$pageHeight = getConfig('PICK_LABEL_HEIGHT', 80);
+$contentWidth = getConfig('PICK_LABEL_CONTENT_WIDTH', 75);
 $currentPage = 1;
 $totalPage = count($orders);
 ?>
@@ -84,7 +84,7 @@ $totalPage = count($orders);
               <tr>
                 <td class="middle" style="font-size:14px;">Item lines : <?php echo $order->ItemRows; ?></td>
                 <td class="middle text-right" style="font-size:14px;">
-                  เวลาพิมพ์ <?php echo date('d/m/y H:i'); ?> น.
+                  เวลาพิมพ์ <?php echo date('d/m/y H:i'); ?>
                 </td>
               </tr>
             </table>

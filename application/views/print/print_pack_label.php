@@ -1,8 +1,8 @@
 <?php
 $this->load->helper('print');
-$pageWidth = getConfig('PRINT_LABEL_WIDTH');
-$pageHeight = getConfig('PRINT_LABEL_HEIGHT');
-$contentWidth = getConfig('PRINT_LABEL_CONTENT_WIDTH');
+$pageWidth = getConfig('PACK_LABEL_WIDTH', 80);
+$pageHeight = getConfig('PACK_LABEL_HEIGHT', 80);
+$contentWidth = getConfig('PACK_LABEL_CONTENT_WIDTH', 75);
 $currentPage = 1;
 $totalPage = count($boxes);
 ?>

@@ -23,7 +23,7 @@
   <div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">Employee</label>
     <div class="col-xs-12 col-sm-4">
-			<input type="text" name="emp" id="emp" class="width-100" value="" required />
+			<input type="text" name="emp" id="emp" class="width-100" value="" />
     </div>
 		<div class="help-block col-xs-12 col-sm-reset inline red" id="emp-error"></div>
   </div>

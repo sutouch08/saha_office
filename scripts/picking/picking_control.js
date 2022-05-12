@@ -70,12 +70,22 @@ function changeZone() {
 
   $('#BinCode').val('');
   $('#zoneCode').val('');
+  $('#soNo').val('');
   $('#zoneCode').removeAttr('disabled', 'disabled');
   $('#btn-change-zone').addClass('hide');
   $('#btn-submit-zone').removeClass('hide');
   $('.order-btn').removeClass('btn-primary');
   $('#zoneCode').focus();
 }
+
+
+
+function clearSO() {
+  $('#soNo').val('');
+  $('.order-btn').removeClass('btn-primary');
+  $('#barcode-item').focus();
+}
+
 
 
 
@@ -102,11 +112,6 @@ function showPickOption(itemCode, uomEntry) {
     swal("กรุณาระบุ Location");
     return false;
   }
-
-  // if(orderCode.length == 0) {
-  //   swal("กรุณาระบุเลขที่ SO");
-  //   return false;
-  // }
 
 
   if(binCode.length) {
@@ -161,11 +166,6 @@ function pickWithOption() {
     swal("กรุณาระบุ Location");
     return false;
   }
-
-  // if(orderCode.length == 0) {
-  //   swal("กรุณาระบุเลขที่ SO");
-  //   return false;
-  // }
 
   if(qty <= 0) {
     swal("จำนวนไม่ถูกต้อง");
@@ -403,7 +403,7 @@ function is_all_picked() {
     let picked = parseDefault(parseFloat($('#pick-'+id).text()), 0);
 
     if(relqty > picked) {
-      
+
       balance++;
     }
   });

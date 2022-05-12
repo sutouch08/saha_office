@@ -1,5 +1,5 @@
 <div class="row">
-	<div class="col-sm-12 hide" id="zone-table">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive hide" id="zone-table">
     	<table class="table table-striped table-bordered">
       	<thead>
 					<tr>
@@ -22,21 +22,22 @@
     </div>
 
 
-		<div class="col-sm-12 hide" id="temp-table">
+		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive hide" id="temp-table">
     	<table class="table table-striped table-bordered">
       	<thead>
           <tr>
-          	<th colspan="6" class="text-center">
+          	<th colspan="7" class="text-center">
              รายการใน Temp
             </th>
             </tr>
           	<tr>
-            	<th class="width-5 text-center">ลำดับ</th>
-              <th class="width-15 text-center">บาร์โค้ด</th>
-              <th class="width-45 text-center">สินค้า</th>
-              <th class="width-25 text-center">ต้นทาง</th>
-              <th class="width-10 text-center">จำนวน</th>
-							<th class="width-10 text-center">หน่วยนับ</th>
+							<th style="width:60px;" class="text-center">#</th>
+		          <th style="width:120px;" class="middle">Barcode</th>
+		          <th style="min-width:300px;" class="middle">Item</th>
+		          <th style="width:120px;" class="middle text-center">From Bin</th>
+		          <th style="width:100px;" class="middle text-center">Qty</th>
+		          <th style="width:100px;" class="middle">Uom.</th>
+							<th style="width:60px;" class="middle text-right"></th>
             </tr>
           </thead>
           <tbody id="temp-list">
@@ -46,25 +47,26 @@
     </div>
 
 
-	<div class="col-sm-12" id="transfer-table">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive" id="move-table">
   	<table class="table table-striped border-1">
     	<thead>
       	<tr>
-        	<th colspan="7" class="text-center">รายการโอนย้าย</th>
+        	<th colspan="8" class="text-center">รายการโอนย้าย</th>
         </tr>
 
 				<tr>
-        	<th class="width-5 text-center">ลำดับ</th>
-          <th class="width-15">บาร์โค้ด</th>
-          <th class="width-20">สินค้า</th>
-          <th class="width-25">ต้นทาง</th>
-          <th class="width-25">ปลายทาง</th>
-          <th class="width-10 text-center">จำนวน</th>
-          <th class="width-5"></th>
+        	<th style="width:60px;" class="text-center">#</th>
+          <th style="width:120px;" class="middle">Barcode</th>
+          <th style="min-width:300px;" class="middle">Item</th>
+          <th style="width:120px;" class="middle text-center">From Bin</th>
+          <th style="width:120px;" class="middle text-center">To Bin</th>
+          <th style="width:100px;" class="middle text-center">Qty</th>
+          <th style="width:100px;" class="middle">Uom.</th>
+					<th style="width:60px;" class="middle text-right"></th>
         </tr>
       </thead>
 
-      <tbody id="transfer-list">
+      <tbody id="move-list">
 <?php if(!empty($details)) : ?>
 <?php		$no = 1;						?>
 <?php   $total_qty = 0;  ?>
@@ -82,21 +84,25 @@
 
 					<!--- รหัสสินค้า -->
 	        <td class="middle">
-						<?php echo $rs->ItemCode; ?>
+						<?php echo $rs->ItemCode." : ".$rs->ItemName; ?>
 					</td>
 
 					<!--- โซนต้นทาง --->
-	        <td class="middle">
+	        <td class="middle text-center">
 						<?php echo $rs->fromBinCode; ?>
 	        </td>
 
 
-	        <td class="middle" id="row-label-<?php echo $rs->id; ?>">
+	        <td class="middle text-center" id="row-label-<?php echo $rs->id; ?>">
 	        	<?php echo $rs->toBinCode; ?>
 	        </td>
 
 	        <td class="middle text-center qty" >
 						<?php echo number($rs->Qty); ?>
+					</td>
+
+					<td class="middle">
+						<?php echo $rs->unitMsr; ?>
 					</td>
 
 					<td class="middle text-center">
@@ -115,11 +121,11 @@
 				<tr>
 					<td colspan="5" class="middle text-right"><strong>รวม</strong></td>
 					<td class="middle text-center" id="total"><?php echo number($total_qty); ?></td>
-					<td></td>
+					<td></td><td></td>
 				</tr>
 <?php	else : ?>
  				<tr>
-        	<td colspan="7" class="text-center"><h4>ไม่พบรายการ</h4></td>
+        	<td colspan="8" class="text-center"><h4>ไม่พบรายการ</h4></td>
         </tr>
 <?php	endif; ?>
       </tbody>
@@ -154,53 +160,56 @@
 {{#each this}}
 	{{#if nodata}}
 	<tr>
-		<td colspan="6" class="text-center"><h4>ไม่พบรายการ</h4></td>
+		<td colspan="7" class="text-center"><h4>ไม่พบรายการ</h4></td>
 	</tr>
 	{{else}}
-
-		<tr class="font-size-12" id="row-temp-{{ id }}">
-			<td class="middle text-center">{{ no }}</td>
-			<td class="middle">{{ barcode }}</td>
-			<td class="middle">{{ products }}</td>
-			<td class="middle text-center">
-				<input type="hidden" id="qty-{{barcode}}" value="{{qty}}" />
-				{{ from_zone }}
-			</td>
-
-			<td class="middle text-center" id="qty-label-{{barcode}}">
-				{{ qty }}
-			</td>
-			<td class="middle text-center">
-				{{ unitMsr }}
-			</td>
+		{{#if @last}}
+		<tr>
+			<td colspan="4" class="text-right"><strong>รวม</strong></td>
+			<td class="middle text-center" id="total">{{ total }}</td>
+			<td></td><td></td>
 		</tr>
+		{{else}}
+			<tr class="font-size-12" id="row-temp-{{ id }}">
+				<td class="middle text-center">{{ no }}</td>
+				<td class="middle">{{ barcode }}</td>
+				<td class="middle">{{ products }}</td>
+				<td class="middle text-center"><input type="hidden" id="qty-{{barcode}}" value="{{qty}}" />{{ from_zone }}</td>
+				<td class="middle text-center" id="qty-label-{{barcode}}">{{ qty }}</td>
+				<td class="middle text-center">{{ unitMsr }}</td>
+				<td class="middle text-right">
+					<button class="btn btn-mini btn-danger" onclick="deleteTemp({{ id }}, '{{ products }}')"><i class="fa fa-trash"></i></button>
+				</td>
+			</tr>
+		{{/if}}
 	{{/if}}
 {{/each}}
 </script>
 
 
 
-<script id="transferTableTemplate" type="text/x-handlebars-template">
+<script id="moveTableTemplate" type="text/x-handlebars-template">
 {{#each this}}
 	{{#if nodata}}
 	<tr>
-		<td colspan="7" class="text-center"><h4>ไม่พบรายการ</h4></td>
+		<td colspan="8" class="text-center"><h4>ไม่พบรายการ</h4></td>
 	</tr>
 	{{else}}
 		{{#if @last}}
 			<tr>
 				<td colspan="5" class="text-right"><strong>รวม</strong></td>
 				<td class="middle text-center" id="total">{{ total }}</td>
-				<td></td>
+				<td></td><td></td>
 			</tr>
 		{{else}}
 		<tr class="font-size-12" id="row-{{ id }}">
 			<td class="middle text-center no">{{ no }}</td>
 			<td class="middle">{{ barcode }}</td>
 			<td class="middle">{{ products }}</td>
-			<td class="middle">{{ from_zone }}</td>
-			<td class="middle">{{{ to_zone }}}</td>
+			<td class="middle text-center">{{ from_zone }}</td>
+			<td class="middle text-center">{{{ to_zone }}}</td>
 			<td class="middle text-center qty">{{ qty }}</td>
+			<td class="middle">{{ unitMsr }}</td>
 			<td class="middle text-center">{{{ btn_delete }}}</td>
 		</tr>
 		{{/if}}

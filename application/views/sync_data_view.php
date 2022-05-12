@@ -9,6 +9,7 @@
 			<button type="button" class="btn btn-sm btn-primary margin-top-5" onclick="syncData('SQ')">Sync SQ</button>
 			<button type="button" class="btn btn-sm btn-primary margin-top-5" onclick="syncData('SO')">Sync SO</button>
 			<button type="button" class="btn btn-sm btn-primary margin-top-5" onclick="syncData('TR')">Sync TR</button>
+			<button type="button" class="btn btn-sm btn-primary margin-top-5" onclick="syncData('MV')">Sync MV</button>
 			<?php endif; ?>
 			<?php if($this->isAdmin OR $this->isSuperAdmin) : ?>
 				<button type="button" class="btn btn-sm btn-warning margin-top-5" onclick="clearLogs()">Clear Logs</button>
@@ -37,6 +38,7 @@
 			<option value="SQ" <?php echo is_selected('SQ', $docType); ?>>SQ</option>
 			<option value="SO" <?php echo is_selected('SO', $docType); ?>>SO</option>
 			<option value="TR" <?php echo is_selected('TR', $docType); ?>>TR</option>
+			<option value="MV" <?php echo is_selected('MV', $docType); ?>>MV</option>
 			<option value="Logs" <?php echo is_selected('Logs', $docType); ?>>Logs</option>
 		</select>
   </div>
