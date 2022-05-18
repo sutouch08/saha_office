@@ -27,7 +27,8 @@
           <th class="middle text-center" style="width:100px;">Quantity</th>
           <th class="middle text-center" style="width:100px;">Uom</th>
           <th class="middle text-center" style="width:100px;">STD Price</th>
-          <th class="middle text-center" style="width:100px;">Last Sell Price</th>
+          <th class="middle text-center" style="width:100px;">ราคาเสนอล่าสุด</th>
+          <th class="middle text-center" style="width:100px;">ราคาขายล่าสุด</th>
           <th class="middle text-center" style="width:100px;">Price</th>
           <th class="middle text-center" style="width:100px;">ส่วนต่างราคา(%)</th>
           <th class="middle text-center" style="width:100px;">ส่วนลด(%)</th>
@@ -78,6 +79,10 @@
           <td class="middle">
             <input type="text" class="form-control input-sm text-right number" id="stdPrice-<?php echo $no; ?>" readonly disabled/>
             <input type="hidden" id="basePrice-<?php echo $no; ?>" value="0"/>
+          </td>
+          <td class="middle">
+            <input type="text" class="form-control input-sm text-right number" id="lstQuote-<?php echo $no; ?>" readonly disabled/>
+            <input type="hidden" id="lastQuotePrice-<?php echo $no; ?>" value="0"/>
           </td>
           <td class="middle">
             <input type="text" class="form-control input-sm text-right number" id="lstPrice-<?php echo $no; ?>" readonly disabled/>
@@ -168,6 +173,10 @@
       <input type="hidden" id="basePrice-{{no}}" value="0"/>
     </td>
     <td class="middle">
+      <input type="text" class="form-control input-sm text-right number" id="lstQuote-{{no}}" readonly disabled/>
+      <input Type="hidden" id="lastQuotePrice-{{no}}" value="0" />
+    </td>
+    <td class="middle">
       <input type="text" class="form-control input-sm text-right number" id="lstPrice-{{no}}" readonly disabled/>
       <input type="hidden" id="lastSellPrice-{{no}}" value="0"/>
     </td>
@@ -245,8 +254,12 @@
   <input type="hidden" id="basePrice-{{no}}" value="0"/>
 </td>
 <td class="middle">
+  <input type="text" class="form-control input-sm text-right number" id="lstQuote-{{no}}" readonly disabled/>
+  <input Type="hidden" id="lastQuotePrice-{{no}}" value="0" />
+</td>
+<td class="middle">
   <input type="text" class="form-control input-sm text-right number" id="lstPrice-{{no}}" readonly disabled/>
-  <input type="hidden" id="lastSellPrice-{{no}}" value="0"/>
+  <input type="hidden" id="lastSellPrice-{{no}}" value="0"/>  
 </td>
 <td class="middle">
   <input type="text" class="form-control input-sm text-right number input-price" id="price-{{no}}" onkeyup="recalAmount($(this))"/>

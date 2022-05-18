@@ -280,6 +280,30 @@ class Item_model extends CI_Model
   }
 
 
+  public function last_quote_price($itemCode, $cardCode, $uom)
+  {
+    if($uom !== NULL)
+    {
+      $qr = "SELECT TOP(1) Price
+              FROM OQUT A
+              INNER JOIN QUT1 B ON A.DocEntry = B.DocEntry
+              WHERE B.ItemCode = '{$itemCode}'
+              AND A.CardCode = '{$cardCode}'
+              AND B.UomEntry = {$uom}
+              ORDER BY A.DocDate DESC";
+
+      $rs = $this->ms->query($qr);
+
+      if($rs->num_rows() === 1)
+      {
+        return $rs->row()->Price;
+      }
+    }
+
+    return 0;
+  }
+
+
   public function getItemByBarcode($barcode)
   {
     $rs = $this->ms

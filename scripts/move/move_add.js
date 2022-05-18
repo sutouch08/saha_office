@@ -53,20 +53,12 @@ function add() {
   let fromWhsCode = $('#fromWhsCode').val();
   let toWhsCode = $('#toWhsCode').val();
 
-  if(fromWhsCode.length == 0) {
-    $('#fromWhsCode').addClass('has-error');
+  if(! isDate(date)) {
+    $('#docDate').addClass('has-error');
     return false;
   }
   else {
-    $('#fromWhsCode').removeClass('has-error');
-  }
-
-  if(toWhsCode.length == 0) {
-    $('#toWhsCode').addClass('has-error');
-    return false;
-  }
-  else {
-    $('#toWhsCode').removeClass('has-error');
+    $('#docDate').removeClass('has-error');
   }
 
   $.ajax({
@@ -119,21 +111,6 @@ function update() {
     $('#docDate').removeClass('has-error');
   }
 
-  if(fromWhsCode.length == 0) {
-    $('#fromWhsCode').addClass('has-error');
-    return false;
-  }
-  else {
-    $('#fromWhsCode').removeClass('has-error');
-  }
-
-  if(toWhsCode.length == 0) {
-    $('#toWhsCode').addClass('has-error');
-    return false;
-  }
-  else {
-    $('#toWhsCode').removeClass('has-error');
-  }
 
   $.ajax({
     url:HOME + 'update',

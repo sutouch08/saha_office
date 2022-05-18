@@ -150,6 +150,7 @@ function saveAdd() {
 					"Quantity" : removeCommas($('#qty-'+no).val()),
 					"UomCode" : $('#uom-'+no).find(':selected').data('code'),
 					"lastSellPrice" : $('#lastSellPrice-'+no).val(),
+					"lastQuotePrice" : $('#lastQuotePrice-'+no).val(),
 					"basePrice" : $('#basePrice-'+no).val(), //--- ราคาตามหน่วยนับย่อย
 					"stdPrice" : removeCommas($('#stdPrice-'+no).val()), //--- ราคาตามหน่วยย่อย * ตัวคูณตามหน่วยนับที่เลือก เช่น ราคาต่อชิ้น = 100 * (ชิ้น = 1, แพ็ค = 3, ลัง = 6)
 					"Price" : removeCommas($('#price-'+no).val()),
@@ -184,6 +185,7 @@ function saveAdd() {
 					"Quantity" : 0,
 					"UomCode" : "",
 					"lastSellPrice" : 0,
+					"lastQuotePrice" : 0,
 					"basePrice" : 0,
 					"stdPrice" : 0,
 					"Price" : 0,
@@ -416,6 +418,7 @@ function update() {
 					"stdPrice" : removeCommas($('#stdPrice-'+no).val()), //--- ราคาตามหน่วยย่อย * ตัวคูณตามหน่วยนับที่เลือก เช่น ราคาต่อชิ้น = 100 * (ชิ้น = 1, แพ็ค = 3, ลัง = 6)
 					"Price" : removeCommas($('#price-'+no).val()),
 					"lastSellPrice" : $('#lastSellPrice-'+no).val(),
+					"lastQuotePrice" : $('#lastQuotePrice-'+no).val(),
 					"priceDiffPercent" : $('#priceDiff-'+no).val(),
 					'sellPrice' : removeCommas($('#priceAfDiscBfTax-'+no).val()),
 					"DiscPrcnt" : $('#lineDiscPrcnt-'+no).val(), //--- ส่วนลดได้จากการเอาส่วนลด 2 สเต็ป มาแปลงเป็นส่วนลดเดียว
@@ -449,6 +452,7 @@ function update() {
 					"basePrice" : 0,
 					"stdPrice" : 0,
 					"lastSellPrice" : 0,
+					"lastQuotePrice" : 0,
 					"Price" : 0,
 					"priceDiffPercent" : 0,
 					'sellPrice' : 0,
@@ -964,6 +968,7 @@ function getItemData(code, no) {
 				var ds = $.parseJSON(rs);
 				var price = parseFloat(ds.price);
 				var lastSellPrice = parseDefault(parseFloat(ds.lastSellPrice), 0.00);
+				var lastQuotePrice = parseDefault(parseFloat(ds.lastQuotePrice), 0.00);
 				var lineAmount = parseFloat(ds.lineAmount);
 				var whCode = ds.dfWhsCode;
 
@@ -974,6 +979,8 @@ function getItemData(code, no) {
 				$('#uom-'+no).html(ds.uom);
 				$('#basePrice-'+no).val(price);
 				$('#stdPrice-'+no).val(addCommas(price.toFixed(2)));
+				$('#lastQuotePrice-'+no).val(lastQuotePrice);
+				$('#lstQuote-'+no).val(addCommas(lastQuotePrice.toFixed(2)));
 				$('#lastSellPrice-'+no).val(lastSellPrice);
 				$('#lstPrice-'+no).val(addCommas(lastSellPrice.toFixed(2)));
 				$('#price-'+no).val(addCommas(price.toFixed(2)));
@@ -1020,10 +1027,16 @@ function get_last_sell_price(no) {
 				'uomEntry' : uomEntry
 			},
 			success:function(rs) {
-				let lastSellPrice = parseDefault(parseFloat(rs), 0.00);
+				if(isJson(rs)) {
+					let ds = $.parseJSON(rs);
+					let lastSellPrice = parseDefault(parseFloat(ds.lastSellPrice), 0.00);
+					let lastQuotePrice = parseDefault(parseFloat(ds.lastQuotePrice), 0.00);
 
-				$('#lstPrice-'+no).val(addCommas(lastSellPrice.toFixed(2)));
-				$('#lastSellPrice-'+no).val(lastSellPrice);
+					$('#lstPrice-'+no).val(addCommas(lastSellPrice.toFixed(2)));
+					$('#lastSellPrice-'+no).val(lastSellPrice);
+					$('#lstQuote-'+no).val(addCommas(lastQuotePrice.toFixed(2)));
+					$('#lastQuotePrice-'+no).val(lastQuotePrice);
+				}
 			}
 		})
 	}

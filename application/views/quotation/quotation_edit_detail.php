@@ -27,6 +27,7 @@
           <th class="middle text-center" style="width:100px;">Quantity</th>
           <th class="middle text-center" style="width:100px;">Uom</th>
           <th class="middle text-center" style="width:100px;">STD Price</th>
+          <th class="middle text-center" style="width:100px;">Last Quote</th>
           <th class="middle text-center" style="width:100px;">Last Sell Price</th>
           <th class="middle text-center" style="width:100px;">Price</th>
           <th class="middle text-center" style="width:100px;">ส่วนต่างราคา(%)</th>
@@ -59,7 +60,7 @@
               </select>
             </td>
             <?php if($ds->Type == 1) : ?>
-              <td colspan="17">
+              <td colspan="19">
                 <textarea id="text-<?php echo $no; ?>" class="autosize autosize-transition" style="height:100px; width:800px;"><?php echo $ds->LineText; ?></textarea>
               </td>
             <?php else : ?>
@@ -87,6 +88,10 @@
             <td class="middle">
               <input type="text" class="form-control input-sm text-right number" id="stdPrice-<?php echo $no; ?>" value="<?php echo number($ds->stdPrice, 2); ?>" disabled/>
               <input type="hidden" id="basePrice-<?php echo $no; ?>" value="<?php echo $ds->basePrice; ?>"/>
+            </td>
+            <td class="middle">
+              <input type="text" class="form-control input-sm text-right number" id="lstQuote-<?php echo $no; ?>" value="<?php echo number($ds->lastQuotePrice, 2); ?>" readonly disabled/>
+              <input type="hidden" id="lastQuotePrice-<?php echo $no; ?>" value="<?php echo $ds->lastQuotePrice; ?>"/>
             </td>
             <td class="middle">
               <input type="text" class="form-control input-sm text-right number" id="lstPrice-<?php echo $no; ?>" value="<?php echo number($ds->lastSellPrice, 2); ?>" readonly disabled/>
@@ -171,6 +176,10 @@
           <td class="middle">
             <input type="text" class="form-control input-sm text-right number" id="stdPrice-<?php echo $no; ?>" value="" disabled/>
             <input type="hidden" id="basePrice-<?php echo $no; ?>" value="0"/>
+          </td>
+          <td class="middle">
+            <input type="text" class="form-control input-sm text-right number" id="lstQuote-<?php echo $no; ?>" readonly disabled/>
+            <input type="hidden" id="lastQuotePrice-<?php echo $no; ?>" value="0"/>
           </td>
           <td class="middle">
             <input type="text" class="form-control input-sm text-right number" id="lstPrice-<?php echo $no; ?>" readonly disabled/>
@@ -260,6 +269,10 @@
       <input type="hidden" id="basePrice-{{no}}" value="0"/>
     </td>
     <td class="middle">
+      <input type="text" class="form-control input-sm text-right number" id="lstQuote-{{no}}" readonly disabled/>
+      <input Type="hidden" id="lastQuotePrice-{{no}}" value="0" />
+    </td>
+    <td class="middle">
       <input type="text" class="form-control input-sm text-right number" id="lstPrice-{{no}}" readonly disabled/>
       <input type="hidden" id="lastSellPrice-{{no}}" value="0"/>
     </td>
@@ -337,6 +350,10 @@
   <input type="hidden" id="basePrice-{{no}}" value="0"/>
 </td>
 <td class="middle">
+  <input type="text" class="form-control input-sm text-right number" id="lstQuote-{{no}}" readonly disabled/>
+  <input Type="hidden" id="lastQuotePrice-{{no}}" value="0" />
+</td>
+<td class="middle">
   <input type="text" class="form-control input-sm text-right number" id="lstPrice-{{no}}" readonly disabled/>
   <input type="hidden" id="lastSellPrice-{{no}}" value="0"/>
 </td>
@@ -389,7 +406,7 @@
       <option value="1" selected>Text</option>
     </select>
   </td>
-  <td colspan="18">
+  <td colspan="19">
     <textarea id="text-{{no}}" class="autosize autosize-transition" style="height:150px; width:800px;"></textarea>
   </td>
 </script>

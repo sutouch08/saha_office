@@ -13,6 +13,7 @@
           <th class="middle text-right" style="width:100px;">Quantity</th>
           <th class="middle text-center" style="width:100px;">Uom</th>
           <th class="middle text-right" style="width:100px;">STD Price</th>
+          <th class="middle text-right" style="width:100px;">Last Quote Price</th>
           <th class="middle text-right" style="width:100px;">Last Sell Price</th>
           <th class="middle text-right" style="width:100px;">Price</th>
           <th class="middle text-right" style="width:100px;">ส่วนต่างราคา(%)</th>
@@ -35,7 +36,7 @@
             <?php if($ds->Type == 1) : ?>
             <td class="text-center no"><?php echo $no; ?></td>
             <td class="text-center"><?php echo ($ds->Type == 1 ? 'Text' : '-'); ?></td>
-            <td colspan="16" style="white-space:pre-wrap;"><?php echo $ds->LineText; ?></td>
+            <td colspan="17" style="white-space:pre-wrap;"><?php echo $ds->LineText; ?></td>
             <?php else : ?>
             <td class="middle text-center no"><?php echo $no; ?></td>
             <td class="middle text-center"><?php echo ($ds->Type == 1 ? 'Text' : '-'); ?></td>
@@ -46,6 +47,7 @@
             <td class="middle text-right"><?php echo number(round($ds->Qty, 2)); ?></td>
             <td class="middle text-center"><?php echo $ds->UomName; ?></td>
             <td class="middle text-right"><?php echo number($ds->stdPrice, 2); ?></td>
+            <td class="middle text-right"><?php echo number($ds->lastQuotePrice, 2); ?></td>
             <td class="middle text-right"><?php echo number($ds->lastSellPrice, 2); ?></td>
             <td class="middle text-right"><?php echo number($ds->Price, 2); ?></td>
             <td class="middle text-right"><?php echo number($ds->priceDiffPercent, 2); ?></td>
@@ -64,7 +66,7 @@
         <?php if($rows > 0) : ?>
           <?php while($rows > 0) : ?>
             <tr>
-              <td colspan="21">&nbsp;</td>
+              <td colspan="22">&nbsp;</td>
             </tr>
             <?php $rows--; ?>
           <?php endwhile; ?>

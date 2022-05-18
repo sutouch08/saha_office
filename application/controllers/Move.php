@@ -147,21 +147,6 @@ class Move extends PS_Controller
 		$toWhsCode = trim($this->input->post('toWhsCode'));
 		$remark = get_null(trim($this->input->post('remark')));
 
-		//--- check whs
-		if($this->warehouse_model->is_exists_warehouse($fromWhsCode) === FALSE)
-		{
-			$sc = FALSE;
-			$this->error = "รหัสคลังต้นทางไม่ถูกต้อง";
-		}
-		else
-		{
-			if($this->warehouse_model->is_exists_warehouse($toWhsCode) === FALSE)
-			{
-				$sc = FALSE;
-				$this->error = "รหัสคลังปลายทางไม่ถูกต้อง";
-			}
-		}
-
 
 		if($sc === TRUE)
 		{
@@ -232,21 +217,7 @@ class Move extends PS_Controller
 		$toWhsCode = trim($this->input->post('toWhsCode'));
 		$remark = get_null(trim($this->input->post('remark')));
 
-		//--- check whs
-		if($this->warehouse_model->is_exists_warehouse($fromWhsCode) === FALSE)
-		{
-			$sc = FALSE;
-			$this->error = "รหัสคลังต้นทางไม่ถูกต้อง";
-		}
-		else
-		{
-			if($this->warehouse_model->is_exists_warehouse($toWhsCode) === FALSE)
-			{
-				$sc = FALSE;
-				$this->error = "รหัสคลังปลายทางไม่ถูกต้อง";
-			}
-		}
-
+		
 		if($sc === TRUE)
 		{
 			$arr = array(

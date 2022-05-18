@@ -104,7 +104,7 @@ class Quotation extends PS_Controller
 			$sc = FALSE;
 			$this->error = "เลขที่เอกสารไม่ถูกต้อง";
 		}
-		
+
 
 		echo $sc === TRUE ? 'success' : $this->error;
 	}
@@ -200,6 +200,7 @@ class Quotation extends PS_Controller
 							'FreeText' => get_null(trim($rs->FreeTxt)),
 							'Qty' => $rs->Quantity,
 							'UomCode' => get_null($rs->UomCode),
+							'lastQuotePrice' => $rs->lastQuotePrice,
 							'lastSellPrice' => $rs->lastSellPrice,
 							'basePrice' => $rs->basePrice,
 							'stdPrice' => $rs->stdPrice,
@@ -367,6 +368,7 @@ class Quotation extends PS_Controller
 								'FreeText' => $rs->FreeText,
 								'Qty' => $rs->Qty,
 								'UomCode' => $rs->UomCode,
+								'lastQuotePrice' => $this->item_model->last_quote_price($rs->ItemCode, $ds->CardCode, $this->item_model->get_uom_id($rs->UomCode)),
 								'lastSellPrice' => $this->item_model->last_sell_price($rs->ItemCode, $ds->CardCode, $this->item_model->get_uom_id($rs->UomCode)),
 								'basePrice' => $rs->basePrice,
 								'stdPrice' => $rs->stdPrice,
@@ -632,6 +634,7 @@ class Quotation extends PS_Controller
 										'FreeText' => get_null(trim($rs->FreeTxt)),
 										'Qty' => $rs->Quantity,
 										'UomCode' => get_null($rs->UomCode),
+										'lastQuotePrice' => $rs->lastQuotePrice,
 										'lastSellPrice' => $rs->lastSellPrice,
 										'basePrice' => $rs->basePrice,
 										'stdPrice' => $rs->stdPrice,
@@ -898,6 +901,7 @@ class Quotation extends PS_Controller
 					'taxRate' => !empty($customerTax) ? $customerTax->taxRate : $item->taxRate,
 					'price' => $price,
 					'lastSellPrice' => empty($card_code) ? $price : $this->item_model->last_sell_price($item->code, $card_code, $DfUom),
+					'lastQuotePrice' => empty($card_code) ? $price : $this->item_model->last_quote_price($item->code, $card_code, $DfUom),
 					'discount' => $discount,
 					'priceDiff' => $price,
 					'lineAmount' => $price,
@@ -1338,7 +1342,9 @@ class Quotation extends PS_Controller
 											'OcrCode2' => $doc->OcrCode1,
 											'OwnerCode' => $doc->OwnerCode,
 											'U_DISWEB' => $rs->U_DISWEB,
-											'U_DISCEX' => $rs->U_DISCEX
+											'U_DISCEX' => $rs->U_DISCEX,
+											'U_SO_LSALEPRICE' => $rs->lastSellPrice,
+											'U_SQ_LSALEPRICE' => $rs->lastQuotePrice
 										);
 
 										$this->quotation_model->add_sap_quotation_row($arr);
@@ -1754,6 +1760,7 @@ class Quotation extends PS_Controller
 		$customer = $this->customers_model->get_sap_contact_data($doc->CardCode);
 		$sale = $this->user_model->get_sap_sale_data($doc->SlpCode);
 		$doc->prefix = empty($doc->BeginStr) ? $this->quotation_model->get_prefix($doc->Series) : $doc->BeginStr;
+		$doc->OwnerName = empty($doc->OwnerCode) ? "" : $this->user_model->get_emp_name($doc->OwnerCode);
 		$contact_person = empty($doc->CntctCode) ? "" : $this->customers_model->get_contact_person_name($doc->CntctCode);
 
 		$ds = array(
@@ -1997,9 +2004,15 @@ class Quotation extends PS_Controller
 		$itemCode = get_null(trim($this->input->get('itemCode')));
 		$uomEntry = get_null($this->input->get('uomEntry'));
 
-		$price = $this->item_model->last_sell_price($itemCode, $cardCode, $uomEntry);
+		$last_price = $this->item_model->last_sell_price($itemCode, $cardCode, $uomEntry);
+		$last_quote = $this->item_model->last_quote_price($itemCode, $cardCode, $uomEntry);
 
-		echo $price >= 0 ? $price : 0;
+		$arr = array(
+			"lastSellPrice" => $last_price,
+			"lastQuotePrice" => $last_quote
+		);
+
+		echo json_encode($arr);
 	}
 
 

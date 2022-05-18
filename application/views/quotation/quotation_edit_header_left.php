@@ -10,7 +10,7 @@
     <div class="form-group">
       <label class="col-sm-3 col-xs-12 control-label no-padding-right">Name</label>
       <div class="col-sm-7 col-xs-8">
-        <input type="text" id="CardName" class="form-control input-sm" value="<?php echo $header->CardName; ?>" />
+        <input type="text" id="CardName" class="form-control input-sm" value="<?php echo $header->CardName; ?>" readonly/>
       </div>
     </div>
 
