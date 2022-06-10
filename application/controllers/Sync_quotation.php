@@ -153,6 +153,7 @@ class Sync_quotation extends CI_Controller
       foreach($list as $rs)
       {
         $SoNo = $this->quotation_model->getSoNo($rs->DocNum);
+        
         if(!empty($SoNo))
         {
           $arr = array(

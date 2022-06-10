@@ -790,11 +790,14 @@ class Quotation_model extends CI_Model
 
   public function getSoSyncList($limit = 100)
   {
+    $syncDays = 15; //--- sync only last $syncdays 
+    $from_date = from_date(date('Y-m-d', strtotime("-{$syncDays} days")));
     $rs = $this->db
     ->select('code, DocNum')
     ->where('DocNum IS NOT NULL', NULL, FALSE)
     ->where('SoNo IS NULL', NULL, FALSE)
     ->where('Status', 2)
+    ->where('date_add >', "{$from_date}")
     ->group_start()
     ->where('SapStatus !=', 'E')
     ->or_where('SapStatus IS NULL', NULL, FALSE)
@@ -816,12 +819,14 @@ class Quotation_model extends CI_Model
   public function getSoNo($code)
   {
     $rs = $this->ms
-    ->select('DocNum')
-    ->where('Ref1', $code)
-    ->where('CANCELED', 'N')
-    ->order_by('DocNum', 'DESC')
-    ->get('ORDR');
-
+    ->distinct()
+    ->select('ORDR.DocNum')
+    ->from('RDR1')
+    ->join('ORDR', 'RDR1.DocEntry = ORDR.DocEntry')
+    ->where('RDR1.BaseRef', $code)
+    ->where('ORDR.CANCELED', 'N')
+    ->get();
+    
     if($rs->num_rows() > 0)
     {
       return $rs->row()->DocNum;

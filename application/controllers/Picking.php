@@ -149,7 +149,8 @@ class Picking extends PS_Controller
 
 			$data = array(
 				'doc' => $doc,
-				'details' => $details
+				'details' => $details,
+				'orderList' => $this->pick_model->get_order_list($absEntry)
 			);
 
 			$this->load->view('picking/picking_process', $data);
@@ -1425,10 +1426,6 @@ class Picking extends PS_Controller
 								$basePick -= $baseQty;
 							}
 						}
-						else
-						{
-							break;
-						}
 					}
 				}
 			}
@@ -1547,6 +1544,252 @@ class Picking extends PS_Controller
 
 		echo $sc;
 	}
+
+
+
+
+	public function remove_pick_row()
+	{
+		$sc = TRUE;
+		$id = $this->input->post('pick_detail_id');
+
+		$ds = $this->picking_model->get_detail($id);
+
+		if(! empty($ds))
+		{
+			$this->load->model('cancle_model');
+			$this->load->model('buffer_model');
+
+			//--- get_buffer and add to cancle
+			$buffer = $this->picking_model->get_buffer_by_pick_detail($ds->AbsEntry, $ds->OrderCode, $ds->ItemCode, $ds->UomEntry);
+
+			$this->db->trans_begin();
+
+			if(!empty($buffer))
+			{
+				foreach($buffer as $rs)
+				{
+					if($sc === FALSE)
+					{
+						break;
+					}
+
+					$arr = array(
+						'AbsEntry' => $rs->AbsEntry,
+						'DocNum' => $rs->DocNum,
+						'OrderCode' => $rs->OrderCode,
+						'ItemCode' => $rs->ItemCode,
+						'ItemName' => $rs->ItemName,
+						'UomEntry' => $rs->UomEntry,
+						'UomCode' => $rs->UomCode,
+						'unitMsr' => $rs->unitMsr,
+						'BaseQty' => $rs->BaseQty,
+						'Qty' => $rs->Qty,
+						'BasePickQty' => $rs->BasePickQty,
+						'BinCode' => $rs->BinCode,
+						'user_id' => $this->user->id,
+						'uname' => $this->user->uname
+					);
+
+					if($this->cancle_model->add($arr))
+					{
+						//-- remove buffer
+						if( ! $this->buffer_model->delete($rs->id))
+						{
+							$sc = FALSE;
+							$this->error = "Delete Bufer failed";
+						}
+					}
+					else
+					{
+						$sc = FALSE;
+						$this->error = "Insert Cancle failed";
+					}
+				}
+			}
+
+			//--- remove picking detail
+			if($sc === TRUE)
+			{
+
+				if( ! $this->picking_model->delete_prepares($ds->AbsEntry, $ds->OrderCode, $ds->ItemCode, $ds->UomEntry))
+				{
+					$sc = FALSE;
+					$this->error = "Delete prepared details failed";
+				}
+			}
+
+			//--- remove pick detail
+			if($sc === TRUE)
+			{
+				if( ! $this->picking_model->delete_pick_detail($id))
+				{
+					$sc = FALSE;
+					$this->error = "Delete Pick detail failed";
+				}
+			}
+
+			//--- remove pick row
+			if($sc === TRUE)
+			{
+				if( ! $this->picking_model->delete_pick_row($ds->AbsEntry, $ds->OrderCode, $ds->ItemCode, $ds->UomEntry))
+				{
+					$sc = FALSE;
+					$this->error = "Delete pick row failed";
+				}
+			}
+
+			if($sc === TRUE)
+			{
+				$this->db->trans_commit();
+			}
+			else
+			{
+				$this->db->trans_rollback();
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing required parameter : row_id";
+		}
+
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
+
+
+
+	public function remove_pick_order()
+	{
+		$this->load->model('cancle_model');
+		$this->load->model('buffer_model');
+		$sc = TRUE;
+		$absEntry = $this->input->post('absEntry');
+		$orderCode = $this->input->post('orderCode');
+
+		if( ! empty($absEntry) && ! empty($orderCode))
+		{
+			$doc = $this->pick_model->get($absEntry);
+
+			if( ! empty($doc))
+			{
+				$rows = $this->picking_model->get_details_by_order($absEntry, $orderCode);
+
+				if( ! empty($rows))
+				{
+					$this->db->trans_begin();
+
+					foreach($rows as $ds)
+					{
+						if($sc === FALSE)
+						{
+							break;
+						}
+						//--- get_buffer and add to cancle
+						$buffer = $this->picking_model->get_buffer_by_pick_detail($ds->AbsEntry, $ds->OrderCode, $ds->ItemCode, $ds->UomEntry);
+
+						if(!empty($buffer))
+						{
+							foreach($buffer as $rs)
+							{
+								if($sc === FALSE)
+								{
+									break;
+								}
+
+								$arr = array(
+									'AbsEntry' => $rs->AbsEntry,
+									'DocNum' => $rs->DocNum,
+									'OrderCode' => $rs->OrderCode,
+									'ItemCode' => $rs->ItemCode,
+									'ItemName' => $rs->ItemName,
+									'UomEntry' => $rs->UomEntry,
+									'UomCode' => $rs->UomCode,
+									'unitMsr' => $rs->unitMsr,
+									'BaseQty' => $rs->BaseQty,
+									'Qty' => $rs->Qty,
+									'BasePickQty' => $rs->BasePickQty,
+									'BinCode' => $rs->BinCode,
+									'user_id' => $this->user->id,
+									'uname' => $this->user->uname
+								);
+
+								if($this->cancle_model->add($arr))
+								{
+									//-- remove buffer
+									if( ! $this->buffer_model->delete($rs->id))
+									{
+										$sc = FALSE;
+										$this->error = "Delete Bufer failed";
+									}
+								}
+								else
+								{
+									$sc = FALSE;
+									$this->error = "Insert Cancle failed";
+								}
+							}
+						}
+
+						//--- remove picking detail
+						if($sc === TRUE)
+						{
+
+							if( ! $this->picking_model->delete_prepares($ds->AbsEntry, $ds->OrderCode, $ds->ItemCode, $ds->UomEntry))
+							{
+								$sc = FALSE;
+								$this->error = "Delete prepared details failed";
+							}
+						}
+
+						//--- remove pick detail
+						if($sc === TRUE)
+						{
+							if( ! $this->picking_model->delete_pick_detail($ds->id))
+							{
+								$sc = FALSE;
+								$this->error = "Delete Pick detail failed";
+							}
+						}
+
+						//--- remove pick row
+						if($sc === TRUE)
+						{
+							if( ! $this->picking_model->delete_pick_row($ds->AbsEntry, $ds->OrderCode, $ds->ItemCode, $ds->UomEntry))
+							{
+								$sc = FALSE;
+								$this->error = "Delete pick row failed";
+							}
+						}
+					} //--- end foreach
+
+
+					if($sc === TRUE)
+					{
+						$this->db->trans_commit();
+					}
+					else
+					{
+						$this->db->trans_rollback();
+					}
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Invalid Document Entry";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing required parameter : AbsEntry or OrderCode";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
+
 
 	public function clear_filter()
 	{

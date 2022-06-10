@@ -27,7 +27,7 @@
 		<label>หมายเหตุ</label>
 		<input type="text" class="form-control input-sm" id="remark" value="<?php echo $doc->remark; ?>" disabled/>
 	</div>
-	
+
 	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
 		<label class="display-block not-show">btn</label>
 		<button type="button" class="btn btn-xs btn-warning btn-block" id="btn-edit" onclick="edit()">แก้ไข</button>
@@ -43,8 +43,8 @@
 
 
 
-<script src="<?php echo base_url(); ?>scripts/pick/pick.js?v=<?php echo date('YmdH'); ?>"></script>
-<script src="<?php echo base_url(); ?>scripts/pick/pick_add.js?v=<?php echo date('YmdH'); ?>"></script>
-<script src="<?php echo base_url(); ?>scripts/pick/pick_control.js?v=<?php echo date('YmdH'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/pick/pick.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/pick/pick_add.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/pick/pick_control.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

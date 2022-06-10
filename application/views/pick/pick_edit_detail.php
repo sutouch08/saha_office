@@ -39,7 +39,7 @@
             <tr id="row-<?php echo $rs->rowNum; ?>" class="<?php echo $red; ?>">
               <td class="middle text-center">
                 <label>
-                  <input type="checkbox" class="ace check-item" id="check-item-<?php echo $rs->rowNum; ?>"
+                  <input type="checkbox" class="ace check-item <?php echo $rs->OrderEntry; ?>" id="check-item-<?php echo $rs->rowNum; ?>"
                   data-docentry="<?php echo $rs->OrderEntry; ?>" data-linenum="<?php echo $rs->OrderLine; ?>" value="<?php echo $rs->rowNum; ?>">
                   <span class="lbl"></span>
                 </label>
@@ -106,7 +106,7 @@
   <tr id="row-{{rowNum}}" class="{{red}}">
     <td class="middle text-center">
       <label>
-        <input type="checkbox" class="ace check-item" id="check-item-{{rowNum}}"
+        <input type="checkbox" class="ace check-item {{OrderEntry}}" id="check-item-{{rowNum}}"
         data-docentry="{{OrderEntry}}" data-linenum="{{OrderLine}}" value="{{rowNum}}">
         <span class="lbl"></span>
       </label>

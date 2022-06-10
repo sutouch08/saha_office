@@ -269,16 +269,45 @@ class Pick_model extends CI_Model
 
   public function get_prev_release_qty($OrderEntry, $OrderLine)
   {
+    $unfinished = $this->get_unfinished_qty($OrderEntry, $OrderLine);
+    $finished = $this->get_finished_qty($OrderEntry, $OrderLine);
+
+    return $unfinished + $finished;
+  }
+
+
+
+  public function get_unfinished_qty($OrderEntry, $OrderLine)
+  {
     $rs = $this->db
     ->select_sum('BaseRelQty')
     ->where('OrderEntry', $OrderEntry)
     ->where('OrderLine', $OrderLine)
-    ->where('PickStatus !=', 'D')
+    ->where_in('PickStatus',array('N', 'P', 'R'))
     ->get('pick_row');
 
     if($rs->num_rows() === 1)
     {
       return $rs->row()->BaseRelQty;
+    }
+
+    return 0;
+  }
+
+
+
+  public function get_finished_qty($OrderEntry, $OrderLine)
+  {
+    $rs = $this->db
+    ->select_sum('BasePickQty')
+    ->where('OrderEntry', $OrderEntry)
+    ->where('OrderLine', $OrderLine)
+    ->where_in('PickStatus', array('Y', 'C'))
+    ->get('pick_row');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->BasePickQty;
     }
 
     return 0;

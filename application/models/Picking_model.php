@@ -7,6 +7,26 @@ class Picking_model extends CI_Model
   }
 
 
+  public function get_buffer_by_pick_detail($absEntry, $orderCode, $itemCode, $uomEntry)
+  {
+    $rs = $this->db
+    ->where('AbsEntry', $absEntry)
+    ->where('OrderCode', $orderCode)
+    ->where('ItemCode', $itemCode)
+    ->where('UomEntry', $uomEntry)
+    ->get('buffer');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+
+    return NULL;
+  }
+
+
+
   public function get_order_code($absEntry, $itemCode)
   {
     $rs = $this->db
@@ -49,6 +69,23 @@ class Picking_model extends CI_Model
     return NULL;
   }
 
+
+
+  public function get_details_by_order($AbsEntry, $orderCode)
+  {
+    $rs = $this->db
+    ->where('AbsEntry', $AbsEntry)
+    ->where('OrderCode', $orderCode)
+    ->get('pick_details');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+  
 
   public function get_details_by_item($absEntry, $ItemCode)
   {
@@ -105,6 +142,24 @@ class Picking_model extends CI_Model
     return NULL;
   }
 
+
+
+  public function delete_pick_detail($id)
+  {
+    return $this->db->where('id', $id)->delete('pick_details');
+  }
+
+
+
+  public function delete_pick_row($absEntry, $orderCode, $itemCode, $uomEntry)
+  {
+    return $this->db
+    ->where('AbsEntry', $absEntry)
+    ->where('OrderCode', $orderCode)
+    ->where('ItemCode', $itemCode)
+    ->where('UomEntry', $uomEntry)
+    ->delete('pick_row');
+  }
 
 
   public function update_picked_qty($id, $PickQtty, $BasePickQty)
@@ -270,6 +325,17 @@ class Picking_model extends CI_Model
   public function delete_prepare($id)
   {
     return $this->db->where('id', $id)->delete('picking_detail');
+  }
+
+
+  public function delete_prepares($absEntry, $orderCode, $itemCode, $UomEntry)
+  {
+    return $this->db
+    ->where('AbsEntry', $absEntry)
+    ->where('OrderCode', $orderCode)
+    ->where('ItemCode', $itemCode)
+    ->where('UomEntry', $UomEntry)
+    ->delete('picking_detail');
   }
 
 

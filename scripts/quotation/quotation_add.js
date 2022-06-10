@@ -573,8 +573,8 @@ function updateBillTo() {
 		'street' : $('#bStreet').val(),
 		'subDistrict' : $('#bSubDistrict').val(),
 		'district' : $('#bDistrict').val(),
-		'province' : $('#bProvince').val(),
 		'country' : $('#bCountry').val(),
+		'province' : $('#bProvince').val(),		
 		'countryName' : $('#bCountry option:selected').text(),
 		'postcode' : $('#bPostCode').val()
 	};

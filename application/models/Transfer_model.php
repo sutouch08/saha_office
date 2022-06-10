@@ -224,7 +224,7 @@ class Transfer_model extends CI_Model
   public function get_order_line($DocEntry, $LineNum)
   {
     $rs = $this->ms
-    ->select('DocEntry, OpenQty, U_Packed, U_PrevPacked, U_TransferCode')
+    ->select('DocEntry, OpenQty, U_Packed, U_PrevPacked, U_TransferNo')
     ->where('DocEntry', $DocEntry)
     ->where('LineNum', $LineNum)
     ->get('RDR1');

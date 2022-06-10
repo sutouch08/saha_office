@@ -21,16 +21,24 @@
     <label>เลขที่ออเดอร์</label>
     <input type="number" class="form-control input-sm" id="soCode" placeholder="ค้นหาเลขที่ออเดอร์" autofocus/>
   </div>
-  <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+  <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
     <label class="display-block not-show">btn</label>
     <button type="button" class="btn btn-xs btn-primary btn-block" id="btn-so" onclick="get_order_list()">แสดงรายการ</button>
   </div>
-  <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+
+  <div class="col-lg-1 col-md-1 col-xs-3 padding-5 hidden-sm">
     <label class="display-block not-show">btn</label>
-    <button type="button" class="btn btn-xs btn-warning btn-block" id="btn-clear" onclick="clear_so_filter()">Clear filter</button>
+    <button type="button" class="btn btn-xs btn-warning btn-block" id="btn-clear" onclick="clear_so_filter()">Clear</button>
   </div>
 
-  <div class="col-lg-2 col-lg-offset-3 col-md-1-harf col-md-offset-1 col-sm-2 col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-lg-offset-2 col-md-1-harf col-sm-2 col-xs-6 padding-5">
+    <label>เลือกออเดอร์</label>
+    <select class="form-control input-sm" id="order-select" onchange="toggleSelectOrder()">
+      <option value=""></option>
+    </select>
+  </div>
+
+  <div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
     <label class="display-block not-show">btn</label>
     <button type="button" class="btn btn-xs btn-danger btn-block" id="btn-delete-row" onclick="deleteRows()">Delete Rows</button>
   </div>
@@ -197,4 +205,11 @@
       {{/each}}
     </tbody>
   </table>
+</script>
+
+<script id="select-template" type="text/x-handlebarsTemplate">
+  <option value=""></option>
+  {{#each this}}
+    <option value="{{docEntry}}">{{docNum}}</option>
+  {{/each}}
 </script>

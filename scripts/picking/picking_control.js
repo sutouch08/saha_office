@@ -314,83 +314,94 @@ function pickItem() {
 
 }
 
+function closePick() {
+  let force_close = $('#force_close').is(':checked');
+  var absEntry = $('#AbsEntry').val();
+  var docNum = $.trim($('#DocNum').val());
+  var balance = 0;
 
+  $('.row-tr').each(function() {
+    let no = $(this).data('id');
+    let relqty = parseDefault(parseFloat($('#release-'+no).text()), 0);
+    let picked = parseDefault(parseFloat($('#pick-'+no).text()), 0);
 
-function finishPick() {
-  swal({
-		title: "จัดเสร็จแล้ว?",
-		text: "จัดสินค้าครบแล้วใช่หรือไม่ ?",
-		//type: "warning",
-		showCancelButton: true,
-		confirmButtonColor: "#87b87f",
-		confirmButtonText: 'จัดเสร็จแล้ว',
-		cancelButtonText: 'ไม่ใช่',
-		closeOnConfirm: false
-  }, function() {
-    var absEntry = $('#AbsEntry').val();
-    var docNum = $.trim($('#DocNum').val());
-    var balance = 0;
+    if(relqty > picked) {
+      balance++;
+    }
+  });
 
-    $('.row-no').each(function() {
-      let no = $(this).val();
-      let relqty = parseDefault(parseFloat($('#release-'+no).text()), 0);
-      let picked = parseDefault(parseFloat($('#pick-'+no).text()), 0);
-
-      if(relqty > picked) {
-        balance++;
-      }
-    });
-
-    if(balance == 0) {
-      $.ajax({
-        url:HOME + 'finish_pick',
-        type:'POST',
-        cache:false,
-        data:{
-          'AbsEntry' : absEntry,
-          'DocNum' : docNum
-        },
-        success:function(rs) {
-          var rs = $.trim(rs);
-          if(rs === 'success') {
-            swal({
-              title:'Success',
-              type:'success',
-              timer:1000
-            });
-
-            setTimeout(function() {
-              goBack();
-            }, 1200);
-          }
-          else {
-            swal({
-              title:'Error!',
-              text:rs,
-              type:'error'
-            });
-          }
-        },
-        error:function(xhr) {
-          load_out();
-          swal({
-            title:'Error!',
-            text: xhr.responseText,
-            type:'error',
-            html:true
-          });
-        }
-      })
+  if(balance == 0) {
+    finishPick();
+  }
+  else {
+    if(force_close) {
+      swal({
+    		title: "คุณแน่ใจ?",
+    		text: "จัดสินค้าไม่ครบ ต้องการบังคับจบหรือไม่ ?",
+    		//type: "warning",
+    		showCancelButton: true,
+    		confirmButtonColor: "#DD6B55",
+    		confirmButtonText: 'บังคับจบ',
+    		cancelButtonText: 'ไม่ใช่',
+    		closeOnConfirm: false
+      }, function() {
+        finishPick();
+      });
     }
     else {
       swal({
         title:"Error!",
         text:"พบรายการที่จัดไม่ครบ",
         type:"error"
-      })
+      });
+    }
+  }
+}
+
+
+function finishPick() {
+  var absEntry = $('#AbsEntry').val();
+  var docNum = $.trim($('#DocNum').val());
+
+  $.ajax({
+    url:HOME + 'finish_pick',
+    type:'POST',
+    cache:false,
+    data:{
+      'AbsEntry' : absEntry,
+      'DocNum' : docNum
+    },
+    success:function(rs) {
+      var rs = $.trim(rs);
+      if(rs === 'success') {
+        swal({
+          title:'Success',
+          type:'success',
+          timer:1000
+        });
+
+        setTimeout(function() {
+          goBack();
+        }, 1200);
+      }
+      else {
+        swal({
+          title:'Error!',
+          text:rs,
+          type:'error'
+        });
+      }
+    },
+    error:function(xhr) {
+      load_out();
+      swal({
+        title:'Error!',
+        text: xhr.responseText,
+        type:'error',
+        html:true
+      });
     }
   });
-
 }
 
 
@@ -679,4 +690,117 @@ function updatePicked(id) {
       }
     }
   });
+}
+
+
+
+function removePickRow(id, orderCode, itemCode) {
+  swal({
+		title: "คุณแน่ใจ ?",
+		text: "ต้องการลบ '"+itemCode+" : "+orderCode+"' หรือไม่?",
+		type: "warning",
+		showCancelButton: true,
+		confirmButtonColor: "#DD6B55",
+		confirmButtonText: 'ยืนยัน',
+		cancelButtonText: 'ยกเลิก',
+		closeOnConfirm: false
+		}, function() {
+			load_in();
+
+			$.ajax({
+				url: HOME + 'remove_pick_row',
+				type:"POST",
+        cache:"false",
+				data:{
+          'pick_detail_id' : id
+				},
+				success: function(rs) {
+					load_out();
+					var rs = $.trim(rs);
+					if( rs == 'success' ) {
+						swal({
+							title:'Success',
+							type:'success',
+							timer:1000
+						});
+
+						$('#row-'+id).remove();
+
+            is_all_picked();
+					}
+          else {
+						swal("Error !", rs , "error");
+					}
+				}
+			});
+	});
+}
+
+
+
+
+function deleteOrder() {
+  let absEntry = $('#AbsEntry').val();
+  let orderCode = $('#soList').val();
+
+  if(absEntry == "") {
+    swal("Error", "Missing AbsEntry", "error");
+    return false;
+  }
+
+  if(orderCode == "") {
+    swal("กรุณาเลือก SO");
+    return false;
+  }
+
+
+  swal({
+		title: "คุณแน่ใจ ?",
+		text: "ต้องการลบ SO :"+orderCode+"  ทั้งใบหรือไม่?",
+		type: "warning",
+		showCancelButton: true,
+		confirmButtonColor: "#DD6B55",
+		confirmButtonText: 'ยืนยัน',
+		cancelButtonText: 'ยกเลิก',
+		closeOnConfirm: false
+		}, function() {
+			load_in();
+
+			$.ajax({
+				url: HOME + 'remove_pick_order',
+				type:"POST",
+        cache:"false",
+				data:{
+          'absEntry' : absEntry,
+          'orderCode' : orderCode
+				},
+				success: function(rs) {
+					load_out();
+					var rs = $.trim(rs);
+					if( rs == 'success' ) {
+						swal({
+							title:'Success',
+							type:'success',
+							timer:1000
+						});
+
+						window.location.reload();
+					}
+          else {
+						swal("Error !", rs , "error");
+					}
+				}
+			});
+	});
+}
+
+
+
+function toggleFinishPick() {
+  if($('#force_close').is(':checked')) {
+    $('#finish-row').removeClass('hide');
+  }
+  else {
+    is_all_picked();
+  }
 }

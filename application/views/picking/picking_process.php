@@ -71,6 +71,25 @@
 		<button type="button" class="btn btn-xs btn-primary btn-block" id="btn-submit-item" onclick="pickItem()" disabled>Pick</button>
 	</div>
 </div>
+
+<?php if($this->isLead OR $this->isAdmin OR $this->isSuperAdmin) : ?>
+	<hr class="margin-top-10 margin-bottom-10 padding-5"/>
+	<div class="row">
+		<div class="col-lg-2 col-md-2 col-sm-2 col-xs-8 padding-5">
+			<select class="form-control input-sm" name="soList" id="soList">
+				<option value="">เลือก SO</option>
+				<?php if(! empty($orderList)) : ?>
+					<?php foreach($orderList as $order): ?>
+						<option value="<?php echo $order->OrderCode; ?>"><?php echo $order->OrderCode; ?></option>
+					<?php endforeach; ?>
+				<?php endif; ?>
+			</select>
+		</div>
+		<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+			<button type="button" class="btn btn-xs btn-danger btn-block" onclick="deleteOrder()">ลบ SO</button>
+		</div>
+	</div>
+<?php endif; ?>
 <hr class="margin-top-10 margin-bottom-10 padding-5"/>
 <input type="hidden" id="BinCode" value="">
 <div class="row">
@@ -85,7 +104,7 @@
 					<th class="middle text-center" style="width:80px;">จัดแล้ว</th>
 					<th class="middle text-center" style="width:80px;">คงเหลือ</th>
 					<th class="middle text-center" style="min-width:100px;">ที่เก็บ</th>
-					<th class="middle text-center" style="min-width:70px; max-width:80px;"></th>
+					<th class="middle text-center" style="min-width:70px; max-width:100px;"></th>
 				</tr>
 			</thead>
 			<tbody id="details-table">
@@ -121,7 +140,7 @@
 							<td class="middle text-right">
 								<?php echo $rs->stock_in_zone; ?>
 							</td>
-							<td class="middle text-center">
+							<td class="middle text-right">
 								<?php if($rs->RelQtty > $rs->PickQtty) : ?>
 								<button type="button"
 									class="btn btn-purple btn-xs"
@@ -134,6 +153,12 @@
 								<button type="button" class="btn btn-warning btn-xs" onclick="showPickedOption(<?php echo $rs->id; ?>)">
 									<i class="fa fa-pencil"></i>
 								</button>
+
+								<?php if($this->isLead OR $this->isAdmin OR $this->isSuperAdmin) : ?>
+									<button type="button" class="btn btn-danger btn-xs" onclick="removePickRow(<?php echo $rs->id; ?>, '<?php echo $rs->OrderCode; ?>', '<?php echo $rs->ItemCode; ?>')">
+										<i class="fa fa-trash"></i>
+									</button>
+								<?php endif; ?>
 							</td>
 						</tr>
 						<?php $totalBalance += round($balance, 2); ?>
@@ -141,10 +166,14 @@
 				<?php endif; ?>
 			</tbody>
 			<?php $finish = $totalBalance <= 0 ? '' : 'hide'; ?>
-			<tfoot class="<?php echo $finish; ?>" id="finish-row">
+			<tfoot>
 				<tr class="" >
 					<td colspan="8" class="text-center">
-						<button type="button" class="btn btn-sm btn-success" onclick="finishPick()">Finish Pick</button>
+						<label>
+							<input type="checkbox" class="ace" id="force_close" onchange="toggleFinishPick()">
+							<span class="lbl">  สินค้าไม่ครบ</span>
+						</label>
+						<button type="button" class="btn btn-sm btn-success <?php echo $finish; ?>" id="finish-row" onclick="closePick()">Finish Pick</button>
 					</td>
 				</tr>
 			</tfoot>

@@ -1008,8 +1008,8 @@ class Quotation extends PS_Controller
 					'address' => get_empty_text($adr->Street),
 					'street' => get_empty_text($adr->StreetNo),
 					'sub_district' => get_empty_text($adr->Block),
-					'district' => get_empty_text($adr->County),
-					'province' => get_empty_text($adr->City),
+					'district' => get_empty_text($adr->City),
+					'province' => get_empty_text($adr->County),
 					'country' => get_empty_text($adr->Country),
 					'countryName' => get_empty_text($adr->countryName),
 					'postcode' => get_empty_text($adr->ZipCode)
@@ -1085,8 +1085,8 @@ class Quotation extends PS_Controller
 					'address' => get_empty_text($adr->Street),
 					'street' => get_empty_text($adr->StreetNo),
 					'sub_district' => get_empty_text($adr->Block),
-					'district' => get_empty_text($adr->County),
-					'province' => get_empty_text($adr->City),
+					'district' => get_empty_text($adr->City),
+					'province' => get_empty_text($adr->County),
 					'country' => get_empty_text($adr->Country),
 					'countryName' => get_empty_text($adr->countryName),
 					'postcode' => get_empty_text($adr->ZipCode)

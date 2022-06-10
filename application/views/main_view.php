@@ -34,7 +34,6 @@
 </div>
 
 
-
 <script id="stock-template" type="text/x-handlebarsTemplate">
 <table class="table table-bordered">
 	<thead>

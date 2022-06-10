@@ -228,6 +228,7 @@ class Pack_model extends CI_Model
     ->where('OrderCode', $orderCode)
     ->where('PickStatus', 'Y')
     ->where('LineStatus', 'O')
+    ->where('BasePickQty >', 0)
     ->group_by(array("OrderCode", "ItemCode", "UomEntry"))
     ->order_by('ItemCode', 'ASC')
     ->get('pick_row');

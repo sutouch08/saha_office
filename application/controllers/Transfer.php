@@ -872,7 +872,7 @@ class Transfer extends PS_Controller
 
 										if(!empty($line))
 										{
-											if($method < 0 OR $line->U_TransferCode != $doc->code)
+											if($method < 0 OR $line->U_TransferNo != $doc->code)
 											{
 												$packed = $Qty >= $row->PickQtty ? $row->PickQtty : $Qty;
 												$packed = $packed * $method;
@@ -881,7 +881,7 @@ class Transfer extends PS_Controller
 												$arr = array(
 													'U_Packed' => ($packed + $line->U_Packed),
 													'U_PrevPacked' => $prevPacked,
-													'U_TransferCode' => $method > 0 ? $doc->code : NULL
+													'U_TransferNo' => $method > 0 ? $doc->code : NULL
 												);
 
 												if( ! $this->transfer_model->update_order_line($row->OrderEntry, $row->OrderLine, $arr) )
@@ -963,7 +963,7 @@ class Transfer extends PS_Controller
 
 										if(!empty($line))
 										{
-											if($method < 0 OR $line->U_TransferCode != $doc->code)
+											if($method < 0 OR $line->U_TransferNo != $doc->code)
 											{
 												$packed = $Qty >= $row->PickQtty ? $row->PickQtty : $Qty;
 												$packed = $packed * $method;
@@ -972,7 +972,7 @@ class Transfer extends PS_Controller
 												$arr = array(
 													'U_Packed' => ($packed + $line->U_Packed),
 													'U_PrevPacked' => $prevPacked,
-													'U_TransferCode' => $method > 0 ? $doc->code : NULL
+													'U_TransferNo' => $method > 0 ? $doc->code : NULL
 												);
 
 												if( ! $this->transfer_model->update_order_line($row->OrderEntry, $row->OrderLine, $arr) )

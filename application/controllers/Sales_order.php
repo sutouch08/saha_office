@@ -1155,8 +1155,8 @@ class Sales_order extends PS_Controller
 					'address' => get_empty_text($adr->Street),
 					'street' => get_empty_text($adr->StreetNo),
 					'sub_district' => get_empty_text($adr->Block),
-					'district' => get_empty_text($adr->County),
-					'province' => get_empty_text($adr->City),
+					'district' => get_empty_text($adr->City),
+					'province' => get_empty_text($adr->County),
 					'country' => get_empty_text($adr->Country),
 					'countryName' => get_empty_text($adr->countryName),
 					'postcode' => get_empty_text($adr->ZipCode)
@@ -1233,8 +1233,8 @@ class Sales_order extends PS_Controller
 					'address' => get_empty_text($adr->Street),
 					'street' => get_empty_text($adr->StreetNo),
 					'sub_district' => get_empty_text($adr->Block),
-					'district' => get_empty_text($adr->County),
-					'province' => get_empty_text($adr->City),
+					'district' => get_empty_text($adr->City),
+					'province' => get_empty_text($adr->County),
 					'country' => get_empty_text($adr->Country),
 					'countryName' => get_empty_text($adr->countryName),
 					'postcode' => get_empty_text($adr->ZipCode)
@@ -1491,7 +1491,8 @@ class Sales_order extends PS_Controller
 											'OcrCode2' => $doc->OcrCode1,
 											'OwnerCode' => $doc->OwnerCode,
 											'U_DISWEB' => $rs->U_DISWEB,
-											'U_DISCEX' => $rs->U_DISCEX
+											'U_DISCEX' => $rs->U_DISCEX,
+											'U_SO_LSALEPRICE' => $rs->lastSellPrice
 										);
 
 										$this->sales_order_model->add_sap_sales_order_row($arr);

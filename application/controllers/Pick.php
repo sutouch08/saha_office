@@ -263,6 +263,7 @@ class Pick extends PS_Controller
 		$sc = TRUE;
 		$AbsEntry = $this->input->post('AbsEntry');
 		$DocEntries = $this->input->post('DocEntry');
+
 		$ds = array();
 
 		if(!empty($DocEntries))
@@ -309,6 +310,7 @@ class Pick extends PS_Controller
 					}
 				}
 			}
+
 
 			if(empty($ds))
 			{
@@ -649,6 +651,7 @@ class Pick extends PS_Controller
 		$absEntry = $this->input->post('AbsEntry');
 		$onhand = array();
 		$error = array();
+		$details = array();
 
 		if(!empty($absEntry))
 		{
@@ -665,6 +668,8 @@ class Pick extends PS_Controller
 						{
 							foreach($rows as $rs)
 							{
+								$key = $rs->AbsEntry.$rs->OrderCode.$rs->ItemCode.$rs->UomEntry;
+
 								if(! isset($onhand[$rs->ItemCode]))
 								{
 									$onHandStock = $this->stock_model->get_onhand_stock($rs->ItemCode);
@@ -685,6 +690,31 @@ class Pick extends PS_Controller
 								}
 
 								$onhand[$rs->ItemCode] -= $rs->BaseRelQty;
+
+								if(! isset($details[$key]))
+								{
+									$row = new stdClass();
+									$row->AbsEntry = $rs->AbsEntry;
+									$row->DocNum = $doc->DocNum;
+									$row->OrderCode = $rs->OrderCode;
+									$row->ItemCode = $rs->ItemCode;
+									$row->ItemName = $rs->ItemName;
+									$row->UomEntry = $rs->UomEntry;
+									$row->UomCode = $rs->UomCode;
+									$row->unitMsr = $rs->unitMsr;
+									$row->UomEntry2 = $rs->UomEntry2;
+									$row->BaseQty = $rs->BaseQty;
+									$row->RelQtty = $rs->RelQtty;
+									$row->BaseRelQty = $rs->BaseRelQty;
+
+									$details[$key] = $row;
+								}
+								else
+								{
+									$details[$key]->RelQtty += $rs->RelQtty;
+									$details[$key]->BaseRelQty += $rs->BaseRelQty;
+								}
+
 							}
 
 							//--- if not any error
@@ -699,7 +729,7 @@ class Pick extends PS_Controller
 								if(! $is_exists)
 								{
 									//--- create prick detail row
-									foreach($rows as $rs)
+									foreach($details as $rs)
 									{
 										if($sc === FALSE)
 										{
@@ -707,8 +737,8 @@ class Pick extends PS_Controller
 										}
 
 										$arr = array(
-											'AbsEntry' => $absEntry,
-											'DocNum' => $doc->DocNum,
+											'AbsEntry' => $rs->AbsEntry,
+											'DocNum' => $rs->DocNum,
 											'OrderCode' => $rs->OrderCode,
 											'ItemCode' => $rs->ItemCode,
 											'ItemName' => $rs->ItemName,
