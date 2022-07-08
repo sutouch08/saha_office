@@ -270,6 +270,10 @@ function parseDiscount(discount_label, price)
 		"discUnit2" : '',
 		"discLabel3" : 0,
 		"discUnit3" : '',
+		"discLabel4" : 0,
+		"discUnit4" : '',
+		"discLabel5" : 0,
+		"discUnit5" : '',
 		"discountAmount" : 0
 	};
 
@@ -278,7 +282,7 @@ function parseDiscount(discount_label, price)
 		var arr = discount_label.split('+');
 		arr.forEach(function(item, index){
 			var i = index + 1;
-			if(i < 4){
+			if(i <= 5){
 				var disc = item.split('%');
 				var value = parseDefault(parseFloat(disc[0]), 0);
 				discLabel["discLabel"+i] = value;

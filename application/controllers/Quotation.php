@@ -573,6 +573,8 @@ class Quotation extends PS_Controller
 							'VatSum' => $ds->tax,
 							'OcrCode' => $ds->Department,
 							'OcrCode1' => $ds->Division,
+							'PayToCode' => $ds->PayToCode,
+							'ShipToCode' => $ds->ShipToCode,
 							'Address' => get_null($ds->BillTo),
 							'Address2' => get_null($ds->ShipTo),
 							'Series' => $ds->Series,

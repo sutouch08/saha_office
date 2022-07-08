@@ -21,15 +21,20 @@ $totalPage = count($boxes);
   	<script src="<?php echo base_url(); ?>assets/js/bootstrap.min.js"></script>
   	<style>
                   .page_layout{
-                    border: solid 1px #aaa;
+                    border: solid 3px #aaa;
                     border-radius:0px;
                   }
 
                   .content-table > tbody > tr {
                     height:5mm;
                   }
+
                   .content-table > tbody > tr:last-child {
                     height: auto;
+                  }
+
+                  .table > tbody > tr > td {
+                    border: solid 1px #000;
                   }
 
                   @media print{
@@ -38,58 +43,47 @@ $totalPage = count($boxes);
                 </style>
   	</head>
   	<body>
-    	<div class="hidden-print" style="margin-top:10px; padding-bottom:10px; padding-right:5mm; width:200mm; margin-left:auto; margin-right:auto; text-align:right">
-    	   <button class="btn btn-primary" onclick="print()"><i class="fa fa-print"></i>&nbspพิมพ์</button>
-    	</div>
+
       <div style="width:100%">
         <?php if(!empty($boxes)) : ?>
           <?php foreach($boxes as $box) : ?>
         <?php $pageBreak = ($currentPage == $totalPage) ? "" : "page-break-after:always;"; ?>
         <!-- Page Start -->
-    		<div class="page_layout" style="position:relative; width: <?php echo $pageWidth; ?>mm; padding-top:5mm; height:<?php echo $pageHeight; ?>mm; margin:auto; margin-bottom:10px; <?php echo $pageBreak; ?>">
+    		<div class="page_layout" style="position:relative; width: <?php echo $pageWidth; ?>mm; padding-top:1mm; height:<?php echo $pageHeight; ?>mm; margin:auto; margin-bottom:10px; <?php echo $pageBreak; ?>">
           <div style="width:<?php echo $contentWidth; ?>mm; margin:auto; padding-bottom:10px;">
-            <table class="table table-bordered" style="margin-bottom:0px;">
+            <table class="table" style="margin-bottom:0px;">
               <tr>
-                <td rowspan="2" class="width-70 text-center" style="font-size:24px;">
-                  <?php echo barcodeImage($order->BeginStr.'-'.$order->DocNum, 10, 50, 0); ?>
+                <td colspan="2" class="text-center" style="font-size:45px; font-weight:bold;">
+                  <?php echo barcodeImage($order->BeginStr.'-'.$order->DocNum, 15, ($contentWidth-10), 0); ?><br/>
                   <?php echo $order->BeginStr.'-'.$order->DocNum; ?>
                 </td>
-                <td class="width-30 text-center">กล่องที่</td>
               </tr>
               <tr>
-                <td class="middle text-center" style="font-size:30px; font-weight:bold;">
+                <td colspan="2" style="font-size:24px; font-weight:bold;">
+                  <span style="font-size:10px; display:block;"><?php echo $order->CardCode; ?></span>
+                  <?php echo $order->CardName; ?>
+                </td>
+              </tr>
+              <tr>
+                <td style="width:70%; font-size:24px; font-weight:bold; white-space: nowrap; overflow:hidden;">
+                  <span style="font-size:10px; display:block;">Cust Ref.</span>
+                  <input class="width-100" style="border:0px;" value="<?php echo $order->NumAtCard; ?>" readonly>
+                </td>
+                <td style="width:30; text-align:center; vertical-align:middle; font-size:14px; font-weight:bold;">
+                  <?php echo $doc->pickCode; ?>
+                </td>
+              </tr>
+              <tr>
+                <td rowspan="2" style="padding:1px;">
+                  <textarea style="width:100%; border:0px; font-size:14px; overflow:hidden;" rows="5" readonly>Ship To.<?php echo trim($order->Address2); ?></textarea>
+                </td>
+                <td>
+                  <span style="font-size:14px;font-weight:bold;"><?php echo $doc->code; ?></span>
+                </td>
+              </tr>
+              <tr>
+                <td class="middle text-center" style="padding:0px; font-size:50px; font-weight:bold;">
                   <?php echo $box->box_no; ?>/<?php echo $last_box_no; ?>
-                </td>
-              </tr>
-              <tr>
-                <td colspan="2">
-                  <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
-                      <span style="font-size:9px; display:block;">Pick No.</span>
-                      <span style="font-size:18px;"><?php echo $doc->pickCode; ?></span>
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6" style="border-left:solid 1px #ccc;">
-                      <span style="font-size:9px; display:block;">Pack No.</span>
-                      <span style="font-size:18px;"><?php echo $doc->code; ?></span>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td colspan="2" style="font-size:18px;">
-                  <span style="font-size:9px; display:block;">Customer.</span>
-                  <?php echo $order->CardCode.' : '.$order->CardName; ?>
-                </td>
-              </tr>
-              <tr>
-                <td colspan="2" style="font-size:18px;">
-                  Ref : <?php echo $order->NumAtCard; ?>
-                </td>
-              </tr>
-              <tr>
-                <td colspan="2">
-                  <span style="font-size:9px; display:block;">Ship To.</span>
-                  <?php echo $order->Address2; ?>
                 </td>
               </tr>
             </table>
@@ -97,7 +91,7 @@ $totalPage = count($boxes);
         </div>
         <?php $currentPage++; ?>
         <?php endforeach; ?>
-      <?php endif; //-- end if(!empty($boxes))?>
+      <?php endif; ?>
       </div>
     </body>
   </html>
