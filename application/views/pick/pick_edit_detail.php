@@ -15,6 +15,7 @@
           <th class="middle" style="width:150px;">Item Code</th>
           <th class="middle" style="width:250px;">Description</th>
           <th class="middle text-center" style="width:100px;">UOM</th>
+          <th class="middle text-center" style="width:100px;">Price</th>
           <th class="middle text-right" style="width:100px;">Order</th>
           <th class="middle text-right" style="width:100px;">Open</th>
           <th class="middle text-right" style="width:100px;">Released</th>
@@ -50,6 +51,7 @@
               <td class="middle" id="itemCode-<?php echo $rs->rowNum; ?>"><?php echo $rs->ItemCode; ?></td>
               <td class="middle" id="itemName-<?php echo $rs->rowNum; ?>"><?php echo $rs->ItemName; ?></td>
               <td class="middle text-center"><?php echo $rs->unitMsr; ?></td>
+              <td class="middle text-center"><?php echo number($rs->price, 2); ?></td>
               <td class="middle text-right" id="order-<?php echo $rs->rowNum; ?>"><?php echo number($rs->OrderQty, 2); ?></td>
               <td class="middle text-right" id="open-<?php echo $rs->rowNum; ?>"><?php echo number($rs->OpenQty, 2); ?></td>
               <td class="middle text-right" id="release-<?php echo $rs->rowNum; ?>"><?php echo number($rs->PrevRelease, 2); ?></td>
@@ -69,7 +71,7 @@
                   <input type="hidden" id="unitMsr-<?php echo $rs->rowNum; ?>" value="<?php echo $rs->unitMsr; ?>">
                   <input type="hidden" id="unitMsr2-<?php echo $rs->rowNum; ?>" value="<?php echo $rs->unitMsr2; ?>">
               </td>
-              <td class="middle text-right" style="padding-right:0px;" id="available-<?php echo $rs->rowNum; ?>"><?php echo number(($rs->OnHand/$rs->BaseQty), 2); ?></td>
+              <td class="middle text-right" style="padding-right:0px;" id="available-<?php echo $rs->rowNum; ?>"><?php echo number($rs->OnHand, 2); ?></td>
               <td class="middle text-center" style="padding-right:0px; padding-left:5px;"><?php echo "{$rs->unitMsr}"; ?></td>
               <td class="middle text-right">
                 <button type="button" class="btn btn-minier btn-danger" onclick="removeRow(<?php echo $rs->rowNum; ?>)"><i class="fa fa-trash"></i></button>
@@ -88,7 +90,7 @@
       </tbody>
       <tfoot>
         <tr style="font-size:14px;">
-          <td colspan="6" class="text-right">รวม</td>
+          <td colspan="7" class="text-right">รวม</td>
           <td class="middle text-right" id="totalOrderQty"><?php echo number($totalOrderQty, 2); ?></td>
           <td class="middle text-right" id="totalOpenQty"><?php echo number($totalOpenQty, 2); ?></td>
           <td class="middle text-right" id="totalPrevRelease"><?php echo number($totalPrevRelease, 2); ?></td>
@@ -117,6 +119,7 @@
     <td class="middle" id="itemCode-{{rowNum}}">{{ItemCode}}</td>
     <td class="middle" id="itemName-{{rowNum}}">{{ItemName}}</td>
     <td class="middle text-center">{{unitMsr}}</td>
+    <td class="middle text-center">{{PriceLabel}}</td>
     <td class="middle text-right" id="order-{{rowNum}}">{{OrderQty}}</td>
     <td class="middle text-right" id="open-{{rowNum}}">{{OpenQty}}</td>
     <td class="middle text-right" id="release-{{rowNum}}">{{PrevRelease}}</td>
@@ -129,9 +132,10 @@
       <input type="hidden" id="UomCode2-{{rowNum}}" value="{{UomCode2}}">
       <input type="hidden" id="unitMsr-{{rowNum}}" value="{{unitMsr}}">
       <input type="hidden" id="unitMsr2-{{rowNum}}" value="{{unitMsr2}}">
+      <input type="hidden" id="Price-{{rowNum}}" value="{{Price}}">
     </td>
     <td class="middle text-right" id="onHand-{{rowNum}}">{{OnHand}}</td>
-    <td class="middle" style="padding-right:0px; padding-left:5px;">{{unitMsr2}}</td>
+    <td class="middle" style="padding-right:0px; padding-left:5px;">{{unitMsr}}</td>
     <td class="middle text-right">
       <button type="button" class="btn btn-minier btn-danger" onclick="removeRow({{rowNum}})"><i class="fa fa-trash"></i></button>
     </td>

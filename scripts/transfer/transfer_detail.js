@@ -55,9 +55,9 @@ function updateOrder() {
           timer:1000
         });
 
-        setTimeout(function() {
-          window.location.reload();
-        }, 1200);
+        // setTimeout(function() {
+        //   window.location.reload();
+        // }, 1200);
       }
     }
   })

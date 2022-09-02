@@ -8,7 +8,8 @@
     </div>
     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
     	<p class="pull-right top-p">
-        <button type="button" class="btn btn-sm btn-default" onclick="goBack()"><i class="fa fa-arrow-left"></i> &nbsp; Back</button>
+        <button type="button" class="btn btn-sm btn-default" onclick="goBack()"><i class="fa fa-arrow-left"></i> &nbsp; รอจัด</button>
+				<button type="button" class="btn btn-sm btn-warning" onclick="processList()"><i class="fa fa-arrow-left"></i> &nbsp; กำลังจัด</button>
       </p>
     </div>
 </div><!-- End Row -->
@@ -97,33 +98,37 @@
 		<table class="table table-stripped table-bordered border-1 dataTable" id="pick-table" style="min-width:700px;">
 			<thead>
 				<tr>
-					<th class="middle text-center" style="min-width:100px;">สินค้า</th>
+					<th class="middle text-center" style="width:200px;">สินค้า</th>
 					<th class="middle text-center" style="width:80px;">SO No</th>
-					<th class="middle text-center" style="width:60px;">UOM</th>
+					<th class="middle text-center" style="width:100px;">Rel. Qty</th>
+					<th class="middle text-center" style="width:80px;">Price</th>
 					<th class="middle text-center" style="width:80px;">จำนวน</th>
 					<th class="middle text-center" style="width:80px;">จัดแล้ว</th>
 					<th class="middle text-center" style="width:80px;">คงเหลือ</th>
-					<th class="middle text-center" style="min-width:100px;">ที่เก็บ</th>
-					<th class="middle text-center" style="min-width:70px; max-width:100px;"></th>
+					<th class="middle text-center" style="width:80px;">UOM</th>
+					<th class="middle text-center" style="width:100px;">ที่เก็บ</th>
+					<th class="middle text-center" style="width:70px; max-width:100px;"></th>
 				</tr>
 			</thead>
 			<tbody id="details-table">
+				<?php $totalBalance = 0; ?>
 				<?php if(! empty($details)) : ?>
-					<?php $totalBalance = 0; ?>
 					<?php foreach($details as $rs) : ?>
 						<?php $id = $rs->id; ?>
-						<?php $color = $rs->RelQtty <= $rs->PickQtty ? 'bg-green' : ''; ?>
-						<?php $balance = $rs->RelQtty - $rs->PickQtty; ?>
+						<?php $color = $rs->BaseRelQty <= $rs->BasePickQty ? 'bg-green' : ''; ?>
+						<?php $balance = $rs->BaseRelQty - $rs->BasePickQty; ?>
+						<?php $bcolor = is_null($rs->barcode) ? '#0032e7' : '#000000'; ?>
 						<tr id="row-<?php echo $id; ?>" class="row-tr <?php echo $color; ?>" data-id="<?php echo $id; ?>">
 							<td class="middle" style="white-space:normal;">
-								<?php if(is_null($rs->barcode)) : ?>
-									<a href="javascript:void(0)" onclick="showPickOption('<?php echo $rs->ItemCode; ?>', <?php echo $rs->UomEntry; ?>)">
-									<!--<button type="button" class="btn btn-sm btn-primary" onclick="showPickOption('<?php echo $rs->ItemCode; ?>', <?php echo $rs->UomEntry; ?>)">Options</button>-->
-								<?php endif; ?>
-								<?php echo $rs->barcode; ?> | <?php echo $rs->ItemCode; ?> | <?php echo $rs->ItemName; ?>
-								<?php if(is_null($rs->barcode)) : ?>
-									</a>
-								<?php endif; ?>
+								<a href="javascript:void(0)" style="color:<?php echo $bcolor; ?>"	onclick="showPickOption('<?php echo $rs->ItemCode; ?>', <?php echo $rs->UomEntry; ?>)">
+								<?php echo $rs->ItemName; ?>
+								</a>
+								<button type="button" class="btn btn-minier btn-info pull-right" onclick="showInfo(<?php echo $id; ?>)"><i class="fa fa-eye"></i></button>
+
+								<input type="hidden" id="info-code-<?php echo $id; ?>" value="<?php echo $rs->ItemCode; ?>" />
+								<input type="hidden" id="info-name-<?php echo $id; ?>" value="<?php echo $rs->ItemName; ?>" />
+								<input type="hidden" id="info-price-<?php echo $id; ?>" value="<?php echo number($rs->price, 2); ?>" />
+								<input type="hidden" id="info-barcode-<?php echo $id; ?>" value="<?php echo $rs->barcode; ?>" />
 							</td>
 							<td class="middle text-center">
 								<button type="button"
@@ -133,15 +138,17 @@
 								<?php echo $rs->OrderCode; ?>
 								</button>
 							</td>
-							<td class="middle text-center"><?php echo $rs->unitMsr; ?></td>
-							<td class="middle text-center" id="release-<?php echo $id; ?>"><?php echo round($rs->RelQtty,2); ?></td>
-							<td class="middle text-center" id="pick-<?php echo $id; ?>"><?php echo round($rs->PickQtty, 2); ?></td>
+							<td class="middle text-center"><?php echo round($rs->RelQtty, 2); ?> <?php echo $rs->unitMsr; ?></td>
+							<td class="middle text-center"><?php echo number($rs->price, 2); ?></td>
+							<td class="middle text-center" id="release-<?php echo $id; ?>"><?php echo round($rs->BaseRelQty,2); ?></td>
+							<td class="middle text-center" id="pick-<?php echo $id; ?>"><?php echo round($rs->BasePickQty, 2); ?></td>
 							<td class="middle text-center" id="balance-<?php echo $id; ?>"><?php echo round($balance, 2); ?></td>
+							<td class="middle text-center"><?php echo $rs->unitMsr2; ?></td>
 							<td class="middle text-right">
 								<?php echo $rs->stock_in_zone; ?>
 							</td>
 							<td class="middle text-right">
-								<?php if($rs->RelQtty > $rs->PickQtty) : ?>
+								<?php if($rs->BasePickQty > $rs->BasePickQty) : ?>
 								<button type="button"
 									class="btn btn-purple btn-xs"
 									id="btn-cancle-pick-<?php echo $rs->id; ?>"
@@ -168,7 +175,7 @@
 			<?php $finish = $totalBalance <= 0 ? '' : 'hide'; ?>
 			<tfoot>
 				<tr class="" >
-					<td colspan="8" class="text-center">
+					<td colspan="10" class="text-center">
 						<label>
 							<input type="checkbox" class="ace" id="force_close" onchange="toggleFinishPick()">
 							<span class="lbl">  สินค้าไม่ครบ</span>
@@ -264,6 +271,43 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="itemInfoModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="max-width:700px;">
+        <div class="modal-content">
+            <div class="modal-header" style="border-bottom:solid 1px #CCC">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title-site text-center">Item Info</h4>
+            </div>
+            <div class="modal-body">
+							<input type="hidden" id="picked-id">
+	            <div class="row">
+								<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 table-responsive">
+									<table class="table table-striped border-1">
+										<thead>
+											<tr>
+												<th style="width:100px;">Code</th>
+												<th style="min-width:200px;">Description</th>
+												<th style="width:80px;">Price</th>
+												<th style="min-width:80px;">Barcode</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td id="info-code"></td>
+												<td id="info-name"></td>
+												<td id="info-price"></td>
+												<td id="info-barcode"></td>
+											</tr>
+										</tbody>
+		              </table>
+								</div>
+	            </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <script id="cancle-option-template" type="text/x-handlebarsTemplate">
 	{{#each this}}

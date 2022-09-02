@@ -31,7 +31,7 @@
 				<?php endif; ?>
 
 				<?php if($doc->Status != 'D' && $doc->Status != 'C') : ?>
-					<button type="button" class="btn btn-sm btn-danger" onclick="canclePack(<?php echo $doc->id; ?>, '<?php echo $doc->code; ?>')"><i class="fa fa-times"></i> ยกเลิก</button>				
+					<button type="button" class="btn btn-sm btn-danger" onclick="canclePack(<?php echo $doc->id; ?>, '<?php echo $doc->code; ?>')"><i class="fa fa-times"></i> ยกเลิก</button>
 				<?php endif; ?>
 
 				<?php if($doc->Status == 'Y') : ?>
@@ -96,14 +96,14 @@
 							<td class="middle text-center"><?php echo $no; ?></td>
 							<td class="middle"><?php echo $rs->ItemCode; ?></td>
 							<td class="middle"><?php echo $rs->ItemName; ?></td>
-							<td class="middle text-center"><?php echo $rs->unitMsr; ?></td>
-							<td class="middle text-right"><?php echo number($rs->PickQtty, 2); ?></td>
-							<td class="middle text-right"><?php echo number($rs->PackQtty, 2); ?></td>
-							<td class="middle text-right"><?php echo number(($rs->PickQtty - $rs->PackQtty), 2); ?></td>
+							<td class="middle text-center"><?php echo $rs->unitMsr2; ?></td>
+							<td class="middle text-right"><?php echo number($rs->BasePickQty, 2); ?></td>
+							<td class="middle text-right"><?php echo number($rs->BasePackQty, 2); ?></td>
+							<td class="middle text-right"><?php echo number(($rs->BasePickQty - $rs->BasePackQty), 2); ?></td>
 						</tr>
 						<?php $no++; ?>
-						<?php $totalPick += $rs->PickQtty; ?>
-						<?php $totalPack += $rs->PackQtty; ?>
+						<?php $totalPick += $rs->BasePickQty; ?>
+						<?php $totalPack += $rs->BasePackQty; ?>
 					<?php endforeach; ?>
 					<tr>
 						<td colspan="4" class="middle text-right">รวม</td>
@@ -150,6 +150,7 @@
 												</th>
 												<th class="width-30 middle text-center">กล่อง</th>
 												<th class="width-20 middle text-center">จำนวนสินค้า</th>
+												<th class="width-15 middle text-center">Copies</th>
 												<th class="width-30 middle text-center"></th>
 											</tr>
 										</thead>
@@ -176,6 +177,7 @@
 		</td>
 		<td class="middle">กล่องที่ {{no}}</td>
 		<td class="middle text-center">{{qty}}</td>
+		<td class="middle text-center"><input type="number" class="form-control input-sm text-center" id="copy-{{box_id}}" /></td>
 		<td class="middle text-right">
 			<button type="button" class="btn btn-xs btn-info" onclick="printBox({{box_id}})"><i class="fa fa-print"></i></button>
 			<button type="button" class="btn btn-xs btn-primary" onclick="editBox({{box_id}})"><i class="fa fa-eye"></i></button>

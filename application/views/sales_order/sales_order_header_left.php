@@ -62,8 +62,8 @@
     <div class="form-group">
       <label class="col-sm-3 control-label no-padding-right"></label>
       <div class="col-sm-7 col-xs-8">
-        <textarea id="ShipTo" class="autosize autosize-transition form-control"></textarea>
-        <span class="badge badge-yellow pull-right margin-top-5"
+        <textarea id="ShipTo" class="autosize autosize-transition form-control" row="5" disabled></textarea>
+        <span class="badge badge-yellow pull-right margin-top-5 hide"
         style="padding-bottom:0px; padding-top: 0px; border-radius:3px; cursor:pointer;" onclick="editShipTo()">
           <i class="fa fa-ellipsis-h"></i>
         </span>

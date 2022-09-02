@@ -83,7 +83,7 @@ class Transfer_model extends CI_Model
   public function get_sum_order_item_details($transfer_id)
   {
     $rs = $this->db
-    ->select_sum('Qty')
+    ->select_sum('InvQty')
     ->select('pickCode, orderCode, ItemCode, UomEntry')
     ->where('transfer_id', $transfer_id)
     ->group_by(array('orderCode', 'ItemCode', 'UomEntry'))
@@ -186,6 +186,23 @@ class Transfer_model extends CI_Model
   }
 
 
+  public function get_order_by_transfer_code($code)
+  {
+    $rs = $this->db
+    ->distinct()
+    ->select('orderCode')
+    ->from('transfer_details')
+    ->join('transfer', 'transfer_details.transfer_id = transfer.id', 'left')
+    ->where('transfer.code', $code)
+    ->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
 
   public function get_pick_id_by_code($pickCode)
   {
@@ -242,12 +259,12 @@ class Transfer_model extends CI_Model
   public function get_pallet_items($pallet_id)
   {
     $rs = $this->db
-    ->select('pack_result.*')
-    ->select('pack_row.UomEntry2, pack_row.UomCode2, pack_row.unitMsr2')
-    ->from('pack_result')
-    ->join('pack_row', 'pack_result.packCode = pack_row.packCode AND pack_result.pickCode = pack_row.pickCode AND pack_result.orderCode = pack_row.orderCode AND pack_result.ItemCode = pack_row.ItemCode AND pack_result.UomEntry = pack_row.UomEntry', 'left')
-    ->where_in('pack_row.Status', array('Y', 'C'))
-    ->where('pack_result.pallet_id', $pallet_id)
+    ->select('ps.*')
+    ->select('pr.UomEntry, pr.UomCode, pr.unitMsr, pr.UomEntry2, pr.UomCode2, pr.unitMsr2, pr.BaseQty')
+    ->from('pack_result AS ps')
+    ->join('pack_row AS pr', 'ps.packCode = pr.packCode AND ps.pickCode = pr.pickCode AND ps.orderCode = pr.orderCode AND ps.ItemCode = pr.ItemCode ', 'left')
+    ->where_in('pr.Status', array('Y', 'C'))
+    ->where('ps.pallet_id', $pallet_id)
     ->get();
 
 
@@ -516,6 +533,12 @@ class Transfer_model extends CI_Model
     }
 
     return FALSE;
+  }
+
+
+  public function update_order_transfer_code($docNum, $code)
+  {
+    return $this->ms->set('U_SOTransfer', $code)->where('DocNum', $docNum)->update('ORDR');
   }
 
 

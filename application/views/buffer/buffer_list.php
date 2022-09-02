@@ -100,7 +100,7 @@
 						<td class="middle"><?php echo $rs->DocNum; ?></td>
 						<td class="middle"><?php echo $rs->OrderCode; ?></td>
 						<td class="middle"><?php echo $rs->ItemCode.' : '.$rs->ItemName; ?></td>
-						<td class="middle text-right"><?php echo number($rs->Qty, 2); ?></td>
+						<td class="middle text-right"><?php echo number($rs->BasePickQty, 2); ?></td>
 						<td class="middle text-center"><?php echo $rs->unitMsr; ?></td>
 						<td class="middle"><?php echo $rs->BinCode; ?></td>
 						<td class="middle text-center"><?php echo $rs->uname; ?></td>

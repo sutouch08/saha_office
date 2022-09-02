@@ -85,11 +85,11 @@
 					<td class="middle text-center"><?php echo $rs->pickCode; ?></td>
 					<td class="middle text-center"><?php echo $rs->packCode; ?></td>
 					<td class="middle text-center"><?php echo $rs->fromBinCode; ?></td>
-					<td class="middle text-right"><?php echo round($rs->Qty, 2); ?></td>
-					<td class="middle"><?php echo $rs->unitMsr; ?></td>
+					<td class="middle text-right"><?php echo round($rs->InvQty, 2); ?></td>
+					<td class="middle"><?php echo $rs->unitMsr2; ?></td>
 				</tr>
 				<?php $no++; ?>
-				<?php $totalQty += $rs->Qty; ?>
+				<?php $totalQty += $rs->InvQty; ?>
 			<?php endforeach; ?>
 		<?php endif; ?>
 			</tbody>

@@ -76,6 +76,11 @@ $totalPage = count($orders);
                 </td>
               </tr>
               <tr>
+                <td colspan="2" style="font-size:14px;">
+                  Remark: <?php echo $order->remark; ?>
+                </td>
+              </tr>
+              <tr>
                 <td colspan="2">
                   <span style="display:block;"><u>ที่อยู่จัดส่ง</u></span>
                   <?php echo $order->shipTo; ?>
@@ -85,6 +90,12 @@ $totalPage = count($orders);
                 <td class="middle" style="font-size:14px;">Item lines : <?php echo $order->ItemRows; ?></td>
                 <td class="middle text-right" style="font-size:14px;">
                   เวลาพิมพ์ <?php echo date('d/m/y H:i'); ?>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="2" class="text-center" style="font-size:28px; font-weight:bold;">
+                  <?php echo barcodeImage($order->DocNum, 10, 60, 0); ?><br/>
+                  <?php echo $order->DocNum; ?>
                 </td>
               </tr>
             </table>

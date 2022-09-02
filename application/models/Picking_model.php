@@ -85,7 +85,7 @@ class Picking_model extends CI_Model
 
     return NULL;
   }
-  
+
 
   public function get_details_by_item($absEntry, $ItemCode)
   {
@@ -103,6 +103,21 @@ class Picking_model extends CI_Model
   }
 
 
+  public function get_detail_by_item($absEntry, $orderCode, $ItemCode)
+  {
+    $rs = $this->db
+    ->where('AbsEntry', $absEntry)
+    ->where('OrderCode', $orderCode)
+    ->where('ItemCode', $ItemCode)
+    ->get('pick_details');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
 
 
   public function get_detail_by_item_uom($absEntry, $orderCode, $ItemCode, $UomEntry)
@@ -162,10 +177,9 @@ class Picking_model extends CI_Model
   }
 
 
-  public function update_picked_qty($id, $PickQtty, $BasePickQty)
+  public function update_picked_qty($id, $BasePickQty)
   {
     $this->db
-    ->set("PickQtty", "PickQtty + {$PickQtty}", FALSE)
     ->set("BasePickQty", "BasePickQty + {$BasePickQty}", FALSE)
     ->where('id', $id);
 
@@ -176,7 +190,7 @@ class Picking_model extends CI_Model
   public function get_buffer_zone($BinCode, $ItemCode)
   {
     $rs = $this->db
-    ->select_sum('Qty')
+    ->select_sum('BasePickQty', 'Qty')
     ->where('BinCode', $BinCode)
     ->where('ItemCode', $ItemCode)
     ->get('buffer');
@@ -219,14 +233,37 @@ class Picking_model extends CI_Model
   }
 
 
-  public function update_buffer_qty($id, $Qty, $InvQty)
+  public function update_buffer_qty($id, $InvQty)
   {
     return $this->db
-    ->set("Qty", "Qty + {$Qty}", FALSE)
     ->set("BasePickQty", "BasePickQty + {$InvQty}", FALSE)
     ->where("id", $id)
     ->update("buffer");
   }
+
+
+
+  public function restore_buffer(array $ds = array())
+  {
+    if(!empty($ds))
+    {
+      $bf = $this->get_unique_buffer($ds['AbsEntry'], $ds['OrderCode'], $ds['ItemCode'], $ds['BinCode'], $ds['UomEntry']);
+
+      if( ! empty($bf))
+      {
+        return $this->update_buffer_qty($bf->id, $ds['BasePickQty']);
+      }
+      else
+      {
+        return $this->add_buffer($ds);
+      }
+    }
+
+    return FALSE;
+  }
+
+
+
 
 
 
@@ -292,10 +329,9 @@ class Picking_model extends CI_Model
 
 
 
-  public function update_prepare_qty($id, $Qty, $InvQty)
+  public function update_prepare_qty($id, $InvQty)
   {
     return $this->db
-    ->set("Qty", "Qty + {$Qty}", FALSE)
     ->set("BasePickQty", "BasePickQty + {$InvQty}", FALSE)
     ->where('id', $id)
     ->update('picking_detail');

@@ -12,7 +12,7 @@ class Packing_model extends CI_Model
   {
     $rs = $this->db
     ->select('pack_box.id, pack_box.box_no, pack_box.pallet_id, pallet.code AS palletCode')
-    ->select_sum('pack_details.qty')
+    ->select_sum('pack_details.BasePackQty', 'qty')
     ->from('pack_box')
     ->join('pack_details', 'pack_box.id = pack_details.box_id AND pack_box.packCode = pack_details.packCode', 'left')
     ->join('pallet', 'pack_box.pallet_id = pallet.id', 'left')
@@ -34,7 +34,7 @@ class Packing_model extends CI_Model
   {
     $rs = $this->db
     ->select('pack_box.id AS box_id, pack_box.box_no, pack_box.pallet_id')
-    ->select_sum('pack_details.qty')
+    ->select_sum('pack_details.BasePackQty', 'qty')
     ->from('pack_details')
     ->join('pack_box', 'pack_details.box_id = pack_box.id AND pack_details.packCode = pack_box.packCode', 'left')
     ->where('pack_box.pallet_id', $pallet_id)
@@ -55,7 +55,7 @@ class Packing_model extends CI_Model
   {
     $rs = $this->db
     ->select('pack_box.id AS box_id, pack_box.box_no')
-    ->select_sum('pack_details.qty')
+    ->select_sum('pack_details.BasePackQty', 'qty')
     ->from('pack_details')
     ->join('pack_box', 'pack_details.box_id = pack_box.id AND pack_details.packCode = pack_box.packCode', 'left')
     ->where('pack_box.pallet_id IS NULL', NULL, FALSE)
@@ -234,7 +234,6 @@ class Packing_model extends CI_Model
       if($id)
       {
         return $this->db
-        ->set("qty", "qty + {$ds['qty']}", FALSE)
         ->set("BasePackQty", "BasePackQty + {$ds['BasePackQty']}", FALSE)
         ->where("id", $id)
         ->update("pack_details");
@@ -250,10 +249,9 @@ class Packing_model extends CI_Model
   }
 
 
-  public function update_pack_row($id, $PackQtty, $BasePackQty)
+  public function update_pack_row($id, $BasePackQty)
   {
     return $this->db
-    ->set("PackQtty", "PackQtty + {$PackQtty}", FALSE)
     ->set("BasePackQty", "BasePackQty + {$BasePackQty}", FALSE)
     ->where('id', $id)
     ->update('pack_row');
@@ -317,10 +315,9 @@ class Packing_model extends CI_Model
 
 
 
-  public function update_buffer($id, $Qty, $BasePickQty)
+  public function update_buffer($id, $BasePickQty)
   {
     return $this->db
-    ->set("Qty", "Qty - {$Qty}", FALSE)
     ->set("BasePickQty", "BasePickQty - {$BasePickQty}", FALSE)
     ->where('id', $id)
     ->update('buffer');

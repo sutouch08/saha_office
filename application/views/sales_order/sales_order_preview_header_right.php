@@ -37,6 +37,17 @@
       <td class="width-40 bg-green">Document Date</td>
       <td class="width-60"><?php echo thai_date($header->TextDate, FALSE, '.'); ?></td>
     </tr>
+
+    <tr>
+      <td class="width-40 bg-green">ประเภทพิมพ์เอกสาร</td>
+      <td class="width-60"><?php echo $header->U_DO_IV_Print; ?></td>
+    </tr>
+
+    <tr>
+      <td class="width-40 bg-green">เปิดบิลส่งสินค้าเมื่อ</td>
+      <td class="width-60"><?php echo $header->U_Delivery_Urgency; ?></td>
+    </tr>
+
     <?php if($header->is_duplicate) : ?>
     <tr>
       <td class="width-40 bg-green">เลขที่ใบสั่งขายเดิม</td>

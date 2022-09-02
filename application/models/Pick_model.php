@@ -45,6 +45,19 @@ class Pick_model extends CI_Model
   }
 
 
+  public function get_pick_id_by_code($code)
+  {
+    $rs = $this->db->select('AbsEntry')->where('DocNum', $code)->get('pick_list');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->AbsEntry;
+    }
+
+    return NULL;
+  }
+
+
 
   //---- Get pick rows
   public function get_pick_rows($AbsEntry)
@@ -150,7 +163,7 @@ class Pick_model extends CI_Model
     ->where('ItemCode', $ItemCode)
     ->where('OrderCode', $OrderCode)
     ->where('UomEntry', $UomEntry)
-    ->where('PickQtty <', 'RelQtty', FALSE)
+    ->where('BasePickQty <', 'BaseRelQty', FALSE)
     ->order_by('PickEntry', 'ASC')
     ->get('pick_row');
 
@@ -225,10 +238,12 @@ class Pick_model extends CI_Model
   {
     $rs = $this->ms
     ->select('ORDR.DocNum, ORDR.CardName')
-    ->select('RDR1.DocEntry, RDR1.LineNum, RDR1.ItemCode, RDR1.Dscription AS ItemName, RDR1.Quantity, RDR1.OpenQty')
-    ->select('RDR1.UomEntry, RDR1.UomEntry2, RDR1.UomCode, RDR1.UomCode2, RDR1.unitMsr, RDR1.unitMsr2')
+    ->select('RDR1.DocEntry, RDR1.LineNum, RDR1.ItemCode, RDR1.Quantity, RDR1.OpenQty, RDR1.InvQty, RDR1.OpenInvQty')
+    ->select('RDR1.UomEntry, RDR1.UomEntry2, RDR1.UomCode, RDR1.UomCode2, RDR1.unitMsr, RDR1.unitMsr2, RDR1.Price')
+    ->select('OITM.ItemName')
     ->from('RDR1')
     ->join('ORDR', 'RDR1.DocEntry = ORDR.DocEntry', 'left')
+    ->join('OITM', 'RDR1.ItemCode = OITM.ItemCode', 'left')
     ->where('RDR1.DocEntry', $DocEntry)
     ->where('RDR1.LineNum', $LineNum)
     ->get();
@@ -246,12 +261,13 @@ class Pick_model extends CI_Model
   public function getOpenRows($DocEntry)
   {
     $rs = $this->ms
-    ->select('RDR1.DocEntry, RDR1.LineNum, RDR1.LineStatus, RDR1.ItemCode, RDR1.Dscription AS ItemName')
-    ->select('RDR1.Quantity, RDR1.OpenQty')
+    ->select('RDR1.DocEntry, RDR1.LineNum, RDR1.LineStatus, RDR1.ItemCode, OITM.ItemName')
+    ->select('RDR1.Quantity, RDR1.OpenQty, RDR1.InvQty, RDR1.OpenInvQty, RDR1.Price')
     ->select('RDR1.UomEntry, RDR1.UomEntry2, RDR1.UomCode, RDR1.UomCode2, RDR1.unitMsr, RDR1.unitMsr2')
     ->select('ORDR.DocNum, ORDR.CardCode, ORDR.CardName')
     ->from('RDR1', 'RDR1.DocEntry = ORDR.DocEntry')
     ->join('ORDR', 'RDR1.DocEntry = ORDR.DocEntry', 'left')
+    ->join('OITM', 'RDR1.ItemCode = OITM.ItemCode', 'left')
     ->where('RDR1.DocEntry', $DocEntry)
     ->where('ORDR.DocStatus', 'O')
     ->where('ORDR.CANCELED', 'N')
@@ -490,10 +506,9 @@ class Pick_model extends CI_Model
 
 
 
-  public function update_pick_qtty($absEntry, $pickEntry, $PickQtty, $BasePickQty)
+  public function update_pick_qtty($absEntry, $pickEntry, $BasePickQty)
   {
     $this->db
-    ->set("PickQtty", "PickQtty + {$PickQtty}", FALSE)
     ->set("BasePickQty", "BasePickQty + {$BasePickQty}", FALSE)
     ->where('AbsEntry', $absEntry)
     ->where('PickEntry', $pickEntry);
@@ -514,6 +529,11 @@ class Pick_model extends CI_Model
   }
 
 
+  public function close_pick_line_status($absEntry, $orderCode)
+  {
+    return $this->db->set('LineStatus', 'C')->where('AbsEntry', $absEntry)->where('OrderCode', $orderCode)->update('pick_row');
+  }
+
 
   public function cancle_pick_rows($absEntry)
   {
@@ -529,7 +549,13 @@ class Pick_model extends CI_Model
 
   public function un_close_rows($absEntry, $orderCode)
   {
-    return $this->db->set('PickStatus', 'Y')->where('AbsEntry', $absEntry)->where('OrderCode', $orderCode)->update('pick_row');
+    $this->db
+    ->set('PickStatus', 'Y')
+    ->set('LineStatus', 'O')
+    ->where('AbsEntry', $absEntry)
+    ->where('OrderCode', $orderCode);
+
+    return $this->db->update('pick_row');
   }
 
 
@@ -668,6 +694,26 @@ class Pick_model extends CI_Model
   public function count_item_line($absEntry)
   {
     return $this->db->where('AbsEntry', $absEntry)->count_all_results('pick_row');
+  }
+
+
+  public function update_sap_pick_code($orderCode, $pickCode)
+  {
+    return $this->ms->set('U_PL_No', $pickCode)->where('DocNum', $orderCode)->update('ORDR');
+  }
+
+
+
+  public function get_internal_remark($orderCode)
+  {
+    $rs = $this->ms->select('U_Remark_Int AS remark')->where('DocNum', $orderCode)->get('ORDR');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->remark;
+    }
+
+    return NULL;
   }
 
 

@@ -262,11 +262,6 @@ function pickItem() {
       return false;
     }
 
-    // if(orderCode.length == 0) {
-    //   swal("กรุณาระบุเลขที่ SO");
-    //   return false;
-    // }
-
     $.ajax({
       url:HOME + 'pick_item',
       type:'POST',
@@ -492,6 +487,22 @@ var intv = setInterval(function() {
     }
   });
 }, 10000);
+
+
+
+function showInfo(id) {
+  let code = $('#info-code-'+id).val();
+  let name = $('#info-name-'+id).val();
+  let price = $('#info-price-'+id).val();
+  let barcode = $('#info-barcode-'+id).val();
+
+  $('#info-code').html(code);
+  $('#info-name').html(name);
+  $('#info-price').html(price);
+  $('#info-barcode').html(barcode);
+
+  $('#itemInfoModal').modal('show');
+}
 
 
 

@@ -47,8 +47,7 @@
 		<table class="table table-striped border-1">
 			<thead>
 				<tr>
-					<th class="width-10 text-center">บาร์โค้ด</th>
-					<th class="">สินค้า</th>
+					<th style="min-width:150px;">สินค้า</th>
 					<th class="width-10 text-center">หน่วยนับ</th>
 					<th class="width-10 text-center">จำนวนจัด</th>
 					<th class="width-10 text-center">แพ็คแล้ว</th>
@@ -61,24 +60,23 @@
 				<?php $totalBalance = 0; ?>
 				<?php if(!empty($rows)) : ?>
 					<?php foreach($rows as $rs) : ?>
-						<?php $color = $rs->PickQtty <= $rs->PackQtty ? 'background-color:#ebf1e2;' : ''; ?>
-						<?php $balance = $rs->PickQtty - $rs->PackQtty; ?>
+						<?php $color = $rs->BasePickQty <= $rs->BasePackQty ? 'background-color:#ebf1e2;' : ''; ?>
+						<?php $balance = $rs->BasePickQty - $rs->BasePackQty; ?>
+						<?php $bcolor = is_null($rs->barcode) ? '#0032e7' : '#000000'; ?>
 						<tr class="row-tr" id="row-<?php echo $rs->id; ?>" style="<?php echo $color; ?>">
-							<td class="middle text-center">
-								<?php if($rs->barcode) : ?>
-									<?php echo $rs->barcode; ?>
-								<?php else : ?>
-									<button type="button" class="btn btn-mini btn-primary" onclick="showPackOption('<?php echo $rs->ItemCode; ?>', <?php echo $rs->UomEntry; ?>)">Options</button>
-								<?php endif; ?>
+							<td class="">
+								<input type="hidden" name="barcode" value="<?php echo $rs->barcode; ?>" />
+								<a href="javascript:void(0)" style="color:<?php echo $bcolor; ?>"	onclick="showPackOption('<?php echo $rs->ItemCode; ?>', <?php echo $rs->UomEntry; ?>)">
+								<?php echo $rs->ItemCode.' : '.$rs->ItemName; ?>
+								</a>
 							</td>
-							<td class=""><?php echo $rs->ItemCode .' | '.$rs->ItemName; ?></td>
-							<td class="middle text-center"><?php echo $rs->unitMsr; ?></td>
-							<td class="middle text-center" id="pick-<?php echo $rs->id; ?>"><?php echo round($rs->PickQtty, 2); ?></td>
-							<td class="middle text-center packed" id="pack-<?php echo $rs->id; ?>"><?php echo round($rs->PackQtty, 2); ?></td>
+							<td class="middle text-center"><?php echo $rs->unitMsr2; ?></td>
+							<td class="middle text-center" id="pick-<?php echo $rs->id; ?>"><?php echo round($rs->BasePickQty, 2); ?></td>
+							<td class="middle text-center packed" id="pack-<?php echo $rs->id; ?>"><?php echo round($rs->BasePackQty, 2); ?></td>
 							<td class="middle text-center balance" id="balance-<?php echo $rs->id; ?>"><?php echo round($balance, 2); ?></td>
 						</tr>
-						<?php $totalPick += round($rs->PickQtty, 2); ?>
-						<?php $totalPack += round($rs->PackQtty, 2); ?>
+						<?php $totalPick += round($rs->BasePickQty, 2); ?>
+						<?php $totalPack += round($rs->BasePackQty, 2); ?>
 						<?php $totalBalance += round($balance, 2); ?>
 					<?php endforeach; ?>
 				<?php endif; ?>
@@ -86,7 +84,7 @@
 			<?php $finish = $totalBalance <= 0 ? "" : "hide"; ?>
 			<tfoot class="<?php echo $finish; ?>" id="finish-row">
 				<tr>
-					<td colspan="6" class="text-center">
+					<td colspan="5" class="text-center">
 						<button type="button" class="btn btn-sm btn-success" id="btn-finish" onclick="finish_pack()">Finish Pack</button>
 					</td>
 				</tr>
@@ -98,14 +96,9 @@
 <script id="details-template" type="text/x-handlebarsTemplate">
 	{{#each this}}
 		<tr class="row-tr" id="row-{{id}}" style="{{color}}">
-			<td class="middle text-center">
-				{{#if barcode}}
-					{{barcode}}
-				{{else}}
-					<button type="button" class="btn btn-mini btn-primary" onclick="showPackOption('{{ItemCode}}', {{UomEntry}})">Options</button>
-				{{/if}}
+			<td class="">
+				<a href="javascript:void(0)" style="color:{{bcolor}}"	onclick="showPackOption('{{ItemCode}}', {{UomEntry}} )">{{ItemCode}} : {{ItemName}}</a>
 			</td>
-			<td class="">{{ItemCode}} | {{ItemName}}</td>
 			<td class="middle text-center">{{unitMsr}}</td>
 			<td class="middle text-center" id="pick-{{id}}">{{PickQtty}}</td>
 			<td class="middle text-center packed" id="pack-{{id}}">{{PackQtty}}</td>

@@ -860,9 +860,12 @@ class Sales_order_model extends CI_Model
 
   public function getSyncList($limit = 100)
   {
+    $syncDays = 30; //--- sync only last $syncdays
+    $from_date = from_date(date('Y-m-d', strtotime("-{$syncDays} days")));
     $rs = $this->db
     ->select('code')
     ->where_in('Status', array(1, 3, 4))
+    ->where('date_add >', $from_date)
     ->order_by('code', 'ASC')
     ->limit($limit)
     ->get('sales_order');

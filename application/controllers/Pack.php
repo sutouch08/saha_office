@@ -142,7 +142,6 @@ class Pack extends PS_Controller
 											'unitMsr' => $rs->unitMsr,
 											'unitMsr2' => $rs->unitMsr2,
 											'BaseQty' => $rs->BaseQty,
-											'PickQtty' => $rs->PickQtty,
 											'BasePickQty' => $rs->BasePickQty,
 											'user_id' => $this->user->id,
 											'uname' => $this->user->uname
@@ -319,7 +318,7 @@ class Pack extends PS_Controller
 									if(!empty($pick))
 									{
 										//---- restore buffer
-										$details = $this->pick_model->get_picking_details($doc->pickCode, $doc->orderCode);
+										$details = $this->pack_model->get_pack_results($code);
 
 										if(!empty($details))
 										{
@@ -332,24 +331,22 @@ class Pack extends PS_Controller
 
 
 												$arr = array(
-													'AbsEntry' => $detail->AbsEntry,
-													'DocNum' => $detail->DocNum,
+													'AbsEntry' => $pick->AbsEntry,
+													'DocNum' => $detail->pickCode,
 													'OrderCode' => $detail->OrderCode,
 													'ItemCode' => $detail->ItemCode,
 													'ItemName' => $detail->ItemName,
-													'UomEntry' => $detail->UomEntry,
-													'UomCode' => $detail->UomCode,
-													'unitMsr' => $detail->unitMsr,
-													'BaseQty' => $detail->BaseQty,
-													'Qty' => $detail->Qty,
-													'BasePickQty' => $detail->BasePickQty,
+													'UomEntry' => $detail->UomEntry2,
+													'UomCode' => $detail->UomCode2,
+													'unitMsr' => $detail->unitMsr2,
+													'BasePickQty' => $detail->BasePackQty,
 													'BinCode' => $detail->BinCode,
 													'user_id' => $detail->user_id,
-													'uname' => $detail->uname,
-													'date_upd' => $detail->date_upd
+													'uname' => $this->user->uname,
+													'date_upd' => now()
 												);
 
-												if(! $this->picking_model->add_buffer($arr))
+												if(! $this->picking_model->restore_buffer($arr))
 												{
 													$sc = FALSE;
 													$this->error = "Restore buffer failed";
@@ -368,7 +365,7 @@ class Pack extends PS_Controller
 											}
 											else
 											{
-												if($this->pick_model->is_all_open($pick->AbsEntry))
+												if(! $this->pick_model->is_all_closed($pick->AbsEntry))
 												{
 													if(! $this->pick_model->update($pick->AbsEntry, array('Status' => 'Y')))
 													{

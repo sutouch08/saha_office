@@ -28,7 +28,7 @@ function limitText($str, $length)
 }
 
 
-function add_commas(array $ds = array())
+function add_commas($ds = array())
 {
 	$text = "";
 

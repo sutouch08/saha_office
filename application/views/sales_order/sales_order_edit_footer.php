@@ -23,7 +23,14 @@
       <div class="form-group">
         <label class="col-sm-4 control-label no-padding-right">Remark</label>
         <div class="col-sm-7 col-xs-12">
-          <textarea id="comments" maxlength="254" class="form-control" style="height:100px; width:450px;"><?php echo $header->Comments; ?></textarea>
+          <textarea id="comments" maxlength="254" class="form-control" style="height:50px; width:450px;"><?php echo $header->Comments; ?></textarea>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="col-sm-4 control-label no-padding-right">Internal Remark</label>
+        <div class="col-sm-7 col-xs-12">
+          <textarea id="remark" maxlength="254" class="form-control" style="height:50px; width:450px;"><?php echo $header->U_Remark_Int; ?></textarea>
         </div>
       </div>
     </div>

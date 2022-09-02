@@ -131,6 +131,8 @@ class Transfer extends PS_Controller
 									break;
 								}
 
+								$Qty = $rs->BasePackQty > 0 ? $rs->BasePackQty/$rs->BaseQty : 0;
+
 								$arr = array(
 									'transfer_id' => $id,
 									'ItemCode' => $rs->ItemCode,
@@ -138,13 +140,13 @@ class Transfer extends PS_Controller
 									'fromWhsCode' => $this->warehouse_model->get_warehouse_code($rs->BinCode),
 									'fromBinCode' => $rs->BinCode,
 									'UomEntry' => $rs->UomEntry,
-									'UomEntry2' => $rs->UomEntry2,
 									'UomCode' => $rs->UomCode,
-									'UomCode2' => $rs->UomCode2,
 									'unitMsr' => $rs->unitMsr,
+									'UomEntry2' => $rs->UomEntry2,
+									'UomCode2' => $rs->UomCode2,
 									'unitMsr2' => $rs->unitMsr2,
 									'BaseQty' => $rs->BaseQty,
-									'Qty' => $rs->Qty,
+									'Qty' => round($Qty, 6),
 									'InvQty' => $rs->BasePackQty,
 									'pickCode' => $rs->pickCode,
 									'packCode' => $rs->packCode,
@@ -516,7 +518,7 @@ class Transfer extends PS_Controller
 										break;
 									}
 
-									if($rs->Qty > 0)
+									if($rs->InvQty > 0)
 									{
 										$arr = array(
 		                  'DocEntry' => $docEntry,
@@ -529,11 +531,11 @@ class Transfer extends PS_Controller
 											'UomCode' => $rs->UomCode2, //-- ต้องสลับ field uom
 											'UomEntry' => $rs->UomEntry2,
 		                  'unitMsr' => $rs->unitMsr2,
-											'UomCode2' => $rs->UomCode,
-											'UomEntry2' => $rs->UomEntry,
-											'unitMsr2' => $rs->unitMsr,
+											'UomCode2' => $rs->UomCode2,
+											'UomEntry2' => $rs->UomEntry2,
+											'unitMsr2' => $rs->unitMsr2,
 											'NumPerMsr' => 1.000000,
-											'NumPerMsr2' => $rs->BaseQty,
+											'NumPerMsr2' => 1.000000,
 		                  'PriceBefDi' => 0.000000,
 		                  'LineTotal' => 0.000000,
 		                  'ShipDate' => sap_date($doc->DocDate, TRUE),
@@ -604,6 +606,7 @@ class Transfer extends PS_Controller
 		if($sc === TRUE)
 		{
 			$this->update_order_line($id);
+			$this->update_order_transfer_code($doc->code);
 		}
 
 
@@ -688,7 +691,7 @@ class Transfer extends PS_Controller
 
 		$pallet = $this->pallet_model->get_pallet_by_code($palletCode);
 
-		if(!empty($pallet))
+		if( ! empty($pallet))
 		{
 			if($pallet->Status == 'O')
 			{
@@ -710,7 +713,7 @@ class Transfer extends PS_Controller
 							'packCode' => $rs->packCode,
 							'fromBin' => $rs->BinCode,
 							'toBin' => $toBin,
-							'qty' => number($rs->Qty, 2),
+							'qty' => number($rs->BasePackQty, 2),
 							'unitMsr' => $rs->unitMsr
 						);
 
@@ -846,9 +849,9 @@ class Transfer extends PS_Controller
 						break;
 					}
 
-					if($detail->Qty > 0)
+					if($detail->InvQty > 0)
 					{
-						$Qty = $detail->Qty;
+						$invQty = $detail->InvQty;
 
 						$pick_id = $this->transfer_model->get_pick_id_by_code($detail->pickCode);
 
@@ -865,7 +868,7 @@ class Transfer extends PS_Controller
 										break;
 									}
 
-									if($Qty > 0)
+									if($invQty > 0)
 									{
 										//--- get RDR1 data
 										$line = $this->transfer_model->get_order_line($row->OrderEntry, $row->OrderLine);
@@ -874,7 +877,9 @@ class Transfer extends PS_Controller
 										{
 											if($method < 0 OR $line->U_TransferNo != $doc->code)
 											{
-												$packed = $Qty >= $row->PickQtty ? $row->PickQtty : $Qty;
+												$packed = $invQty >= $row->BasePickQty ? $row->BasePickQty : $invQty;
+
+												$packed = $row->BasePickQty > 0 ? round(($row->BasePickQty/$row->BaseQty), 6) : $packed;
 												$packed = $packed * $method;
 												$prevPacked = $line->U_PrevPacked + $packed;
 
@@ -890,7 +895,7 @@ class Transfer extends PS_Controller
 													$this->error = "Update Order Packed failed";
 												}
 
-												$Qty -= ($packed * $method);
+												$invQty -= ($packed * $method);
 											}
 										}
 									}
@@ -937,9 +942,9 @@ class Transfer extends PS_Controller
 						break;
 					}
 
-					if($detail->Qty > 0)
+					if($detail->InvQty > 0)
 					{
-						$Qty = $detail->Qty;
+						$invQty = $detail->InvQty;
 
 						$pick_id = $this->transfer_model->get_pick_id_by_code($detail->pickCode);
 
@@ -956,7 +961,7 @@ class Transfer extends PS_Controller
 										break;
 									}
 
-									if($Qty > 0)
+									if($invQty > 0)
 									{
 										//--- get RDR1 data
 										$line = $this->transfer_model->get_order_line($row->OrderEntry, $row->OrderLine);
@@ -965,7 +970,9 @@ class Transfer extends PS_Controller
 										{
 											if($method < 0 OR $line->U_TransferNo != $doc->code)
 											{
-												$packed = $Qty >= $row->PickQtty ? $row->PickQtty : $Qty;
+												$packed = $invQty >= $row->BasePickQty ? $row->BasePickQty : $invQty;
+
+												$packed = $row->BasePickQty > 0 ? round(($row->BasePickQty/$row->BaseQty), 6) : $packed;
 												$packed = $packed * $method;
 												$prevPacked = $line->U_PrevPacked + $packed;
 
@@ -981,7 +988,7 @@ class Transfer extends PS_Controller
 													$this->error = "Update Order Packed failed";
 												}
 
-												$Qty -= ($packed * $method);
+												$invQty -= ($packed * $method);
 											}
 										}
 									}
@@ -990,7 +997,7 @@ class Transfer extends PS_Controller
 						}
 					}
 				}
-			}
+			}	
 
 			if($sc === TRUE)
 			{
@@ -1030,6 +1037,20 @@ class Transfer extends PS_Controller
 		{
 			$sc = FALSE;
 			$this->error = "Invalid Document";
+		}
+	}
+
+
+	public function update_order_transfer_code($code)
+	{
+		$orders = $this->transfer_model->get_order_by_transfer_code($code);
+
+		if(!empty($orders))
+		{
+			foreach($orders as $rs)
+			{
+				$this->transfer_model->update_order_transfer_code($rs->orderCode, $code);
+			}
 		}
 	}
 

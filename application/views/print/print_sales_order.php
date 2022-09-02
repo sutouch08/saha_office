@@ -228,11 +228,19 @@ while($total_page > 0 )
 	$top .= 				"</td>";
 	$top .= 			"</tr>";
 
+
 	if(!empty($sale->Email))
 	{
 		$top .= "<tr style='font-size:11px;'><td colspan='2' align='right'>{$sale->Email}</td></tr>";
 	}
 
+	$top .= 			"<tr style='font-size:11px;'>";
+	$top .=					"<td style='vertical-align:text-top;'>ผู้เปิด </td>";
+	$top .=					"<td style='white-space:nowrap; overflow:hidden;'>: ";
+	$top .= 					$doc->OwnerName;
+	$top .= 				"</td>";
+	$top .= 			"</tr>";
+	
 	$top .=				"</tbody>";
 	$top .= 		"</table>";
 	$top .= 	"</div>";

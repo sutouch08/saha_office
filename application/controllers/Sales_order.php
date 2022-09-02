@@ -123,6 +123,9 @@ class Sales_order extends PS_Controller
 				'TextDate' => sap_date($ds->TextDate, TRUE),
 				'OwnerCode' => get_null($ds->owner),
 				'Comments' => get_null($ds->comments),
+				'U_DO_IV_Print' => get_null($ds->U_DO_IV_Print),
+				'U_Delivery_Urgency' => get_null($ds->U_Delivery_Urgency),
+				'U_Remark_Int' => get_null($ds->U_Remark_Int),
 				'user_id' => $this->user->id,
 				'uname' => $this->user->uname,
 				'sale_team' => $this->user->sale_team
@@ -284,6 +287,9 @@ class Sales_order extends PS_Controller
 					'U_ORIGINALSO' => $OriginalSO,
 					'OwnerCode' => get_null($ds->OwnerCode),
 					'Comments' => get_null($ds->Comments),
+					'U_DO_IV_Print' => get_null($ds->U_DO_IV_Print),
+					'U_Delivery_Urgency' => get_null($ds->U_Delivery_Urgency),
+					'U_Remark_Int' => get_null($ds->U_Remark_Int),
 					'user_id' => $this->user->id,
 					'uname' => $this->user->uname,
 					'sale_team' => $this->user->sale_team,
@@ -732,6 +738,9 @@ class Sales_order extends PS_Controller
 							'TextDate' => sap_date($ds->TextDate, TRUE),
 							'OwnerCode' => get_null($ds->owner),
 							'Comments' => get_null($ds->comments),
+							'U_DO_IV_Print' => get_null($ds->U_DO_IV_Print),
+							'U_Delivery_Urgency' => get_null($ds->U_Delivery_Urgency),
+							'U_Remark_Int' => get_null($ds->U_Remark_Int),
 							'user_id' => $this->user->id,
 							'uname' => $this->user->uname,
 							'sale_team' => $this->user->sale_team
@@ -1415,9 +1424,9 @@ class Sales_order extends PS_Controller
 							'CardCode' => $doc->CardCode,
 							'CardName' => $doc->CardName,
 							'PayToCode' => $doc->PayToCode,
-							'Address' => $doc->Address,
+							//'Address' => $doc->Address,
 							'ShipToCode' => $doc->ShipToCode,
-							'Address2' => $doc->Address2,
+							//'Address2' => $doc->Address2,
 							'NumAtCard' => $doc->NumAtCard,
 							'VatSum' => $doc->VatSum,
 							'DiscPrcnt' => $doc->DiscPrcnt,
@@ -1435,6 +1444,9 @@ class Sales_order extends PS_Controller
 							'U_WEBORDER' => $doc->code,
 							'U_ORIGINALSO' => $doc->U_ORIGINALSO,
 							'U_SQNO' => $doc->U_SQNO,
+							'U_Remark_Int' => $doc->U_Remark_Int,
+							'U_IV_DO_print' => $doc->U_DO_IV_Print,
+							'U_Delivery_Urgency' => $doc->U_Delivery_Urgency,
 							'F_Web' => 'A',
 							'F_WebDate' => sap_date(now(), TRUE)
 						);
@@ -1915,6 +1927,7 @@ class Sales_order extends PS_Controller
 		$customer = $this->customers_model->get_sap_contact_data($doc->CardCode);
 		$sale = $this->user_model->get_sap_sale_data($doc->SlpCode);
 		$doc->prefix = empty($doc->BeginStr) ? $this->sales_order_model->get_prefix($doc->Series) : $doc->BeginStr;
+		$doc->OwnerName = empty($doc->OwnerCode) ? "" : $this->user_model->get_emp_name($doc->OwnerCode);
 		$contact_person = empty($doc->CntctCode) ? "" : $this->customers_model->get_contact_person_name($doc->CntctCode);
 		$doc->reference = !empty($doc->NumAtCard) ? $doc->NumAtCard : $doc->U_SQNO;
 

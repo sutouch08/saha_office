@@ -137,8 +137,9 @@ class Packing extends PS_Controller
 					foreach($rows as $rs)
 					{
 						$rs->barcode = $this->item_model->get_barcode_uom($rs->ItemCode, $rs->UomEntry);
-						$all_qty += round($rs->PickQtty, 2);
-						$pack_qty += round($rs->PackQtty, 2);
+						$rs->ItemName = $this->item_model->getName($rs->ItemCode);
+						$all_qty += round($rs->BasePickQty, 2);
+						$pack_qty += round($rs->BasePackQty, 2);
 					}
 				}
 
@@ -187,19 +188,21 @@ class Packing extends PS_Controller
 			{
 				foreach($rows as $rs)
 				{
-					$balance = $rs->PickQtty - $rs->PackQtty;
+					$balance = $rs->BasePickQty - $rs->BasePackQty;
+					$barcode = $this->item_model->get_barcode_uom($rs->ItemCode, $rs->UomEntry);
 
 					$arr = array(
 						'id' => $rs->id,
-						'barcode' => $this->item_model->get_barcode_uom($rs->ItemCode, $rs->UomEntry),
+						'barcode' => $barcode,
 						'ItemCode' => $rs->ItemCode,
-						'ItemName' => $rs->ItemName,
-						'UomEntry' => $rs->UomEntry,
-						'unitMsr' => $rs->unitMsr,
-						'PickQtty' => round($rs->PickQtty, 2),
-						'PackQtty' => round($rs->PackQtty, 2),
+						'ItemName' => $this->item_model->getName($rs->ItemCode),
+						'UomEntry' => $rs->UomEntry2,
+						'unitMsr' => $rs->unitMsr2,
+						'PickQtty' => round($rs->BasePickQty, 2),
+						'PackQtty' => round($rs->BasePackQty, 2),
 						'balance' => $balance < 0 ? 0 : round($balance , 2),
-						'color' => $balance <= 0 ? 'background-color:#ebf1e2;' : ''
+						'color' => $balance <= 0 ? 'background-color:#ebf1e2;' : '',
+						'bcolor' => is_null($barcode) ? '#0032e7' : '#000000'
 					);
 
 					array_push($ds, $arr);
@@ -237,29 +240,27 @@ class Packing extends PS_Controller
 
 			if(!empty($item))
 			{
-				$row = $this->pack_model->get_detail_by_item_uom($code, $item->ItemCode, $item->UomEntry);
+				$row = $this->pack_model->get_detail_by_item($code, $item->ItemCode);
 
 				//--- ถ้ามีแสดงว่า หน่วยนับตรงกัน
 				if(!empty($row))
 				{
 					$baseQty = $this->item_model->get_base_qty($item->ItemCode, $item->UomEntry);
 					//--- แปลงเป็น หน่วยนับย่อย
-					$bcQty = $qty * $baseQty;
+					$invQty = $qty * $baseQty;
 
 					//--- ตรวจสอบว่า ยอดที่ยิงมา มากกว่า ยอดคงเหลือในรายการจัดหรือไม่
 					$remain = $row->BasePickQty - $row->BasePackQty;
 
-					if($remain < $bcQty)
+					if($remain < $invQty)
 					{
 						$sc = FALSE;
 						$this->error = "สินค้าเกิน กรุณาตรวจสอบ";
 					}
 					else
 					{
-						$packQty = $bcQty/$row->BaseQty;
-
-						$packed = $row->PackQtty + $packQty;
-						$balance = $row->PickQtty - $packed;
+						$packed = $row->BasePackQty + $invQty;
+						$balance = $row->BasePickQty - $packed;
 
 						$this->db->trans_begin();
 
@@ -268,12 +269,11 @@ class Packing extends PS_Controller
 							'orderCode' => $doc->orderCode,
 							'pickCode' => $doc->pickCode,
 							'ItemCode' => $row->ItemCode,
-							'UomEntry' => $row->UomEntry,
-							'UomCode' => $row->UomCode,
-							'unitMsr' => $row->unitMsr,
+							'UomEntry' => $row->UomEntry2,
+							'UomCode' => $row->UomCode2,
+							'unitMsr' => $row->unitMsr2,
 							'BaseQty' => $baseQty,
-							'BasePackQty' => $bcQty,
-							'qty' => $packQty,
+							'BasePackQty' => $invQty,
 							'box_id' => $box_id,
 							'pallet_id' => $pallet_id,
 							'user_id' => $this->user->id
@@ -287,7 +287,7 @@ class Packing extends PS_Controller
 						}
 						else
 						{
-							if(! $this->packing_model->update_pack_row($row->id, $packQty, $bcQty))
+							if(! $this->packing_model->update_pack_row($row->id, $invQty))
 							{
 								$sc = FALSE;
 								$this->error = "Update pack row failed";
@@ -297,7 +297,7 @@ class Packing extends PS_Controller
 								$arr = array(
 									'id' => $row->id,
 									'packed' => round($packed, 2),
-									'pack_qty' => round($packQty, 2),
+									'pack_qty' => round($invQty, 2),
 									'balance' => round($balance, 2),
 									'valid' => ($balance <= 0) ? TRUE : FALSE
 								);
@@ -314,122 +314,6 @@ class Packing extends PS_Controller
 						{
 							$this->db->trans_rollback();
 						}
-					}
-				}
-				else
-				{
-					$rows = $this->pack_model->get_details_by_item_other_uom($code, $item->ItemCode, $item->UomEntry);
-
-					if(!empty($rows))
-					{
-						//---- ตัวคูณ หน่วยนับที่ยิงมา
-						$baseQty = $this->item_model->get_base_qty($item->ItemCode, $item->UomEntry);
-
-						//--- ถ้าไม่มี แปลงเป็น หน่วยนับย่อย
-						$bcQty = $qty * $baseQty;
-
-						$testQty = $bcQty;
-
-						//---- ทดสอบว่ายอดที่ยิงมามัันเกินที่เหลือมั้ย
-						foreach($rows as $row)
-						{
-							//--- ตรวจสอบว่า ยอดที่ยิงมา มากกว่า ยอดคงเหลือในรายการจัดหรือไม่
-							$remain = $row->BasePickQty - $row->BasePackQty;
-
-							$packQty = $testQty <= $remain ? $testQty : $remain;
-							$testQty -= $packQty;
-						}
-
-						if($testQty > 0)
-						{
-							$sc = FALSE;
-							$this->error = "จำนวนสินค้าเกิน กรุณาคืนสินค้าแล้วแพ็คสินค้าใหม่อีกครั้ง";
-						}
-						else
-						{
-							$this->db->trans_begin();
-
-							foreach($rows as $row)
-							{
-								if($sc === FALSE)
-								{
-									break;
-								}
-
-								if($bcQty > 0)
-								{
-									//--- ตรวจสอบว่า ยอดที่ยิงมา มากกว่า ยอดคงเหลือในรายการจัดหรือไม่
-									$remain = $row->BasePickQty - $row->BasePackQty;
-
-									$invQty = $bcQty <= $remain ? $bcQty : $remain;
-
-									$packQty = $invQty / $row->BaseQty;
-
-									$packed = $row->PackQtty + $packQty;
-
-									$balance = $row->PickQtty - $packed;
-
-									$arr = array(
-										'packCode' => $code,
-										'orderCode' => $doc->orderCode,
-										'pickCode' => $doc->pickCode,
-										'ItemCode' => $row->ItemCode,
-										'UomEntry' => $row->UomEntry,
-										'UomCode' => $row->UomCode,
-										'unitMsr' => $row->unitMsr,
-										'BaseQty' => $baseQty,
-										'BasePackQty' => $invQty,
-										'qty' => $packQty,
-										'box_id' => $box_id,
-										'pallet_id' => $pallet_id,
-										'user_id' => $this->user->id
-									);
-
-
-									if(! $this->packing_model->update_pack_details($arr))
-									{
-										$sc = FALSE;
-										$this->error = "Update pack details failed";
-									}
-									else
-									{
-										if(! $this->packing_model->update_pack_row($row->id, $packQty, $invQty))
-										{
-											$sc = FALSE;
-											$this->error = "Update pack row failed";
-										}
-										else
-										{
-											$arr = array(
-												'id' => $row->id,
-												'packed' => round($packed, 2),
-												'pack_qty' => round($packQty, 2),
-												'balance' => round($balance, 2),
-												'valid' => ($balance <= 0) ? TRUE : FALSE
-											);
-
-											array_push($ds, $arr);
-										}
-									}
-
-									$bcQty -= $invQty;
-								} //-- endif
-							} //--- end foreach
-
-							if($sc === TRUE)
-							{
-								$this->db->trans_commit();
-							}
-							else
-							{
-								$this->db->trans_rollback();
-							}
-						}
-					}
-					else
-					{
-						$sc = FALSE;
-						$this->error = "สินค้าไม่ถูกต้อง";
 					}
 				}
 			}
@@ -465,6 +349,7 @@ class Packing extends PS_Controller
 		$qty = $this->input->post('qty');
 
 		$doc = $this->pack_model->get_by_code($code);
+
 		if(!empty($doc))
 		{
 			//--- get itemcode by barcode
@@ -472,29 +357,27 @@ class Packing extends PS_Controller
 
 			if(! empty($item))
 			{
-				$row = $this->pack_model->get_detail_by_item_uom($code, $ItemCode, $UomEntry);
+				$row = $this->pack_model->get_detail_by_item($code, $ItemCode);
 
 				//--- ถ้ามีแสดงว่า หน่วยนับตรงกัน
 				if(!empty($row))
 				{
 					$baseQty = $this->item_model->get_base_qty($ItemCode, $UomEntry);
 					//--- แปลงเป็น หน่วยนับย่อย
-					$bcQty = $qty * $baseQty;
+					$invQty = $qty * $baseQty;
 
 					//--- ตรวจสอบว่า ยอดที่ยิงมา มากกว่า ยอดคงเหลือในรายการจัดหรือไม่
 					$remain = $row->BasePickQty - $row->BasePackQty;
 
-					if($remain < $bcQty)
+					if($remain < $invQty)
 					{
 						$sc = FALSE;
 						$this->error = "สินค้าเกิน กรุณาตรวจสอบ";
 					}
 					else
 					{
-						$packQty = $bcQty/$row->BaseQty;
-
-						$packed = $row->PackQtty + $packQty;
-						$balance = $row->PickQtty - $packed;
+						$packed = $row->BasePackQty + $invQty;
+						$balance = $row->BasePickQty - $packed;
 
 						$this->db->trans_begin();
 
@@ -503,12 +386,11 @@ class Packing extends PS_Controller
 							'orderCode' => $doc->orderCode,
 							'pickCode' => $doc->pickCode,
 							'ItemCode' => $row->ItemCode,
-							'UomEntry' => $row->UomEntry,
-							'UomCode' => $row->UomCode,
-							'unitMsr' => $row->unitMsr,
+							'UomEntry' => $row->UomEntry2,
+							'UomCode' => $row->UomCode2,
+							'unitMsr' => $row->unitMsr2,
 							'BaseQty' => $baseQty,
-							'BasePackQty' => $bcQty,
-							'qty' => $packQty,
+							'BasePackQty' => $invQty,
 							'box_id' => $box_id,
 							'pallet_id' => $pallet_id,
 							'user_id' => $this->user->id
@@ -522,7 +404,7 @@ class Packing extends PS_Controller
 						}
 						else
 						{
-							if(! $this->packing_model->update_pack_row($row->id, $packQty, $bcQty))
+							if(! $this->packing_model->update_pack_row($row->id, $invQty))
 							{
 								$sc = FALSE;
 								$this->error = "Update pack row failed";
@@ -532,7 +414,7 @@ class Packing extends PS_Controller
 								$arr = array(
 									'id' => $row->id,
 									'packed' => round($packed, 2),
-									'pack_qty' => round($packQty, 2),
+									'pack_qty' => round($invQty, 2),
 									'balance' => round($balance, 2),
 									'valid' => ($balance <= 0) ? TRUE : FALSE
 								);
@@ -551,122 +433,6 @@ class Packing extends PS_Controller
 						}
 					}
 				}
-				else
-				{
-					$rows = $this->pack_model->get_details_by_item_other_uom($code, $ItemCode, $UomEntry);
-
-					if(!empty($rows))
-					{
-						//---- ตัวคูณ หน่วยนับที่ยิงมา
-						$baseQty = $this->item_model->get_base_qty($ItemCode, $UomEntry);
-
-						//--- ถ้าไม่มี แปลงเป็น หน่วยนับย่อย
-						$bcQty = $qty * $baseQty;
-
-						$testQty = $bcQty;
-
-						//---- ทดสอบว่ายอดที่ยิงมามัันเกินที่เหลือมั้ย
-						foreach($rows as $row)
-						{
-							//--- ตรวจสอบว่า ยอดที่ยิงมา มากกว่า ยอดคงเหลือในรายการจัดหรือไม่
-							$remain = $row->BasePickQty - $row->BasePackQty;
-
-							$packQty = $testQty <= $remain ? $testQty : $remain;
-							$testQty -= $packQty;
-						}
-
-						if($testQty > 0)
-						{
-							$sc = FALSE;
-							$this->error = "จำนวนสินค้าเกิน กรุณาคืนสินค้าแล้วแพ็คสินค้าใหม่อีกครั้ง";
-						}
-						else
-						{
-							$this->db->trans_begin();
-
-							foreach($rows as $row)
-							{
-								if($sc === FALSE)
-								{
-									break;
-								}
-
-								if($bcQty > 0)
-								{
-									//--- ตรวจสอบว่า ยอดที่ยิงมา มากกว่า ยอดคงเหลือในรายการจัดหรือไม่
-									$remain = $row->BasePickQty - $row->BasePackQty;
-
-									$invQty = $bcQty <= $remain ? $bcQty : $remain;
-
-									$packQty = $invQty / $row->BaseQty;
-
-									$packed = $row->PackQtty + $packQty;
-
-									$balance = $row->PickQtty - $packed;
-
-									$arr = array(
-										'packCode' => $code,
-										'orderCode' => $doc->orderCode,
-										'pickCode' => $doc->pickCode,
-										'ItemCode' => $row->ItemCode,
-										'UomEntry' => $row->UomEntry,
-										'UomCode' => $row->UomCode,
-										'unitMsr' => $row->unitMsr,
-										'BaseQty' => $baseQty,
-										'BasePackQty' => $invQty,
-										'qty' => $packQty,
-										'box_id' => $box_id,
-										'pallet_id' => $pallet_id,
-										'user_id' => $this->user->id
-									);
-
-
-									if(! $this->packing_model->update_pack_details($arr))
-									{
-										$sc = FALSE;
-										$this->error = "Update pack details failed";
-									}
-									else
-									{
-										if(! $this->packing_model->update_pack_row($row->id, $packQty, $invQty))
-										{
-											$sc = FALSE;
-											$this->error = "Update pack row failed";
-										}
-										else
-										{
-											$arr = array(
-												'id' => $row->id,
-												'packed' => round($packed, 2),
-												'pack_qty' => round($packQty, 2),
-												'balance' => round($balance, 2),
-												'valid' => ($balance <= 0) ? TRUE : FALSE
-											);
-
-											array_push($ds, $arr);
-										}
-									}
-
-									$bcQty -= $invQty;
-								} //-- endif
-							} //--- end foreach
-
-							if($sc === TRUE)
-							{
-								$this->db->trans_commit();
-							}
-							else
-							{
-								$this->db->trans_rollback();
-							}
-						}
-					}
-					else
-					{
-						$sc = FALSE;
-						$this->error = "สินค้าไม่ถูกต้อง";
-					}
-				}
 			}
 			else
 			{
@@ -683,6 +449,7 @@ class Packing extends PS_Controller
 
 		echo $sc === TRUE ? json_encode($ds) : $this->error;
 	}
+
 
 	public function get_box()
   {
@@ -1043,7 +810,6 @@ class Packing extends PS_Controller
 		{
 			if($doc->Status == 'P')
 			{
-
 				//--- check pallet and box
 				$noPalletBox = $this->packing_model->get_no_pallet_box($code);
 
@@ -1062,7 +828,7 @@ class Packing extends PS_Controller
 								break;
 							}
 
-							$PackQtty = $row->qty;
+							$PackQtty = $row->BasePackQty;
 
 							$buffer = $this->packing_model->get_buffer_uom($row->pickCode, $row->orderCode, $row->ItemCode, $row->UomEntry);
 
@@ -1077,10 +843,9 @@ class Packing extends PS_Controller
 											break;
 										}
 
-										$bufferQty = $bf->Qty;
+										$bufferQty = $bf->BasePickQty;
 										$packQty = $bufferQty >= $PackQtty ? $PackQtty : $bufferQty;
-										$BasePackQty = $packQty * $row->BaseQty;
-
+										$BasePackQty = $packQty;
 										$bufferQty -= $packQty;
 
 
@@ -1093,7 +858,6 @@ class Packing extends PS_Controller
 											'UomCode' => $row->UomCode,
 											'unitMsr' => $row->unitMsr,
 											'BaseQty' => $row->BaseQty,
-											'Qty' => $packQty,
 											'BasePackQty' => $BasePackQty,
 											'BinCode' => $bf->BinCode,
 											'box_id' => $row->box_id,
@@ -1121,7 +885,7 @@ class Packing extends PS_Controller
 											}
 											else
 											{
-												if(! $this->packing_model->update_buffer($bf->id, $packQty, $BasePackQty))
+												if(! $this->packing_model->update_buffer($bf->id, $BasePackQty))
 												{
 													$sc = FALSE;
 													$this->error = "Update Buffer failed : $row->ItemCode;";
@@ -1177,6 +941,14 @@ class Packing extends PS_Controller
 						//--- add logs
 						if($sc === TRUE)
 						{
+							$this->pack_model->update_sap_pack_code($doc->orderCode, $doc->code);
+
+							if(getConfig('CLOSE_PICK_LINE_STATUS') === 'pack')
+							{
+								$pick_id = $this->pick_model->get_pick_id_by_code($doc->pickCode);
+								$this->pick_model->close_pick_line_status($pick_id, $doc->orderCode);								
+							}
+
 							$this->pack_logs_model->add('packed', $code);
 						}
 					}
@@ -1243,7 +1015,7 @@ class Packing extends PS_Controller
 						'id' => $rs->id,
 						'ItemCode' => $rs->ItemCode,
 						'ItemName' => $this->item_model->getName($rs->ItemCode),
-						'qty' => round($rs->qty, 2),
+						'qty' => round($rs->BasePackQty, 2),
 						'unitMsr' => $rs->unitMsr
 					);
 
@@ -1283,14 +1055,13 @@ class Packing extends PS_Controller
 
 					if(!empty($detail))
 					{
-						$row = $this->pack_model->get_detail_by_item_uom($code, $detail->ItemCode, $detail->UomEntry);
+						$row = $this->pack_model->get_detail_by_item($code, $detail->ItemCode);
 
 						if(!empty($row))
 						{
-							$packDif = $row->PackQtty - $detail->qty;
 							$baseDif = $row->BasePackQty - $detail->BasePackQty;
 
-							if($packDif < 0 OR $baseDif < 0)
+							if($baseDif < 0)
 							{
 								$sc = FALSE;
 								$this->error = "จำนวนที่ต้องการลบ มากกว่าจำนวนแพ็คแล้ว";
@@ -1311,10 +1082,9 @@ class Packing extends PS_Controller
 
 								if($sc === TRUE)
 								{
-									$packQty = $detail->qty * -1;
 									$basePackQty = $detail->BasePackQty * -1;
 
-									if(! $this->packing_model->update_pack_row($row->id, $packQty, $basePackQty))
+									if(! $this->packing_model->update_pack_row($row->id, $basePackQty))
 									{
 										$sc = FALSE;
 										$this->error = "Update pack row failed";
@@ -1435,14 +1205,13 @@ class Packing extends PS_Controller
 					break;
 				}
 
-				$row = $this->pack_model->get_detail_by_item_uom($code, $detail->ItemCode, $detail->UomEntry);
+				$row = $this->pack_model->get_detail_by_item($code, $detail->ItemCode);
 
 				if(!empty($row))
 				{
-					$packDif = $row->PackQtty - $detail->qty;
 					$baseDif = $row->BasePackQty - $detail->BasePackQty;
 
-					if($packDif < 0 OR $baseDif < 0)
+					if($baseDif < 0)
 					{
 						$sc = FALSE;
 						$this->error = "จำนวนที่ต้องการลบ มากกว่าจำนวนแพ็คแล้ว";
@@ -1460,10 +1229,9 @@ class Packing extends PS_Controller
 
 						if($sc === TRUE)
 						{
-							$packQty = $detail->qty * -1;
 							$basePackQty = $detail->BasePackQty * -1;
 
-							if(! $this->packing_model->update_pack_row($row->id, $packQty, $basePackQty))
+							if(! $this->packing_model->update_pack_row($row->id, $basePackQty))
 							{
 								$sc = FALSE;
 								$this->error = "Update pack row failed";
@@ -1624,14 +1392,35 @@ class Packing extends PS_Controller
 
 
 
-	public function print_box($code, $box_id)
+	public function print_box($code, $box_id, $copies = 0)
 	{
 		$this->title = "Print Label";
 		$this->load->model('sales_order_model');
 		$this->load->library('printer');
 
 		$arr = array($box_id);
-		$box = $this->packing_model->get_selected_boxes($arr);
+
+		$boxes = array();
+
+		if($copies > 0)
+		{
+			$i = 1;
+
+			while($i <= $copies)
+			{
+				$box = new stdClass();
+				$box->box_no = $i;
+				$boxes[] = $box;
+				$i++;
+			}
+
+			$box = $boxes;
+		}
+		else
+		{
+			$box = $this->packing_model->get_selected_boxes($arr);
+		}
+
 
 		$doc = $this->pack_model->get_by_code($code);
 		$order = $this->getOrder($doc->orderCode);
@@ -1641,7 +1430,7 @@ class Packing extends PS_Controller
 		$ds = array(
 			'doc' => $doc,
 			'boxes' => $box,
-			'last_box_no' => $this->packing_model->get_last_box_no($doc->code),
+			'last_box_no' => $copies > 0 ? $copies : $this->packing_model->get_last_box_no($doc->code),
 			'order' => $order
 		);
 

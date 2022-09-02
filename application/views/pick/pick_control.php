@@ -105,7 +105,9 @@
         <td style="min-width:250px;">ชื่อลูกค้า</td>
         <td style="width:100px;">วันที่</td>
         <td style="width:100px;">วันที่จัดส่ง</td>
+        <td style="width:100px;">เปิดบิลเมื่อ</td>
         <td style="min-width:250px;">Ship to</td>
+        <td style="width:100px;">หมายเหตุ</td>
         <td style="">Remark</td>
       </tr>
       {{#each this}}
@@ -121,7 +123,9 @@
           <td class="middle">{{CardName}}</td>
           <td class="middle">{{DocDate}}</td>
           <td class="middle">{{DocDueDate}}</td>
+          <td class="middle">{{Urgency}}</td>
           <td class="middle">{{ShipTo}}</td>
+          <td class="middle">{{Remark_int}}</td>
           <td class="middle">{{remark}}</td>
       {{/each}}
     </tbody>
@@ -134,8 +138,7 @@
         <div class="modal-content">
             <div class="modal-header" style="padding-bottom:0px;">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="modal-title"
-                  style="font-size: 24px; font-weight: bold; padding-bottom: 10px; color:#428bca; border-bottom:solid 2px #428bca">เลือกรายการสินค้า</h4>
+                <h4 class="modal-title" style="font-size: 24px; font-weight: bold; padding-bottom: 10px; color:#428bca; border-bottom:solid 2px #428bca">เลือกรายการสินค้า</h4>
             </div>
             <div class="modal-body" style="padding-top:5px;">
             <div class="row">
@@ -166,6 +169,7 @@
         <td class="middle" style="width:150px;">ItemCode</td>
         <td class="middle" style="width:250px;">Description</td>
         <td class="middle text-center" style="width:150;">UOM</td>
+        <td class="middle text-center" style="width:150;">Price</td>
         <td class="middle text-right" style="width:150px;">Ordered</td>
         <td class="middle text-right" style="width:150px;">Open</td>
         <td class="middle text-right" style="width:150px;">Released</td>
@@ -195,6 +199,7 @@
           <td class="middle">{{ItemCode}}</td>
           <td class="middle">{{ItemName}}</td>
           <td class="middle text-center">{{unitMsr}}</td>
+          <td class="middle text-center">{{PriceLabel}}</td>
           <td class="middle text-right">{{OrderQty}}</td>
           <td class="middle text-right">{{OpenQty}}</td>
           <td class="middle text-right">{{PrevRelease}}</td>

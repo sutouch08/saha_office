@@ -80,6 +80,17 @@
       </div>
       <div class="divider-hidden"></div>
 
+			<div class="col-sm-4">
+        <span class="form-control left-label">Close Pick Status when finished</span>
+      </div>
+      <div class="col-sm-8">
+        <select name="CLOSE_PICK_LINE_STATUS" class="form-control input-sm input-small">
+					<option value="transfer" <?php echo is_selected('transfer', $CLOSE_PICK_LINE_STATUS); ?>>Transfer</option>
+					<option value="pack" <?php echo is_selected('pack', $CLOSE_PICK_LINE_STATUS); ?>>Pack</option>
+				</select>
+      </div>
+      <div class="divider-hidden"></div>
+
 
 
       <div class="col-sm-8 col-sm-offset-4">

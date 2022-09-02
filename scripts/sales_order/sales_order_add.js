@@ -28,9 +28,12 @@ function saveAdd() {
 		'TextDate' : $('#TextDate').val(), //****** required
 		'PayToCode' : $('#billToCode').val(),
 		'BillTo' : $('#BillTo').val(),
+		'U_DO_IV_Print' : $('#doc_type').val(),
+		'U_Delivery_Urgency' : $('#doc_urgency').val(),
 		//---- footer
 		'owner' : $('#owner').val(),
 		'comments' : $.trim($('#comments').val()),
+		'U_Remark_Int' : $.trim($('#remark').val()),
 		'discPrcnt' : $('#discPrcnt').val(),
 		'roundDif' : $('#roundDif').val(),
 		'tax' : removeCommas($('#tax').val()), //-- VatSum
@@ -296,9 +299,12 @@ function update() {
 		'TextDate' : $('#TextDate').val(), //****** required
 		'PayToCode' : $('#billToCode').val(),
 		'BillTo' : $('#BillTo').val(),
+		'U_DO_IV_Print' : $('#doc_type').val(),
+		'U_Delivery_Urgency' : $('#doc_urgency').val(),
 		//---- footer
 		'owner' : $('#owner').val(),
 		'comments' : $.trim($('#comments').val()),
+		'U_Remark_Int' : $.trim($('#remark').val()),
 		'discPrcnt' : $('#discPrcnt').val(),
 		'roundDif' : $('#roundDif').val(),
 		'tax' : removeCommas($('#tax').val()), //-- VatSum

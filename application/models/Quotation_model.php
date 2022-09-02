@@ -771,9 +771,12 @@ class Quotation_model extends CI_Model
 
   public function getSyncList($limit = 100)
   {
+    $syncDays = 30; //--- sync only last $syncdays
+    $from_date = from_date(date('Y-m-d', strtotime("-{$syncDays} days")));
     $rs = $this->db
     ->select('code')
     ->where_in('Status', array(1, 3))
+    ->where('date_add >', "{$from_date}")
     ->order_by('code', 'ASC')
     ->limit($limit)
     ->get('quotation');
@@ -790,7 +793,7 @@ class Quotation_model extends CI_Model
 
   public function getSoSyncList($limit = 100)
   {
-    $syncDays = 15; //--- sync only last $syncdays 
+    $syncDays = 15; //--- sync only last $syncdays
     $from_date = from_date(date('Y-m-d', strtotime("-{$syncDays} days")));
     $rs = $this->db
     ->select('code, DocNum')
@@ -826,7 +829,7 @@ class Quotation_model extends CI_Model
     ->where('RDR1.BaseRef', $code)
     ->where('ORDR.CANCELED', 'N')
     ->get();
-    
+
     if($rs->num_rows() > 0)
     {
       return $rs->row()->DocNum;

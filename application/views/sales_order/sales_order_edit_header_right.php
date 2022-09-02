@@ -31,15 +31,6 @@
       </div>
 
       <div class="form-group">
-        <label class="col-sm-9 control-label no-padding-right">Status</label>
-        <div class="col-sm-3 col-xs-8">
-          <?php $status = $header->Approved === 'A' ? 'Approved' :($header->Approved === 'R' ? 'Rejected' : ($header->Approved == 'S' ? "" :'Pending')); ?>
-          <input type="text" class="form-control input-sm" value="<?php echo $status; ?>" disabled/>
-        </div>
-      </div>
-
-
-      <div class="form-group">
         <label class="col-sm-9 control-label no-padding-right">Posting Date</label>
         <div class="col-sm-3 col-xs-8">
           <span class="input-icon input-icon-right">
@@ -70,6 +61,27 @@
       </div>
 
       <div class="form-group">
+        <label class="col-sm-9 control-label no-padding-right">ประเภทพิมพ์เอกสาร</label>
+        <div class="col-sm-3 col-xs-8">
+          <select class="form-control input-sm" name="U_DO_IV_Print" id="doc_type">
+            <option value="เปิดบิล IV" <?php echo is_selected("เปิดบิล IV", $header->U_DO_IV_Print); ?>>เปิดบิล IV</option>
+            <option value="เปิดชั่วคราว DO" <?php echo is_selected("เปิดชั่วคราว DO", $header->U_DO_IV_Print); ?>>เปิดชั่วคราว DO</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="col-sm-8 control-label no-padding-right">เปิดบิลส่งสินค้าเมื่อ</label>
+        <div class="col-sm-4 col-xs-8">
+          <select class="form-control input-sm" name="U_Delivery_Urgency" id="doc_urgency">
+            <option value="ส่งทันทีเมื่อพร้อม" <?php echo is_selected("ส่งทันทีเมื่อพร้อม", $header->U_Delivery_Urgency); ?>>ส่งทันทีเมื่อพร้อม</option>
+            <option value="ส่งด่วน ภายในวันที่ระบุ" <?php echo is_selected("ส่งด่วน ภายในวันที่ระบุ", $header->U_Delivery_Urgency); ?>>ส่งด่วน ภายในวันที่ระบุ</option>
+            <option value="ส่งตรงวันนัดเท่านั้น" <?php echo is_selected("ส่งตรงวันนัดเท่านั้น", $header->U_Delivery_Urgency); ?>>ส่งตรงวันนัดเท่านั้น</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
         <label class="col-sm-9 control-label no-padding-right">Bill To</label>
         <div class="col-sm-3 col-xs-4">
           <select class="form-control input-sm" id="billToCode" onchange="get_address_bill_to()">
@@ -88,8 +100,8 @@
       <div class="form-group">
 
         <div class="col-sm-7 col-sm-offset-5 col-xs-8">
-          <textarea id="BillTo" class="autosize autosize-transition form-control"><?php echo $header->Address; ?></textarea>
-          <span class="badge badge-yellow pull-right margin-top-5"
+          <textarea id="BillTo" class="autosize autosize-transition form-control" disabled><?php echo $header->Address; ?></textarea>
+          <span class="badge badge-yellow pull-right margin-top-5 hide"
           style="padding-bottom:0px; padding-top:0px; border-radius:3px; cursor:pointer;" onclick="editBillTo()">
             <i class="fa fa-ellipsis-h"></i>
           </span>

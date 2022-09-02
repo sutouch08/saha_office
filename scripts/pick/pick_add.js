@@ -82,6 +82,7 @@ function save() {
     let lineNum = $(this).data('linenum');
     let available = parseDefault(parseFloat(removeCommas($('#available-'+no).text())), 0);
     let qty = parseDefault(parseFloat($('#qty-'+no).val()), 0);
+    let price = parseDefault(parseFloat($('#Price-'+no).val()), 0);
     let prevRelease = parseDefault(parseFloat(removeCommas($('#release-'+no).text())), 0);
     let orderQty = parseDefault(parseFloat(removeCommas($('#order-'+no).text())), 0);
     let openQty = parseDefault(parseFloat(removeCommas($('#open-'+no).text())), 0);
@@ -89,7 +90,7 @@ function save() {
     let customer = $('#customer-'+no).text();
     let itemCode = $.trim($('#itemCode-'+no).text());
     let itemName = $.trim($('#itemName-'+no).text());
-        
+
     if(available > 0 && qty > 0 && qty <= available) {
       $('#row-no' + no).removeClass('red');
       let arr = {
@@ -105,6 +106,7 @@ function save() {
         "UomCode" : $('#UomCode-'+no).val(),
         "unitMsr" : $('#unitMsr-'+no).val(),
         "unitMsr2" : $('#unitMsr2-'+no).val(),
+        "price" : price,
         "OrderQty" : orderQty,
         "OpenQty" : openQty,
         "RelQtty" : qty,

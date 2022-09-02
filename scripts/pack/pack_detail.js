@@ -79,10 +79,13 @@ function backStep() {
 
 function printBox(box_id) {
   var code = $('#code').val();
+  var copies = parseDefault(parseInt($('#copy-'+box_id).val()), 0);
+
   //--- properties for print
   var center  = ($(document).width() - 800)/2;
   var prop 		= "width=800, height=900. left="+center+", scrollbars=yes";
-  var target  = BASE_URL + 'packing/print_box/'+ code +'/'+box_id;
+  var target  = BASE_URL + 'packing/print_box/'+ code +'/'+box_id+'/'+copies;
+  console.log(target);
   print_url(target);
   //window.open(target, '_blank', prop);
 }

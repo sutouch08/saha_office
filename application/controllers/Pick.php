@@ -296,6 +296,8 @@ class Pick extends PS_Controller
 							'UomCode2' => $rs->UomCode2,
 							'unitMsr' => $rs->unitMsr,
 							'unitMsr2' => $rs->unitMsr2,
+							'Price' => $rs->Price,
+							'PriceLabel' => number($rs->Price, 2),
 							'BaseQty' => ($rs->UomEntry == $rs->UomEntry2) ? 1 : $this->item_model->get_base_qty($rs->ItemCode, $rs->UomEntry),
 							'OrderQty' => number($rs->Quantity, 2),
 							'OpenQty' => number($rs->OpenQty, 2),
@@ -346,15 +348,15 @@ class Pick extends PS_Controller
 				{
 					$PrevRelease = $this->pick_model->get_prev_release_qty($rs->DocEntry, $rs->LineNum);
 					$baseQty = ($rs->UomEntry == $rs->UomEntry2) ? 1 : $this->item_model->get_base_qty($rs->ItemCode, $rs->UomEntry);
-					$invQty = $rs->Quantity * $baseQty;
+					$invQty = $rs->InvQty;
 					$AvailableQty = ($invQty - $PrevRelease) > 0 ? $invQty - $PrevRelease : 0;
 					$onhand = $this->stock_model->get_onhand_stock($rs->ItemCode);
 					$commit = $this->get_committed_stock($rs->ItemCode);
 					$OnHand = $onhand - $commit;
 
-					$OnHand = $OnHand > 0 ? ($OnHand/$baseQty) : 0;
-					$AvailableQty = $AvailableQty > 0 ? ($AvailableQty/$baseQty) : 0;
-					$PrevRelease = $PrevRelease > 0 ? ($PrevRelease/$baseQty) : 0;
+					$AvailableQty = $AvailableQty > 0 ? $AvailableQty/$baseQty : 0;
+					$OnHand = $OnHand > 0 ? $OnHand/$baseQty : 0;
+					$PrevRelease = $PrevRelease > 0 ? $PrevRelease/$baseQty : 0;
 
 					$arr = array(
 						'rowNum' => $rs->DocEntry.$rs->LineNum,
@@ -370,6 +372,8 @@ class Pick extends PS_Controller
 						'UomCode2' => $rs->UomCode2,
 						'unitMsr' => $rs->unitMsr,
 						'unitMsr2' => $rs->unitMsr2,
+						'Price' => $rs->Price,
+						'PriceLabel' => number($rs->Price, 2),
 						'BaseQty' => $baseQty,
 						'OrderQty' => number($rs->Quantity, 2),
 						'OpenQty' => number($rs->OpenQty, 2),
@@ -425,9 +429,9 @@ class Pick extends PS_Controller
 						$commit = $this->get_committed_stock($rs->ItemCode);
 						$OnHand = $onhand - $commit;
 
-						$OnHand = $OnHand > 0 ? ($OnHand/$baseQty) : 0;
-						$AvailableQty = $AvailableQty > 0 ? ($AvailableQty/$baseQty) : 0;
-						$PrevRelease = $PrevRelease > 0 ? ($PrevRelease/$baseQty) : 0;
+						$PrevRelease = $PrevRelease > 0 ? $PrevRelease/$baseQty : 0;
+						$AvailableQty = $AvailableQty > 0 ? $AvailableQty/$baseQty : 0;
+						$OnHand = $OnHand > 0 ? $OnHand/$baseQty : 0;
 
 						$arr = array(
 							'rowNum' => $rs->DocEntry.$rs->LineNum,
@@ -437,6 +441,8 @@ class Pick extends PS_Controller
 							'CardName' => $rs->CardName,
 							'ItemCode' => $rs->ItemCode,
 							'ItemName' => $rs->ItemName,
+							'Price' => $rs->Price,
+							'PriceLabel' => number($rs->Price, 2),
 							'OrderQty' => number($rs->Quantity, 2),
 							'OpenQty' => number($rs->OpenQty, 2),
 							'PrevRelease' => number($PrevRelease, 2),
@@ -559,6 +565,7 @@ class Pick extends PS_Controller
 										'UomCode2' => $rs->UomCode2,
 										'unitMsr' => $rs->unitMsr,
 										'unitMsr2' => $rs->unitMsr2,
+										'price' => $rs->price,
 										'BaseQty' => $baseQty,
 										'OrderQty' => $rs->OrderQty,
 										'OpenQty' => $rs->OpenQty,
@@ -703,6 +710,9 @@ class Pick extends PS_Controller
 									$row->UomCode = $rs->UomCode;
 									$row->unitMsr = $rs->unitMsr;
 									$row->UomEntry2 = $rs->UomEntry2;
+									$row->UomCode2 = $rs->UomCode2;
+									$row->unitMsr2 = $rs->unitMsr2;
+									$row->price = $rs->price;
 									$row->BaseQty = $rs->BaseQty;
 									$row->RelQtty = $rs->RelQtty;
 									$row->BaseRelQty = $rs->BaseRelQty;
@@ -745,7 +755,10 @@ class Pick extends PS_Controller
 											'UomEntry' => $rs->UomEntry,
 											'UomCode' => $rs->UomCode,
 											'unitMsr' => $rs->unitMsr,
-											'InvUom' => $rs->UomEntry2,
+											'UomEntry2' => $rs->UomEntry2,
+											'UomCode2' => $rs->UomCode2,
+											'unitMsr2' => $rs->unitMsr2,
+											'price' => $rs->price,
 											'BaseQty' => $rs->BaseQty,
 											'RelQtty' => $rs->RelQtty,
 											'BaseRelQty' => $rs->BaseRelQty
@@ -934,7 +947,7 @@ class Pick extends PS_Controller
 		$fromDate = $this->input->get('fromDate');
 		$toDate = $this->input->get('toDate');
 
-		$qr  = "SELECT DocEntry, DocNum, CardCode, CardName, DocDate, DocDueDate, Address2, Comments ";
+		$qr  = "SELECT DocEntry, DocNum, CardCode, CardName, DocDate, DocDueDate, Address2, Comments, U_Delivery_Urgency, U_Remark_Int ";
 		$qr .= "FROM ORDR ";
 		$qr .= "WHERE DocStatus = 'O' ";
 
@@ -969,6 +982,8 @@ class Pick extends PS_Controller
 					'CardName' => $rd->CardName,
 					'DocDate' => thai_date($rd->DocDate, FALSE, '.'),
 					'DocDueDate' => thai_date($rd->DocDueDate, FALSE, '.'),
+					'Urgency' => $rd->U_Delivery_Urgency,
+					'Remark_int' => $rd->U_Remark_Int,
 					'ShipTo' => escape_quot($rd->Address2),
 					'remark' => escape_quot($rd->Comments)
 				);
@@ -1031,6 +1046,7 @@ class Pick extends PS_Controller
 				$rs->CardName = $order->CardName;
 				$rs->NumAtCard = $order->NumAtCard;
 				$rs->shipTo = $order->Address2;
+				$rs->remark = $this->pick_model->get_internal_remark($rs->OrderCode);
 			}
 
 			$this->load->view('print/print_pick_label', array("orders" => $orders));
@@ -1097,8 +1113,6 @@ class Pick extends PS_Controller
 									'UomEntry' => $bf->UomEntry,
 									'UomCode' => $bf->UomCode,
 									'unitMsr' => $bf->unitMsr,
-									'BaseQty' => $bf->BaseQty,
-									'Qty' => $bf->Qty,
 									'BasePickQty' => $bf->BasePickQty,
 									'BinCode' => $bf->BinCode,
 									'user_id' => $this->user->id,

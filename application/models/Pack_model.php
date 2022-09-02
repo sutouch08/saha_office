@@ -80,12 +80,11 @@ class Pack_model extends CI_Model
 
 
 
-  public function get_detail_by_item_uom($code, $itemCode, $UomEntry)
+  public function get_detail_by_item($code, $itemCode)
   {
     $rs = $this->db
     ->where('packCode', $code)
     ->where('ItemCode', $itemCode)
-    ->where('UomEntry', $UomEntry)
     ->get('pack_row');
 
     if($rs->num_rows() === 1)
@@ -222,7 +221,6 @@ class Pack_model extends CI_Model
 
     $rs = $this->db
     ->select('AbsEntry, OrderCode, ItemCode, ItemName, UomEntry, UomEntry2, UomCode, UomCode2, unitMsr, unitMsr2, BaseQty')
-    ->select_sum('PickQtty')
     ->select_sum('BasePickQty')
     ->where('AbsEntry', $pickId)
     ->where('OrderCode', $orderCode)
@@ -428,6 +426,12 @@ class Pack_model extends CI_Model
     ->get('pack_list');
 
     return $rs->row()->code;
+  }
+
+
+  public function update_sap_pack_code($orderCode, $packCode)
+  {
+    return $this->ms->set('U_PA_No', $packCode)->where('DocNum', $orderCode)->update('ORDR');
   }
 
 

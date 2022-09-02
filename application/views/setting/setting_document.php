@@ -109,6 +109,24 @@
 		</div>
 
 		<div class="row">
+			<div class="col-lg-2 col-md-2-harf col-sm-3 padding-5 hidden-xs">
+				<span class="form-control left-label width-100 text-right">Prefix Delivery</span>
+			</div>
+			<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-8 padding-5">
+				<label class="visible-xs">Prefix Delivery</label>
+				<input type="text" class="form-control input-sm input-small text-center prefix" name="PREFIX_DELIVERY" required value="<?php echo $PREFIX_DELIVERY; ?>" />
+			</div>
+			<div class="col-lg-1-harf col-md-2 col-sm-2 padding-5 hidden-xs">
+				<span class="form-control left-label width-100 text-right">Run digit</span>
+			</div>
+      <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+				<label class="visible-xs">Run digit</label>
+				<input type="text" class="form-control input-sm input-small text-center digit" required name="RUN_DIGIT_DELIVERY" value="<?php echo $RUN_DIGIT_DELIVERY; ?>" />
+			</div>
+			<div class="divider-hidden"></div>
+		</div>
+
+		<div class="row">
       <div class="divider-hidden"></div>
 			<div class="divider-hidden"></div>
       <div class="col-lg-5-harf col-md-7-harf col-sm-8 col-xs-12 padding-5 text-center">
