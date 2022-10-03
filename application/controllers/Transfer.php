@@ -695,35 +695,58 @@ class Transfer extends PS_Controller
 		{
 			if($pallet->Status == 'O')
 			{
-				$details = $this->transfer_model->get_pallet_items($pallet->id);
+				//--- check packlist is all finished
+				$unFinish = $this->pallet_model->get_not_finished_pack_code($pallet->id);
 
-				if(!empty($details))
+				if(empty($unFinish))
 				{
-					$toBin = getConfig('BUFFER_WAREHOUSE');
+					$details = $this->transfer_model->get_pallet_items($pallet->id);
 
-					foreach($details as $rs)
+					if(!empty($details))
 					{
-						$arr = array(
-							'id' => $rs->id,
-							'ItemCode' => $rs->ItemCode,
-							'ItemName' => $this->item_model->getName($rs->ItemCode),
-							'palletCode' => $pallet->code,
-							'orderCode' => $rs->OrderCode,
-							'pickCode' => $rs->pickCode,
-							'packCode' => $rs->packCode,
-							'fromBin' => $rs->BinCode,
-							'toBin' => $toBin,
-							'qty' => number($rs->BasePackQty, 2),
-							'unitMsr' => $rs->unitMsr
-						);
+						$toBin = getConfig('BUFFER_WAREHOUSE');
 
-						array_push($ds, $arr);
+						foreach($details as $rs)
+						{
+							$arr = array(
+								'id' => $rs->id,
+								'ItemCode' => $rs->ItemCode,
+								'ItemName' => $this->item_model->getName($rs->ItemCode),
+								'palletCode' => $pallet->code,
+								'orderCode' => $rs->OrderCode,
+								'pickCode' => $rs->pickCode,
+								'packCode' => $rs->packCode,
+								'fromBin' => $rs->BinCode,
+								'toBin' => $toBin,
+								'qty' => number($rs->BasePackQty, 2),
+								'unitMsr' => $rs->unitMsr
+							);
+
+							array_push($ds, $arr);
+						}
 					}
+					else
+					{
+						$sc = FALSE;
+						$this->error = "No Item Found";
+					}
+
 				}
 				else
 				{
 					$sc = FALSE;
-					$this->error = "No Item Found";
+
+					$packlist = "";
+
+					$i = 1;
+
+					foreach($unFinish as $rs)
+					{
+						$packlist .= $i == 1 ? $rs->PackCode : ", {$rs->PackCode}";
+						$i++;
+					}
+
+					$this->error = "Operation can not be done. {$packlist} Still packing.";
 				}
 			}
 			else
@@ -997,7 +1020,7 @@ class Transfer extends PS_Controller
 						}
 					}
 				}
-			}	
+			}
 
 			if($sc === TRUE)
 			{

@@ -101,8 +101,7 @@
 </div>
 
 <script id="transfer-template" type="text/x-handlebarsTemplate">
-hu;;
-++++++++++++++++++++<tr id="row-{{id}}">
+<tr id="row-{{id}}">
 	<td class="middle text-center no"></td>
 	<td class="middle">{{ItemCode}}</td>
 	<td class="middle">{{ItemName}}</td>

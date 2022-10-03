@@ -43,6 +43,7 @@ class Sync_transfer extends CI_Controller
 
               $this->transfer_model->update_by_code($ds->code, $arr);
               $this->close_pick_rows($ds->code);
+              $this->update_buffer($ds->code);
 
               $logs = array(
                 'code' => $ds->code,
@@ -156,6 +157,29 @@ class Sync_transfer extends CI_Controller
         ->where('ItemCode', $rs->ItemCode)
         ->update('pick_row');
       }
+    }
+  }
+
+
+  private function update_buffer($code)
+  {
+    $details = $this->transfer_model->get_details_by_code($code);
+
+    if(!empty($details))
+    {
+      foreach($details as $rs)
+      {
+        $Qty = $rs->InvQty * -1;
+        $this->db
+        ->set("BasePickQty", "BasePickQty + {$Qty}", FALSE)
+        ->where('AbsEntry', $rs->pick_list_id)
+        ->where('OrderCode', $rs->orderCode)
+        ->where('ItemCode', $rs->ItemCode)
+        ->where('BinCode', $rs->fromBinCode)
+        ->update('buffer');
+      }
+
+      $this->db->where('BasePickQty', 0)->delete('buffer');
     }
   }
 

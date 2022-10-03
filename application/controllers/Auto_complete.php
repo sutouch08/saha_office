@@ -14,11 +14,25 @@ class Auto_complete extends PS_Controller
   public function get_item_code_and_name()
   {
     $txt = $_REQUEST['term'];
+    $arr = explode('*', $txt);
+
     $sc = array();
     $qr = "SELECT ItemCode AS code, ItemName AS name ";
     $qr .= "FROM OITM ";
     $qr .= "WHERE validFor = 'Y' AND SellItem = 'Y' ";
-    $qr .= "AND (ItemCode LIKE N'%{$this->ms->escape_str($txt)}%' OR ItemName LIKE N'%{$this->ms->escape_str($txt)}%') ";
+
+    if(count($arr) > 1)
+    {
+      foreach($arr as $ar)
+      {
+        $qr .= "AND (ItemCode LIKE N'%{$this->ms->escape_str($ar)}%' OR ItemName LIKE N'%{$this->ms->escape_str($ar)}%') ";
+      }
+    }
+    else
+    {
+      $qr .= "AND (ItemCode LIKE N'%{$this->ms->escape_str($txt)}%' OR ItemName LIKE N'%{$this->ms->escape_str($txt)}%') ";
+    }
+
     $qr .= "ORDER BY ItemCode ASC ";
     $qr .= "OFFSET 0 ROWS FETCH NEXT 20 ROWS ONLY";
     $rs = $this->ms->query($qr);
@@ -29,6 +43,9 @@ class Auto_complete extends PS_Controller
       {
         $sc[] = $rd->code.' | '.$rd->name;
       }
+    }
+    else {
+      $sc[] = "not found";
     }
 
     echo json_encode($sc);
@@ -70,7 +87,6 @@ class Auto_complete extends PS_Controller
 
     echo json_encode($sc);
   }
-
 
 
   public function sub_district()

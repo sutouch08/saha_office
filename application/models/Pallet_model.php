@@ -67,6 +67,18 @@ class Pallet_model extends CI_Model
   }
 
 
+  public function get_not_finished_pack_code($pallet_id)
+  {
+    $rs = $this->db->where('pallet_id', $pallet_id)->where('Status !=', 'Y')->get('pallet_row');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
 
   public function get_pack_list_by_pallet($pallet_id)
   {
@@ -135,9 +147,9 @@ class Pallet_model extends CI_Model
 
 
 
-  public function count_box($id)
+  public function count_box($id, $packCode)
   {
-    return $this->db->where('pallet_id', $id)->count_all_results('pack_box');
+    return $this->db->where('pallet_id', $id)->where('packCode', $packCode)->count_all_results('pack_box');
   }
 
 

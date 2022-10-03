@@ -109,6 +109,12 @@ class Packing_model extends CI_Model
   }
 
 
+  public function update_pallet_row_status($packCode, $status)
+  {
+    return $this->db->set('Status', $status)->where('PackCode', $packCode)->update('pallet_row');
+  }
+
+
   public function get_box($code, $barcode)
   {
     $rs = $this->db

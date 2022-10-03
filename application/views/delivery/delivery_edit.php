@@ -5,7 +5,7 @@
   </div>
 	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5">
 		<p class="pull-right top-p">
-			<button type="button" class="btn btn-sm btn-warning" onclick="goBack()"><i class="fa fa-arrow-left"></i> Back</button>
+			<button type="button" class="btn btn-sm btn-warning" onclick="leave()"><i class="fa fa-arrow-left"></i> Back</button>
 		</p>
 	</div>
 </div><!-- End Row -->
@@ -13,69 +13,81 @@
 <div class="row">
 	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
 		<label>เลขที่</label>
-		<input type="text" class="form-control input-sm" id="code" value="<?php echo $doc->code; ?>" disabled>
+		<input type="text" class="form-control input-sm text-center" id="code" value="<?php echo $doc->code; ?>" disabled>
+		<input type="hidden" id="id" value="<?php echo $doc->id; ?>" />
 	</div>
 	<div class="col-lg-1 col-md-1 col-sm-2 col-xs-4 padding-5">
 		<label>วันที่</label>
-		<input type="text" class="form-control input-sm text-center" name="date_add" id="date_add" value="<?php echo thai_date($doc->date_add); ?>" disabled>
+		<input type="text" class="form-control input-sm text-center" name="date_add" id="date_add" value="<?php echo thai_date($doc->date_add); ?>" readonly>
 	</div>
 
 	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
 		<label>ทะเบียนรถ</label>
-		<select class="form-control input-sm" name="vehicle" id="vehicle" disabled>
+		<select class="form-control input-sm" name="vehicle" id="vehicle">
 			<option value="">Please Select</option>
 			<?php echo select_vehicle($doc->vehicle_id, TRUE); ?>
 		</select>
 	</div>
 
-	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
+	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
 		<label>พนักงานขับรถ</label>
-		<select class="form-control input-sm" name="driver" id="driver" disabled>
+		<select class="form-control input-sm" name="driver" id="driver">
 			<option value="">Please Select</option>
 			<?php echo select_driver('D', $doc->driver_id, TRUE); ?>
 		</select>
 	</div>
 
-	<div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-4 padding-5">
-		<label>เด็กรถ</label>
-		<button type="button" class="btn btn-xs btn-primary btn-block" onclick="showSupportList()" disabled>เลือก</button>
+	<div class="col-lg-4 col-md-4 col-sm-4-harf col-xs-6 padding-5">
+		<label class="display-block">พนักงานติดรถ</label>
+		<div class="input-group width-100">
+			<input type="text" class="form-control input-sm" id="support-label" value="<?php echo get_delivery_employee_name('E', $doc->code); ?>" readonly />
+			<span class="input-group-btn">
+				<button type="button" class="btn btn-xs btn-primary" style="width:60px;" onclick="showSupportList()">เลือก</button>
+			</span>
+		</div>
 	</div>
 
-	<div class="col-lg-3 col-md-3 col-sm-4 col-xs-6 padding-5">
-		<label class="display-block not-show">x</label>
-		<input type="text" class="form-control input-sm" id="support-label" placeholder="Please select" value="<?php echo get_delivery_employee_name('E', $doc->code); ?>" disabled />
-	</div>
-
-	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
+	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
 		<label>เส้นทาง</label>
-		<select class="form-control input-sm" name="route" id="route" disabled>
+		<select class="form-control input-sm" name="route" id="route">
 			<option value="">Please Select</option>
 			<?php echo select_route($doc->route_id, TRUE); ?>
 		</select>
-	</div>
-
-
-	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
-		<label class="display-block not-show">x</label>
-		<button type="button" class="btn btn-xs btn-warning btn-block" id="btn-edit" onclick="getEdit()"><i class="fa fa-pencil"></i> Edit</button>
-    <button type="button" class="btn btn-xs btn-success btn-block hide" id="btn-update" onclick="update()"><i class="fa fa-save"></i> Update</button>
 	</div>
 </div>
 
 <hr class="margin-top-10 margin-bottom-10 padding-5">
 
 <div class="row">
-  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
-    <button type="button" class="btn btn-sm btn-primary" onclick="addRow()">Add Row</button>
-    <button type="button" class="btn btn-sm btn-warning" onclick="removeRow()">Delete Row</button>
-  </div>
+	<div class="col-lg-8 col-md-7-harf col-sm-7 hidden-xs padding-5">&nbsp;</div>
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
+		<label>ประเภทการส่ง</label>
+		<select class="form-control input-sm" id="shipType">
+			<option value="P">ส่งสินค้า</option>
+			<option value="D">ส่งเอกสาร</option>
+		</select>
+	</div>
+
+	<div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-8 padding-5">
+		<label>เลขที่เอกสาร</label>
+		<input type="text" class="form-control input-sm text-center" id="docNum" autofocus />
+	</div>
+	<div class="col-lg-1 col-md-1 col-sm-1 col-xs-4 padding-5">
+		<label class="display-block not-show">x</label>
+		<button type="button" class="btn btn-xs btn-primary btn-block" onclick="submitRow()">Add</button>
+	</div>
   <div class="divider-hidden"></div>
 
-  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-bordered border-1" style="min-width:1140px;">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive" style="background-color: #f5f5f5; padding:0px; height:400px; overflow-y:auto;">
+    <table class="table table-bordered border-1" style="min-width:1190px;">
       <thead>
         <tr>
-          <th class="fix-width-40 text-center"></th>
+          <th class="fix-width-40 text-center">
+						<label>
+							<input type="checkbox" class="ace" id="chk-all" onchange="toggleChkAll($(this))" />
+							<span class="lbl"></span>
+						</label>
+					</th>
           <th class="fix-width-100 text-center">รหัสลูกค้า</th>
           <th class="fix-width-200 text-center">ชื่อลูกค้า</th>
           <th class="fix-width-200 text-center">สถานที่จัดส่ง</th>
@@ -84,16 +96,17 @@
           <th class="fix-width-100 text-center">ประเภทเอกสาร</th>
           <th class="fix-width-100 text-center">เลขที่เอกสาร</th>
           <th class="fix-width-100 text-center">มูลค่า</th>
-          <th class="fix-width-100 text-center">สถานะ</th>
+					<th class="fix-width-150 text-center">หมายเหตุ</th>
         </tr>
       </thead>
       <tbody id="row-table">
-				<?php $no = 1; ?>
-				<?php $init = 5; ?>
+				<?php $no = 0; ?>
+				<?php $init = 1; ?>
 				<?php if( ! empty($details)) : ?>
 					<?php foreach($details as $rs) : ?>
+						<?php $no++; ?>
+						<?php $disabled = ($rs->line_status == 'O') ? '' : 'disabled'; ?>
 		        <tr id="row-<?php echo $no; ?>">
-							<input type="hidden" id="detail-<?php echo $no; ?>" data-id="<?php echo $rs->id; ?>" />
 		          <td class="middle text-center">
 		            <label>
 		              <input type="checkbox" class="ace row-chk" data-id="<?php echo $no; ?>"/>
@@ -101,57 +114,51 @@
 		            </label>
 		          </td>
 		          <td class="middle">
-		            <input type="text" class="form-control input-sm cardCode" id="cardCode-<?php echo $no; ?>" value="<?php echo $rs->CardCode; ?>" />
+		            <input type="text" class="form-control input-sm cardCode" data-id="<?php echo $no; ?>" id="cardCode-<?php echo $no; ?>" value="<?php echo $rs->CardCode; ?>" <?php echo $disabled; ?>/>
 		          </td>
 		          <td class="middle">
-		            <input type="text" class="form-control input-sm cardName" id="cardName-<?php echo $no; ?>" value="<?php echo $rs->CardName; ?>" disabled/>
+		            <input type="text" class="form-control input-sm cardName" id="cardName-<?php echo $no; ?>" value="<?php echo $rs->CardName; ?>" readonly <?php echo $disabled; ?>/>
 		          </td>
 		          <td class="middle">
-		            <input type="text" class="form-control input-sm shipTo" id="shipTo-<?php echo $no; ?>" value="<?php echo $rs->Address; ?>" disabled/>
+		            <input type="text" class="form-control input-sm shipTo" id="shipTo-<?php echo $no; ?>" value="<?php echo $rs->Address; ?>" <?php echo $disabled; ?>/>
 		          </td>
 		          <td class="middle">
-		            <input type="text" class="form-control input-sm contact" id="contact-<?php echo $no; ?>" value="<?php echo $rs->contact; ?>" />
+		            <input type="text" class="form-control input-sm contact" id="contact-<?php echo $no; ?>" value="<?php echo $rs->contact; ?>" <?php echo $disabled; ?> />
 		          </td>
 		          <td class="middle">
-		            <select class="form-control input-sm" id="shipType-<?php echo $no; ?>">
+		            <select class="form-control input-sm" id="shipType-<?php echo $no; ?>" <?php echo $disabled; ?>>
 		              <option value="P" <?php echo is_selected('P', $rs->type); ?>>ส่งสินค้า</option>
 		              <option value="D" <?php echo is_selected('D', $rs->type); ?>>ส่งเอกสาร</option>
+									<option value="O" <?php echo is_selected('O', $rs->type); ?>>อื่นๆ</option>
 		            </select>
 		          </td>
 		          <td class="middle">
-		            <select class="form-control input-sm" id="docType-<?php echo $no; ?>">
+		            <select class="form-control input-sm" id="docType-<?php echo $no; ?>" onchange="docNumInit(<?php echo $no; ?>)" <?php echo $disabled; ?>>
 		              <option value=""></option>
 		              <option value="DO" <?php echo is_selected('DO', $rs->DocType); ?>>DO</option>
 		              <option value="IV" <?php echo is_selected('IV', $rs->DocType); ?>>IV</option>
-		              <option class="<?php echo $rs->type == 'P' ? 'hide' : ''; ?>" value="DB" <?php echo is_selected('DB', $rs->DocType); ?>>DB</option>
-		              <option class="<?php echo $rs->type == 'P' ? 'hide' : ''; ?>" value="CN" <?php echo is_selected('CN', $rs->DocType); ?>>CN</option>
+								<?php if($rs->type == 'D') : ?>
+		              <option value="PB" <?php echo is_selected('PB', $rs->DocType); ?>>PB</option>
+		              <option value="CN" <?php echo is_selected('CN', $rs->DocType); ?>>CN</option>
+								<?php endif; ?>
 		            </select>
 		          </td>
 		          <td class="middle">
-		            <input type="text" class="form-control input-sm docNum" id="docNum-<?php echo $no; ?>" value="<?php echo $rs->DocNum; ?>" />
+		            <input type="text" class="form-control input-sm docNum" data-no="<?php echo $no; ?>" id="docNum-<?php echo $no; ?>" value="<?php echo $rs->DocNum; ?>" <?php echo $disabled; ?>/>
 		          </td>
 		          <td class="middle">
-		            <input type="text" class="form-control input-sm text-right docTotal" id="docTotal-<?php echo $no; ?>" value="<?php echo number($rs->DocTotal, 2); ?>" disabled />
+		            <input type="text" class="form-control input-sm text-right docTotal" id="docTotal-<?php echo $no; ?>" value="<?php echo number($rs->DocTotal, 2); ?>" readonly <?php echo $disabled; ?> />
 		          </td>
-		          <td class="middle text-center">
-		          <select class="form-control input-sm" id="status-<?php echo $no; ?>">
-		              <option value="1" <?php echo is_selected('1', $rs->status); ?>>Loaded</option>
-		              <option value="4" <?php echo is_selected('4', $rs->status); ?>>สำเร็จ</option>
-		              <option value="2" <?php echo is_selected('2', $rs->status); ?>>ส่งบางส่วน</option>
-		              <option value="3" <?php echo is_selected('3', $rs->status); ?>>ไม่ได้ส่ง</option>
-		              <option value="5" <?php echo is_selected('5', $rs->status); ?>>ลูกค้าไม่รับของ</option>
-		              <option value="6" <?php echo is_selected('6', $rs->status); ?>>สินค้าผิด</option>
-		              <option value="7" <?php echo is_selected('7', $rs->status); ?>>เอกสารผิด</option>
-		            </select>
-		          </td>
+							<td class="middle">
+								<input type="text" class="form-control input-sm" id="remark-<?php echo $no; ?>" value="<?php echo $rs->remark; ?>" <?php echo $disabled; ?> />
+							</td>
 		        </tr>
-						<?php $no++; ?>
 					<?php endforeach; ?>
 				<?php endif; ?>
 
-				<?php while($no <= $init) : ?>
+				<?php while($no < $init) : ?>
+					<?php $no++; ?>
 					<tr id="row-<?php echo $no; ?>">
-						<input type="hidden" id="detail-<?php echo $no; ?>" data-id="0" />
 						<td class="middle text-center">
 							<label>
 								<input type="checkbox" class="ace row-chk" data-id="<?php echo $no; ?>"/>
@@ -159,10 +166,10 @@
 							</label>
 						</td>
 						<td class="middle">
-							<input type="text" class="form-control input-sm cardCode" id="cardCode-<?php echo $no; ?>" />
+							<input type="text" class="form-control input-sm cardCode" data-id="<?php echo $no; ?>" id="cardCode-<?php echo $no; ?>" />
 						</td>
 						<td class="middle">
-							<input type="text" class="form-control input-sm cardName" id="cardName-<?php echo $no; ?>" disabled/>
+							<input type="text" class="form-control input-sm cardName" id="cardName-<?php echo $no; ?>" readonly/>
 						</td>
 						<td class="middle">
 							<input type="text" class="form-control input-sm shipTo" id="shipTo-<?php echo $no; ?>" />
@@ -171,9 +178,10 @@
 							<input type="text" class="form-control input-sm contact" id="contact-<?php echo $no; ?>" />
 						</td>
 						<td class="middle">
-							<select class="form-control input-sm" id="shipType-<?php echo $no; ?>" onchange="toggleDocType(<?php echo $no; ?>)">
+							<select class="form-control input-sm" id="shipType-<?php echo $no; ?>" onchange="docNumInit(<?php echo $no; ?>)">
 								<option value="P">ส่งสินค้า</option>
 								<option value="D">ส่งเอกสาร</option>
+								<option value="O">อื่นๆ</option>
 							</select>
 						</td>
 						<td class="middle">
@@ -181,29 +189,18 @@
 								<option value=""></option>
 								<option value="DO">DO</option>
 								<option value="IV">IV</option>
-								<option class="hide" value="DB">DB</option>
-								<option class="hide" value="CN">CN</option>
 							</select>
 						</td>
 						<td class="middle">
-							<input type="text" class="form-control input-sm docNum" data-no="<?php echo $no; ?>" data-id="0" id="docNum-<?php echo $no; ?>" />
+							<input type="text" class="form-control input-sm docNum" data-no="<?php echo $no; ?>" id="docNum-<?php echo $no; ?>" />
 						</td>
 						<td class="middle">
-							<input type="text" class="form-control input-sm text-right docTotal" id="docTotal-<?php echo $no; ?>" value="0.00" disabled />
+							<input type="text" class="form-control input-sm text-right docTotal" id="docTotal-<?php echo $no; ?>" value="0.00" readonly />
 						</td>
-						<td class="middle text-center">
-						<select class="form-control input-sm" id="status-<?php echo $no; ?>">
-								<option value="1">Loaded</option>
-								<option value="4">สำเร็จ</option>
-								<option value="2">ส่งบางส่วน</option>
-								<option value="3">ไม่ได้ส่ง</option>
-								<option value="5">ลูกค้าไม่รับของ</option>
-								<option value="6">สินค้าผิด</option>
-								<option value="7">เอกสารผิด</option>
-							</select>
+						<td class="middle">
+							<input type="text" class="form-control input-sm" id="remark-<?php echo $no; ?>" value="" />
 						</td>
 					</tr>
-					<?php $no++; ?>
 				<?php endwhile; ?>
       </tbody>
     </table>
@@ -212,12 +209,32 @@
   </div>
 </div>
 
+<hr class="margin-bottom-15 padding-5"/>
+<div class="row">
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5">
+		<?php if($doc->status == 'O') : ?>
+			<button type="button" class="btn btn-xs btn-primary" onclick="addRow()">Add Row</button>
+			<button type="button" class="btn btn-xs btn-warning" onclick="removeRow()">Delete Row</button>
+		<?php endif; ?>
+	</div>
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5 text-right">
+		<?php if($doc->status == 'O') : ?>
+			<button type="button" class="btn btn-sm btn-success" style="min-width:100px;" onclick="saveUpdate()">Save</button>
+		<?php endif; ?>
+	</div>
+</div>
 
-
-
-
-
-
+<div class="row margin-top-30">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
+		<p class="pull-right text-right" style="font-size:10px; font-style: italic; color:#777;">
+		<?php if( ! empty($logs)) : ?>
+			<?php foreach($logs as $log) : ?>
+				<?php echo "* {$log->action} โดย&nbsp;&nbsp; {$log->uname} &nbsp;&nbsp;( {$log->emp_name} ) &nbsp;&nbsp; ".thai_date($log->date_upd, TRUE)."<br/>"; ?>
+			<?php endforeach; ?>
+		<?php endif; ?>
+    </p>
+	</div>
+</div>
 
 
 
@@ -258,5 +275,94 @@
 
 
 
-<script src="<?php echo base_url(); ?>scripts/delivery/delivery.js"></script>
+<script id="row-template" type="text/x-handlebarsTemplate">
+<tr id="row-{{no}}">
+	<input type="hidden" id="detail-{{no}}" data-id="0" />
+	<td class="middle text-center">
+		<label>
+			<input type="checkbox" class="ace row-chk" data-id="{{no}}"/>
+			<span class="lbl"></span>
+		</label>
+	</td>
+	<td class="middle">
+		<input type="text" class="form-control input-sm cardCode" data-id="{{no}}" id="cardCode-{{no}}" />
+	</td>
+	<td class="middle">
+		<input type="text" class="form-control input-sm cardName" id="cardName-{{no}}" readonly/>
+	</td>
+	<td class="middle">
+		<input type="text" class="form-control input-sm shipTo" id="shipTo-{{no}}" />
+	</td>
+	<td class="middle">
+		<input type="text" class="form-control input-sm contact" id="contact-{{no}}" />
+	</td>
+	<td class="middle">
+		<select class="form-control input-sm" id="shipType-{{no}}" onchange="toggleDocType({{no}})">
+			<option value="P">ส่งสินค้า</option>
+			<option value="D">ส่งเอกสาร</option>
+			<option value="O">อื่นๆ</option>
+		</select>
+	</td>
+	<td class="middle">
+		<select class="form-control input-sm" id="docType-{{no}}" onchange="docNumInit({{no}})">
+			<option value=""></option>
+			<option value="DO">DO</option>
+			<option value="IV">IV</option>
+		</select>
+	</td>
+	<td class="middle">
+		<input type="text" class="form-control input-sm docNum" data-no="{{no}}" data-id="0" id="docNum-{{no}}" />
+	</td>
+	<td class="middle">
+		<input type="text" class="form-control input-sm text-right docTotal" id="docTotal-{{no}}" value="0.00" readonly />
+	</td>
+	<td class="middle">
+		<input type="text" class="form-control input-sm" id="remark-{{no}}" value="" />
+	</td>
+</tr>
+</script>
+
+
+<script id="docTypeTemplate1" type="text/x-handlebarsTemplate">
+	<option value=""></option>
+	<option value="DO">DO</option>
+	<option value="IV">IV</option>
+	<option value="PB">PB</option>
+	<option value="CN">CN</option>
+</script>
+
+<script id="docTypeTemplate2" type="text/x-handlebarsTemplate">
+	<option value=""></option>
+	<option value="DO">DO</option>
+	<option value="IV">IV</option>
+</script>
+
+<script id="docTypeTemplate3" type="text/x-handlebarsTemplate">
+	<option value="DO">DO</option>
+	<option value="IV">IV</option>
+	<option value="PB">PB</option>
+	<option value="CN">CN</option>
+</script>
+
+<script id="docTypeTemplate4" type="text/x-handlebarsTemplate">
+	<option value="DO">DO</option>
+	<option value="IV">IV</option>
+</script>
+
+<script type="text/x-handlebarsTemplate">
+<td class="middle text-center">
+<select class="form-control input-sm">
+		<option value="1">Loaded</option>
+		<option value="4">สำเร็จ</option>
+		<option value="2">ส่งบางส่วน</option>
+		<option value="3">ไม่ได้ส่ง</option>
+		<option value="5">ลูกค้าไม่รับของ</option>
+		<option value="6">สินค้าผิด</option>
+		<option value="7">เอกสารผิด</option>
+	</select>
+</td>
+</script>
+
+<script src="<?php echo base_url(); ?>scripts/delivery/delivery.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/delivery/delivery_add.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

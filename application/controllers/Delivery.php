@@ -31,7 +31,7 @@ class Delivery extends PS_Controller
 			'route' => get_filter('route', 'de_route', 'all'),
 			'fromDate' => get_filter('fromDate', 'de_formDate', ''),
 			'toDate' => get_filter('toDate', 'de_toDate', ''),
-			'uname' => get_filter('uname', 'de_uname', 'all'),
+			'uname' => get_filter('uname', 'de_uname', ''),
 			'status' => get_filter('status', 'de_status', 'all')
 		);
 
@@ -67,15 +67,15 @@ class Delivery extends PS_Controller
 	}
 
 
-	public function add()
+	public function save_add()
 	{
 		$sc = TRUE;
-
 		$date_add = db_date($this->input->post('date'));
 		$vehicle_id = $this->input->post('vehicle');
 		$driver_id = $this->input->post('driver');
 		$route_id = $this->input->post('route');
 		$support = $this->input->post('support');
+		$details = json_decode($this->input->post('details'));
 
 		$code = $this->get_new_code($date_add);
 
@@ -84,6 +84,8 @@ class Delivery extends PS_Controller
 			$car = $this->vehicle_model->get($vehicle_id);
 			$driver = $this->driver_model->get($driver_id);
 			$route = $this->route_model->get($route_id);
+
+			$this->db->trans_begin();
 
 			if( ! empty($car))
 			{
@@ -98,7 +100,6 @@ class Delivery extends PS_Controller
 						'vehicle_name' => $car->name,
 						'route_id' => $route->id,
 						'route_name' => $route->name,
-						'status' => 'F',
 						'uname' => $this->user->uname
 					);
 
@@ -107,7 +108,8 @@ class Delivery extends PS_Controller
 						$sc = FALSE;
 						$this->error = "Add Document failed";
 					}
-					else
+
+					if($sc === TRUE)
 					{
 						$arr = array(
 							'delivery_code' => $code,
@@ -118,8 +120,15 @@ class Delivery extends PS_Controller
 							'date_add' => $date_add
 						);
 
-						$this->delivery_model->add_delivery_employee($arr);
+						if(! $this->delivery_model->add_delivery_employee($arr))
+						{
+							$sc = FALSE;
+							$this->error = "Create driver list failed";
+						}
+					}
 
+					if($sc === TRUE)
+					{
 						if( ! empty($support))
 						{
 							foreach($support as $emp_id)
@@ -142,6 +151,39 @@ class Delivery extends PS_Controller
 							}
 						}
 					}
+
+					if($sc === TRUE)
+					{
+						if( ! empty($details))
+						{
+							foreach($details as $rs)
+							{
+								if($sc === FALSE)
+								{
+									break;
+								}
+
+								$arr = array(
+									'delivery_code' => $code,
+									'CardCode' => $rs->cardCode,
+									'CardName' => $rs->cardName,
+									'Address' => $rs->address,
+									'contact' => $rs->contact,
+									'type' => $rs->shipType,
+									'DocType' => empty($rs->docType) ? NULL : $rs->docType,
+									'DocNum' => empty($rs->docNum) ? NULL : $rs->docNum,
+									'DocTotal' => empty($rs->docTotal) ? 0.00 : $rs->docTotal,
+									'remark' => get_null($rs->remark)
+								);
+
+								if( ! $this->delivery_model->add_detail($arr))
+								{
+									$sc = FALSE;
+									$this->error = "Insert detail failed";
+								}
+							}
+						}
+					}
 				}
 				else
 				{
@@ -153,6 +195,26 @@ class Delivery extends PS_Controller
 			{
 				$sc = FALSE;
 				$this->error = "ไม่พบทะเบียนรถ";
+			}
+
+
+			if($sc === TRUE)
+			{
+				$this->db->trans_commit();
+
+				$arr = array(
+					'code' => $code,
+					'user_id' => $this->user->id,
+					'uname' => $this->user->uname,
+					'emp_name' => $this->user->emp_name,
+					'action' => 'add'
+				);
+
+				$this->delivery_model->add_logs($arr);
+			}
+			else
+			{
+				$this->db->trans_rollback();
 			}
 		}
 
@@ -174,6 +236,212 @@ class Delivery extends PS_Controller
 
 
 
+	public function save_update()
+	{
+		$sc = TRUE;
+		$code = $this->input->post('code');
+		$date_add = db_date($this->input->post('date'));
+		$vehicle_id = $this->input->post('vehicle');
+		$driver_id = $this->input->post('driver');
+		$route_id = $this->input->post('route');
+		$support = $this->input->post('support');
+		$details = json_decode($this->input->post('details'));
+
+		if(! empty($code) && ! empty($details))
+		{
+			$doc = $this->delivery_model->get($code);
+
+			if(! empty($doc))
+			{
+				if($doc->status == 'O')
+				{
+					$car = $this->vehicle_model->get($vehicle_id);
+					$driver = $this->driver_model->get($driver_id);
+					$route = $this->route_model->get($route_id);
+
+					$this->db->trans_begin();
+
+					if( ! empty($car))
+					{
+						if(! empty($driver))
+						{
+							$arr = array(
+								'date_add' => $date_add,
+								'driver_id' => $driver->emp_id,
+								'driver_name' => $driver->emp_name,
+								'vehicle_id' => $car->id,
+								'vehicle_name' => $car->name,
+								'route_id' => $route->id,
+								'route_name' => $route->name,
+								'uname' => $this->user->uname
+							);
+
+							if( ! $this->delivery_model->update($code, $arr))
+							{
+								$sc = FALSE;
+								$this->error = "Update header failed";
+							}
+
+							if($sc === TRUE)
+							{
+								if($this->delivery_model->drop_delivery_employee($code))
+								{
+									$arr = array(
+										'delivery_code' => $code,
+										'emp_id' => $driver->emp_id,
+										'emp_name' => $driver->emp_name,
+										'type' => 'D',
+										'vehicle_name' => $car->name,
+										'date_add' => $date_add
+									);
+
+									if(! $this->delivery_model->add_delivery_employee($arr))
+									{
+										$sc = FALSE;
+										$this->error = "Create driver list failed";
+									}
+								}
+								else
+								{
+									$sc = FALSE;
+									$this->error = "Drop current driver and employee failed";
+								}
+							}
+
+							if($sc === TRUE)
+							{
+								if( ! empty($support))
+								{
+									foreach($support as $emp_id)
+									{
+										$emp = $this->driver_model->get($emp_id);
+
+										if( ! empty($emp))
+										{
+											$arr = array(
+												'delivery_code' => $code,
+												'emp_id' => $emp->emp_id,
+												'emp_name' => $emp->emp_name,
+												'type' => $emp->type,
+												'vehicle_name' => $car->name,
+												'date_add' => $date_add
+											);
+
+											$this->delivery_model->add_delivery_employee($arr);
+										}
+									}
+								}
+							}
+						}
+						else
+						{
+							$sc = FALSE;
+							$this->error = "ไม่พบชื่อพนักงานขับรถ";
+						}
+					}
+					else
+					{
+						$sc = FALSE;
+						$this->error = "ไม่พบทะเบียนรถ";
+					}
+
+
+					if($sc === TRUE)
+					{
+						//--- drop current details
+						if($this->delivery_model->drop_details($code))
+						{
+							foreach($details as $rs)
+							{
+								if($sc === FALSE)
+								{
+									break;
+								}
+
+								$arr = array(
+									'delivery_code' => $code,
+									'CardCode' => $rs->cardCode,
+									'CardName' => $rs->cardName,
+									'Address' => $rs->address,
+									'contact' => $rs->contact,
+									'type' => $rs->shipType,
+									'DocType' => empty($rs->docType) ? NULL : $rs->docType,
+									'DocNum' => empty($rs->docNum) ? NULL : $rs->docNum,
+									'DocTotal' => empty($rs->docTotal) ? 0.00 : $rs->docTotal,
+									'remark' => get_null($rs->remark)
+								);
+
+								if( ! $this->delivery_model->add_detail($arr))
+								{
+									$sc = FALSE;
+									$this->error = "Insert detail failed";
+								}
+							}
+						}
+						else
+						{
+							$sc = FALSE;
+							$this->error = "Drop current details failed";
+						}
+					}
+
+					if($sc === TRUE)
+					{
+						$this->db->trans_commit();
+
+						$arr = array(
+							'code' => $code,
+							'user_id' => $this->user->id,
+							'uname' => $this->user->uname,
+							'emp_name' => $this->user->emp_name,
+							'action' => 'edit'
+						);
+
+						$this->delivery_model->add_logs($arr);
+					}
+					else
+					{
+						$this->db->trans_rollback();
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+
+					if($doc->status == 'R')
+					{
+						$this->error = "ไม่สามารถบันทึกรายการได้เนื่องจากเอกสารถูก release แล้ว";
+					}
+					else if($doc->status == 'D')
+					{
+						$this->error = "ไม่สามารถบันทึกรายการได้เนื่องจากเอกสารถูกยกเลิกแล้ว";
+					}
+					else if($doc->status == 'C')
+					{
+						$this->error = "ไม่สามารถบันทึกรายการได้เนื่องจากเอกสารถูก close แล้ว";
+					}
+					else {
+						$this->error = "Invalid Document Status";
+					}
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Invalid Document Code";
+			}
+
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Empty data or Invalid data format";
+		}
+
+		$this->response($sc);
+	}
+
+
 
 	public function edit($code)
 	{
@@ -181,25 +449,33 @@ class Delivery extends PS_Controller
 
 		if( ! empty($order))
 		{
-			$empList = $this->delivery_model->get_delivery_employee('E', $code);
-			$emp = array();
-
-			if(!empty($empList))
+			if($order->status == 'O')
 			{
-				foreach($empList as $rs)
+				$empList = $this->delivery_model->get_delivery_employee('E', $code);
+				$emp = array();
+
+				if(!empty($empList))
 				{
-					$emp[$rs->emp_id] = $rs->emp_name;
+					foreach($empList as $rs)
+					{
+						$emp[$rs->emp_id] = $rs->emp_name;
+					}
 				}
+
+				$ds = array(
+					'doc' => $order,
+					'details' => $this->delivery_model->get_details($code),
+					'emp' => $emp,
+					'supportList' => 	$this->driver_model->get_all(array('E'), TRUE),
+					'logs' => $this->delivery_model->get_logs($code)
+				);
+
+				$this->load->view('delivery/delivery_edit', $ds);
 			}
-
-			$ds = array(
-				'doc' => $order,
-				'details' => $this->delivery_model->get_details($code),
-				'emp' => $emp,
-				'supportList' => 	$this->driver_model->get_all(array('E'), TRUE)
-			);
-
-			$this->load->view('delivery/delivery_edit', $ds);
+			else
+			{
+				$this->view_detail($code);
+			}
 		}
 		else
 		{
@@ -242,42 +518,98 @@ class Delivery extends PS_Controller
 
 
 
-	public function delete()
+	public function view_detail($code)
+	{
+		$order = $this->delivery_model->get($code);
+
+		if( ! empty($order))
+		{
+			$empList = $this->delivery_model->get_delivery_employee('E', $code);
+			$emp = array();
+
+			if(!empty($empList))
+			{
+				foreach($empList as $rs)
+				{
+					$emp[$rs->emp_id] = $rs->emp_name;
+				}
+			}
+
+			$ds = array(
+				'doc' => $order,
+				'details' => $this->delivery_model->get_details($code),
+				'emp' => $emp,
+				'logs' => $this->delivery_model->get_logs($code)
+			);
+
+			$this->load->view('delivery/delivery_view_detail', $ds);
+		}
+		else
+		{
+			$this->error_page();
+		}
+	}
+
+
+
+	public function do_release()
 	{
 		$sc = TRUE;
+		$code = $this->input->post('code');
 
-		if($this->isAdmin OR $this->isSuperAdmin)
+		$doc = $this->delivery_model->get($code);
+
+		if(! empty($doc))
 		{
-			$emp_id = $this->input->post('emp_id');
-
-			if(!empty($emp_id))
+			if( $doc->status == 'O')
 			{
-				$has_transection = $this->delivery_model->has_transection($emp_id);
-
-				if(! $has_transection)
+				$this->db->trans_begin();
+				if($this->delivery_model->release_order($code))
 				{
-					if(! $this->delivery_model->delete($emp_id))
+					if(! $this->delivery_model->release_details($code))
 					{
 						$sc = FALSE;
-						$this->error = "Delete Failed";
+						$this->error = "Release delivery rows failed";
 					}
 				}
 				else
 				{
 					$sc = FALSE;
-					$this->error = "Delete failed : This Driver already has transections";
+					$this->error = "Release failed";
+				}
+
+				if($sc === TRUE)
+				{
+					$this->db->trans_commit();
+
+					$arr = array(
+						'code' => $code,
+						'user_id' => $this->user->id,
+						'uname' => $this->user->uname,
+						'emp_name' => $this->user->emp_name,
+						'action' => 'release'
+					);
+
+					$this->delivery_model->add_logs($arr);
+				}
+				else
+				{
+					$this->db->trans_rollback();
 				}
 			}
 			else
 			{
-				$sc = FALSE;
-				$this->error = "Missing Required Parameter";
+				if($doc->status != 'R')
+				{
+					$sc = FALSE;
+					$this->error = "Invalid Document Status";
+				}
 			}
 		}
 		else
 		{
 			$sc = FALSE;
-			$this->error = "Missing Permission";
+			$this->error = "Invalid Document Number";
 		}
 
 		$this->response($sc);
@@ -285,18 +617,623 @@ class Delivery extends PS_Controller
 
 
 
-
-	public function get_doc_num($doc_type = NULL)
+	public function un_release()
 	{
-		if(!empty($doc_type))
+		$sc = TRUE;
+		$code = $this->input->post('code');
+
+		$doc = $this->delivery_model->get($code);
+
+		if(! empty($doc))
+		{
+			if( $doc->status == 'R')
+			{
+				$this->db->trans_begin();
+				if($this->delivery_model->un_release_order($code))
+				{
+					if(! $this->delivery_model->un_release_details($code))
+					{
+						$sc = FALSE;
+						$this->error = "Unrelease delivery rows failed";
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "Unrelease failed";
+				}
+
+				if($sc === TRUE)
+				{
+					$this->db->trans_commit();
+
+					$arr = array(
+						'code' => $code,
+						'user_id' => $this->user->id,
+						'uname' => $this->user->uname,
+						'emp_name' => $this->user->emp_name,
+						'action' => 'unrelease'
+					);
+
+					$this->delivery_model->add_logs($arr);
+				}
+				else
+				{
+					$this->db->trans_rollback();
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Invalid Document Status";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Invalid Document Number";
+		}
+
+		$this->response($sc);
+	}
+
+
+	public function update_and_close()
+	{
+		$sc = TRUE;
+		$code = $this->input->post('code');
+		$details = json_decode($this->input->post('rows'));
+
+		$doc = $this->delivery_model->get($code);
+
+		if( ! empty($doc))
+		{
+			if($doc->status == 'R')
+			{
+				if( ! empty($details))
+				{
+					$this->db->trans_begin();
+					foreach($details as $rs)
+					{
+						if($sc === FALSE)
+						{
+							break;
+						}
+
+						$finish_date = $rs->result_status == 4 ? date('Y-m-d') : NULL;
+						$arr = array(
+							'result_status' => $rs->result_status,
+							'line_status' => 'C',
+							'finish_date' => $finish_date
+						);
+
+						if(! $this->delivery_model->update_detail($rs->id, $arr))
+						{
+							$sc = FALSE;
+							$this->error = "Update line status failed";
+						}
+					}
+
+					if($sc === TRUE)
+					{
+						//--- close document
+						$arr = array(
+							'status' => 'C'
+						);
+
+						if( ! $this->delivery_model->update($code, $arr))
+						{
+							$sc = FALSE;
+							$this->error = "Close document failed";
+						}
+						else
+						{
+							$arr = array(
+								'code' => $code,
+								'user_id' => $this->user->id,
+								'uname' => $this->user->uname,
+								'emp_name' => $this->user->emp_name,
+								'action' => 'close'
+							);
+
+							$this->delivery_model->add_logs($arr);
+						}
+					}
+
+					if($sc === TRUE)
+					{
+						$this->db->trans_commit();
+					}
+					else
+					{
+						$this->db->trans_rollback();
+					}
+
+					if($sc === TRUE)
+					{
+						//--- update document on sap (จัดส่งแล้ว ไม่สารถจัดส่งได้อีก)
+						$ds = $this->delivery_model->get_finish_details($code);
+
+						if( ! empty($ds))
+						{
+							foreach($ds as $rs)
+							{
+								$arr = array(
+						      'U_Deliver_doc' => $code,
+						      'U_Deliver_status' => $rs->result_status
+						    );
+
+								switch ($rs->DocType) {
+									case 'IV':
+										$this->delivery_model->finish_iv_doc_num($rs->DocNum, $arr);
+									break;
+									case 'DO':
+										$this->delivery_model->finish_do_doc_num($rs->DocNum, $arr);
+									break;
+									case 'CN':
+										$this->delivery_model->finish_cn_doc_num($rs->DocNum, $arr);
+									break;
+									case 'PB':
+										$this->delivery_model->finish_pb_doc_num($rs->DocNum, $arr);
+									break;
+								}
+							}
+						}
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "Empty rows data or invalid format";
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Invalid document status";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Invalid document number";
+		}
+
+		$this->response($sc);
+	}
+
+
+
+	public function un_close_delivery()
+	{
+		$sc = TRUE;
+		$code = $this->input->post('code');
+
+		$doc = $this->delivery_model->get($code);
+
+		if( ! empty($doc))
+		{
+			if($doc->status == 'C')
+			{
+				$details = $this->delivery_model->get_details($code);
+
+				if( ! empty($details))
+				{
+					$this->db->trans_begin();
+
+					foreach($details as $rs)
+					{
+						if($sc === FALSE)
+						{
+							break;
+						}
+
+
+						$arr = array(
+							'result_status' => 1,
+							'line_status' => 'R',
+							'finish_date' => NULL
+						);
+
+						if(! $this->delivery_model->update_detail($rs->id, $arr))
+						{
+							$sc = FALSE;
+							$this->error = "Update line status failed";
+						}
+					}
+
+					if($sc === TRUE)
+					{
+						//--- update document status to released
+						$arr = array(
+							'status' => 'R',
+							'update_user' => $this->user->uname
+						);
+
+						if( ! $this->delivery_model->update($code, $arr))
+						{
+							$sc = FALSE;
+							$this->error = "Close document failed";
+						}
+						else
+						{
+							$arr = array(
+								'code' => $code,
+								'user_id' => $this->user->id,
+								'uname' => $this->user->uname,
+								'emp_name' => $this->user->emp_name,
+								'action' => 'unclose'
+							);
+
+							$this->delivery_model->add_logs($arr);
+						}
+					}
+
+					if($sc === TRUE)
+					{
+						$this->db->trans_commit();
+					}
+					else
+					{
+						$this->db->trans_rollback();
+					}
+
+					if($sc === TRUE)
+					{
+						//--- update document on sap (จัดส่งแล้ว ไม่สารถจัดส่งได้อีก)
+						$ds = $details;
+
+						if( ! empty($ds))
+						{
+							foreach($ds as $rs)
+							{
+								$arr = array(
+						      'U_Deliver_doc' => NULL,
+						      'U_Deliver_status' => NULL
+						    );
+
+								switch ($rs->DocType) {
+									case 'IV':
+										$this->delivery_model->finish_iv_doc_num($rs->DocNum, $arr);
+									break;
+									case 'DO':
+										$this->delivery_model->finish_do_doc_num($rs->DocNum, $arr);
+									break;
+									case 'CN':
+										$this->delivery_model->finish_cn_doc_num($rs->DocNum, $arr);
+									break;
+									case 'PB':
+										$this->delivery_model->finish_pb_doc_num($rs->DocNum, $arr);
+									break;
+								}
+							}
+						}
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "Empty rows data or invalid format";
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Invalid document status";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Invalid document number";
+		}
+
+		$this->response($sc);
+	}
+
+
+
+	public function get_doc_num($doc_type, $ship_type)
+	{
+		$sc = array();
+		$ds = NULL;
+
+		if(! empty($doc_type) && ! empty($ship_type))
 		{
 			$term = $_REQUEST['term'];
 
 			if($doc_type === 'DO')
 			{
-				$query = $this->ms->like('DocNum', $term)->where()
+				$this->ms
+				->select('O.DocNum, O.CardCode, O.CardName, O.Address2, O.DocTotal, C.name')
+				->from('ODLN AS O')
+				->join('OCPR AS C', 'O.CntctCode = C.CntctCode', 'left')
+				->like('O.DocNum', $term);
+
+				if($ship_type == 'P')
+				{
+					$this->ms
+					->group_start()
+					->where('O.U_Deliver_status IS NULL', NULL, FALSE)
+					->or_where('O.U_Deliver_status !=',4)
+					->group_end();
+				}
+
+				$rs = $this->ms->order_by('O.DocNum', 'DESC')->limit(50)->get();
+
+				if($rs->num_rows() > 0)
+				{
+					$ds = $rs->result();
+				}
+			}
+
+			if($doc_type === 'IV')
+			{
+				$this->ms
+				->select('O.DocNum, O.CardCode, O.CardName, O.Address2, O.DocTotal, C.name')
+				->from('OINV AS O')
+				->join('OCPR AS C', 'O.CntctCode = C.CntctCode', 'left')
+				->like('O.DocNum', $term);
+
+				if($ship_type == 'P')
+				{
+					$this->ms
+					->group_start()
+					->where('O.U_Deliver_status IS NULL', NULL, FALSE)
+					->or_where('O.U_Deliver_status !=',4)
+					->group_end();
+				}
+
+				$rs = $this->ms->order_by('O.DocNum', 'DESC')->limit(50)->get();
+
+				if($rs->num_rows() > 0)
+				{
+					$ds = $rs->result();
+				}
+			}
+
+			if($doc_type === 'CN')
+			{
+				$this->ms
+				->select('O.DocNum, O.CardCode, O.CardName, O.Address2, O.DocTotal, C.name')
+				->from('ORDN AS O')
+				->join('OCPR AS C', 'O.CntctCode = C.CntctCode', 'left')
+				->like('O.DocNum', $term);
+
+				if($ship_type == 'P')
+				{
+					$this->ms
+					->group_start()
+					->where('O.U_Deliver_status IS NULL', NULL, FALSE)
+					->or_where('O.U_Deliver_status !=',4)
+					->group_end();
+				}
+
+				$rs = $this->ms->order_by('O.DocNum', 'DESC')->limit(50)->get();
+
+				if($rs->num_rows() > 0)
+				{
+					$ds = $rs->result();
+				}
+			}
+
+			if($doc_type === 'PB')
+			{
+				$this->ms
+				->select('O.DocNum, O.CardCode, O.CardName, O.Address2, O.DocTotal, C.name')
+				->from('ODLN AS O')
+				->join('OCPR AS C', 'O.CntctCode = C.CntctCode', 'left')
+				->like('O.DocNum', $term);
+
+				if($ship_type == 'P')
+				{
+					$this->ms
+					->group_start()
+					->where('O.U_Deliver_status IS NULL', NULL, FALSE)
+					->or_where('O.U_Deliver_status !=',4)
+					->group_end();
+				}
+
+				$rs = $this->ms->order_by('O.DocNum', 'DESC')->limit(50)->get();
+
+				if($rs->num_rows() > 0)
+				{
+					$ds = $rs->result();
+				}
+			}
+
+			if(! empty($ds))
+			{
+				foreach($ds as $rs)
+				{
+					$sc[] = array(
+						'CardCode' => $rs->CardCode,
+						'CardName' => $rs->CardName,
+						'contact' => $rs->name,
+						'shipTo' => $rs->Address2,
+						'label' => $rs->DocNum,
+						'docTotal' => number($rs->DocTotal, 2)
+					);
+				}
+			}
+			else
+			{
+				$sc[] = "Not found";
 			}
 		}
+
+		echo json_encode($sc);
+	}
+
+
+
+	public function get_document_data()
+	{
+		$sc = TRUE;
+		$shipType = $this->input->get('shipType');
+		$docType = $this->input->get('docType');
+		$docNum = $this->input->get('docNum');
+		$ds = array();
+
+		if(! empty($shipType) && ! empty($docType) && ! empty($docNum))
+		{
+
+			if($docType === 'DO')
+			{
+				$rs = $this->ms
+				->select('O.DocNum, O.CardCode, O.CardName, O.Address2, O.DocTotal, O.U_Deliver_doc, O.U_Deliver_status, C.name')
+				->from('ODLN AS O')->join('OCPR AS C', 'O.CntctCode = C.CntctCode', 'left')
+				->where('O.DocNum', $docNum)
+				->get();
+			}
+
+			if($docType === 'IV')
+			{
+				$rs = $this->ms
+				->select('O.DocNum, O.CardCode, O.CardName, O.Address2, O.DocTotal, O.U_Deliver_doc, O.U_Deliver_status, C.name')
+				->from('OINV AS O')->join('OCPR AS C', 'O.CntctCode = C.CntctCode', 'left')
+				->where('O.DocNum', $docNum)
+				->get();
+			}
+
+			if($docType === 'CN')
+			{
+				$rs = $this->ms
+				->select('O.DocNum, O.CardCode, O.CardName, O.Address2, O.DocTotal, O.U_Deliver_doc, O.U_Deliver_status, C.name')
+				->from('ORDN AS O')->join('OCPR AS C', 'O.CntctCode = C.CntctCode', 'left')
+				->where('O.DocNum', $docNum)
+				->get();
+			}
+
+			if($docType === 'PB')
+			{
+				$rs = $this->ms
+				->select('O.DocNum, O.CardCode, O.CardName, O.Address2, O.DocTotal, O.U_Deliver_doc, O.U_Deliver_status, C.name')
+				->from('ODLN AS O')->join('OCPR AS C', 'O.CntctCode = C.CntctCode', 'left')
+				->where('O.DocNum', $docNum)
+				->get();
+			}
+
+			if($rs->num_rows() === 1)
+			{
+				$rd = $rs->row();
+
+				if(($docType == 'DO' OR $docType == 'IV') && $shipType == 'P' && $rd->U_Deliver_status == 4)
+				{
+					$sc = FALSE;
+					$this->error = "{$docType}-{$docNum} เคยถูกจัดส่งสำเร็จแล้วโดย {$rd->U_Deliver_doc}";
+				}
+				else
+				{
+					$ship_type = ($shipType == 'P' && ($docType == 'CN' OR $docType == 'PB')) ? 'D' : $shipType;
+
+					$ds = array(
+						'CardCode' => $rs->row()->CardCode,
+						'CardName' => $rs->row()->CardName,
+						'contact' => $rs->row()->name,
+						'shipTo' => $rs->row()->Address2,
+						'docTotal' => number($rs->row()->DocTotal, 2),
+						'shipType' => $ship_type
+					);
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Document not found !";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing required paramater";
+		}
+
+		echo $sc === TRUE ? json_encode($ds) : $this->error;
+	}
+
+
+	public function cancle_delivery()
+	{
+		$sc = TRUE;
+		$code = $this->input->post('code');
+
+		if( ! empty($code))
+		{
+			$doc = $this->delivery_model->get($code);
+
+			if( ! empty($doc))
+			{
+				if($doc->status === 'O')
+				{
+					$this->db->trans_begin();
+
+					//--- cancle details
+					$arr = array(
+						'line_status' => 'D'
+					);
+
+					if( ! $this->delivery_model->update_details($code, $arr))
+					{
+						$sc = FALSE;
+						$this->error = "ยกเลิกรายการไม่สำเร็จ";
+					}
+
+					if($sc === TRUE)
+					{
+						$arr = array(
+							'status' => 'D',
+							'update_user' => $this->user->uname
+						);
+
+						if( ! $this->delivery_model->update($code, $arr))
+						{
+							$sc = FALSE;
+							$this->error = "ยกเลิกเอกสารไม่สำเร็จ";
+						}
+					}
+
+					if($sc === TRUE)
+					{
+						$this->db->trans_commit();
+
+						$arr = array(
+							'code' => $code,
+							'user_id' => $this->user->id,
+							'uname' => $this->user->uname,
+							'emp_name' => $this->user->emp_name,
+							'action' => 'cancle'
+						);
+
+						$this->delivery_model->add_logs($arr);
+					}
+					else
+					{
+						$this->db->trans_rollback();
+					}
+				}
+				else
+				{
+					if($doc->status !== 'D')
+					{
+						$sc = FALSE;
+						$this->error = "สถานะเอกสารไม่ถูกต้อง";
+					}
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "เลขที่เอกสารไม่ถูกต้อง";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing required parameter";
+		}
+
+		$this->response($sc);
 	}
 
 

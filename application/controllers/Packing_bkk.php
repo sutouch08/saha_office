@@ -518,8 +518,7 @@ class Packing extends PS_Controller
 				{
 					$arr = array(
 						'pallet_id' => $id,
-						'PackCode' => $code,
-						'Status' => 'P'
+						'PackCode' => $code
 					);
 
 					$this->pallet_model->add_row($arr);
@@ -563,8 +562,7 @@ class Packing extends PS_Controller
 			{
 				$arr = array(
 					'pallet_id' => $id,
-					'PackCode' => $packCode,
-					'Status' => 'P'
+					'PackCode' => $packCode
 				);
 
 				if(! $this->pallet_model->add_row($arr))
@@ -638,7 +636,7 @@ class Packing extends PS_Controller
         $arr = array(
           'id' => $rs->id,
           'code' => $rs->code,
-					'qty' => $this->pallet_model->count_box($rs->id, $code),
+					'qty' => $this->pallet_model->count_box($rs->id),
           'class' => $rs->id == $id ? 'btn-primary' : ''
         );
 
@@ -803,9 +801,6 @@ class Packing extends PS_Controller
 	{
 		$sc = TRUE;
 
-		//--- ตัดยอดออกจาก buffer ที่เมื่อไร pack = เมื่อแพ็คเสร็จ  transfer = เมื่อโอนเสร็จ
-		$buffer_state = getConfig('REMOVE_BUFFER_STATE') == 'pack' ? 'pack' : 'transfer';
-
 		$id = $this->input->post('id');
 		$code = $this->input->post('code');
 
@@ -878,7 +873,7 @@ class Packing extends PS_Controller
 										}
 
 										//-- Update buffer
-										if($sc === TRUE && $buffer_state == 'pack')
+										if($sc === TRUE)
 										{
 											if($bufferQty == 0)
 											{
@@ -931,12 +926,6 @@ class Packing extends PS_Controller
 								$sc = FALSE;
 								$this->error = "เปลี่ยนสถานะรายการแพ็คไม่สำเร็จ";
 							}
-
-							if( ! $this->packing_model->update_pallet_row_status($code, 'Y'))
-							{
-								$sc = FALSE;
-								$this->error = "Update Pallet Status failed";
-							}
 						}
 
 						if($sc === TRUE)
@@ -957,7 +946,7 @@ class Packing extends PS_Controller
 							if(getConfig('CLOSE_PICK_LINE_STATUS') === 'pack')
 							{
 								$pick_id = $this->pick_model->get_pick_id_by_code($doc->pickCode);
-								$this->pick_model->close_pick_line_status($pick_id, $doc->orderCode);
+								$this->pick_model->close_pick_line_status($pick_id, $doc->orderCode);								
 							}
 
 							$this->pack_logs_model->add('packed', $code);

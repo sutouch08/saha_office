@@ -4,7 +4,19 @@ function goBack() {
   window.location.href = HOME;
 }
 
-
+function leave(){
+  swal({
+    title:'คุณแน่ใจ ?',
+    text:'รายการทั้งหมดจะไม่ถูกบันทึก ต้องการออกหรือไม่ ?',
+    type:'warning',
+    showCancelButton:true,
+    cancelButtonText:'ไม่ใช่',
+    confirmButtonText:'ออกจากหน้านี้',
+  },
+  function(){
+    goBack();
+  });
+}
 
 function goAdd() {
   window.location.href = HOME + 'add_new';
@@ -13,6 +25,10 @@ function goAdd() {
 
 function goEdit(code) {
   window.location.href = HOME + 'edit/'+code;
+}
+
+function viewDetail(code) {
+	window.location.href = HOME + 'view_detail/'+code;
 }
 
 
@@ -256,46 +272,3 @@ function getDelete(id, emp_name){
     })
   })
 }
-
-
-function docNumInit(no) {
-  docType = $('#docType-'+no).val();
-
-  $('#docNum-'+no).autocomplete({
-    source:HOME + 'get_doc_num/'+docType,
-    minLength:2,
-    select:function(event, ui) {
-      $('#CardCode-'+no).val(ui.item.CardCode);
-      $('#CardName-'+no).val(ui.item.CardName);
-      $('#shipTo-'+no).val(ui.item.shipTo);
-      $('#docTotal-'+no).val(ui.item.docTotal);
-    }
-  });
-}
-
-
-// $('.docNum').autocomplete({
-//   source:function(request, response) {
-//     var no = $(this).data('no');
-//     console.log(no);
-//     var docType = $('#docType-'+no).val();
-//     console.log(docType);
-//     $.ajax({
-//       url:HOME + 'get_doc_num/'+docType,
-//       dataType:"jsonp",
-//       data: {
-//         term: request.term
-//       },
-//       success: function(data) {
-//         response(data);
-//       }
-//     });
-//   },
-//   minLength: 2,
-//   select: function(event, ui) {
-//     $('#CardCode-'+no).val(ui.item.CardCode);
-//     $('#CardName-'+no).val(ui.item.CardName);
-//     $('#shipTo-'+no).val(ui.item.shipTo);
-//     $('#docTotal-'+no).val(ui.item.docTotal);
-//   }
-// });

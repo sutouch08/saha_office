@@ -25,6 +25,17 @@ class Delivery_model extends CI_Model
   }
 
 
+  public function add_detail(array $ds = array())
+  {
+    if(! empty($ds))
+    {
+      return $this->db->insert($this->td, $ds);
+    }
+
+    return FALSE;
+  }
+
+
   public function add_delivery_employee($ds = array())
   {
     if( ! empty($ds))
@@ -36,12 +47,74 @@ class Delivery_model extends CI_Model
   }
 
 
+  public function drop_delivery_employee($code)
+  {
+    return $this->db->where('delivery_code', $code)->delete($this->te);
+  }
 
-  public function update($id, $ds = array())
+
+  public function release_order($code)
+  {
+    return $this->db->set('status', 'R')->where('code', $code)->update($this->tb);
+  }
+
+
+  public function release_details($code)
+  {
+    $arr = array(
+      'line_status' => 'R',
+      'release_date' => date('Y-m-d')
+    );
+
+    return $this->db->where('delivery_code', $code)->update($this->td, $arr);
+  }
+
+
+  public function un_release_order($code)
+  {
+    return $this->db->set('status', 'O')->where('code', $code)->update($this->tb);
+  }
+
+
+  public function un_release_details($code)
+  {
+    $arr = array(
+      'line_status' => 'O',
+      'release_date' => NULL
+    );
+
+    return $this->db->where('delivery_code', $code)->update($this->td, $arr);
+  }
+
+
+
+  public function update($code, $ds = array())
   {
     if( ! empty($ds))
     {
-      return $this->db->where('id', $id)->update($this->tb, $ds);
+      return $this->db->where('code', $code)->update($this->tb, $ds);
+    }
+
+    return FALSE;
+  }
+
+
+  public function update_detail($id, array $ds = array())
+  {
+    if( ! empty($ds))
+    {
+      return $this->db->where('id', $id)->update($this->td, $ds);
+    }
+
+    return FALSE;
+  }
+
+
+  public function update_details($code, array $ds = array())
+  {
+    if( ! empty($code) && ! empty($ds))
+    {
+      return $this->db->where('delivery_code', $code)->update($this->td, $ds);
     }
 
     return FALSE;
@@ -51,6 +124,12 @@ class Delivery_model extends CI_Model
   public function delete($id)
   {
     return $this->db->where('id', $id)->delete($this->tb);
+  }
+
+
+  public function drop_details($code)
+  {
+    return $this->db->where('delivery_code', $code)->delete($this->td);
   }
 
 
@@ -112,6 +191,70 @@ class Delivery_model extends CI_Model
   }
 
 
+  public function get_finish_details($code)
+  {
+    $rs = $this->db
+    ->where('delivery_code', $code)
+    ->where('line_status', 'C')
+    ->where_in('type', array('D', 'P'))
+    ->where('DocType IS NOT NULL', NULL, FALSE)
+    ->get($this->td);
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+  public function finish_iv_doc_num($docNum, $ds = array())
+  {
+    if( ! empty($ds))
+    {
+      return $this->ms->where('DocNum', $docNum)->update('OINV', $ds);
+    }
+
+    return FALSE;
+  }
+
+
+  public function finish_do_doc_num($docNum, $ds = array())
+  {
+    if( ! empty($ds))
+    {
+      return $this->ms->where('DocNum', $docNum)->update('ODLN', $ds);
+    }
+
+    return FALSE;
+  }
+
+
+  public function finish_cn_doc_num($docNum, $ds = array())
+  {
+    if( ! empty($ds))
+    {
+      return $this->ms->where('DocNum', $docNum)->update('ORDN', $ds);
+    }
+
+    return FALSE;
+  }
+
+
+  public function finish_pb_doc_num($docNum, $ds = array())
+  {
+    return TRUE;
+
+    if( ! empty($ds))
+    {
+      return $this->ms->where('DocNum', $docNum)->update('OINV', $ds);
+    }
+
+    return FALSE;
+  }
+
+
 
   public function get_list(array $ds = array(), $perpage = 20, $offset = 0)
   {
@@ -142,9 +285,9 @@ class Delivery_model extends CI_Model
       ->where('date_add <=', to_date($ds['toDate']));
     }
 
-    if( ! empty($ds['uname']) && $ds['uname'] != 'all')
+    if($ds['uname'] != '')
     {
-      $this->db->where('uname', $ds['uname']);
+      $this->db->like('uname', $ds['uname']);
     }
 
     if(isset($ds['status']) && $ds['status'] != 'all')
@@ -193,9 +336,9 @@ class Delivery_model extends CI_Model
       ->where('date_add <=', to_date($ds['toDate']));
     }
 
-    if( ! empty($ds['uname']) && $ds['uname'] != 'all')
+    if($ds['uname'] != '')
     {
-      $this->db->where('uname', $ds['uname']);
+      $this->db->like('uname', $ds['uname']);
     }
 
     if(isset($ds['status']) && $ds['status'] != 'all')
@@ -218,6 +361,30 @@ class Delivery_model extends CI_Model
     if($rs->num_rows() == 1)
     {
       return $rs->row()->code;
+    }
+
+    return NULL;
+  }
+
+
+  public function add_logs(array $ds = array())
+  {
+    if( ! empty($ds))
+    {
+      return $this->db->insert('delivery_logs', $ds);
+    }
+
+    return FALSE;
+  }
+
+
+  public function get_logs($code)
+  {
+    $rs = $this->db->where('code', $code)->get('delivery_logs');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
     }
 
     return NULL;

@@ -34,7 +34,7 @@
 					<button type="button" class="btn btn-sm btn-danger" onclick="canclePack(<?php echo $doc->id; ?>, '<?php echo $doc->code; ?>')"><i class="fa fa-times"></i> ยกเลิก</button>
 				<?php endif; ?>
 
-				<?php if($doc->Status == 'Y') : ?>
+				<?php if($doc->Status == 'Y' OR $doc->Status == 'C') : ?>
 					<button type="button" class="btn btn-sm btn-info" onclick="showBoxOption()"><i class="fa fa-print"></i> พิมพ์ Label</button>
 				<?php endif; ?>
       </p>

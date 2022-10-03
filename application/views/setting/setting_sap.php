@@ -91,6 +91,17 @@
       </div>
       <div class="divider-hidden"></div>
 
+			<div class="col-sm-4">
+        <span class="form-control left-label">Remove buffer when finished</span>
+      </div>
+      <div class="col-sm-8">
+        <select name="REMOVE_BUFFER_STATE" class="form-control input-sm input-small">
+					<option value="transfer" <?php echo is_selected('transfer', $REMOVE_BUFFER_STATE); ?>>Transfer</option>
+					<option value="pack" <?php echo is_selected('pack', $REMOVE_BUFFER_STATE); ?>>Pack</option>
+				</select>
+      </div>
+      <div class="divider-hidden"></div>
+
 
 
       <div class="col-sm-8 col-sm-offset-4">
