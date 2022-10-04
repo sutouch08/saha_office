@@ -298,11 +298,6 @@ class Pack_model extends CI_Model
       $this->db->like('code', $ds['code']);
     }
 
-    if(! empty($ds['pallet']))
-    {
-      $this->db->where_in('code', $ds['pallet']);
-    }
-
     if(!empty($ds['orderCode']))
     {
       $this->db->like('orderCode', $ds['orderCode']);
@@ -357,11 +352,6 @@ class Pack_model extends CI_Model
       $this->db->like('code', $ds['code']);
     }
 
-    if(! empty($ds['pallet']))
-    {
-      $this->db->where_in('code', $ds['pallet']);
-    }
-
     if(!empty($ds['orderCode']))
     {
       $this->db->like('orderCode', $ds['orderCode']);
@@ -401,40 +391,15 @@ class Pack_model extends CI_Model
 
 
 
-  // public function get_pallet_code($packCode)
-  // {
-  //   $rs = $this->db
-  //   ->distinct()
-  //   ->select('pallet.code')
-  //   ->from('pack_details')
-  //   ->join('pallet', 'pack_details.pallet_id = pallet.id', 'left')
-  //   ->where('pack_details.packCode', $packCode)
-  //   ->get();
-  //
-  //   if($rs->num_rows() > 0)
-  //   {
-  //     $arr = array();
-  //
-  //     foreach($rs->result() as $row)
-  //     {
-  //       $arr[] = $row->code;
-  //     }
-  //
-  //     return $arr;
-  //   }
-  //
-  //   return NULL;
-  // }
-
-
   public function get_pallet_code($packCode)
   {
     $rs = $this->db
+    ->distinct()
     ->select('pallet.code')
-    ->from('pallet_row')
-    ->join('pallet', 'pallet_row.pallet_id = pallet.id', 'left')
-    ->where('pallet_row.packCode', $packCode)
-    ->get();    
+    ->from('pack_details')
+    ->join('pallet', 'pack_details.pallet_id = pallet.id', 'left')
+    ->where('pack_details.packCode', $packCode)
+    ->get();
 
     if($rs->num_rows() > 0)
     {

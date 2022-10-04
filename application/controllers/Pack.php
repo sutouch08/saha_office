@@ -33,7 +33,8 @@ class Pack extends PS_Controller
 			'fromDate' => get_filter('fromDate', 'pack_fromDate', ''),
 			'toDate' => get_filter('toDate', 'pack_toDate', ''),
 			'order_by' => get_filter('order_by', 'pack_order_by', 'code'),
-			'sort_by' => get_filter('sort_by', 'pack_sort_by', 'DESC')
+			'sort_by' => get_filter('sort_by', 'pack_sort_by', 'DESC'),
+			'palletNo' => get_filter('palletNo', 'pack_palletNo', '')
 		);
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -43,6 +44,24 @@ class Pack extends PS_Controller
 		{
 			$perpage = get_filter('rows', 'rows', 300);
 		}
+
+		$pallet = array();
+
+		if($filter['palletNo'] != '')
+		{
+			$qr = "SELECT PackCode FROM pallet_row LEFT JOIN pallet ON pallet_row.pallet_id = pallet.id WHERE pallet.code LIKE '%{$filter['palletNo']}%'";
+			$qs = $this->db->query($qr);
+
+			if($qs->num_rows() > 0)
+			{
+				foreach($qs->result() as $row)
+				{
+					$pallet[] = $row->PackCode;
+				}
+			}
+		}
+
+		$filter['pallet'] = $pallet;
 
 		$segment = 3; //-- url segment
 		$rows = $this->pack_model->count_rows($filter);
@@ -485,7 +504,8 @@ class Pack extends PS_Controller
 			'pack_fromDate',
 			'pack_toDate',
 			'pack_order_by',
-			'pack_sort_by'
+			'pack_sort_by',
+			'pack_palletNo'
 		);
 
 		clear_filter($filter);

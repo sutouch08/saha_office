@@ -37,6 +37,11 @@
   </div>
 
 	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+    <label class="search-label">Pallet No.</label>
+    <input type="text" class="form-control input-sm text-center search-box" name="palletNo" value="<?php echo $palletNo; ?>" />
+  </div>
+
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label class="search-label">ลูกค้า</label>
     <input type="text" class="form-control input-sm text-center search-box" name="CardName" value="<?php echo $CardName; ?>" />
   </div>
@@ -47,7 +52,7 @@
     <input type="text" class="form-control input-sm text-center search-box" name="uname" value="<?php echo $uname; ?>" />
   </div>
 
-	<div class="col-lg-1 col-md-2 col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label class="search-label">สถานะ</label>
     <select class="form-control input-sm" name="Status" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -94,19 +99,19 @@
 
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-		<table class="table table-striped table-hover border-1 dataTable" style="min-width:1000px;">
+		<table class="table table-striped table-hover border-1 dataTable" style="min-width:1200px;">
 			<thead>
 				<tr>
-					<th style="width:40px;" class="middle text-center">#</th>
-					<th style="width:100px;" class="middle text-center sorting <?php echo $sort_date; ?>" id="sort_date" onclick="sort('date_add')">วันที่</th>
-					<th style="width:110px;" class="middle text-center sorting <?php echo $sort_code; ?>" id="sort_code" onclick="sort('code')">เลขที่</th>
-          <th style="width:100px;" class="middle text-center sorting <?php echo $sort_orderCode; ?>" id="sort_orderCode" onclick="sort('orderCode')">SO No.</th>
-          <th style="width:110px;" class="middle text-center sorting <?php echo $sort_pickCode; ?>" id="sort_pickCode" onclick="sort('pickCode')">Pick List No.</th>
-					<th style="width:80px;" class="middle text-center">Pallet No.</th>
-          <th style="min-width:150px;" class="middle sorting <?php echo $sort_CardName; ?>" id="sort_CardName" onclick="sort('CardName')">ลูกค้า</th>
-					<th style="width:150px;" class="middle sorting <?php echo $sort_uname; ?>" id="sort_uname" onclick="sort('uname')">User</th>
-					<th style="width:100px;" class="middle text-center sorting <?php echo $sort_Status; ?>" id="sort_Status" onclick="sort('Status')">สถานะ</th>
-					<th style="width:150px;"></th>
+					<th class="fix-width-40 middle text-center">#</th>
+					<th class="fix-width-100 middle text-center sorting <?php echo $sort_date; ?>" id="sort_date" onclick="sort('date_add')">วันที่</th>
+					<th class="fix-width-120 middle text-center sorting <?php echo $sort_code; ?>" id="sort_code" onclick="sort('code')">เลขที่</th>
+          <th class="fix-width-100 middle text-center sorting <?php echo $sort_orderCode; ?>" id="sort_orderCode" onclick="sort('orderCode')">SO No.</th>
+          <th class="fix-width-120 middle text-center sorting <?php echo $sort_pickCode; ?>" id="sort_pickCode" onclick="sort('pickCode')">Pick List No.</th>
+					<th class="fix-width-100 middle text-center">Pallet No.</th>
+          <th class="min-width-150 middle sorting <?php echo $sort_CardName; ?>" id="sort_CardName" onclick="sort('CardName')">ลูกค้า</th>
+					<th class="fix-width-150 middle sorting <?php echo $sort_uname; ?>" id="sort_uname" onclick="sort('uname')">User</th>
+					<th class="fix-width-100 middle text-center sorting <?php echo $sort_Status; ?>" id="sort_Status" onclick="sort('Status')">สถานะ</th>
+					<th class="fix-width-150 middle text-right"></th>
 				</tr>
 			</thead>
 			<tbody>
