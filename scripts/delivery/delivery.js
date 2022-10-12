@@ -57,7 +57,11 @@ function addChecked() {
   closeModal();
 }
 
-$('#date_add').datepicker({
+$('#docDate').datepicker({
+  dateFormat:'dd-mm-yy'
+});
+
+$('#shipDate').datepicker({
   dateFormat:'dd-mm-yy'
 });
 
@@ -77,157 +81,20 @@ $('#toDate').datepicker({
 });
 
 
-
-function add() {
-  let date = $('#date_add').val();
-  let vehicle = $('#vehicle').val();
-  let driver = $('#driver').val();
-  let route = $('#route').val();
-  let support = [];
-
-  if(!isDate(date)) {
-    swal("วันที่ไม่ถูกต้อง");
-    return false;
+$('#shipFromDate').datepicker({
+  dateFormat:'dd-mm-yy',
+  onClose:function(sd) {
+    $('#shipToDate').datepicker('option', 'minDate', sd);
   }
+});
 
-  if(vehicle == "") {
-    swal("กรุณาระบุทะเบียนรถ");
-    return false;
+$('#shipToDate').datepicker({
+  dateFormat:'dd-mm-yy',
+  onClose:function(sd) {
+    $('#shipFromDate').datepicker('option', 'maxDate', sd);
   }
+});
 
-  if(driver == "") {
-    swal("กรุณาระบุพนักงานขับรถ");
-    return false;
-  }
-
-  if(route == "") {
-    swal("กรุณาระบุเส้นทาง");
-    return false;
-  }
-
-  $('.chk').each(function() {
-    if($(this).is(':checked')) {
-      support.push($(this).val());
-    }
-  });
-
-
-  let data = {
-    "date" : date,
-    "vehicle" : vehicle,
-    "driver" : driver,
-    "route" : route,
-    "support" : support
-  };
-
-  load_in();
-
-  $.ajax({
-    url:HOME + 'add',
-    type:'POST',
-    cache:false,
-    data:data,
-    success:function(rs) {
-      load_out();
-      rs = $.trim(rs);
-      if(isJson(rs)) {
-        var ds = $.parseJSON(rs);
-
-        goEdit(ds.code);
-      }
-      else {
-        swal({
-          title:'Error!',
-          type:'error',
-          text:rs
-        });
-      }
-    }
-  })
-}
-
-
-
-function saveAdd() {
-  let emp_id = $('#emp_id').val();
-  let type = $('#type').val();
-  let active = $('#active').is(':checked') ? 1 : 0;
-
-  if(emp_id == "") {
-    swal("กรุณาเลือกพนักงาน");
-    return false;
-  }
-
-  $.ajax({
-    url:HOME + 'add',
-    type:'POST',
-    cache:false,
-    data:{
-      'emp_id' : emp_id,
-      'type' : type,
-      'active' : active
-    },
-    success:function(rs) {
-      rs = $.trim(rs);
-
-      if(rs === 'success') {
-        swal({
-          title:'Success',
-          type:'success',
-          timer:1000
-        });
-
-        setTimeout(function() {
-          goAdd();
-        }, 1200);
-      }
-      else {
-        swal({
-          title:'Error!',
-          type:'error',
-          text:rs
-        });
-      }
-    }
-  });
-}
-
-
-
-function update() {
-  let emp_id = $('#emp_id').val();
-  let type = $('#type').val();
-  let active = $('#active').is(':checked') ? 1 : 0;
-
-  $.ajax({
-    url:HOME + 'update',
-    type:'POST',
-    cache:false,
-    data:{
-      "emp_id" : emp_id,
-      "type" : type,
-      "active" : active
-    },
-    success:function(rs) {
-      rs = $.trim(rs);
-
-      if(rs === 'success') {
-        swal({
-          title:'Success',
-          type:'success',
-          timer:1000
-        });
-      }
-      else {
-        swal({
-          title:'Error!',
-          text:rs,
-          type:'error'
-        });
-      }
-    }
-  });
-}
 
 
 function getDelete(id, emp_name){

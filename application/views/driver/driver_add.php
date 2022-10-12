@@ -14,18 +14,15 @@
 <form class="form-horizontal">
   <div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">พนักงาน</label>
-    <div class="col-xs-12 col-sm-4">
-			<select class="form-control input-sm" id="emp_id">
-				<option value="">Please Select</option>
-				<?php echo select_employee(); ?>
-			</select>
+    <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
+			<input type="text" class="form-control input-sm" id="name" name="name" required autofocus />
     </div>
 		<div class="help-block col-xs-12 col-sm-reset inline red" id="name-error"></div>
   </div>
 
 	<div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">ประเภท</label>
-    <div class="col-xs-12 col-sm-4">
+    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
 			<select class="form-control input-sm" id="type">
 				<option value="D">คนขับ</option>
 				<option value="E">เด็กติดรถ</option>
@@ -57,8 +54,7 @@
       &nbsp;
     </div>
   </div>
-
 </form>
 
-<script src="<?php echo base_url(); ?>scripts/driver/driver.js"></script>
+<script src="<?php echo base_url(); ?>scripts/driver/driver.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

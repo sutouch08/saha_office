@@ -36,8 +36,9 @@
 
 	<div class="col-lg-1 col-md-3 col-sm-3 col-xs-6 padding-5">
     <label class="search-label">Status</label>
-    <select class="form-control input-sm" name="Status" onchange="getSearch()">
+    <select class="form-control input-sm" name="status" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
+			<option value="O" <?php echo is_selected('O', $status); ?>>Open</option>
 			<option value="N" <?php echo is_selected('N', $status); ?>>Not Export</option>
 			<option value="P" <?php echo is_selected('P', $status); ?>>Pending</option>
 			<option value="Y" <?php echo is_selected('Y', $status); ?>>Success</option>
@@ -112,6 +113,8 @@
 						<td class="middle text-center">
 								<?php if($rs->Status == 'N') : ?>
 									<span class="orange">Not Export</span>
+								<?php elseif($rs->Status == 'O') : ?>
+									<span class="blue">Open</span>
 								<?php elseif($rs->Status == 'Y') : ?>
 									<button type="button" class="btn btn-minier btn-success btn-block" onclick="viewDetail('<?php echo $rs->code; ?>')">Success</button>
 								<?php elseif($rs->Status == 'P') : ?>
@@ -123,10 +126,18 @@
 								<?php endif; ?>
 						</td>
 						<td class="middle text-right">
-							<button type="button" class="btn btn-minier btn-primary" title="View Details" onclick="goDetail('<?php echo $rs->id; ?>')"><i class="fa fa-eye"></i></button>
-							<?php if($rs->Status == 'N') : ?>
-								<button type="button" class="btn btn-minier btn-warning" title="Edit" onclick="goEdit(<?php echo $rs->id; ?>)"><i class="fa fa-pencil"></i></button>
-								<button type="button" class="btn btn-minier btn-danger" title="Cancle" onclick="getDelete(<?php echo $rs->id; ?>, '<?php echo $rs->code; ?>')"><i class="fa fa-trash"></i></button>
+							<button type="button" class="btn btn-minier btn-primary" title="View Details" onclick="goDetail('<?php echo $rs->id; ?>')">
+								<i class="fa fa-eye"></i>
+							</button>
+							<?php if($rs->Status == 'O') : ?>
+								<button type="button" class="btn btn-minier btn-warning" title="Edit" onclick="goEdit(<?php echo $rs->id; ?>)">
+									<i class="fa fa-pencil"></i>
+								</button>
+							<?php endif; ?>
+							<?php if($rs->Status !== 'Y' && $rs->Status !== 'C') : ?>
+								<button type="button" class="btn btn-minier btn-danger" title="Cancle" onclick="getDelete(<?php echo $rs->id; ?>, '<?php echo $rs->code; ?>')">
+									<i class="fa fa-trash"></i>
+								</button>
 							<?php endif; ?>
 						</td>
 					</tr>

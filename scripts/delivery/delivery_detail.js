@@ -314,3 +314,13 @@ function unClose() {
     }, 200);
   });
 }
+
+
+function printShippingSheet(code) {
+  //--- properties for print
+  var center = ($(document).width() - 900)/2;
+  var prop = "width=900, height=900. left="+center+", scrollbars=yes";
+
+  var target  = HOME + 'printDelivery/'+code;
+  window.open(target, '_blank', prop);
+}

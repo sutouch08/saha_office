@@ -1,7 +1,7 @@
 <?php
 $this->load->helper('print');
 $footer_address = FALSE; //--- แสดงที่อยู่ท้ายแผ่นหรือไม่
-$row_per_page = 26; //--- จำนวนบรรทัด/หน้า
+$row_per_page = 22; //--- จำนวนบรรทัด/หน้า
 $total_row 	= 0;
 $row_text = 50;
 $all_row = count($details);
@@ -240,7 +240,7 @@ while($total_page > 0 )
 	$top .= 					$doc->OwnerName;
 	$top .= 				"</td>";
 	$top .= 			"</tr>";
-	
+
 	$top .=				"</tbody>";
 	$top .= 		"</table>";
 	$top .= 	"</div>";

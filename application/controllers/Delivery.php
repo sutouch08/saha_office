@@ -15,7 +15,7 @@ class Delivery extends PS_Controller
 		$this->load->model('delivery_model');
 		$this->load->model('driver_model');
 		$this->load->model('vehicle_model');
-			$this->load->model('route_model');
+		$this->load->model('route_model');
 		$this->load->helper('transport');
   }
 
@@ -31,6 +31,8 @@ class Delivery extends PS_Controller
 			'route' => get_filter('route', 'de_route', 'all'),
 			'fromDate' => get_filter('fromDate', 'de_formDate', ''),
 			'toDate' => get_filter('toDate', 'de_toDate', ''),
+			'shipFromDate' => get_filter('shipFromDate', 'shipFromDate', ''),
+			'shipToDate' => get_filter('shipToDate', 'shipToDate', ''),
 			'uname' => get_filter('uname', 'de_uname', ''),
 			'status' => get_filter('status', 'de_status', 'all')
 		);
@@ -70,14 +72,16 @@ class Delivery extends PS_Controller
 	public function save_add()
 	{
 		$sc = TRUE;
-		$date_add = db_date($this->input->post('date'));
+		$docDate = db_date($this->input->post('date'));
+		$shipDate = db_date($this->input->post('shipDate'));
 		$vehicle_id = $this->input->post('vehicle');
 		$driver_id = $this->input->post('driver');
 		$route_id = $this->input->post('route');
 		$support = $this->input->post('support');
+		$DocTotal = $this->input->post('DocTotal');
 		$details = json_decode($this->input->post('details'));
 
-		$code = $this->get_new_code($date_add);
+		$code = $this->get_new_code($docDate);
 
 		if(!empty($code))
 		{
@@ -92,7 +96,9 @@ class Delivery extends PS_Controller
 				if( ! empty($driver))
 				{
 					$arr = array(
-						'date_add' => $date_add,
+						'DocDate' => $docDate,
+						'date_add' => date('Y-m-d'),
+						'ShipDate' => $shipDate,
 						'code' => $code,
 						'driver_id' => $driver->emp_id,
 						'driver_name' => $driver->emp_name,
@@ -100,6 +106,7 @@ class Delivery extends PS_Controller
 						'vehicle_name' => $car->name,
 						'route_id' => $route->id,
 						'route_name' => $route->name,
+						'DocTotal' => $DocTotal,
 						'uname' => $this->user->uname
 					);
 
@@ -117,7 +124,7 @@ class Delivery extends PS_Controller
 							'emp_name' => $driver->emp_name,
 							'type' => 'D',
 							'vehicle_name' => $car->name,
-							'date_add' => $date_add
+							'date_add' => date('Y-m-d')
 						);
 
 						if(! $this->delivery_model->add_delivery_employee($arr))
@@ -143,7 +150,7 @@ class Delivery extends PS_Controller
 										'emp_name' => $emp->emp_name,
 										'type' => $emp->type,
 										'vehicle_name' => $car->name,
-										'date_add' => $date_add
+										'date_add' => date('Y-m-d')
 									);
 
 									$this->delivery_model->add_delivery_employee($arr);
@@ -163,23 +170,49 @@ class Delivery extends PS_Controller
 									break;
 								}
 
-								$arr = array(
-									'delivery_code' => $code,
-									'CardCode' => $rs->cardCode,
-									'CardName' => $rs->cardName,
-									'Address' => $rs->address,
-									'contact' => $rs->contact,
-									'type' => $rs->shipType,
-									'DocType' => empty($rs->docType) ? NULL : $rs->docType,
-									'DocNum' => empty($rs->docNum) ? NULL : $rs->docNum,
-									'DocTotal' => empty($rs->docTotal) ? 0.00 : $rs->docTotal,
-									'remark' => get_null($rs->remark)
-								);
+								$is_exists = FALSE;
 
-								if( ! $this->delivery_model->add_detail($arr))
+								if($rs->shipType == 'P' && ($rs->docType == 'DO' OR $rs->docType == 'IV'))
+								{
+									$is_exists = $this->delivery_model->is_loaded($rs->docNum, $rs->docType, $code);
+								}
+
+								if( ! $is_exists)
+								{
+									$arr = array(
+										'delivery_code' => $code,
+										'CardCode' => $rs->cardCode,
+										'CardName' => $rs->cardName,
+										'Address' => $rs->address,
+										'contact' => $rs->contact,
+										'type' => $rs->shipType,
+										'DocType' => empty($rs->docType) ? NULL : $rs->docType,
+										'DocNum' => empty($rs->docNum) ? NULL : $rs->docNum,
+										'DocTotal' => empty($rs->docTotal) ? 0.00 : $rs->docTotal,
+										'remark' => get_null($rs->remark),
+										'ShipDate' => $shipDate,
+										'ShipToCode' => get_null(trim($rs->ShipToCode)),
+										'Street' => get_null(trim($rs->Street)),
+										'Block' => get_null(trim($rs->Block)),
+										'City' => get_null(trim($rs->City)),
+										'County' => get_null(trim($rs->County)),
+										'Country' => get_null(trim($rs->Country)),
+										'ZipCode' => get_null(trim($rs->ZipCode)),
+										'Phone' => get_null(trim($rs->Phone)),
+										'WorkDate' => get_null(trim($rs->WorkDate)),
+										'WorkTime' => get_null(trim($rs->WorkTime))
+									);
+
+									if( ! $this->delivery_model->add_detail($arr))
+									{
+										$sc = FALSE;
+										$this->error = "Insert detail failed";
+									}
+								}
+								else
 								{
 									$sc = FALSE;
-									$this->error = "Insert detail failed";
+									$this->error = "{$rs->docType}-{$rs->docNum} ถูกโหลดเข้าเอกสารอื่นแล้ว";
 								}
 							}
 						}
@@ -240,11 +273,13 @@ class Delivery extends PS_Controller
 	{
 		$sc = TRUE;
 		$code = $this->input->post('code');
-		$date_add = db_date($this->input->post('date'));
+		$docDate = db_date($this->input->post('date'));
+		$shipDate = db_date($this->input->post('shipDate'));
 		$vehicle_id = $this->input->post('vehicle');
 		$driver_id = $this->input->post('driver');
 		$route_id = $this->input->post('route');
 		$support = $this->input->post('support');
+		$DocTotal = $this->input->post('DocTotal');
 		$details = json_decode($this->input->post('details'));
 
 		if(! empty($code) && ! empty($details))
@@ -266,13 +301,15 @@ class Delivery extends PS_Controller
 						if(! empty($driver))
 						{
 							$arr = array(
-								'date_add' => $date_add,
+								'DocDate' => $docDate,
+								'ShipDate' => $shipDate,
 								'driver_id' => $driver->emp_id,
 								'driver_name' => $driver->emp_name,
 								'vehicle_id' => $car->id,
 								'vehicle_name' => $car->name,
 								'route_id' => $route->id,
 								'route_name' => $route->name,
+								'DocTotal' => $DocTotal,
 								'uname' => $this->user->uname
 							);
 
@@ -292,7 +329,7 @@ class Delivery extends PS_Controller
 										'emp_name' => $driver->emp_name,
 										'type' => 'D',
 										'vehicle_name' => $car->name,
-										'date_add' => $date_add
+										'date_add' => date('Y-m-d')
 									);
 
 									if(! $this->delivery_model->add_delivery_employee($arr))
@@ -324,7 +361,7 @@ class Delivery extends PS_Controller
 												'emp_name' => $emp->emp_name,
 												'type' => $emp->type,
 												'vehicle_name' => $car->name,
-												'date_add' => $date_add
+												'date_add' => date('Y-m-d')
 											);
 
 											$this->delivery_model->add_delivery_employee($arr);
@@ -358,23 +395,49 @@ class Delivery extends PS_Controller
 									break;
 								}
 
-								$arr = array(
-									'delivery_code' => $code,
-									'CardCode' => $rs->cardCode,
-									'CardName' => $rs->cardName,
-									'Address' => $rs->address,
-									'contact' => $rs->contact,
-									'type' => $rs->shipType,
-									'DocType' => empty($rs->docType) ? NULL : $rs->docType,
-									'DocNum' => empty($rs->docNum) ? NULL : $rs->docNum,
-									'DocTotal' => empty($rs->docTotal) ? 0.00 : $rs->docTotal,
-									'remark' => get_null($rs->remark)
-								);
+								$is_exists = FALSE;
 
-								if( ! $this->delivery_model->add_detail($arr))
+								if($rs->shipType == 'P' && ($rs->docType == 'DO' OR $rs->docType == 'IV'))
+								{
+									$is_exists = $this->delivery_model->is_loaded($rs->docNum, $rs->docType, $code);
+								}
+
+								if( ! $is_exists)
+								{
+									$arr = array(
+										'delivery_code' => $code,
+										'CardCode' => $rs->cardCode,
+										'CardName' => $rs->cardName,
+										'Address' => $rs->address,
+										'contact' => $rs->contact,
+										'type' => $rs->shipType,
+										'DocType' => empty($rs->docType) ? NULL : $rs->docType,
+										'DocNum' => empty($rs->docNum) ? NULL : $rs->docNum,
+										'DocTotal' => empty($rs->docTotal) ? 0.00 : $rs->docTotal,
+										'remark' => get_null($rs->remark),
+										'ShipDate' => $shipDate,
+										'ShipToCode' => get_null(trim($rs->ShipToCode)),
+										'Street' => get_null(trim($rs->Street)),
+										'Block' => get_null(trim($rs->Block)),
+										'City' => get_null(trim($rs->City)),
+										'County' => get_null(trim($rs->County)),
+										'Country' => get_null(trim($rs->Country)),
+										'ZipCode' => get_null(trim($rs->ZipCode)),
+										'Phone' => get_null(trim($rs->Phone)),
+										'WorkDate' => get_null(trim($rs->WorkDate)),
+										'WorkTime' => get_null(trim($rs->WorkTime))
+									);
+
+									if( ! $this->delivery_model->add_detail($arr))
+									{
+										$sc = FALSE;
+										$this->error = "Insert detail failed";
+									}
+								}
+								else
 								{
 									$sc = FALSE;
-									$this->error = "Insert detail failed";
+									$this->error = "{$rs->docType}-{$rs->docNum} ถูกโหลดเข้าเอกสารอื่นแล้ว";
 								}
 							}
 						}
@@ -555,6 +618,9 @@ class Delivery extends PS_Controller
 	public function do_release()
 	{
 		$sc = TRUE;
+		$message = "";
+		$err = 0;
+
 		$code = $this->input->post('code');
 
 		$doc = $this->delivery_model->get($code);
@@ -563,38 +629,66 @@ class Delivery extends PS_Controller
 		{
 			if( $doc->status == 'O')
 			{
-				$this->db->trans_begin();
-				if($this->delivery_model->release_order($code))
+				$details = $this->delivery_model->get_details($code);
+
+				if( ! empty($details))
 				{
-					if(! $this->delivery_model->release_details($code))
+					foreach($details as $rs)
+					{
+						if($rs->type == 'P' && ($rs->DocType == 'DO' OR $rs->DocType == 'IV'))
+						{
+							if($this->delivery_model->is_loaded($rs->DocNum, $rs->DocType, $code))
+							{
+								$err++;
+								$message .= "{$rs->DocType}-{$rs->DocNum} ถูกโหลดเข้าเอกสารอื่นแล้ว ".PHP_EOL;
+							}
+						}
+					}
+
+					if($err > 0)
 					{
 						$sc = FALSE;
-						$this->error = "Release delivery rows failed";
+						$this->error = $message;
 					}
 				}
-				else
-				{
-					$sc = FALSE;
-					$this->error = "Release failed";
-				}
+
 
 				if($sc === TRUE)
 				{
-					$this->db->trans_commit();
+					$this->db->trans_begin();
 
-					$arr = array(
-						'code' => $code,
-						'user_id' => $this->user->id,
-						'uname' => $this->user->uname,
-						'emp_name' => $this->user->emp_name,
-						'action' => 'release'
-					);
+					if($this->delivery_model->release_order($code))
+					{
+						if(! $this->delivery_model->release_details($code))
+						{
+							$sc = FALSE;
+							$this->error = "Release delivery rows failed";
+						}
+					}
+					else
+					{
+						$sc = FALSE;
+						$this->error = "Release failed";
+					}
 
-					$this->delivery_model->add_logs($arr);
-				}
-				else
-				{
-					$this->db->trans_rollback();
+					if($sc === TRUE)
+					{
+						$this->db->trans_commit();
+
+						$arr = array(
+							'code' => $code,
+							'user_id' => $this->user->id,
+							'uname' => $this->user->uname,
+							'emp_name' => $this->user->emp_name,
+							'action' => 'release'
+						);
+
+						$this->delivery_model->add_logs($arr);
+					}
+					else
+					{
+						$this->db->trans_rollback();
+					}
 				}
 			}
 			else
@@ -945,9 +1039,11 @@ class Delivery extends PS_Controller
 			if($doc_type === 'DO')
 			{
 				$this->ms
-				->select('O.DocNum, O.CardCode, O.CardName, O.Address2, O.DocTotal, C.name')
+				->select('O.DocNum, O.CardCode, O.CardName, O.Address2, O.DocTotal')
+				->select('C.Address AS ShipToCode, C.Street, C.Block, C.ZipCode, C.City, C.County, C.Country')
+				->select('C.U_Contract AS Contact, C.U_Tel AS Phone, C.U_SP_DateWork AS WorkDate, C.U_SP_DateTime AS WorkTime')
 				->from('ODLN AS O')
-				->join('OCPR AS C', 'O.CntctCode = C.CntctCode', 'left')
+				->join('CRD1 AS C', "O.CardCode = C.CardCode AND O.ShipToCode = C.Address AND C.AdresType = 'S'", 'left')
 				->like('O.DocNum', $term);
 
 				if($ship_type == 'P')
@@ -967,12 +1063,15 @@ class Delivery extends PS_Controller
 				}
 			}
 
+
 			if($doc_type === 'IV')
 			{
 				$this->ms
-				->select('O.DocNum, O.CardCode, O.CardName, O.Address2, O.DocTotal, C.name')
+				->select('O.DocNum, O.CardCode, O.CardName, O.Address2, O.DocTotal')
+				->select('C.Address AS ShipToCode, C.Street, C.Block, C.ZipCode, C.City, C.County, C.Country')
+				->select('C.U_Contract AS Contact, C.U_Tel AS Phone, C.U_SP_DateWork AS WorkDate, C.U_SP_DateTime AS WorkTime')
 				->from('OINV AS O')
-				->join('OCPR AS C', 'O.CntctCode = C.CntctCode', 'left')
+				->join('CRD1 AS C', "O.CardCode = C.CardCode AND O.ShipToCode = C.Address AND C.AdresType = 'S'", 'left')
 				->like('O.DocNum', $term);
 
 				if($ship_type == 'P')
@@ -995,9 +1094,11 @@ class Delivery extends PS_Controller
 			if($doc_type === 'CN')
 			{
 				$this->ms
-				->select('O.DocNum, O.CardCode, O.CardName, O.Address2, O.DocTotal, C.name')
+				->select('O.DocNum, O.CardCode, O.CardName, O.Address2, O.DocTotal')
+				->select('C.Address AS ShipToCode, C.Street, C.Block, C.ZipCode, C.City, C.County, C.Country')
+				->select('C.U_Contract AS Contact, C.U_Tel AS Phone, C.U_SP_DateWork AS WorkDate, C.U_SP_DateTime AS WorkTime')
 				->from('ORDN AS O')
-				->join('OCPR AS C', 'O.CntctCode = C.CntctCode', 'left')
+				->join('CRD1 AS C', "O.CardCode = C.CardCode AND O.ShipToCode = C.Address AND C.AdresType = 'S'", 'left')
 				->like('O.DocNum', $term);
 
 				if($ship_type == 'P')
@@ -1020,9 +1121,11 @@ class Delivery extends PS_Controller
 			if($doc_type === 'PB')
 			{
 				$this->ms
-				->select('O.DocNum, O.CardCode, O.CardName, O.Address2, O.DocTotal, C.name')
+				->select('O.DocNum, O.CardCode, O.CardName, O.Address2, O.DocTotal')
+				->select('C.Address AS ShipToCode, C.Street, C.Block, C.ZipCode, C.City, C.County, C.Country')
+				->select('C.U_Contract AS Contact, C.U_Tel AS Phone, C.U_SP_DateWork AS WorkDate, C.U_SP_DateTime AS WorkTime')
 				->from('ODLN AS O')
-				->join('OCPR AS C', 'O.CntctCode = C.CntctCode', 'left')
+				->join('CRD1 AS C', "O.CardCode = C.CardCode AND O.ShipToCode = C.Address AND C.AdrsType = 'S'", 'left')
 				->like('O.DocNum', $term);
 
 				if($ship_type == 'P')
@@ -1049,8 +1152,19 @@ class Delivery extends PS_Controller
 					$sc[] = array(
 						'CardCode' => $rs->CardCode,
 						'CardName' => $rs->CardName,
-						'contact' => $rs->name,
-						'shipTo' => $rs->Address2,
+						'ContactName' => $rs->Contact.' '.$rs->Phone,
+						'shipTo' => $rs->Street.' '.$rs->Block.' '.$rs->City.' '.$rs->County.' '.$rs->ZipCode,
+						'ShipToCode' => $rs->ShipToCode,
+						'Street' => $rs->Street,
+						'Block' => $rs->Block,
+						'City' => $rs->City,
+						'County' => $rs->County,
+						'Country' => $rs->Country,
+						'ZipCode' => $rs->ZipCode,
+						'Phone' => $rs->Phone,
+						'Contact' => $rs->Contact,
+						'WorkDate' => $rs->WorkDate,
+						'WorkTime' => $rs->WorkTime,
 						'label' => $rs->DocNum,
 						'docTotal' => number($rs->DocTotal, 2)
 					);
@@ -1073,6 +1187,8 @@ class Delivery extends PS_Controller
 		$shipType = $this->input->get('shipType');
 		$docType = $this->input->get('docType');
 		$docNum = $this->input->get('docNum');
+		$code = get_null($this->input->get('delivery_code'));
+
 		$ds = array();
 
 		if(! empty($shipType) && ! empty($docType) && ! empty($docNum))
@@ -1081,8 +1197,11 @@ class Delivery extends PS_Controller
 			if($docType === 'DO')
 			{
 				$rs = $this->ms
-				->select('O.DocNum, O.CardCode, O.CardName, O.Address2, O.DocTotal, O.U_Deliver_doc, O.U_Deliver_status, C.name')
-				->from('ODLN AS O')->join('OCPR AS C', 'O.CntctCode = C.CntctCode', 'left')
+				->select('O.DocNum, O.CardCode, O.CardName, O.Address2, O.DocTotal, O.U_Deliver_doc, O.U_Deliver_status')
+				->select('C.Address AS ShipToCode, C.Street, C.Block, C.ZipCode, C.City, C.County, C.Country')
+				->select('C.U_Contract AS Contact, C.U_Tel AS Phone, C.U_SP_DateWork AS WorkDate, C.U_SP_DateTime AS WorkTime')
+				->from('ODLN AS O')
+				->join('CRD1 AS C', "O.CardCode = C.CardCode AND O.ShipToCode = C.Address AND C.AdresType = 'S'", 'left')
 				->where('O.DocNum', $docNum)
 				->get();
 			}
@@ -1090,8 +1209,11 @@ class Delivery extends PS_Controller
 			if($docType === 'IV')
 			{
 				$rs = $this->ms
-				->select('O.DocNum, O.CardCode, O.CardName, O.Address2, O.DocTotal, O.U_Deliver_doc, O.U_Deliver_status, C.name')
-				->from('OINV AS O')->join('OCPR AS C', 'O.CntctCode = C.CntctCode', 'left')
+				->select('O.DocNum, O.CardCode, O.CardName, O.Address2, O.DocTotal, O.U_Deliver_doc, O.U_Deliver_status')
+				->select('C.Address AS ShipToCode, C.Street, C.Block, C.ZipCode, C.City, C.County, C.Country')
+				->select('C.U_Contract AS Contact, C.U_Tel AS Phone, C.U_SP_DateWork AS WorkDate, C.U_SP_DateTime AS WorkTime')
+				->from('OINV AS O')
+				->join('CRD1 AS C', "O.CardCode = C.CardCode AND O.ShipToCode = C.Address AND C.AdresType = 'S'", 'left')
 				->where('O.DocNum', $docNum)
 				->get();
 			}
@@ -1099,8 +1221,11 @@ class Delivery extends PS_Controller
 			if($docType === 'CN')
 			{
 				$rs = $this->ms
-				->select('O.DocNum, O.CardCode, O.CardName, O.Address2, O.DocTotal, O.U_Deliver_doc, O.U_Deliver_status, C.name')
-				->from('ORDN AS O')->join('OCPR AS C', 'O.CntctCode = C.CntctCode', 'left')
+				->select('O.DocNum, O.CardCode, O.CardName, O.Address2, O.DocTotal, O.U_Deliver_doc, O.U_Deliver_status')
+				->select('C.Address AS ShipToCode, C.Street, C.Block, C.ZipCode, C.City, C.County, C.Country')
+				->select('C.U_Contract AS Contact, C.U_Tel AS Phone, C.U_SP_DateWork AS WorkDate, C.U_SP_DateTime AS WorkTime')
+				->from('ORDN AS O')
+				->join('CRD1 AS C', "O.CardCode = C.CardCode AND O.ShipToCode = C.Address AND C.AdresType = 'S'", 'left')
 				->where('O.DocNum', $docNum)
 				->get();
 			}
@@ -1108,8 +1233,11 @@ class Delivery extends PS_Controller
 			if($docType === 'PB')
 			{
 				$rs = $this->ms
-				->select('O.DocNum, O.CardCode, O.CardName, O.Address2, O.DocTotal, O.U_Deliver_doc, O.U_Deliver_status, C.name')
-				->from('ODLN AS O')->join('OCPR AS C', 'O.CntctCode = C.CntctCode', 'left')
+				->select('O.DocNum, O.CardCode, O.CardName, O.Address2, O.DocTotal, O.U_Deliver_doc, O.U_Deliver_status')
+				->select('C.Address AS ShipToCode, C.Street, C.Block, C.ZipCode, C.City, C.County, C.Country')
+				->select('C.U_Contract AS Contact, C.U_Tel AS Phone, C.U_SP_DateWork AS WorkDate, C.U_SP_DateTime AS WorkTime')
+				->from('ODLN AS O')
+				->join('CRD1 AS C', "O.CardCode = C.CardCode AND O.ShipToCode = C.Address AND C.AdresType = 'S'", 'left')
 				->where('O.DocNum', $docNum)
 				->get();
 			}
@@ -1118,21 +1246,48 @@ class Delivery extends PS_Controller
 			{
 				$rd = $rs->row();
 
-				if(($docType == 'DO' OR $docType == 'IV') && $shipType == 'P' && $rd->U_Deliver_status == 4)
+				if(($docType == 'DO' OR $docType == 'IV') && $shipType == 'P' )
 				{
-					$sc = FALSE;
-					$this->error = "{$docType}-{$docNum} เคยถูกจัดส่งสำเร็จแล้วโดย {$rd->U_Deliver_doc}";
+					if($rd->U_Deliver_status == 4)
+					{
+						$sc = FALSE;
+						$this->error = "{$docType}-{$docNum} เคยถูกจัดส่งสำเร็จแล้วโดย {$rd->U_Deliver_doc}";
+					}
+					else
+					{
+						//---- check document exists in another delivery_doc
+						$is_exists = $this->delivery_model->is_loaded($docNum, $docType, $code);
+
+						if($is_exists)
+						{
+							$sc = FALSE;
+							$this->error = "{$docType}-{$docNum} ถูกโหลดเข้าเอกสารอื่นแล้ว";
+						}
+					}
 				}
-				else
+
+
+				if($sc === TRUE)
 				{
 					$ship_type = ($shipType == 'P' && ($docType == 'CN' OR $docType == 'PB')) ? 'D' : $shipType;
 
 					$ds = array(
-						'CardCode' => $rs->row()->CardCode,
-						'CardName' => $rs->row()->CardName,
-						'contact' => $rs->row()->name,
-						'shipTo' => $rs->row()->Address2,
-						'docTotal' => number($rs->row()->DocTotal, 2),
+						'CardCode' => $rd->CardCode,
+						'CardName' => $rd->CardName,
+						'ContactName' => $rd->Contact.' '.$rd->Phone,
+						'shipTo' => $rd->Street.' '.$rd->Block.' '.$rd->City.' '.$rd->County.' '.$rd->ZipCode,
+						'ShipToCode' => $rd->ShipToCode,
+						'Street' => $rd->Street,
+						'Block' => $rd->Block,
+						'City' => $rd->City,
+						'County' => $rd->County,
+						'Country' => $rd->Country,
+						'ZipCode' => $rd->ZipCode,
+						'Phone' => $rd->Phone,
+						'Contact' => $rd->Contact,
+						'WorkDate' => $rd->WorkDate,
+						'WorkTime' => $rd->WorkTime,
+						'docTotal' => number($rd->DocTotal, 2),
 						'shipType' => $ship_type
 					);
 				}
@@ -1237,6 +1392,44 @@ class Delivery extends PS_Controller
 	}
 
 
+
+	public function printDelivery($code)
+	{
+		$this->load->library('printer');
+
+		$doc = $this->delivery_model->get($code);
+
+		if( ! empty($doc))
+		{			
+			$empList = $this->delivery_model->get_delivery_employee('E', $code);
+			$empName = "";
+
+			if( ! empty($empList))
+			{
+				$i = 1;
+				foreach($empList as $emp)
+				{
+					$empName .= $i == 1 ? $emp->emp_name : ", ".$emp->emp_name;
+					$i++;
+				}
+			}
+
+			$ds = array(
+				'doc' => $doc,
+				'details' => $this->delivery_model->get_details($code),
+				'empName' => $empName
+			);
+
+			$this->load->view('print/print_delivery', $ds);
+		}
+		else
+		{
+			$this->page_error();
+		}
+	}
+
+
+
 	function get_new_code($date = NULL)
 	{
 		$date = empty($date) ? date('Y-m-d') : $date;
@@ -1273,7 +1466,9 @@ class Delivery extends PS_Controller
 			'de_fromDate',
 			'de_toDate',
 			'de_uname',
-			'de_status'
+			'de_status',
+			'shipFromDate',
+			'shipToDate'
 		);
 
 		return clear_filter($filter);

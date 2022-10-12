@@ -11,6 +11,7 @@ class Delivery_details extends PS_Controller
     parent::__construct();
     $this->home = base_url().'delivery_details';
 		$this->load->model('delivery_details_model');
+		$this->load->model('delivery_model');
     $this->load->helper('transport');
   }
 
@@ -35,6 +36,8 @@ class Delivery_details extends PS_Controller
       'release_to' => get_filter('release_to', 'release_to', ''),
       'finish_from' => get_filter('finish_from', 'finish_from', ''),
       'finish_to' => get_filter('finish_to', 'finish_to', ''),
+			'ship_from_date' => get_filter('ship_from_date', 'ship_from_date', ''),
+			'ship_to_date' => get_filter('ship_to_date', 'ship_to_date', ''),
       'from_date' => get_filter('from_date', 'from_date', ''),
       'to_date' => get_filter('to_date', 'to_date', ''),
       'uname' => get_filter('uname', 'uname', '')
@@ -53,6 +56,187 @@ class Delivery_details extends PS_Controller
 
     $this->load->view('delivery_details/delivery_details_list', $filter);
   }
+
+
+	public function shipTypeName($shipType)
+	{
+		return $shipType == 'P' ? 'ส่งสินค้า' :($shipType == 'D' ? 'ส่งเอกสาร' : 'อื่นๆ');
+	}
+
+	public function resultStatusName($status)
+	{
+		$name = 'Loaded';
+
+		switch($status)
+		{
+			case '1' : $name = 'Loaded'; break;
+			case '2' : $name = 'ส่งบางส่วน'; break;
+			case '3' : $name = 'ไม่ได้ส่ง'; break;
+			case '4' : $name = 'สำเร็จ'; break;
+			case '5' : $name = 'ลูกค้าไม่รับของ'; break;
+			case '6' : $name = 'สินค้าผิด'; break;
+			case '7' : $name = 'เอกสารผิด'; break;
+			default : $name = 'Loaded'; break;
+		}
+
+		return $name;
+	}
+
+
+	public function lineStatusName($status)
+	{
+		$name = "Open";
+
+		switch($status)
+		{
+			case 'O' : $name = "Open"; break;
+			case 'R' : $name = "Released"; break;
+			case 'C' : $name = "Closed"; break;
+			case 'D' : $name = "Canceled"; break;
+			default : $name = "Open";
+		}
+
+		return $name;
+	}
+
+
+	public function export_filter()
+	{
+		$token = $this->input->post('token');
+    $this->load->library('excel');
+    $this->excel->setActiveSheetIndex(0);
+    $this->excel->getActiveSheet()->setTitle('Transport report');
+
+    //--- set report title header
+    $this->excel->getActiveSheet()->setCellValue('A1', 'Document Code');
+    $this->excel->getActiveSheet()->setCellValue('B1', 'Customer Code');
+    $this->excel->getActiveSheet()->setCellValue('C1', 'Customer Name');
+    $this->excel->getActiveSheet()->setCellValue('D1', 'Contact');
+    $this->excel->getActiveSheet()->setCellValue('E1', 'Phone');
+    $this->excel->getActiveSheet()->setCellValue('F1', 'Ship Type');
+    $this->excel->getActiveSheet()->setCellValue('G1', 'Doc Type');
+		$this->excel->getActiveSheet()->setCellValue('H1', 'Doc Num');
+    $this->excel->getActiveSheet()->setCellValue('I1', 'Doc Total');
+    $this->excel->getActiveSheet()->setCellValue('J1', 'Shipping Status');
+    $this->excel->getActiveSheet()->setCellValue('K1', 'Document Status');
+    $this->excel->getActiveSheet()->setCellValue('L1', 'Document Date');
+    $this->excel->getActiveSheet()->setCellValue('M1', 'Shipment Date');
+    $this->excel->getActiveSheet()->setCellValue('N1', 'Release Date');
+    $this->excel->getActiveSheet()->setCellValue('O1', 'Shipping Result Date');
+    $this->excel->getActiveSheet()->setCellValue('P1', 'Ship To Code');
+    $this->excel->getActiveSheet()->setCellValue('Q1', 'Street');
+    $this->excel->getActiveSheet()->setCellValue('R1', 'Block');
+    $this->excel->getActiveSheet()->setCellValue('S1', 'City');
+    $this->excel->getActiveSheet()->setCellValue('T1', 'County');
+    $this->excel->getActiveSheet()->setCellValue('U1', 'Country');
+		$this->excel->getActiveSheet()->setCellValue('V1', 'Zip Code');
+		$this->excel->getActiveSheet()->setCellValue('W1', 'Remark');
+		$this->excel->getActiveSheet()->setCellValue('X1', 'Vehicle');
+		$this->excel->getActiveSheet()->setCellValue('Y1', 'Route');
+		$this->excel->getActiveSheet()->setCellValue('Z1', 'Dificulty');
+		$this->excel->getActiveSheet()->setCellValue('AA1', 'Driver');
+		$this->excel->getActiveSheet()->setCellValue('AB1', 'Asst.1');
+		$this->excel->getActiveSheet()->setCellValue('AC1', 'Asst.2');
+
+    $row = 2;
+
+
+		$filter = array(
+			'delivery_code' => get_filter('xCode', 'delivery_code', ''),
+      'driver_id' => get_filter('xDriver', 'driver_id', 'all'),
+      'vehicle_id' => get_filter('xVehicle', 'vehicle_id', 'all'),
+      'route_id' => get_filter('xRoute', 'route_id', 'all'),
+			'CardCode' => get_filter('xCardCode', 'CardCode', ''),
+      'CardName' => get_filter('xCardName', 'CardName', ''),
+      'contact' => get_filter('xContact', 'contact', ''),
+      'type' => get_filter('xShipType', 'type', 'all'),
+      'DocType' => get_filter('xDocType', 'DocType', 'all'),
+      'DocNum' => get_filter('xDocNum', 'DocNum', ''),
+      'result_status' => get_filter('xResultStatus', 'result_status', 'all'),
+      'line_status' => get_filter('xLineStatus', 'line_status', 'all'),
+      'release_from' => get_filter('xReleaseFrom', 'release_from', ''),
+      'release_to' => get_filter('xReleaseTo', 'release_to', ''),
+      'finish_from' => get_filter('xCloseFrom', 'finish_from', ''),
+      'finish_to' => get_filter('xCloseTo', 'finish_to', ''),
+			'ship_from_date' => get_filter('xShipFrom', 'ship_from_date', ''),
+			'ship_to_date' => get_filter('xShipTo', 'ship_to_date', ''),
+      'from_date' => get_filter('xFromDate', 'from_date', ''),
+      'to_date' => get_filter('xToDate', 'to_date', ''),
+      'uname' => get_filter('xUname', 'uname', '')
+		);
+
+		$ds = $this->delivery_details_model->getExportList($filter);
+
+		if( ! empty($ds))
+		{
+			$empList = array();
+			$leter = array('AB', 'AC', 'AD', 'AE', 'AF', 'AG', 'AH', 'AI');
+
+			foreach($ds as $rs)
+      {
+				$this->excel->getActiveSheet()->setCellValue('A'.$row, $rs->delivery_code);
+				$this->excel->getActiveSheet()->setCellValue('B'.$row, $rs->CardCode);
+				$this->excel->getActiveSheet()->setCellValue('C'.$row, $rs->CardName);
+				$this->excel->getActiveSheet()->setCellValue('D'.$row, $rs->contact);
+				$this->excel->getActiveSheet()->setCellValue('E'.$row, $rs->Phone);
+				$this->excel->getActiveSheet()->setCellValue('F'.$row, $this->shipTypeName($rs->type));
+				$this->excel->getActiveSheet()->setCellValue('G'.$row, $rs->DocType);
+				$this->excel->getActiveSheet()->setCellValue('H'.$row, $rs->DocNum);
+				$this->excel->getActiveSheet()->setCellValue('I'.$row, $rs->DocTotal);
+				$this->excel->getActiveSheet()->setCellValue('J'.$row, $this->resultStatusName($rs->result_status));
+				$this->excel->getActiveSheet()->setCellValue('K'.$row, $this->lineStatusName($rs->line_status));
+				$this->excel->getActiveSheet()->setCellValue('L'.$row, $rs->DocDate);
+				$this->excel->getActiveSheet()->setCellValue('M'.$row, $rs->ShipDate);
+				$this->excel->getActiveSheet()->setCellValue('N'.$row, $rs->release_date);
+				$this->excel->getActiveSheet()->setCellValue('O'.$row, $rs->finish_date);
+				$this->excel->getActiveSheet()->setCellValue('P'.$row, $rs->ShipToCode);
+				$this->excel->getActiveSheet()->setCellValue('Q'.$row, $rs->Street);
+				$this->excel->getActiveSheet()->setCellValue('R'.$row, $rs->Block);
+				$this->excel->getActiveSheet()->setCellValue('S'.$row, $rs->City);
+				$this->excel->getActiveSheet()->setCellValue('T'.$row, $rs->County);
+				$this->excel->getActiveSheet()->setCellValue('U'.$row, $rs->Country);
+				$this->excel->getActiveSheet()->setCellValue('V'.$row, $rs->ZipCode);
+				$this->excel->getActiveSheet()->setCellValue('W'.$row, $rs->remark);
+				$this->excel->getActiveSheet()->setCellValue('X'.$row, $rs->vehicle_name);
+				$this->excel->getActiveSheet()->setCellValue('Y'.$row, $rs->route_name);
+				$this->excel->getActiveSheet()->setCellValue('Z'.$row, $rs->level);
+				$this->excel->getActiveSheet()->setCellValue('AA'.$row, $rs->driver_name);
+
+				if(! isset($empList[$rs->delivery_id]))
+				{
+					$emp = $this->delivery_model->get_delivery_employee('E', $rs->delivery_code);
+
+					if( ! empty($emp))
+					{
+						foreach($emp as $rd)
+						{
+							$empList[$rs->delivery_id][] = $rd->emp_name;
+						}
+					}
+				}
+
+				if( ! empty($empList[$rs->delivery_id]))
+				{
+					$i = 0;
+					foreach($empList[$rs->delivery_id] as $name)
+					{
+						$this->excel->getActiveSheet()->setCellValue($leter[$i].$row, $name);
+						$i++;
+					}
+				}
+
+        $row++;
+      }
+		}
+
+    setToken($token);
+
+    $file_name = "Transport report.xlsx";
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'); /// form excel 2007 XLSX
+    header('Content-Disposition: attachment;filename="'.$file_name.'"');
+    $writer = PHPExcel_IOFactory::createWriter($this->excel, 'Excel2007');
+    $writer->save('php://output');
+	}
 
 
   public function clear_filter()
@@ -74,6 +258,8 @@ class Delivery_details extends PS_Controller
       'release_to',
       'finish_from',
       'finish_to',
+			'ship_from_date',
+			'ship_to_date',
       'from_date',
       'to_date',
       'uname',

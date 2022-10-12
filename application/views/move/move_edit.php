@@ -13,24 +13,28 @@
 <hr class="padding-5"/>
 
 <?php $this->load->view('move/move_edit_header'); ?>
-<?php
-		if($doc->Status == 'N')
-		{
-			$this->load->view('move/move_control');
-		}
- ?>
 
- <?php
- 		if($method == 'normal')
-		{
-			$this->load->view('move/move_detail');
-		}
-		else
-		{
-			$this->load->view('move/move_detail_barcode');
-		}
-  ?>
+<div class="row">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5" style="padding-top:15px;">
+		<div class="tabbable">
+			<ul id="myTab1" class="nav nav-tabs">
+				<li class="active"><a href="#move-tab" data-toggle="tab" onclick="getMoveTable()">รายการโอนย้าย</a></li>
+				<li class=""><a href="#from-tab" data-toggle="tab" onclick="getMoveOut()">ย้ายสินค้าออก</a></li>
+			  <li class=""><a href="#temp-tab" data-toggle="tab" onclick="getMoveIn()">Temp</a></li>
+			</ul>
 
+			<div class="tab-content width-100">
+				<div class="tab-pane fade  active in" id="move-tab"><?php $this->load->view('move/move_to'); ?></div>
+				<div class="tab-pane fade" id="from-tab"><?php $this->load->view('move/move_from'); ?></div>
+				<div class="tab-pane fade" id="temp-tab"><?php $this->load->view('move/move_temp'); ?></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<input type="hidden" name="from_zone_code" id="from_zone_code" value="" />
+<input type="hidden" name="to_zone_code" id="to_zone_code" value="" />
 
 <script src="<?php echo base_url(); ?>scripts/move/move.js?v=<?php echo date('YmdH'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/move/move_add.js?v=<?php echo date('YmdH'); ?>"></script>

@@ -32,7 +32,7 @@ function select_vehicle($id = NULL, $active = FALSE)
   $sc = "";
   $ci =& get_instance();
   $ci->load->model('vehicle_model');
- 
+
   $option = $ci->vehicle_model->get_all($active);
 
   if( ! empty($option))
@@ -88,6 +88,32 @@ function get_delivery_employee_name($type = 'E', $code)
   }
 
   return $name;
+}
+
+
+function get_status_color($status = NULL)
+{
+  $color = "#393939";
+
+  switch ($status) {
+    case 'O':
+      $color = "#393939";
+    break;
+    case 'R':
+      $color = "#337ab7";
+    break;
+    case 'C':
+      $color = '#63ad2c';
+    break;
+    case 'D':
+      $color = '#d15b47';
+    break;
+    default:
+      $color = "#393939";
+      break;
+  }
+
+  return $color;
 }
 
  ?>

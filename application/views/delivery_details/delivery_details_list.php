@@ -9,12 +9,12 @@
 <div class="row">
 	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>เลขที่</label>
-    <input type="text" class="form-control input-sm text-center search-box" name="delivery_code" value="<?php echo $delivery_code; ?>" />
+    <input type="text" class="form-control input-sm text-center search-box" name="delivery_code" id="code" value="<?php echo $delivery_code; ?>" />
   </div>
 
 	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
     <label>ทะเบียนรถ</label>
-    <select class="form-control input-sm" name="vehicle_id" onchange="getSearch()">
+    <select class="form-control input-sm" name="vehicle_id" id="vehicle" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
 			<?php echo select_vehicle( $vehicle_id, FALSE); ?>
 		</select>
@@ -22,7 +22,7 @@
 
 	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label>พนังงานขับรถ</label>
-    <select class="form-control input-sm" name="driver_id" onchange="getSearch()">
+    <select class="form-control input-sm" name="driver_id" id="driver" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
 			<?php echo select_driver(array('D'), $driver_id, FALSE); ?>
 		</select>
@@ -30,7 +30,7 @@
 
 	<div class="col-lg-2 col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
     <label>เส้นทาง</label>
-    <select class="form-control input-sm" name="route_id" onchange="getSearch()">
+    <select class="form-control input-sm" name="route_id" id="route" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
 			<?php echo select_route($route_id, FALSE); ?>
 		</select>
@@ -38,27 +38,27 @@
 
 	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>รหัสลูกค้า</label>
-    <input type="text" class="form-control input-sm text-center search-box" name="CardCode" value="<?php echo $CardCode; ?>" />
+    <input type="text" class="form-control input-sm text-center search-box" name="CardCode" id="CardCode" value="<?php echo $CardCode; ?>" />
   </div>
 
 	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>ชื่อลูกค้า</label>
-    <input type="text" class="form-control input-sm text-center search-box" name="CardName" value="<?php echo $CardName; ?>" />
+    <input type="text" class="form-control input-sm text-center search-box" name="CardName" id="CardName" value="<?php echo $CardName; ?>" />
   </div>
 
 	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>Contact</label>
-    <input type="text" class="form-control input-sm text-center search-box" name="contact" value="<?php echo $contact; ?>" />
+    <input type="text" class="form-control input-sm text-center search-box" name="contact" id="contact" value="<?php echo $contact; ?>" />
   </div>
 
 	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>User</label>
-    <input type="text" class="form-control input-sm text-center search-box" name="uname" value="<?php echo $uname; ?>" />
+    <input type="text" class="form-control input-sm text-center search-box" name="uname" id="uname" value="<?php echo $uname; ?>" />
   </div>
 
 	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>ประเภทการส่ง</label>
-    <select class="form-control input-sm" name="type" onchange="getSearch()">
+    <select class="form-control input-sm" name="type" id="shipType" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
 			<option value="P" <?php echo is_selected('P', $type); ?>>ส่งสินค้า</option>
 			<option value="D" <?php echo is_selected('D', $type); ?>>ส่งเอกสาร</option>
@@ -68,7 +68,7 @@
 
 	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>ประเภทเอกสาร</label>
-    <select class="form-control input-sm" name="DocType" onchange="getSearch()">
+    <select class="form-control input-sm" name="DocType" id="docType" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
 			<option value="DO" <?php echo is_selected('DO', $DocType); ?>>DO</option>
 			<option value="IV" <?php echo is_selected('IV', $DocType); ?>>IV</option>
@@ -80,12 +80,12 @@
 
 	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>เลขที่เอกสาร</label>
-    <input type="text" class="form-control input-sm text-center search-box" name="DocNum" value="<?php echo $DocNum; ?>" />
+    <input type="text" class="form-control input-sm text-center search-box" name="DocNum" id="docNum" value="<?php echo $DocNum; ?>" />
   </div>
 
 	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
     <label>สถานะเอกสาร</label>
-    <select class="form-control input-sm" name="status" onchange="getSearch()">
+    <select class="form-control input-sm" name="line_status" id="lineStatus" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
 			<option value="O" <?php echo is_selected('O', $line_status); ?>>Open</option>
 			<option value="R" <?php echo is_selected('R', $line_status); ?>>Released</option>
@@ -96,7 +96,7 @@
 
 	<div class="col-lg-2 col-md-2 col-sm-3 col-xs-6 padding-5">
 		<label>สถานะการจัดส่ง</label>
-		<select class="form-control input-sm line-status" data-id="<?php echo $rs->id; ?>" id="lineStatus-<?php echo $no; ?>" <?php echo $disc; ?>>
+		<select class="form-control input-sm" name="result_status" id="resultStatus" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
 			<option value="1" <?php echo is_selected($result_status, '1'); ?>>Loaded</option>
 			<option value="4" <?php echo is_selected($result_status, '4'); ?>>สำเร็จ</option>
@@ -112,7 +112,15 @@
 		<label class="search-label">วันที่เอกสาร</label>
 		<div class="input-daterange input-group">
 			<input type="text" class="form-control input-sm width-50 from-date text-center" id="fromDate" name="from_date" value="<?php echo $from_date; ?>" placeholder="From" readonly/>
-			<input type="text" class="form-control input-sm width-50 to-date text-center" id="toDate" name="from_date" value="<?php echo $from_date; ?>" placeholder="To" readonly />
+			<input type="text" class="form-control input-sm width-50 to-date text-center" id="toDate" name="to_date" value="<?php echo $to_date; ?>" placeholder="To" readonly />
+		</div>
+	</div>
+
+	<div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-6 padding-5">
+		<label class="search-label">วันที่จัดส่ง</label>
+		<div class="input-daterange input-group">
+			<input type="text" class="form-control input-sm width-50 from-date text-center" id="ship_from_date" name="ship_from_date" value="<?php echo $ship_from_date; ?>" placeholder="From" readonly/>
+			<input type="text" class="form-control input-sm width-50 to-date text-center" id="ship_to_date" name="ship_to_date" value="<?php echo $ship_to_date; ?>" placeholder="To" readonly />
 		</div>
 	</div>
 
@@ -132,16 +140,46 @@
 		</div>
 	</div>
 
-  <div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-6 padding-5">
+  <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
     <label class="display-block not-show">buton</label>
     <button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
   </div>
-	<div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
     <label class="display-block not-show">buton</label>
     <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
   </div>
+	<div class="col-lg-2 col-md-1-harf col-sm-2-harf col-xs-6 padding-5">
+    <label class="display-block not-show">buton</label>
+    <button type="button" class="btn btn-xs btn-success btn-block" onclick="exportFilter()">Export Results</button>
+  </div>
 </div>
+
 <hr class="margin-top-15 padding-5">
+</form>
+
+<form class="hide" id="exportForm" action="<?php echo $this->home; ?>/export_filter" method="post">
+	<input type="hidden" name="xCode" id="x-code" value="" />
+	<input type="hidden" name="xVehicle" id="x-vehicle" value="all" />
+	<input type="hidden" name="xDriver" id="x-driver" value="all" />
+	<input type="hidden" name="xRoute" id="x-route" value="all" />
+	<input type="hidden" name="xCardCode" id="x-cardCode" value="" />
+	<input type="hidden" name="xCardName" id="x-cardName" value="" />
+	<input type="hidden" name="xContact" id="x-contact" value="" />
+	<input type="hidden" name="xUname" id="x-uname" value="" />
+	<input type="hidden" name="xShipType" id="x-shipType" value="all" />
+	<input type="hidden" name="xDocType" id="x-docType" value="all" />
+	<input type="hidden" name="xDocNum" id="x-docNum" value="" />
+	<input type="hidden" name="xResultStatus" id="x-resultStatus" value="all" />
+	<input type="hidden" name="xLineStatus" id="x-lineStatus" value="all" />
+	<input type="hidden" name="xFromDate" id="x-fromDate" value="" />
+	<input type="hidden" name="xToDate" id="x-todate" value="" />
+	<input type="hidden" name="xShipFrom" id="x-shipFrom" value="" />
+	<input type="hidden" name="xShipTo" id="x-shipTo" value="" />
+	<input type="hidden" name="xReleaseFrom" id="x-releaseFrom" value="" />
+	<input type="hidden" name="xReleaseTo" id="x-releaseTo" value="" />
+	<input type="hidden" name="xCloseFrom" id="x-closeFrom" value="" />
+	<input type="hidden" name="xCloseTo" id="x-closeTo" value="" />
+	<input type="hidden" name="token" id="token" value="" />
 </form>
 <?php echo $this->pagination->create_links(); ?>
 <div class="row">
@@ -151,17 +189,18 @@
 				<tr>
 					<th class="fix-width-40 middle text-center">#</th>
 					<th class="fix-width-100 middle text-center">วันที่</th>
+					<th class="fix-width-100 middle text-center">วันที่จัดส่ง</th>
 					<th class="fix-width-120 middle">เลขที่</th>
 					<th class="fix-width-80 middle">ลูกค้า</th>
 					<th class="fix-width-300 middle">ชื่อลูกค้า</th>
 					<th class="fix-width-80 middle">การส่ง</th>
 					<th class="fix-width-60 middle">เอกสาร</th>
 					<th class="fix-width-100 middle">เลขที่เอกสาร</th>
-					<th class="fix-width-80 middle text-center">สถานะเอกสาร</th>
+					<th class="fix-width-100 text-right">มูลค่าเอกสาร</th>
+					<th class="fix-width-100 middle text-center">สถานะเอกสาร</th>
 					<th class="fix-width-100 middle text-center">สถานะการส่ง</th>
 					<th class="fix-width-100 middle text-center">ทะเบียนรถ</th>
 					<th class="fix-width-150 middle">พนักงานขับรถ</th>
-					<!--<th class="fix-width-150 middle">เด็กติดรถ</th>-->
 					<th class="fix-width-150 middle">เส้นทาง</th>
 					<th class="fix-width-100 middle text-center">User</th>
 					<th class="fix-width-100 middle text-center">วันที่ Release</th>
@@ -176,18 +215,20 @@
 				<?php foreach($data as $rs) : ?>
 					<tr>
 						<td class="middle text-center no"><?php echo $no; ?></td>
-						<td class="middle text-center"><?php echo thai_date($rs->date_add, FALSE, '.'); ?></td>
+						<td class="middle text-center"><?php echo thai_date($rs->DocDate, FALSE, '/'); ?></td>
+						<td class="middle text-center"><?php echo thai_date($rs->ShipDate, FALSE, '/'); ?></td>
 						<td class="middle"><?php echo $rs->delivery_code; ?></td>
 						<td class="middle"><?php echo $rs->CardCode; ?></td>
 						<td class="middle"><?php echo $rs->CardName; ?></td>
 						<td class="middle"><?php echo ($rs->type == 'P' ? 'ส่งสินค้า' : ($rs->type == 'D' ? 'ส่งเอกสาร' : 'อื่นๆ')); ?></td>
 						<td class="middle text-right"><?php echo $rs->DocType; ?></td>
 						<td class="middle"><?php echo $rs->DocNum; ?></td>
+						<td class="middle text-right"><?php echo number($rs->DocTotal, 2); ?></td>
 						<td class="middle text-center">
 							<?php if($rs->line_status == 'R') : ?>
 								<span class="blue">Released</span>
 							<?php elseif($rs->line_status == 'O') : ?>
-								<span class="orange">Open</span>
+								<span class="">Open</span>
 							<?php elseif($rs->line_status == 'C') : ?>
 								<span class="green">Closed</span>
 							<?php elseif($rs->line_status == 'D') : ?>
@@ -211,11 +252,10 @@
 						</td>
 						<td class="middle text-center"><?php echo $rs->vehicle_name; ?></td>
 						<td class="middle"><?php echo $rs->driver_name; ?></td>
-						<!--<td class="middle"><?php //echo get_delivery_employee_name('E', $rs->delivery_code); ?></td>-->
 						<td class="middle"><?php echo $rs->route_name; ?></td>
 						<td class="middle"><?php echo $rs->uname; ?></td>
-						<td class="middle text-center"><?php echo thai_date($rs->release_date,FALSE, '.'); ?></td>
-						<td class="middle text-center"><?php echo thai_date($rs->finish_date, FALSE, '.'); ?></td>
+						<td class="middle text-center"><?php echo empty($rs->release_date) ? '' : thai_date($rs->release_date,FALSE, '.'); ?></td>
+						<td class="middle text-center"><?php echo empty($rs->finish_date) ? '' : thai_date($rs->finish_date, FALSE, '.'); ?></td>
 						<td class="middle"><?php echo $rs->contact; ?></td>
 						<td class="middle"><?php echo $rs->Address; ?></td>
 					</tr>
@@ -227,6 +267,6 @@
 	</div>
 </div>
 
-<script src="<?php echo base_url(); ?>scripts/delivery_details/delivery_details_list.js"></script>
+<script src="<?php echo base_url(); ?>scripts/delivery_details/delivery_details_list.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

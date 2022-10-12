@@ -219,6 +219,37 @@ class Move_model extends CI_Model
   }
 
 
+  public function get_move_detail($move_id, $itemCode, $fromBinCode, $toBinCode)
+  {
+    $rs = $this->db
+    ->where('move_id', $move_id)
+    ->where('ItemCode', $itemCode)
+    ->where('fromBinCode', $fromBinCode)
+    ->where('toBinCode', $toBinCode)
+    ->get($this->td);
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
+
+  public function get_temp_detail($temp_id)
+  {
+    $rs = $this->db->where('id', $temp_id)->get($this->temp);
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
+
 
   public function get_temp_details($move_id)
   {
@@ -368,9 +399,27 @@ class Move_model extends CI_Model
 
   public function drop_zero_temp()
   {
-    return $this->db->where('Qty <', 1, FALSE)->delete($this->temp);
+    return $this->db->where('Qty <=', 0, FALSE)->delete($this->temp);
   }
 
+
+  public function get_default_bin_code($itemCode)
+  {
+    $rs = $this->ms
+    ->select('OBIN.BinCode')
+    ->from('OITW')
+    ->join('OBIN', 'OITW.DftBinAbs = OBIN.AbsEntry', 'inner')
+    ->where('OITW.ItemCode', $itemCode)
+    ->limit(1, 0)
+    ->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row()->BinCode;
+    }
+
+    return NULL;
+  }
 
 
   public function get_max_code($pre)

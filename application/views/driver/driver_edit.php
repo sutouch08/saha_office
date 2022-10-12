@@ -15,7 +15,7 @@
   <div class="form-group">
     <label class="col-sm-3 control-label no-padding-right">พนักงาน</label>
     <div class="col-xs-12 col-sm-4">
-			<input type="text" class="form-control input-sm" value="<?php echo $emp_name; ?>" disabled />
+			<input type="text" class="form-control input-sm" name="name" id="name" value="<?php echo $emp_name; ?>" />
 			<input type="hidden" id="emp_id" value="<?php echo $emp_id; ?>" />
     </div>
 		<div class="help-block col-xs-12 col-sm-reset inline red" id="name-error"></div>

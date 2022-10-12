@@ -186,7 +186,32 @@ class Stock_model extends CI_Model
   }
 
 
+  //---- สินค้าทั้งหมดที่อยู่ในโซน (ใช้โอนสินค้าระหว่างคลัง)
+  public function get_filter_stock_in_zone($binCode, $item)
+  {
+    $qr  = "SELECT OITM.ItemCode, OITM.ItemName, OITM.InvntryUom AS unitMsr, OIBQ.OnHandQty AS qty ";
+    $qr .= "FROM OIBQ ";
+    $qr .= "JOIN OBIN ON OBIN.WhsCode = OIBQ.WhsCode AND OBIN.AbsEntry = OIBQ.BinAbs ";
+    $qr .= "JOIN OITM ON OIBQ.ItemCode = OITM.ItemCode ";
+    $qr .= "WHERE ";
+    $qr .= "OBIN.BinCode = '{$binCode}' ";
+    $qr .= "AND OIBQ.OnHandQty != 0 ";
 
+    if(! empty($item))
+    {
+      $qr .= "AND (OITM.ItemCode LIKE N'%{$item}%' OR OITM.ItemName LIKE N'%{$item}%') ";
+    }
+    
+
+    $rs = $this->ms->query($qr);
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
 
 }
 ?>

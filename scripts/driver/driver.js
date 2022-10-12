@@ -17,12 +17,12 @@ function goEdit(id) {
 
 
 function saveAdd() {
-  let emp_id = $('#emp_id').val();
+  let name = $('#name').val();
   let type = $('#type').val();
   let active = $('#active').is(':checked') ? 1 : 0;
 
-  if(emp_id == "") {
-    swal("กรุณาเลือกพนักงาน");
+  if(name.length == 0) {
+    swal("กรุณาระบุชื่อพนักงาน");
     return false;
   }
 
@@ -31,7 +31,7 @@ function saveAdd() {
     type:'POST',
     cache:false,
     data:{
-      'emp_id' : emp_id,
+      'name' : name,
       'type' : type,
       'active' : active
     },
@@ -64,8 +64,14 @@ function saveAdd() {
 
 function update() {
   let emp_id = $('#emp_id').val();
+  let name = $.trim($('#name').val());
   let type = $('#type').val();
   let active = $('#active').is(':checked') ? 1 : 0;
+
+  if(name.length === 0) {
+    swal("กรุณาระบุชื่อพนักงาน");
+    return false;
+  }
 
   $.ajax({
     url:HOME + 'update',
@@ -73,6 +79,7 @@ function update() {
     cache:false,
     data:{
       "emp_id" : emp_id,
+      "name" : name,
       "type" : type,
       "active" : active
     },
@@ -119,7 +126,7 @@ function getDelete(id, emp_name){
       success:function(rs){
         if(rs == 'success'){
           swal({
-            title:'Success',            
+            title:'Success',
             type:'success',
             time: 1000
           });

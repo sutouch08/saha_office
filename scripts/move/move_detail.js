@@ -12,7 +12,7 @@ function doExport()
 			load_out();
 			if(rs == 'success'){
 				swal({
-					title:'Success',					
+					title:'Success',
 					type:'success',
 					timer:1000
 				});
@@ -74,9 +74,7 @@ function save(temp_status) {
 
 
 function check_temp() {
-
 	const move_id = $('#id').val();
-
 	$.ajax({
 		url:HOME + 'is_exists_temp/'+move_id,
 		type:'GET',
@@ -119,7 +117,7 @@ function deleteMoveItem(id, code)
 				"id" : id,
 				"move_id" : move_id
 			},
-			success: function(rs){
+			success: function(rs) {
 				var rs = $.trim(rs);
 				if( rs == 'success' ){
 					swal({
@@ -128,11 +126,14 @@ function deleteMoveItem(id, code)
 						timer: 1000
 					});
 
-					$('#row-'+id).remove();
-					reIndex();
-					reCal();
-				}else{
-					swal("ข้อผิดพลาด", rs, "error");
+					getMoveTable();
+				}
+				else {
+					swal({
+						title:'Error!',
+						text:rs,
+						type:'error'
+					});
 				}
 			}
 		});
@@ -153,7 +154,7 @@ function deleteTemp(id, name) {
 		confirmButtonText: 'ใช่ ฉันต้องการ',
 		cancelButtonText: 'ไม่ใช่',
 		closeOnConfirm: false
-	}, function(){
+	}, function() {
 		$.ajax({
 			url:HOME + 'delete_temp',
 			type:"POST",
@@ -162,39 +163,27 @@ function deleteTemp(id, name) {
 				"id" : id,
 				"move_id" : move_id
 			},
-			success: function(rs){
+			success: function(rs) {
 				var rs = $.trim(rs);
-				if( rs == 'success' ){
+				if( rs == 'success' ) {
 					swal({
 						title:'Success',
 						type: 'success',
 						timer: 1000
 					});
 
-					$('#row-temp-'+id).remove();
-					reIndex();
-					reCal();
-				}else{
-					swal("ข้อผิดพลาด", rs, "error");
+					getTempTable();
+				}
+				else {
+					swal({
+						title:'Error!',
+						text:rs,
+						type:'error'
+					});
 				}
 			}
 		});
 	});
-}
-
-
-function reCal(){
-	var total = 0;
-
-	$('.qty').each(function(){
-		var qty = parseFloat(removeCommas($(this).text()));
-		if(!isNaN(qty))
-		{
-			total += qty;
-		}
-	});
-
-	$('#total').text(addCommas(total));
 }
 
 
@@ -221,16 +210,23 @@ function getMoveTable(){
 
 function getTempTable(){
 	var id = $("#id").val();
+	load_in();
 	$.ajax({
 		url: HOME + 'get_temp_table/'+id,
 		type:"GET",
     cache:"false",
 		success: function(rs){
+			load_out();
+
 			if( isJson(rs) ){
 				var source 	= $("#tempTableTemplate").html();
 				var data		= $.parseJSON(rs);
 				var output	= $("#temp-list");
 				render(source, data, output);
+
+				setTimeout(function() {
+					$("#toZone-barcode").focus();
+				}, 200);
 			}
 		}
 	});

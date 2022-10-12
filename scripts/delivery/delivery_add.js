@@ -1,15 +1,21 @@
 function saveAdd() {
   let err = 0;
   let message = "";
-  let date = $('#date_add').val();
+  let date = $('#docDate').val();
+  let shipDate = $('#shipDate').val();
   let vehicle = $('#vehicle').val();
   let driver = $('#driver').val();
   let route = $('#route').val();
+  let totalAmount = $('#DocTotal').val();
   let support = [];
 
   if(!isDate(date)) {
     swal("วันที่ไม่ถูกต้อง");
     return false;
+  }
+
+  if(!isDate(shipDate)) {
+    swal("วันที่จัดส่งไม่ถูกต้อง");
   }
 
   if(vehicle == "") {
@@ -71,7 +77,7 @@ function saveAdd() {
           else {
             $('#row-'+no).removeClass('has-error');
             docs[code] = no;
-
+            let docTotal = $('#docTotal-'+no).val();
             let row = {
               "cardCode" : cardCode,
               "cardName" : $('#cardName-'+no).val(),
@@ -80,8 +86,18 @@ function saveAdd() {
               "shipType" : shipType,
               "docType" : docType,
               "docNum" : docNum,
-              "docTotal" : $('#docTotal-'+no).val(),
-              "remark" : $('#remark-'+no).val()
+              "docTotal" : removeCommas(docTotal),
+              "remark" : $('#remark-'+no).val(),
+              "ShipToCode" : $('#shipToCode-'+no).val(),
+              "Street" : $('#street-'+no).val(),
+              "Block" : $('#block-'+no).val(),
+              "City" : $('#city-'+no).val(),
+              "County" : $('#county-'+no).val(),
+              "Country" : $('#country-'+no).val(),
+              "ZipCode" : $('#zipCode-'+no).val(),
+              "Phone" : $('#phone-'+no).val(),
+              "WorkDate" : $('#workDate-'+no).val(),
+              "WorkTime" : $('#workTime-'+no).val()
             }
 
             rows.push(row);
@@ -110,9 +126,11 @@ function saveAdd() {
       cache:false,
       data:{
         "date" : date,
+        "shipDate" : shipDate,
         "vehicle" : vehicle,
         "driver" : driver,
         "route" : route,
+        "DocTotal" : totalAmount,
         "support" : support,
         "details" : JSON.stringify(rows)
       },
@@ -162,15 +180,21 @@ function saveUpdate() {
   let err = 0;
   let message = "";
   let code = $('#code').val();
-  let date = $('#date_add').val();
+  let date = $('#docDate').val();
+  let shipDate = $('#shipDate').val();
   let vehicle = $('#vehicle').val();
   let driver = $('#driver').val();
   let route = $('#route').val();
+  let totalAmount = $('#DocTotal').val();
   let support = [];
 
   if(!isDate(date)) {
     swal("วันที่ไม่ถูกต้อง");
     return false;
+  }
+
+  if(!isDate(shipDate)) {
+    swal("วันที่จัดส่งไม่ถูกต้อง");
   }
 
   if(vehicle == "") {
@@ -232,7 +256,7 @@ function saveUpdate() {
           else {
             $('#row-'+no).removeClass('has-error');
             docs[code] = no;
-
+            let docTotal = $('#docTotal-'+no).val();
             let row = {
               "cardCode" : cardCode,
               "cardName" : $('#cardName-'+no).val(),
@@ -241,8 +265,18 @@ function saveUpdate() {
               "shipType" : shipType,
               "docType" : docType,
               "docNum" : docNum,
-              "docTotal" : $('#docTotal-'+no).val(),
-              "remark" : $('#remark-'+no).val()
+              "docTotal" : removeCommas(docTotal),
+              "remark" : $('#remark-'+no).val(),
+              "ShipToCode" : $('#shipToCode-'+no).val(),
+              "Street" : $('#street-'+no).val(),
+              "Block" : $('#block-'+no).val(),
+              "City" : $('#city-'+no).val(),
+              "County" : $('#county-'+no).val(),
+              "Country" : $('#country-'+no).val(),
+              "ZipCode" : $('#zipCode-'+no).val(),
+              "Phone" : $('#phone-'+no).val(),
+              "WorkDate" : $('#workDate-'+no).val(),
+              "WorkTime" : $('#workTime-'+no).val()
             }
 
             rows.push(row);
@@ -273,9 +307,11 @@ function saveUpdate() {
       data:{
         "code" : code,
         "date" : date,
+        "shipDate" : shipDate,
         "vehicle" : vehicle,
         "driver" : driver,
         "route" : route,
+        "DocTotal" : totalAmount,
         "support" : support,
         "details" : JSON.stringify(rows)
       },
@@ -447,8 +483,23 @@ function docNumInit(no) {
         $('#cardCode-'+no).val(ui.item.CardCode);
         $('#cardName-'+no).val(ui.item.CardName);
         $('#shipTo-'+no).val(ui.item.shipTo);
-        $('#contact-'+no).val(ui.item.contact);
+        $('#contactName-'+no).val(ui.item.ContactName);
         $('#docTotal-'+no).val(ui.item.docTotal);
+        $('#workDate-'+no).val(ui.item.WorkDate);
+        $('#workTime-'+no).val(ui.item.WorkTime);
+
+        //--- hidden input
+        $('#shipToCode-'+no).val(ui.item.ShipToCode);
+        $('#street-'+no).val(ui.item.Street);
+        $('#block-'+no).val(ui.item.Block);
+        $('#city-'+no).val(ui.item.City);
+        $('#county-'+no).val(ui.item.County);
+        $('#country-'+no).val(ui.item.Country);
+        $('#zipCode-'+no).val(ui.item.ZipCode);
+        $('#phone-'+no).val(ui.item.Phone);
+        $('#contact-'+no).val(ui.item.Contact);
+
+        recalTotal();
       }
     });
   }
@@ -503,6 +554,7 @@ $('#docNum').keyup(function(e) {
 
 
 function submitRow() {
+  let delivery_code = $('#code').val();
   let shipType = $('#shipType').val();
   let docNum = $('#docNum').val();
   let arr = docNum.split('-');
@@ -519,7 +571,8 @@ function submitRow() {
       data:{
         'shipType' : shipType,
         'docType' : docType,
-        'docNum' : code
+        'docNum' : code,
+        'delivery_code' : delivery_code
       },
       success:function(rs) {
         var rs = $.trim(rs);
@@ -552,10 +605,26 @@ function submitRow() {
             $('#docNum-'+no).val(code);
             $('#cardCode-'+no).val(ds.CardCode);
             $('#cardName-'+no).val(ds.CardName);
-            $('#contact-'+no).val(ds.contact);
-            $('#shipTo-'+no).val(ds.shipTo);
             $('#docTotal-'+no).val(ds.docTotal);
+            $('#shipTo-'+no).val(ds.shipTo);
+            $('#contactName-'+no).val(ds.ContactName);
+            $('#workDate-'+no).val(ds.WorkDate);
+            $('#workTime-'+no).val(ds.WorkTime);
 
+            //--- hidden input
+            $('#shipToCode-'+no).val(ds.ShipToCode);
+            $('#street-'+no).val(ds.Street);
+            $('#block-'+no).val(ds.Block);
+            $('#city-'+no).val(ds.City);
+            $('#county-'+no).val(ds.County);
+            $('#country-'+no).val(ds.Country);
+            $('#zipCode-'+no).val(ds.ZipCode);
+            $('#phone-'+no).val(ds.Phone);
+            $('#contact-'+no).val(ds.Contact);
+
+            recalTotal();
+
+            $('#docNum-'+no).focus();
             $('#docNum').val('');
             $('#docNum').focus();
           }
@@ -581,4 +650,18 @@ function submitRow() {
       }
     })
   }
+}
+
+
+function recalTotal() {
+  var totalAmount = 0;
+
+  $('.docTotal').each(function() {
+    total = removeCommas($(this).val());
+    total = parseDefault(parseFloat(total), 0);
+    totalAmount += total;
+  });
+
+  $('#DocTotal').val(totalAmount);
+  $('#totalAmount').text(addCommas(totalAmount.toFixed(2)));
 }

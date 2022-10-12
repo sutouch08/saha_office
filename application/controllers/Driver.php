@@ -66,19 +66,18 @@ class Driver extends PS_Controller
 	{
 		$sc = TRUE;
 
-		$emp_id = $this->input->post('emp_id');
+		$name = trim($this->input->post('name'));
 		$type = $this->input->post('type');
 		$active = $this->input->post('active');
 
 		if($this->isAdmin OR $this->isSuperAdmin)
 		{
-			if(!empty($emp_id))
+			if( ! empty($name))
 			{
-				if( ! $this->driver_model->is_exists($emp_id))
+				if( ! $this->driver_model->is_exists($name))
 				{
 					$arr = array(
-						'emp_id' => $emp_id,
-						'emp_name' => $this->user_model->get_emp_name($emp_id),
+						'emp_name' => $name,
 						'type' => $type == 'D' ? 'D' : 'E',
 						'active' => $active == 1 ? 1 : 0
 					);
@@ -141,18 +140,36 @@ class Driver extends PS_Controller
 		if($this->isAdmin OR $this->isSuperAdmin)
 		{
 			$emp_id = $this->input->post('emp_id');
+			$name = trim($this->input->post('name'));
 			$type = $this->input->post('type');
 			$active = $this->input->post('active');
 
-			$arr = array(
-				'type' => $type == 'D' ? 'D' : 'E',
-				'active' => $active == 1 ? 1 : 0
-			);
+			if( ! empty($name))
+			{
+				if( ! $this->driver_model->is_exists($name, $emp_id))
+				{
+					$arr = array(
+						'emp_name' => $name,
+						'type' => $type == 'D' ? 'D' : 'E',
+						'active' => $active == 1 ? 1 : 0
+					);
 
-			if( ! $this->driver_model->update($emp_id, $arr))
+					if( ! $this->driver_model->update($emp_id, $arr))
+					{
+						$sc = FALSE;
+						$this->error = "Update failed";
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "ชื่อพนักงานซ้ำ";
+				}
+			}
+			else
 			{
 				$sc = FALSE;
-				$this->error = "Update failed";
+				$this->error = "Missing required parameter";
 			}
 		}
 		else

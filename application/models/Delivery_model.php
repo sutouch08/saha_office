@@ -55,7 +55,12 @@ class Delivery_model extends CI_Model
 
   public function release_order($code)
   {
-    return $this->db->set('status', 'R')->where('code', $code)->update($this->tb);
+    $arr = array(
+      'status'=> 'R',
+      'ReleaseDate' => now()
+    );
+
+    return $this->db->where('code', $code)->update($this->tb, $arr);
   }
 
 
@@ -72,7 +77,12 @@ class Delivery_model extends CI_Model
 
   public function un_release_order($code)
   {
-    return $this->db->set('status', 'O')->where('code', $code)->update($this->tb);
+    $arr = array(
+      'status'=> 'O',
+      'ReleaseDate' => NULL
+    );
+
+    return $this->db->where('code', $code)->update($this->tb, $arr);
   }
 
 
@@ -278,11 +288,18 @@ class Delivery_model extends CI_Model
       $this->db->where('route_id', $ds['route']);
     }
 
+    if( ! empty($ds['shipFromDate']) && ! empty($ds['shipToDate']))
+    {
+      $this->db
+      ->where('ShipDate >=', from_date($ds['shipFromDate']))
+      ->where('ShipDate <=', to_date($ds['shipToDate']));
+    }
+
     if( ! empty($ds['fromDate']) && ! empty($ds['toDate']))
     {
       $this->db
-      ->where('date_add >=', from_date($ds['fromDate']))
-      ->where('date_add <=', to_date($ds['toDate']));
+      ->where('DocDate >=', from_date($ds['fromDate']))
+      ->where('DocDate <=', to_date($ds['toDate']));
     }
 
     if($ds['uname'] != '')
@@ -329,11 +346,18 @@ class Delivery_model extends CI_Model
       $this->db->where('route_id', $ds['route']);
     }
 
+    if( ! empty($ds['shipFromDate']) && ! empty($ds['shipToDate']))
+    {
+      $this->db
+      ->where('ShipDate >=', from_date($ds['shipFromDate']))
+      ->where('ShipDate <=', to_date($ds['shipToDate']));
+    }
+
     if( ! empty($ds['fromDate']) && ! empty($ds['toDate']))
     {
       $this->db
-      ->where('date_add >=', from_date($ds['fromDate']))
-      ->where('date_add <=', to_date($ds['toDate']));
+      ->where('DocDate >=', from_date($ds['fromDate']))
+      ->where('DocDate <=', to_date($ds['toDate']));
     }
 
     if($ds['uname'] != '')
@@ -347,6 +371,30 @@ class Delivery_model extends CI_Model
     }
 
     return $this->db->count_all_results($this->tb);
+  }
+
+
+  public function is_loaded($docNum, $docType, $delivery_code = NULL)
+  {
+    if( ! empty($delivery_code))
+    {
+      $this->db->where('delivery_code !=', $delivery_code);
+    }
+
+    $count = $this->db
+    ->where('type', 'P')
+    ->where('DocType', $docType)
+    ->where('line_status !=', 'D')
+    ->where('result_status', 1)
+    ->where('DocNum', $docNum)
+    ->count_all_results($this->td);
+
+    if($count > 0)
+    {
+      return TRUE;
+    }
+
+    return FALSE;
   }
 
 

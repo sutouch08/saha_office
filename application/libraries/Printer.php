@@ -143,7 +143,7 @@ class Printer
 
 	public function print_sub_total(array $data)
 	{
-		$page = "<div style='width:190mm; margin:auto;'>";
+		$page = "<div style='width:{$this->content_width}mm; margin:auto;'>";
 		$page .= '<table class="table" style="margin-bottom:0px; border:solid 1px #333; height:35mm;">';
 		foreach($data as $value)
 		{
@@ -331,10 +331,12 @@ class Printer
 	public function page_start()
 	{
 		$page_break = "page-break-after:always;";
+
 		if($this->current_page == $this->total_page)
 		{
 			$page_break = "";
 		}
+
 		return "<div class='page_layout' style='position:relative; width:".$this->page_width."mm; padding-top:5mm; height:".$this->page_height."mm; margin:auto; ".$page_break."'>"; //// page start
 	}
 
@@ -373,7 +375,7 @@ class Printer
 		}
 		else
 		{
-			return "</div><div class='hidden-print' style='height: 5mm; width:".$this->page_width."'></div>";
+			return "</div></div><div class='hidden-print' style='height: 5mm; width:".$this->page_width."mm'></div>";
 		}
 	}
 
@@ -523,7 +525,7 @@ class Printer
 
 	public function table_start()
 	{
-		$page  = "<div style='width:190mm; margin:auto;'>";
+		$page  = "<div style='width:{$this->content_width}mm; margin:auto;'>";
 		$page .= $this->sub_header;
 
 		return $page;
@@ -568,7 +570,7 @@ class Printer
 			$row2 = 8;
 			$row4 = 10;
 			$row3 = $height - ($row1+$row2+$row4) - 2;
-			$footer = "<div style='width:190mm; height:30mm; margin:auto; border:solid 1px #333; padding:5px;'>";
+			$footer = "<div style='width:{$this->content_width}mm; height:30mm; margin:auto; border:solid 1px #333; padding:5px;'>";
 			foreach($data as $n=>$value)
 			{
 				$footer .="<div style='width:".$box_width."%; height30mm; text-align:center; float:right; padding-left:10px; padding-right:10px;'>";

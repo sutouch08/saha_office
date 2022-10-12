@@ -137,9 +137,14 @@ class Driver_model extends CI_Model
   }
 
 
-  public function is_exists($emp_id)
+  public function is_exists($name, $emp_id = NULL)
   {
-    $count = $this->db->where('emp_id', $emp_id)->count_all_results($this->tb);
+    if( ! empty($emp_id))
+    {
+      $this->db->where('emp_id !=', $emp_id);
+    }
+
+    $count = $this->db->where('emp_name', $name)->count_all_results($this->tb);
 
     if($count > 0)
     {
