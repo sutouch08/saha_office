@@ -70,6 +70,7 @@
                   <input type="hidden" id="UomCode2-<?php echo $rs->rowNum; ?>" value="<?php echo $rs->UomCode2; ?>">
                   <input type="hidden" id="unitMsr-<?php echo $rs->rowNum; ?>" value="<?php echo $rs->unitMsr; ?>">
                   <input type="hidden" id="unitMsr2-<?php echo $rs->rowNum; ?>" value="<?php echo $rs->unitMsr2; ?>">
+                  <input type="hidden" id="orderDate-<?php echo $rs->rowNum; ?>" value="<?php echo $rs->OrderDate; ?>">
               </td>
               <td class="middle text-right" style="padding-right:0px;" id="available-<?php echo $rs->rowNum; ?>"><?php echo number($rs->OnHand, 2); ?></td>
               <td class="middle text-center" style="padding-right:0px; padding-left:5px;"><?php echo "{$rs->unitMsr}"; ?></td>
@@ -133,6 +134,7 @@
       <input type="hidden" id="unitMsr-{{rowNum}}" value="{{unitMsr}}">
       <input type="hidden" id="unitMsr2-{{rowNum}}" value="{{unitMsr2}}">
       <input type="hidden" id="Price-{{rowNum}}" value="{{Price}}">
+      <input type="hidden" id="orderDate-{{rowNum}}" value="{{OrderDate}}">
     </td>
     <td class="middle text-right" id="onHand-{{rowNum}}">{{OnHand}}</td>
     <td class="middle" style="padding-right:0px; padding-left:5px;">{{unitMsr}}</td>

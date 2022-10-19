@@ -1042,6 +1042,7 @@ class Picking extends PS_Controller
 		);
 
 		$this->db->trans_begin();
+
 		if(! $this->pick_model->update($absEntry, $arr))
 		{
 			$sc = FALSE;
@@ -1055,6 +1056,11 @@ class Picking extends PS_Controller
 				$sc = FALSE;
 				$this->error = "Update Pick Rows Status Failed";
 			}
+		}
+
+		if($sc === TRUE)
+		{
+			$this->pick_model->set_picked_user($absEntry, $this->user->id, $this->user->uname);
 		}
 
 		if($sc === TRUE)

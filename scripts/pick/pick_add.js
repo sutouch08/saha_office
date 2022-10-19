@@ -87,6 +87,7 @@ function save() {
     let orderQty = parseDefault(parseFloat(removeCommas($('#order-'+no).text())), 0);
     let openQty = parseDefault(parseFloat(removeCommas($('#open-'+no).text())), 0);
     let orderCode = $('#orderCode-'+no).text();
+    let orderDate = $('#orderDate-'+no).val();
     let customer = $('#customer-'+no).text();
     let itemCode = $.trim($('#itemCode-'+no).text());
     let itemName = $.trim($('#itemName-'+no).text());
@@ -97,6 +98,7 @@ function save() {
         "DocEntry" : docEntry,
         "LineNum" : lineNum,
         "OrderCode" : $.trim(orderCode),
+        "OrderDate" : orderDate,
         "CardName" : $.trim(customer),
         "ItemCode" : itemCode,
         "ItemName" : itemName,

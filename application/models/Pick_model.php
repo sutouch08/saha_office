@@ -237,7 +237,7 @@ class Pick_model extends CI_Model
   public function getOrderRow($DocEntry, $LineNum)
   {
     $rs = $this->ms
-    ->select('ORDR.DocNum, ORDR.CardName')
+    ->select('ORDR.DocNum, ORDR.DocDate, ORDR.CardName')
     ->select('RDR1.DocEntry, RDR1.LineNum, RDR1.ItemCode, RDR1.Quantity, RDR1.OpenQty, RDR1.InvQty, RDR1.OpenInvQty')
     ->select('RDR1.UomEntry, RDR1.UomEntry2, RDR1.UomCode, RDR1.UomCode2, RDR1.unitMsr, RDR1.unitMsr2, RDR1.Price')
     ->select('OITM.ItemName')
@@ -264,7 +264,7 @@ class Pick_model extends CI_Model
     ->select('RDR1.DocEntry, RDR1.LineNum, RDR1.LineStatus, RDR1.ItemCode, OITM.ItemName')
     ->select('RDR1.Quantity, RDR1.OpenQty, RDR1.InvQty, RDR1.OpenInvQty, RDR1.Price')
     ->select('RDR1.UomEntry, RDR1.UomEntry2, RDR1.UomCode, RDR1.UomCode2, RDR1.unitMsr, RDR1.unitMsr2')
-    ->select('ORDR.DocNum, ORDR.CardCode, ORDR.CardName')
+    ->select('ORDR.DocNum, ORDR.CardCode, ORDR.CardName, ORDR.DocDate')
     ->from('RDR1', 'RDR1.DocEntry = ORDR.DocEntry')
     ->join('ORDR', 'RDR1.DocEntry = ORDR.DocEntry', 'left')
     ->join('OITM', 'RDR1.ItemCode = OITM.ItemCode', 'left')
@@ -544,6 +544,18 @@ class Pick_model extends CI_Model
   public function set_rows_status($absEntry, $status)
   {
     return $this->db->set('PickStatus', $status)->where('AbsEntry', $absEntry)->update('pick_row');
+  }
+
+
+  public function set_picked_user($absEntry, $user_id, $uname)
+  {
+    $arr = array(
+      'FinishDate' => now(),
+      'user_id' => $user_id,
+      'uname' => $uname
+    );
+
+    return $this->db->where('AbsEntry', $absEntry)->update('pick_details', $arr);
   }
 
 

@@ -313,6 +313,8 @@ class Item_model extends CI_Model
     ->join('UGP1', 'OITM.UgpEntry = UGP1.UgpEntry AND OBCD.UomEntry = UGP1.UomEntry', 'left')
     ->join('OUOM', 'OBCD.UomEntry = OUOM.UomEntry', 'left')
     ->where('OBCD.BcdCode', $barcode)
+    ->order_by('OBCD.BcdEntry', 'DESC')
+    ->limit(1)
     ->get();
 
     if($rs->num_rows() === 1)
@@ -383,6 +385,8 @@ class Item_model extends CI_Model
     $rs = $this->ms
     ->select('ItemCode, UomEntry')
     ->where('BcdCode', $barcode)
+    ->order_by('BcdEntry', 'DESC')
+    ->limit(1)
     ->get('OBCD');
 
     if($rs->num_rows() === 1)

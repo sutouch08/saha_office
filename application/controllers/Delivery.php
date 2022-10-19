@@ -868,7 +868,7 @@ class Delivery extends PS_Controller
 										$this->delivery_model->finish_cn_doc_num($rs->DocNum, $arr);
 									break;
 									case 'PB':
-										$this->delivery_model->finish_pb_doc_num($rs->DocNum, $arr);
+										//$this->delivery_model->finish_pb_doc_num($rs->DocNum, $arr);
 									break;
 								}
 							}
@@ -997,7 +997,7 @@ class Delivery extends PS_Controller
 										$this->delivery_model->finish_cn_doc_num($rs->DocNum, $arr);
 									break;
 									case 'PB':
-										$this->delivery_model->finish_pb_doc_num($rs->DocNum, $arr);
+										//$this->delivery_model->finish_pb_doc_num($rs->DocNum, $arr);
 									break;
 								}
 							}
@@ -1121,23 +1121,15 @@ class Delivery extends PS_Controller
 			if($doc_type === 'PB')
 			{
 				$this->ms
-				->select('O.DocNum, O.CardCode, O.CardName, O.Address2, O.DocTotal')
+				->select('O.U_BEX_BI01 AS DocNum, O.CardCode, O.CardName, D.SumApplied AS DocTotal')
 				->select('C.Address AS ShipToCode, C.Street, C.Block, C.ZipCode, C.City, C.County, C.Country')
 				->select('C.U_Contract AS Contact, C.U_Tel AS Phone, C.U_SP_DateWork AS WorkDate, C.U_SP_DateTime AS WorkTime')
-				->from('ODLN AS O')
-				->join('CRD1 AS C', "O.CardCode = C.CardCode AND O.ShipToCode = C.Address AND C.AdrsType = 'S'", 'left')
-				->like('O.DocNum', $term);
+				->from('OPDF AS O')
+				->join('PDF2 AS D', 'O.DocEntry = D.DocNum', 'left')
+				->join('CRD1 AS C', "O.CardCode = C.CardCode AND O.PayToCode = C.Address AND C.AdresType = 'B'", 'left')
+				->like('O.U_BEX_BI01', $term);
 
-				if($ship_type == 'P')
-				{
-					$this->ms
-					->group_start()
-					->where('O.U_Deliver_status IS NULL', NULL, FALSE)
-					->or_where('O.U_Deliver_status !=',4)
-					->group_end();
-				}
-
-				$rs = $this->ms->order_by('O.DocNum', 'DESC')->limit(50)->get();
+				$rs = $this->ms->order_by('O.U_BEX_BI01', 'DESC')->limit(50)->get();
 
 				if($rs->num_rows() > 0)
 				{
@@ -1233,12 +1225,13 @@ class Delivery extends PS_Controller
 			if($docType === 'PB')
 			{
 				$rs = $this->ms
-				->select('O.DocNum, O.CardCode, O.CardName, O.Address2, O.DocTotal, O.U_Deliver_doc, O.U_Deliver_status')
+				->select('O.U_BEX_BI01 AS DocNum, O.CardCode, O.CardName, D.SumApplied AS DocTotal')
 				->select('C.Address AS ShipToCode, C.Street, C.Block, C.ZipCode, C.City, C.County, C.Country')
 				->select('C.U_Contract AS Contact, C.U_Tel AS Phone, C.U_SP_DateWork AS WorkDate, C.U_SP_DateTime AS WorkTime')
-				->from('ODLN AS O')
-				->join('CRD1 AS C', "O.CardCode = C.CardCode AND O.ShipToCode = C.Address AND C.AdresType = 'S'", 'left')
-				->where('O.DocNum', $docNum)
+				->from('OPDF AS O')
+				->join('PDF2 AS D', 'O.DocEntry = D.DocNum', 'left')
+				->join('CRD1 AS C', "O.CardCode = C.CardCode AND O.PayToCode = C.Address AND C.AdresType = 'B'", 'left')
+				->where('O.U_BEX_BI01', $docNum)
 				->get();
 			}
 
@@ -1400,7 +1393,7 @@ class Delivery extends PS_Controller
 		$doc = $this->delivery_model->get($code);
 
 		if( ! empty($doc))
-		{			
+		{
 			$empList = $this->delivery_model->get_delivery_employee('E', $code);
 			$empName = "";
 

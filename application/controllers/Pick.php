@@ -287,6 +287,7 @@ class Pick extends PS_Controller
 							'OrderCode' => $rs->DocNum,
 							'OrderEntry' => $rs->DocEntry,
 							'OrderLine' => $rs->LineNum,
+							'OrderDate' => $rs->DocDate,
 							'CardName' => $rs->CardName,
 							'ItemCode' => $rs->ItemCode,
 							'ItemName' => $rs->ItemName,
@@ -363,6 +364,7 @@ class Pick extends PS_Controller
 						'OrderCode' => $rs->DocNum,
 						'OrderEntry' => $rs->DocEntry,
 						'OrderLine' => $rs->LineNum,
+						'OrderDate' => $rs->DocDate,
 						'CardName' => $rs->CardName,
 						'ItemCode' => $rs->ItemCode,
 						'ItemName' => $rs->ItemName,
@@ -438,6 +440,7 @@ class Pick extends PS_Controller
 							'OrderCode' => $rs->DocNum,
 							'OrderEntry' => $rs->DocEntry,
 							'OrderLine' => $rs->LineNum,
+							'OrderDate' => $rs->DocDate,
 							'CardName' => $rs->CardName,
 							'ItemCode' => $rs->ItemCode,
 							'ItemName' => $rs->ItemName,
@@ -556,6 +559,7 @@ class Pick extends PS_Controller
 										'OrderCode' => $rs->OrderCode,
 										'OrderEntry' => $rs->DocEntry,
 										'OrderLine' => $rs->LineNum,
+										'OrderDate' => $rs->OrderDate,
 										'CardName' => $rs->CardName,
 										'ItemCode' => $rs->ItemCode,
 										'ItemName' => $rs->ItemName,
@@ -704,6 +708,7 @@ class Pick extends PS_Controller
 									$row->AbsEntry = $rs->AbsEntry;
 									$row->DocNum = $doc->DocNum;
 									$row->OrderCode = $rs->OrderCode;
+									$row->OrderDate = $rs->OrderDate;
 									$row->ItemCode = $rs->ItemCode;
 									$row->ItemName = $rs->ItemName;
 									$row->UomEntry = $rs->UomEntry;
@@ -750,6 +755,7 @@ class Pick extends PS_Controller
 											'AbsEntry' => $rs->AbsEntry,
 											'DocNum' => $rs->DocNum,
 											'OrderCode' => $rs->OrderCode,
+											'OrderDate' => $rs->OrderDate,
 											'ItemCode' => $rs->ItemCode,
 											'ItemName' => $rs->ItemName,
 											'UomEntry' => $rs->UomEntry,
@@ -982,6 +988,7 @@ class Pick extends PS_Controller
 					'CardName' => $rd->CardName,
 					'DocDate' => thai_date($rd->DocDate, FALSE, '.'),
 					'DocDueDate' => thai_date($rd->DocDueDate, FALSE, '.'),
+					'PostingDate' => $rd->DocDate,
 					'Urgency' => $rd->U_Delivery_Urgency,
 					'Remark_int' => $rd->U_Remark_Int,
 					'ShipTo' => escape_quot($rd->Address2),
