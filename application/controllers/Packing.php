@@ -867,7 +867,7 @@ class Packing extends PS_Controller
 											'BinCode' => $bf->BinCode,
 											'box_id' => $row->box_id,
 											'pallet_id' => $row->pallet_id,
-											'user_id' => $this->user->id
+											'user_id' => $this->user->id											
 										);
 
 

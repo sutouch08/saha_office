@@ -66,8 +66,7 @@ class Transfer extends PS_Controller
 		$this->title = "New Transfer";
 		$ds = array(
 			'code' => $this->get_new_code(),
-			'toWhsCode' => getConfig('BUFFER_WAREHOUSE'),
-			'details' => NULL
+			'toWhsCode' => getConfig('BUFFER_WAREHOUSE')
 		);
 
 		$this->load->view('transfer/transfer_add', $ds);
@@ -151,7 +150,8 @@ class Transfer extends PS_Controller
 									'pickCode' => $rs->pickCode,
 									'packCode' => $rs->packCode,
 									'orderCode' => $rs->OrderCode,
-									'palletCode' => $pallet->code
+									'palletCode' => $pallet->code,
+									'OrderDate' => $rs->OrderDate
 								);
 
 								if(! $this->transfer_model->add_detail($arr))

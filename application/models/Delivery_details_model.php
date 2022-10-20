@@ -256,7 +256,7 @@ class Delivery_details_model extends CI_Model
   public function getExportList(array $ds = array())
   {
     $this->db
-    ->select('d.*, o.id AS delivery_id, o.code, o.driver_name, o.vehicle_name, o.route_name, o.DocDate AS DocDate, o.uname, r.level')
+    ->select('d.*, o.id AS delivery_id, o.code, o.driver_name, o.vehicle_name, o.route_name, o.DocDate AS DocumentDate, o.uname, r.level')
     ->from('delivery_details AS d')
     ->join('delivery AS o', 'd.delivery_code = o.code', 'left')
     ->join('delivery_route AS r', 'o.route_id = r.id','left');

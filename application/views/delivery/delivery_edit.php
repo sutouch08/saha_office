@@ -146,6 +146,7 @@
 							<input type="hidden" id="zipCode-<?php echo $no; ?>" value="<?php echo $rs->ZipCode; ?>" />
 							<input type="hidden" id="phone-<?php echo $no; ?>" value="<?php echo $rs->Phone; ?>" />
 							<input type="hidden" id="contact-<?php echo $no; ?>" value="<?php echo $rs->contact; ?>" />
+							<input type="hidden" id="docDate-<?php echo $no; ?>" value="<?php echo $rs->DocDate; ?>" />
 
 		          <td class="middle text-center">
 		            <label>
@@ -215,6 +216,7 @@
 						<input type="hidden" id="zipCode-<?php echo $no; ?>" value="" />
 						<input type="hidden" id="phone-<?php echo $no; ?>" value="" />
 						<input type="hidden" id="contact-<?php echo $no; ?>" value="" />
+						<input type="hidden" id="docDate-<?php echo $no; ?>" value="" />
 
 						<td class="middle text-center">
 							<label>
@@ -342,6 +344,7 @@
 	<input type="hidden" id="zipCode-{{no}}" value="" />
 	<input type="hidden" id="phone-{{no}}" value="" />
 	<input type="hidden" id="contact-{{no}}" value="" />
+	<input type="hidden" id="docDate-{{no}}" value="" />
 
 	<td class="middle text-center">
 		<label>

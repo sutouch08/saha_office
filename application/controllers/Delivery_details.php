@@ -117,26 +117,27 @@ class Delivery_details extends PS_Controller
     $this->excel->getActiveSheet()->setCellValue('G1', 'Doc Type');
 		$this->excel->getActiveSheet()->setCellValue('H1', 'Doc Num');
     $this->excel->getActiveSheet()->setCellValue('I1', 'Doc Total');
-    $this->excel->getActiveSheet()->setCellValue('J1', 'Shipping Status');
-    $this->excel->getActiveSheet()->setCellValue('K1', 'Document Status');
-    $this->excel->getActiveSheet()->setCellValue('L1', 'Document Date');
-    $this->excel->getActiveSheet()->setCellValue('M1', 'Shipment Date');
-    $this->excel->getActiveSheet()->setCellValue('N1', 'Release Date');
-    $this->excel->getActiveSheet()->setCellValue('O1', 'Shipping Result Date');
-    $this->excel->getActiveSheet()->setCellValue('P1', 'Ship To Code');
-    $this->excel->getActiveSheet()->setCellValue('Q1', 'Street');
-    $this->excel->getActiveSheet()->setCellValue('R1', 'Block');
-    $this->excel->getActiveSheet()->setCellValue('S1', 'City');
-    $this->excel->getActiveSheet()->setCellValue('T1', 'County');
-    $this->excel->getActiveSheet()->setCellValue('U1', 'Country');
-		$this->excel->getActiveSheet()->setCellValue('V1', 'Zip Code');
-		$this->excel->getActiveSheet()->setCellValue('W1', 'Remark');
-		$this->excel->getActiveSheet()->setCellValue('X1', 'Vehicle');
-		$this->excel->getActiveSheet()->setCellValue('Y1', 'Route');
-		$this->excel->getActiveSheet()->setCellValue('Z1', 'Dificulty');
-		$this->excel->getActiveSheet()->setCellValue('AA1', 'Driver');
-		$this->excel->getActiveSheet()->setCellValue('AB1', 'Asst.1');
-		$this->excel->getActiveSheet()->setCellValue('AC1', 'Asst.2');
+		$this->excel->getActiveSheet()->setCellValue('J1', 'Posting Date');
+    $this->excel->getActiveSheet()->setCellValue('K1', 'Shipping Status');
+    $this->excel->getActiveSheet()->setCellValue('L1', 'Document Status');
+    $this->excel->getActiveSheet()->setCellValue('M1', 'Document Date');
+    $this->excel->getActiveSheet()->setCellValue('N1', 'Shipment Date');
+    $this->excel->getActiveSheet()->setCellValue('O1', 'Release Date');
+    $this->excel->getActiveSheet()->setCellValue('P1', 'Shipping Result Date');
+    $this->excel->getActiveSheet()->setCellValue('Q1', 'Ship To Code');
+    $this->excel->getActiveSheet()->setCellValue('R1', 'Street');
+    $this->excel->getActiveSheet()->setCellValue('S1', 'Block');
+    $this->excel->getActiveSheet()->setCellValue('T1', 'City');
+    $this->excel->getActiveSheet()->setCellValue('U1', 'County');
+    $this->excel->getActiveSheet()->setCellValue('V1', 'Country');
+		$this->excel->getActiveSheet()->setCellValue('W1', 'Zip Code');
+		$this->excel->getActiveSheet()->setCellValue('X1', 'Remark');
+		$this->excel->getActiveSheet()->setCellValue('Y1', 'Vehicle');
+		$this->excel->getActiveSheet()->setCellValue('Z1', 'Route');
+		$this->excel->getActiveSheet()->setCellValue('AA1', 'Dificulty');
+		$this->excel->getActiveSheet()->setCellValue('AB1', 'Driver');
+		$this->excel->getActiveSheet()->setCellValue('AC1', 'Asst.1');
+		$this->excel->getActiveSheet()->setCellValue('AD1', 'Asst.2');
 
     $row = 2;
 
@@ -170,7 +171,7 @@ class Delivery_details extends PS_Controller
 		if( ! empty($ds))
 		{
 			$empList = array();
-			$leter = array('AB', 'AC', 'AD', 'AE', 'AF', 'AG', 'AH', 'AI');
+			$leter = array('AC', 'AD', 'AE', 'AF', 'AG', 'AH', 'AI', 'AJ', 'AK', 'AL', 'AM');
 
 			foreach($ds as $rs)
       {
@@ -183,24 +184,25 @@ class Delivery_details extends PS_Controller
 				$this->excel->getActiveSheet()->setCellValue('G'.$row, $rs->DocType);
 				$this->excel->getActiveSheet()->setCellValue('H'.$row, $rs->DocNum);
 				$this->excel->getActiveSheet()->setCellValue('I'.$row, $rs->DocTotal);
-				$this->excel->getActiveSheet()->setCellValue('J'.$row, $this->resultStatusName($rs->result_status));
-				$this->excel->getActiveSheet()->setCellValue('K'.$row, $this->lineStatusName($rs->line_status));
-				$this->excel->getActiveSheet()->setCellValue('L'.$row, $rs->DocDate);
-				$this->excel->getActiveSheet()->setCellValue('M'.$row, $rs->ShipDate);
-				$this->excel->getActiveSheet()->setCellValue('N'.$row, $rs->release_date);
-				$this->excel->getActiveSheet()->setCellValue('O'.$row, $rs->finish_date);
-				$this->excel->getActiveSheet()->setCellValue('P'.$row, $rs->ShipToCode);
-				$this->excel->getActiveSheet()->setCellValue('Q'.$row, $rs->Street);
-				$this->excel->getActiveSheet()->setCellValue('R'.$row, $rs->Block);
-				$this->excel->getActiveSheet()->setCellValue('S'.$row, $rs->City);
-				$this->excel->getActiveSheet()->setCellValue('T'.$row, $rs->County);
-				$this->excel->getActiveSheet()->setCellValue('U'.$row, $rs->Country);
-				$this->excel->getActiveSheet()->setCellValue('V'.$row, $rs->ZipCode);
-				$this->excel->getActiveSheet()->setCellValue('W'.$row, $rs->remark);
-				$this->excel->getActiveSheet()->setCellValue('X'.$row, $rs->vehicle_name);
-				$this->excel->getActiveSheet()->setCellValue('Y'.$row, $rs->route_name);
-				$this->excel->getActiveSheet()->setCellValue('Z'.$row, $rs->level);
-				$this->excel->getActiveSheet()->setCellValue('AA'.$row, $rs->driver_name);
+				$this->excel->getActiveSheet()->setCellValue('J'.$row, $rs->DocDate);
+				$this->excel->getActiveSheet()->setCellValue('K'.$row, $this->resultStatusName($rs->result_status));
+				$this->excel->getActiveSheet()->setCellValue('L'.$row, $this->lineStatusName($rs->line_status));
+				$this->excel->getActiveSheet()->setCellValue('M'.$row, $rs->DocumentDate);
+				$this->excel->getActiveSheet()->setCellValue('N'.$row, $rs->ShipDate);
+				$this->excel->getActiveSheet()->setCellValue('O'.$row, $rs->release_date);
+				$this->excel->getActiveSheet()->setCellValue('P'.$row, $rs->finish_date);
+				$this->excel->getActiveSheet()->setCellValue('Q'.$row, $rs->ShipToCode);
+				$this->excel->getActiveSheet()->setCellValue('R'.$row, $rs->Street);
+				$this->excel->getActiveSheet()->setCellValue('S'.$row, $rs->Block);
+				$this->excel->getActiveSheet()->setCellValue('T'.$row, $rs->City);
+				$this->excel->getActiveSheet()->setCellValue('U'.$row, $rs->County);
+				$this->excel->getActiveSheet()->setCellValue('V'.$row, $rs->Country);
+				$this->excel->getActiveSheet()->setCellValue('W'.$row, $rs->ZipCode);
+				$this->excel->getActiveSheet()->setCellValue('X'.$row, $rs->remark);
+				$this->excel->getActiveSheet()->setCellValue('Y'.$row, $rs->vehicle_name);
+				$this->excel->getActiveSheet()->setCellValue('Z'.$row, $rs->route_name);
+				$this->excel->getActiveSheet()->setCellValue('AA'.$row, $rs->level);
+				$this->excel->getActiveSheet()->setCellValue('AB'.$row, $rs->driver_name);
 
 				if(! isset($empList[$rs->delivery_id]))
 				{

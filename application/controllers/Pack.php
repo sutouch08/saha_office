@@ -125,10 +125,12 @@ class Pack extends PS_Controller
 							if(!empty($details))
 							{
 								$CardName = $this->pack_model->get_card_name($pick->AbsEntry, $orderCode);
+								$OrderDate = $this->pack_model->get_order_date($pick->AbsEntry, $orderCode);
 								$code = $this->get_new_code();
 								$arr = array(
 									'code' => $code,
 									'orderCode' => $orderCode,
+									'OrderDate' => $OrderDate,
 									'pickCode' => $pickListNo,
 									'CardName' => $CardName,
 									'user_id' => $this->user->id,

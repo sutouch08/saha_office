@@ -69,27 +69,7 @@
 					<th class="middle text-center" style="width:50px;">Uom</th>
 				</tr>
 			</thead>
-			<tbody id="transfer-table">
-			<?php $no = 1; ?>
-			<?php if(!empty($details)) : ?>
-				<?php foreach($details as $rs) : ?>
-				<tr id="row-<?php echo $rs->id; ?>">
-					<td class="middle text-center no"><?php echo $no; ?></td>
-					<td class="middle"><?php echo $rs->ItemCode; ?></td>
-					<td class="middle"></td>
-					<td class="middle text-center"><?php echo $rs->palletCode; ?></td>
-					<td class="middle text-center"><?php echo $rs->orderCode; ?></td>
-					<td class="middle text-center"><?php echo $rs->pickCode; ?></td>
-					<td class="middle text-center"><?php echo $rs->packCode; ?></td>
-					<td class="middle text-center"><?php echo $rs->fromBin; ?></td>
-					<td class="middle text-center"><?php echo $rs->toBin; ?></td>
-					<td class="middle text-right"><?php echo round($rs->qty, 2); ?></td>
-					<td class="middle"><?php echo $rs->unitMsr; ?></td>
-				</tr>
-				<?php $no++; ?>
-			<?php endforeach; ?>
-		<?php endif; ?>
-			</tbody>
+			<tbody id="transfer-table"></tbody>
 			<tfoot>
 				<tr>
 					<td colspan="9" class="text-right" style="font-size:18px;">รวม</td>

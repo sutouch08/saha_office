@@ -204,6 +204,7 @@ class Pack_model extends CI_Model
     ->select('CardName')
     ->where('AbsEntry', $AbsEntry)
     ->where('orderCode', $orderCode)
+    ->limit(1)
     ->get('pick_row');
 
     if($rs->num_rows() > 0)
@@ -215,12 +216,31 @@ class Pack_model extends CI_Model
   }
 
 
+  public function get_order_date($AbsEntry, $orderCode)
+  {
+    $rs = $this->db
+    ->distinct()
+    ->select('OrderDate')
+    ->where('AbsEntry', $AbsEntry)
+    ->where('orderCode', $orderCode)
+    ->limit(1)
+    ->get('pick_row');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row()->OrderDate;
+    }
+
+    return NULL;
+  }
+
+
 
   public function get_pick_rows_by_so($pickId, $orderCode)
   {
 
     $rs = $this->db
-    ->select('AbsEntry, OrderCode, ItemCode, ItemName, UomEntry, UomEntry2, UomCode, UomCode2, unitMsr, unitMsr2, BaseQty')
+    ->select('AbsEntry, OrderCode, OrderDate, ItemCode, ItemName, UomEntry, UomEntry2, UomCode, UomCode2, unitMsr, unitMsr2, BaseQty')
     ->select_sum('BasePickQty')
     ->where('AbsEntry', $pickId)
     ->where('OrderCode', $orderCode)
@@ -434,7 +454,7 @@ class Pack_model extends CI_Model
     ->from('pallet_row')
     ->join('pallet', 'pallet_row.pallet_id = pallet.id', 'left')
     ->where('pallet_row.packCode', $packCode)
-    ->get();    
+    ->get();
 
     if($rs->num_rows() > 0)
     {

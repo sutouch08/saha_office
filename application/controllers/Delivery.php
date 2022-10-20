@@ -188,6 +188,7 @@ class Delivery extends PS_Controller
 										'type' => $rs->shipType,
 										'DocType' => empty($rs->docType) ? NULL : $rs->docType,
 										'DocNum' => empty($rs->docNum) ? NULL : $rs->docNum,
+										'DocDate' => empty($rs->DocDate) ? NULL : $rs->DocDate,
 										'DocTotal' => empty($rs->docTotal) ? 0.00 : $rs->docTotal,
 										'remark' => get_null($rs->remark),
 										'ShipDate' => $shipDate,
@@ -413,6 +414,7 @@ class Delivery extends PS_Controller
 										'type' => $rs->shipType,
 										'DocType' => empty($rs->docType) ? NULL : $rs->docType,
 										'DocNum' => empty($rs->docNum) ? NULL : $rs->docNum,
+										'DocDate' => empty($rs->DocDate) ? NULL : $rs->DocDate,
 										'DocTotal' => empty($rs->docTotal) ? 0.00 : $rs->docTotal,
 										'remark' => get_null($rs->remark),
 										'ShipDate' => $shipDate,
@@ -1039,7 +1041,7 @@ class Delivery extends PS_Controller
 			if($doc_type === 'DO')
 			{
 				$this->ms
-				->select('O.DocNum, O.CardCode, O.CardName, O.Address2, O.DocTotal')
+				->select('O.DocNum, O.DocDate, O.CardCode, O.CardName, O.Address2, O.DocTotal')
 				->select('C.Address AS ShipToCode, C.Street, C.Block, C.ZipCode, C.City, C.County, C.Country')
 				->select('C.U_Contract AS Contact, C.U_Tel AS Phone, C.U_SP_DateWork AS WorkDate, C.U_SP_DateTime AS WorkTime')
 				->from('ODLN AS O')
@@ -1067,7 +1069,7 @@ class Delivery extends PS_Controller
 			if($doc_type === 'IV')
 			{
 				$this->ms
-				->select('O.DocNum, O.CardCode, O.CardName, O.Address2, O.DocTotal')
+				->select('O.DocNum, O.DocDate, O.CardCode, O.CardName, O.Address2, O.DocTotal')
 				->select('C.Address AS ShipToCode, C.Street, C.Block, C.ZipCode, C.City, C.County, C.Country')
 				->select('C.U_Contract AS Contact, C.U_Tel AS Phone, C.U_SP_DateWork AS WorkDate, C.U_SP_DateTime AS WorkTime')
 				->from('OINV AS O')
@@ -1094,7 +1096,7 @@ class Delivery extends PS_Controller
 			if($doc_type === 'CN')
 			{
 				$this->ms
-				->select('O.DocNum, O.CardCode, O.CardName, O.Address2, O.DocTotal')
+				->select('O.DocNum, O.DocDate, O.CardCode, O.CardName, O.Address2, O.DocTotal')
 				->select('C.Address AS ShipToCode, C.Street, C.Block, C.ZipCode, C.City, C.County, C.Country')
 				->select('C.U_Contract AS Contact, C.U_Tel AS Phone, C.U_SP_DateWork AS WorkDate, C.U_SP_DateTime AS WorkTime')
 				->from('ORDN AS O')
@@ -1121,7 +1123,7 @@ class Delivery extends PS_Controller
 			if($doc_type === 'PB')
 			{
 				$this->ms
-				->select('O.U_BEX_BI01 AS DocNum, O.CardCode, O.CardName, D.SumApplied AS DocTotal')
+				->select('O.U_BEX_BI01 AS DocNum, O.DocDate, O.CardCode, O.CardName, D.SumApplied AS DocTotal')
 				->select('C.Address AS ShipToCode, C.Street, C.Block, C.ZipCode, C.City, C.County, C.Country')
 				->select('C.U_Contract AS Contact, C.U_Tel AS Phone, C.U_SP_DateWork AS WorkDate, C.U_SP_DateTime AS WorkTime')
 				->from('OPDF AS O')
@@ -1158,6 +1160,7 @@ class Delivery extends PS_Controller
 						'WorkDate' => $rs->WorkDate,
 						'WorkTime' => $rs->WorkTime,
 						'label' => $rs->DocNum,
+						'DocDate' => $rs->DocDate,
 						'docTotal' => number($rs->DocTotal, 2)
 					);
 				}
@@ -1189,7 +1192,7 @@ class Delivery extends PS_Controller
 			if($docType === 'DO')
 			{
 				$rs = $this->ms
-				->select('O.DocNum, O.CardCode, O.CardName, O.Address2, O.DocTotal, O.U_Deliver_doc, O.U_Deliver_status')
+				->select('O.DocNum, O.DocDate, O.CardCode, O.CardName, O.Address2, O.DocTotal, O.U_Deliver_doc, O.U_Deliver_status')
 				->select('C.Address AS ShipToCode, C.Street, C.Block, C.ZipCode, C.City, C.County, C.Country')
 				->select('C.U_Contract AS Contact, C.U_Tel AS Phone, C.U_SP_DateWork AS WorkDate, C.U_SP_DateTime AS WorkTime')
 				->from('ODLN AS O')
@@ -1201,7 +1204,7 @@ class Delivery extends PS_Controller
 			if($docType === 'IV')
 			{
 				$rs = $this->ms
-				->select('O.DocNum, O.CardCode, O.CardName, O.Address2, O.DocTotal, O.U_Deliver_doc, O.U_Deliver_status')
+				->select('O.DocNum, O.DocDate, O.CardCode, O.CardName, O.Address2, O.DocTotal, O.U_Deliver_doc, O.U_Deliver_status')
 				->select('C.Address AS ShipToCode, C.Street, C.Block, C.ZipCode, C.City, C.County, C.Country')
 				->select('C.U_Contract AS Contact, C.U_Tel AS Phone, C.U_SP_DateWork AS WorkDate, C.U_SP_DateTime AS WorkTime')
 				->from('OINV AS O')
@@ -1213,7 +1216,7 @@ class Delivery extends PS_Controller
 			if($docType === 'CN')
 			{
 				$rs = $this->ms
-				->select('O.DocNum, O.CardCode, O.CardName, O.Address2, O.DocTotal, O.U_Deliver_doc, O.U_Deliver_status')
+				->select('O.DocNum, O.DocDate, O.CardCode, O.CardName, O.Address2, O.DocTotal, O.U_Deliver_doc, O.U_Deliver_status')
 				->select('C.Address AS ShipToCode, C.Street, C.Block, C.ZipCode, C.City, C.County, C.Country')
 				->select('C.U_Contract AS Contact, C.U_Tel AS Phone, C.U_SP_DateWork AS WorkDate, C.U_SP_DateTime AS WorkTime')
 				->from('ORDN AS O')
@@ -1225,7 +1228,7 @@ class Delivery extends PS_Controller
 			if($docType === 'PB')
 			{
 				$rs = $this->ms
-				->select('O.U_BEX_BI01 AS DocNum, O.CardCode, O.CardName, D.SumApplied AS DocTotal')
+				->select('O.U_BEX_BI01 AS DocNum, O.DocDate, O.CardCode, O.CardName, D.SumApplied AS DocTotal')
 				->select('C.Address AS ShipToCode, C.Street, C.Block, C.ZipCode, C.City, C.County, C.Country')
 				->select('C.U_Contract AS Contact, C.U_Tel AS Phone, C.U_SP_DateWork AS WorkDate, C.U_SP_DateTime AS WorkTime')
 				->from('OPDF AS O')
@@ -1280,6 +1283,7 @@ class Delivery extends PS_Controller
 						'Contact' => $rd->Contact,
 						'WorkDate' => $rd->WorkDate,
 						'WorkTime' => $rd->WorkTime,
+						'DocDate' => $rd->DocDate,
 						'docTotal' => number($rd->DocTotal, 2),
 						'shipType' => $ship_type
 					);

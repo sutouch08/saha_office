@@ -261,8 +261,10 @@ class Transfer_model extends CI_Model
     $rs = $this->db
     ->select('ps.*')
     ->select('pr.UomEntry, pr.UomCode, pr.unitMsr, pr.UomEntry2, pr.UomCode2, pr.unitMsr2, pr.BaseQty')
+    ->select('pl.OrderDate')
     ->from('pack_result AS ps')
     ->join('pack_row AS pr', 'ps.packCode = pr.packCode AND ps.pickCode = pr.pickCode AND ps.orderCode = pr.orderCode AND ps.ItemCode = pr.ItemCode ', 'left')
+    ->join('pack_list AS pl', 'pr.packCode = pl.code', 'left')
     ->where_in('pr.Status', array('Y', 'C'))
     ->where('ps.pallet_id', $pallet_id)
     ->get();

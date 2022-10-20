@@ -87,6 +87,7 @@ function saveAdd() {
               "docType" : docType,
               "docNum" : docNum,
               "docTotal" : removeCommas(docTotal),
+              "DocDate" : $('#docDate-'+no).val(),
               "remark" : $('#remark-'+no).val(),
               "ShipToCode" : $('#shipToCode-'+no).val(),
               "Street" : $('#street-'+no).val(),
@@ -266,6 +267,7 @@ function saveUpdate() {
               "docType" : docType,
               "docNum" : docNum,
               "docTotal" : removeCommas(docTotal),
+              "DocDate" : $('#docDate-'+no).val(),
               "remark" : $('#remark-'+no).val(),
               "ShipToCode" : $('#shipToCode-'+no).val(),
               "Street" : $('#street-'+no).val(),
@@ -484,6 +486,7 @@ function docNumInit(no) {
         $('#cardName-'+no).val(ui.item.CardName);
         $('#shipTo-'+no).val(ui.item.shipTo);
         $('#contactName-'+no).val(ui.item.ContactName);
+        $('#docDate-'+no).val(ui.item.DocDate);
         $('#docTotal-'+no).val(ui.item.docTotal);
         $('#workDate-'+no).val(ui.item.WorkDate);
         $('#workTime-'+no).val(ui.item.WorkTime);
@@ -603,6 +606,7 @@ function submitRow() {
             $('#docType-'+no).val(docType);
             docNumInit(no);
             $('#docNum-'+no).val(code);
+            $('#docDate-'+no).val(ds.DocDate);
             $('#cardCode-'+no).val(ds.CardCode);
             $('#cardName-'+no).val(ds.CardName);
             $('#docTotal-'+no).val(ds.docTotal);
