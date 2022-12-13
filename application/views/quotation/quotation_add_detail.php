@@ -3,6 +3,23 @@
   .table > tr > td {
     padding:3px;
   }
+
+  .tableFixHead {
+    table-layout: fixed;
+    min-width: 100%;
+    width:2480px;
+    margin-top:-1px;
+    margin-left:-6px;
+    margin-right:-6px;
+    margin-bottom: 0;
+    height: 50px;
+  }
+
+  .tableFixHead thead th {
+    position: sticky;
+    top: -1px;
+    background: #eee;
+  }
 </style>
 
 <div class="row">
@@ -13,8 +30,8 @@
   <div class="divider-hidden">
 
   </div>
-  <div class="col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-bordered" style="table-layout: fixed; min-width: 100%; width:2480px;">
+  <div class="col-sm-12 col-xs-12 padding-5 table-responsive" style="border:solid 1px #dddddd; min-height:300px; max-height:321px; overflow:scroll;">
+    <table class="table table-bordered tableFixHead">
       <thead>
         <tr class="font-size-10">
           <th class="middle text-center" style="width:50px;"></th>
@@ -259,7 +276,7 @@
 </td>
 <td class="middle">
   <input type="text" class="form-control input-sm text-right number" id="lstPrice-{{no}}" readonly disabled/>
-  <input type="hidden" id="lastSellPrice-{{no}}" value="0"/>  
+  <input type="hidden" id="lastSellPrice-{{no}}" value="0"/>
 </td>
 <td class="middle">
   <input type="text" class="form-control input-sm text-right number input-price" id="price-{{no}}" onkeyup="recalAmount($(this))"/>

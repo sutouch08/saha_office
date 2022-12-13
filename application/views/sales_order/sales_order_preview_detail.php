@@ -1,7 +1,24 @@
+<style>
+  .tableFixHead {
+    table-layout: fixed;
+    min-width: 100%;
+    width:2580px;
+    margin-top:-1px;
+    margin-left:-6px;
+    margin-right:-6px;
+    margin-bottom: 0;
+    height: 50px;
+  }
 
+  .tableFixHead thead tr th {
+    position: sticky;
+    top: -1px;
+    background: #eee;
+  }
+</style>
 <div class="row">
-  <div class="col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-striped" style="table-layout: fixed; min-width: 100%; width:2480px;">
+  <div class="col-sm-12 col-xs-12 padding-5 table-responsive" style="border:solid 1px #dddddd; min-height:300px; max-height:321px; overflow:scroll;">
+    <table class="table table-striped tableFixHead">
       <thead>
         <tr class="font-size-10">
           <th class="middle text-center" style="width:50px;">#</th>
@@ -55,7 +72,7 @@
             <td class="middle text-center"><?php echo $ds->WhsCode; ?></td>
             <td class="middle text-center"><?php echo number($ds->OnHandQty,2); ?></td>
             <td class="middle text-center"><?php echo number($ds->IsCommited,2); ?></td>
-            <td class="middle text-center"><?php echo number($ds->OnOrder, 2); ?></td>            
+            <td class="middle text-center"><?php echo number($ds->OnOrder, 2); ?></td>
             <?php endif; ?>
           </tr>
           <?php $no++; ?>
