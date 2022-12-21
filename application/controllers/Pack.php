@@ -349,12 +349,12 @@ class Pack extends PS_Controller
 								{
 									$pick = $this->pick_model->get_by_code($doc->pickCode);
 
-									if( ! empty($pick))
+									if(!empty($pick))
 									{
 										//---- restore buffer
 										$details = $this->pack_model->get_pack_results($code);
 
-										if(!empty($details) && getConfig('REMOVE_BUFFER_STATE') == 'pack')
+										if(!empty($details))
 										{
 											foreach($details as $detail)
 											{

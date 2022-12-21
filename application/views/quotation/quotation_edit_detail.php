@@ -3,23 +3,6 @@
   .table > tr > td {
     padding:3px;
   }
-  .tableFixHead {
-    table-layout: fixed;
-    min-width: 100%;
-    width:2480px;
-    margin-top:-1px;
-    margin-left:-6px;
-    margin-right:-6px;
-    margin-bottom: 0;
-    overflow-y: auto;
-    height: 50px;
-  }
-
-  .tableFixHead thead th {
-    position: sticky;
-    top: -1px;
-    background: #eee;
-  }
 </style>
 
 <div class="row">
@@ -30,8 +13,8 @@
   <div class="divider-hidden">
 
   </div>
-  <div class="col-sm-12 col-xs-12 padding-5 table-responsive" style="border:solid 1px #dddddd; min-height:300px; max-height:321px; overflow:scroll;">
-    <table class="table table-bordered tableFixHead">
+  <div class="col-sm-12 col-xs-12 padding-5 table-responsive">
+    <table class="table table-bordered" style="table-layout: fixed; min-width: 100%; width:2480px;">
       <thead>
         <tr class="font-size-10">
           <th class="middle text-center" style="width:50px;"></th>
