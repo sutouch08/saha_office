@@ -156,29 +156,42 @@ class Pack extends PS_Controller
 											'pickCode' => $pick->DocNum,
 											'ItemCode' => $rs->ItemCode,
 											'ItemName' => $rs->ItemName,
-											'UomEntry' => $rs->UomEntry,
+											'UomEntry' => $rs->UomEntry2,
 											'UomEntry2' => $rs->UomEntry2,
-											'UomCode' => $rs->UomCode,
+											'UomCode' => $rs->UomCode2,
 											'UomCode2' => $rs->UomCode2,
-											'unitMsr' => $rs->unitMsr,
+											'unitMsr' => $rs->unitMsr2,
 											'unitMsr2' => $rs->unitMsr2,
-											'BaseQty' => $rs->BaseQty,
+											'BaseQty' => 1,
 											'BasePickQty' => $rs->BasePickQty,
 											'user_id' => $this->user->id,
 											'uname' => $this->user->uname
 										);
 
-										if(! $this->pack_model->add_row($arr))
+										$row_id = $this->pack_model->get_row_id($code, $rs->OrderCode, $pick->DocNum, $rs->ItemCode); //--- get pack row id
+
+										if( ! empty($row_id))
 										{
-											$sc = FALSE;
-											$this->error = "Insert pack row failed @ {$rs->ItemCode}";
+											if( ! $this->pack_model->update_base_pick_qty($row_id, $rs->BasePickQty))
+											{
+												$sc = FALSE;
+												$this->error = "Update BasePickQty Failed";
+											}
+											else
+											{
+												$this->pack_model->close_pick_row($rs->AbsEntry, $rs->PickEntry);
+											}
 										}
 										else
 										{
-											if(! $this->pick_model->set_row_status($rs->AbsEntry, $rs->OrderCode, $rs->ItemCode, $rs->UomEntry, 'C')) //--- loaded to pack
+											if(! $this->pack_model->add_row($arr))
 											{
 												$sc = FALSE;
-												$this->error = "Change Pick row Status failed";
+												$this->error = "Insert pack row failed @ {$rs->ItemCode}";
+											}
+											else
+											{
+												$this->pack_model->close_pick_row($rs->AbsEntry, $rs->PickEntry);
 											}
 										}
 									}

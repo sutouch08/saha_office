@@ -1011,7 +1011,7 @@ class Picking extends PS_Controller
 		{
 			foreach($details as $rs)
 			{
-				$rows = $this->pick_model->get_pick_rows_by_item_uom($absEntry, $rs->OrderCode, $rs->ItemCode, $rs->UomEntry);
+				$rows = $this->pick_model->get_pick_rows_by_item($absEntry, $rs->OrderCode, $rs->ItemCode);
 
 				if(!empty($rows))
 				{

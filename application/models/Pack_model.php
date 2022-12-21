@@ -148,6 +148,24 @@ class Pack_model extends CI_Model
   }
 
 
+  public function get_row_id($packCode, $orderCode, $pickCode, $itemCode)
+  {
+    $rs = $this->db
+    ->select('id')
+    ->where('packCode', $packCode)
+    ->where('orderCode', $orderCode)
+    ->where('pickCode', $pickCode)
+    ->where('ItemCode', $itemCode)
+    ->get('pack_row');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->id;
+    }
+
+    return NULL;
+  }
+
 
   public function add_row(array $ds = array())
   {
@@ -183,6 +201,14 @@ class Pack_model extends CI_Model
   }
 
 
+  public function update_base_pick_qty($id, $basePickQty)
+  {
+    $this->db->set("BasePickQty", "BasePickQty + {$basePickQty}", FALSE)->where('id', $id);
+
+    return $this->db->update('pack_row');
+  }
+
+
   public function delete_pack_boxes($code)
   {
     return $this->db->where('packCode', $code)->delete('pack_box');
@@ -193,6 +219,12 @@ class Pack_model extends CI_Model
   public function set_rows_status($code, $status)
   {
     return $this->db->set('Status', $status)->where('packCode', $code)->update('pack_row');
+  }
+
+
+  public function close_pick_row($absEntry, $pickEntry)
+  {
+    return $this->db->set('PickStatus', 'C')->where('AbsEntry', $absEntry)->where('PickEntry', $pickEntry)->update('pick_row');
   }
 
 
@@ -240,14 +272,11 @@ class Pack_model extends CI_Model
   {
 
     $rs = $this->db
-    ->select('AbsEntry, OrderCode, OrderDate, ItemCode, ItemName, UomEntry, UomEntry2, UomCode, UomCode2, unitMsr, unitMsr2, BaseQty')
-    ->select_sum('BasePickQty')
     ->where('AbsEntry', $pickId)
     ->where('OrderCode', $orderCode)
     ->where('PickStatus', 'Y')
     ->where('LineStatus', 'O')
-    ->where('BasePickQty >', 0)
-    ->group_by(array("OrderCode", "ItemCode", "UomEntry"))
+    ->where('BasePickQty >', 0)    
     ->order_by('ItemCode', 'ASC')
     ->get('pick_row');
 

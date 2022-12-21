@@ -679,7 +679,7 @@ class Pick extends PS_Controller
 						{
 							foreach($rows as $rs)
 							{
-								$key = $rs->AbsEntry.$rs->OrderCode.$rs->ItemCode;
+								$key = $rs->AbsEntry.$rs->OrderCode.$rs->ItemCode.$rs->UomEntry;
 
 								if(! isset($onhand[$rs->ItemCode]))
 								{
@@ -711,22 +711,22 @@ class Pick extends PS_Controller
 									$row->OrderDate = $rs->OrderDate;
 									$row->ItemCode = $rs->ItemCode;
 									$row->ItemName = $rs->ItemName;
-									$row->UomEntry = $rs->UomEntry2;
-									$row->UomCode = $rs->UomCode2;
-									$row->unitMsr = $rs->unitMsr2;
+									$row->UomEntry = $rs->UomEntry;
+									$row->UomCode = $rs->UomCode;
+									$row->unitMsr = $rs->unitMsr;
 									$row->UomEntry2 = $rs->UomEntry2;
 									$row->UomCode2 = $rs->UomCode2;
 									$row->unitMsr2 = $rs->unitMsr2;
 									$row->price = $rs->price;
-									$row->BaseQty = 1;
-									$row->RelQtty = $rs->BaseRelQty;
+									$row->BaseQty = $rs->BaseQty;
+									$row->RelQtty = $rs->RelQtty;
 									$row->BaseRelQty = $rs->BaseRelQty;
 
 									$details[$key] = $row;
 								}
 								else
 								{
-									$details[$key]->RelQtty += $rs->BaseRelQty;
+									$details[$key]->RelQtty += $rs->RelQtty;
 									$details[$key]->BaseRelQty += $rs->BaseRelQty;
 								}
 

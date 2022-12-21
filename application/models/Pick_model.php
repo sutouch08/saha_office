@@ -137,12 +137,13 @@ class Pick_model extends CI_Model
   }
 
 
-  public function get_pick_rows_by_item($AbsEntry, $ItemCode)
+  public function get_pick_rows_by_item($AbsEntry, $OrderCode, $ItemCode)
   {
     $rs = $this->db
     ->where('AbsEntry', $AbsEntry)
     ->where('ItemCode', $ItemCode)
-    ->where('PickQtty <', 'RelQtty', FALSE)
+    ->where('OrderCode', $OrderCode)    
+    ->where('BasePickQty <', 'BaseRelQty', FALSE)
     ->order_by('PickEntry', 'ASC')
     ->get('pick_row');
 
