@@ -88,6 +88,40 @@ class Auto_complete extends PS_Controller
     echo json_encode($sc);
   }
 
+  public function get_bp_code_and_name()
+  {
+    $df_cust = getConfig('DEFAULT_CUSTOMER_CODE');
+
+    $txt = trim($_REQUEST['term']);
+    $sc = array();
+
+    $qr  = "SELECT CardCode AS code, CardName AS name ";
+    $qr .= "FROM OCRD ";
+    $qr .= "WHERE CardType IN('C', 'L', 'S') ";
+
+    $qr .= "AND validFor = 'Y' ";
+
+    if($txt !== '*')
+    {
+      $qr .= "AND (CardCode = '{$df_cust}' OR CardCode LIKE N'%{$this->ms->escape_str($txt)}%' OR CardName LIKE N'%{$this->ms->escape_str($txt)}%') ";
+    }
+
+    $qr .= "ORDER BY 1 OFFSET 0 ROWS FETCH NEXT 50 ROWS ONLY";
+
+    $qs = $this->ms->query($qr);
+
+    if($qs->num_rows() > 0)
+    {
+      foreach($qs->result() as $rs)
+      {
+        $sc[] = $rs->code.' | '.$rs->name;
+      }
+    }
+
+
+    echo json_encode($sc);
+  }
+
 
   public function sub_district()
   {

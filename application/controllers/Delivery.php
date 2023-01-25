@@ -856,7 +856,8 @@ class Delivery extends PS_Controller
 							{
 								$arr = array(
 						      'U_Deliver_doc' => $code,
-						      'U_Deliver_status' => $rs->result_status
+						      'U_Deliver_status' => $rs->result_status,
+									'U_Deliver_date' => now()
 						    );
 
 								switch ($rs->DocType) {
@@ -1069,11 +1070,15 @@ class Delivery extends PS_Controller
 			if($doc_type === 'IV')
 			{
 				$this->ms
+				->distinct()
 				->select('O.DocNum, O.DocDate, O.CardCode, O.CardName, O.Address2, O.DocTotal')
 				->select('C.Address AS ShipToCode, C.Street, C.Block, C.ZipCode, C.City, C.County, C.Country')
 				->select('C.U_Contract AS Contact, C.U_Tel AS Phone, C.U_SP_DateWork AS WorkDate, C.U_SP_DateTime AS WorkTime')
-				->from('OINV AS O')
+				->from('INV1 AS R')
+				->join('OINV AS O', 'R.DocEntry = O.DocEntry', 'left')
 				->join('CRD1 AS C', "O.CardCode = C.CardCode AND O.ShipToCode = C.Address AND C.AdresType = 'S'", 'left')
+				->where('O.CANCELED', 'N')
+				->where('R.BaseType !=', 15)
 				->like('O.DocNum', $term);
 
 				if($ship_type == 'P')
@@ -1122,16 +1127,17 @@ class Delivery extends PS_Controller
 
 			if($doc_type === 'PB')
 			{
-				$this->ms
-				->select('O.U_BEX_BI01 AS DocNum, O.DocDate, O.CardCode, O.CardName, D.SumApplied AS DocTotal')
-				->select('C.Address AS ShipToCode, C.Street, C.Block, C.ZipCode, C.City, C.County, C.Country')
-				->select('C.U_Contract AS Contact, C.U_Tel AS Phone, C.U_SP_DateWork AS WorkDate, C.U_SP_DateTime AS WorkTime')
-				->from('OPDF AS O')
-				->join('PDF2 AS D', 'O.DocEntry = D.DocNum', 'left')
-				->join('CRD1 AS C', "O.CardCode = C.CardCode AND O.PayToCode = C.Address AND C.AdresType = 'B'", 'left')
-				->like('O.U_BEX_BI01', $term);
+				$qr = "SELECT DISTINCT O.U_BEX_BI01 AS DocNum, O.DocDate, O.CardCode, O.CardName,
+							C.Address AS ShipToCode, C.Street, C.Block, C.ZipCode, C.City, C.County, C.Country,
+							C.U_Contract AS Contact, C.U_Tel AS Phone, C.U_SP_DateWork AS WorkDate, C.U_SP_DateTime AS WorkTime,
+							(SELECT SUM(SumApplied) FROM PDF2 WHERE DocNum = O.DocEntry GROUP BY DocNum) AS DocTotal
+							FROM OPDF AS O
+							LEFT JOIN PDF2 AS D ON O.DocEntry = D.DocNum
+							LEFT JOIN CRD1 AS C ON O.CardCode = C.CardCode AND O.PayToCode = C.Address AND C.AdresType = 'B'
+							WHERE O.U_BEX_BI01 LIKE '%{$term}%'
+							ORDER BY O.U_BEX_BI01 DESC OFFSET 0 ROWS FETCH FIRST 50 ROWS ONLY";
 
-				$rs = $this->ms->order_by('O.U_BEX_BI01', 'DESC')->limit(50)->get();
+				$rs = $this->ms->query($qr);
 
 				if($rs->num_rows() > 0)
 				{
@@ -1227,15 +1233,15 @@ class Delivery extends PS_Controller
 
 			if($docType === 'PB')
 			{
-				$rs = $this->ms
-				->select('O.U_BEX_BI01 AS DocNum, O.DocDate, O.CardCode, O.CardName, D.SumApplied AS DocTotal')
-				->select('C.Address AS ShipToCode, C.Street, C.Block, C.ZipCode, C.City, C.County, C.Country')
-				->select('C.U_Contract AS Contact, C.U_Tel AS Phone, C.U_SP_DateWork AS WorkDate, C.U_SP_DateTime AS WorkTime')
-				->from('OPDF AS O')
-				->join('PDF2 AS D', 'O.DocEntry = D.DocNum', 'left')
-				->join('CRD1 AS C', "O.CardCode = C.CardCode AND O.PayToCode = C.Address AND C.AdresType = 'B'", 'left')
-				->where('O.U_BEX_BI01', $docNum)
-				->get();
+				$qr = "SELECT DISTINCT O.U_BEX_BI01 AS DocNum, O.DocDate, O.CardCode, O.CardName,
+							C.Address AS ShipToCode, C.Street, C.Block, C.ZipCode, C.City, C.County, C.Country,
+							C.U_Contract AS Contact, C.U_Tel AS Phone, C.U_SP_DateWork AS WorkDate, C.U_SP_DateTime AS WorkTime,
+							(SELECT SUM(SumApplied) FROM PDF2 WHERE DocNum = O.DocEntry GROUP BY DocNum) AS DocTotal
+							FROM OPDF AS O
+							LEFT JOIN PDF2 AS D ON O.DocEntry = D.DocNum
+							LEFT JOIN CRD1 AS C ON O.CardCode = C.CardCode AND O.PayToCode = C.Address AND C.AdresType = 'B'
+							WHERE O.U_BEX_BI01 = '{$docNum}'";
+				$rs = $this->ms->query($qr);
 			}
 
 			if($rs->num_rows() === 1)

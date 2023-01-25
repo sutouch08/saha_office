@@ -67,7 +67,7 @@ function saveAdd() {
         }
         else {
           id = docs[code];
-          if(id !== undefined) {
+          if(shipType != 'O' && id !== undefined) {
             $('#row-'+no).addClass('has-error');
             $('#row-'+id).addClass('has-error');
             err++;
@@ -76,7 +76,10 @@ function saveAdd() {
           }
           else {
             $('#row-'+no).removeClass('has-error');
-            docs[code] = no;
+            if(shipType != 'O') {
+              docs[code] = no;
+            }
+
             let docTotal = $('#docTotal-'+no).val();
             let row = {
               "cardCode" : cardCode,
@@ -256,7 +259,9 @@ function saveUpdate() {
           }
           else {
             $('#row-'+no).removeClass('has-error');
-            docs[code] = no;
+            if(shipType != 'O') {
+              docs[code] = no;
+            }
             let docTotal = $('#docTotal-'+no).val();
             let row = {
               "cardCode" : cardCode,
@@ -381,6 +386,10 @@ function toggleDocType(no) {
     source = $('#docTypeTemplate1').html();
   }
 
+  if(shipType == 'R') {
+    source = $('#docTypeTemplate5').html();
+  }
+
   let data = {};
   let output = $('#docType-'+no);
   render(source, data, output);
@@ -400,7 +409,7 @@ function toggleChkAll(el) {
 
 
 function clearRow(no, shipType) {
-  if(shipType == 'P' || shipType == 'D') {
+  if(shipType != 'O') {
     $('#cardCode-'+no).val('');
     $('#cardName-'+no).val('');
     $('#shipTo-'+no).val('');
@@ -511,7 +520,7 @@ function docNumInit(no) {
 
 function customerInit(no) {
   $('#cardCode-'+no).autocomplete({
-    source: BASE_URL + 'auto_complete/get_customer_code_and_name',
+    source: BASE_URL + 'auto_complete/get_bp_code_and_name',
     close:function() {
       var arr = $(this).val().split(' | ');
       if(arr.length == 2) {

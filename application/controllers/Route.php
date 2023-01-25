@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Route extends PS_Controller
 {
 	public $menu_code = 'ROUTE';
-	public $menu_group_code = 'AD';
+	public $menu_group_code = 'TR';
 	public $title = 'เส้นทางขนส่ง';
 	public $segment = 3;
 
@@ -50,7 +50,7 @@ class Route extends PS_Controller
 
 	public function add_new()
 	{
-		if($this->isAdmin OR $this->isSuperAdmin)
+		if($this->isLead OR $this->isAdmin OR $this->isSuperAdmin)
 		{
 			$this->load->view('route/route_add');
 		}
@@ -69,7 +69,7 @@ class Route extends PS_Controller
 		$level = $this->input->post('level');
 		$active = $this->input->post('active');
 
-		if($this->isAdmin OR $this->isSuperAdmin)
+		if($this->isLead OR $this->isAdmin OR $this->isSuperAdmin)
 		{
 			if(!empty($name))
 			{
@@ -111,7 +111,7 @@ class Route extends PS_Controller
 
 	public function edit($id)
 	{
-		if($this->isAdmin OR $this->isSuperAdmin)
+		if($this->isLead OR $this->isAdmin OR $this->isSuperAdmin)
 		{
 			$rs = $this->route_model->get($id);
 
@@ -136,7 +136,7 @@ class Route extends PS_Controller
 	{
 		$sc = TRUE;
 
-		if($this->isAdmin OR $this->isSuperAdmin)
+		if($this->isLead OR $this->isAdmin OR $this->isSuperAdmin)
 		{
 			$id = $this->input->post('id');
 			$name = trim($this->input->post('name'));
@@ -179,7 +179,7 @@ class Route extends PS_Controller
 	{
 		$sc = TRUE;
 
-		if($this->isAdmin OR $this->isSuperAdmin)
+		if($this->isLead OR $this->isAdmin OR $this->isSuperAdmin)
 		{
 			$id = $this->input->post('id');
 

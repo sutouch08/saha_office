@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Vehicle extends PS_Controller
 {
 	public $menu_code = 'VEHICLE';
-	public $menu_group_code = 'AD';
+	public $menu_group_code = 'TR';
 	public $title = 'Vehicle';
 	public $segment = 3;
 
@@ -50,7 +50,7 @@ class Vehicle extends PS_Controller
 
 	public function add_new()
 	{
-		if($this->isAdmin OR $this->isSuperAdmin)
+		if($this->isLead OR $this->isAdmin OR $this->isSuperAdmin)
 		{
 			$this->load->view('vehicle/vehicle_add');
 		}
@@ -68,7 +68,7 @@ class Vehicle extends PS_Controller
 		$name = trim($this->input->post('name')); //--- ทะเบียนรถ
 		$active = $this->input->post('active');
 
-		if($this->isAdmin OR $this->isSuperAdmin)
+		if($this->isLead OR $this->isAdmin OR $this->isSuperAdmin)
 		{
 			if(!empty($name))
 			{
@@ -109,7 +109,7 @@ class Vehicle extends PS_Controller
 
 	public function edit($id)
 	{
-		if($this->isAdmin OR $this->isSuperAdmin)
+		if($this->isLead OR $this->isAdmin OR $this->isSuperAdmin)
 		{
 			$rs = $this->vehicle_model->get($id);
 
@@ -134,12 +134,12 @@ class Vehicle extends PS_Controller
 	{
 		$sc = TRUE;
 
-		if($this->isAdmin OR $this->isSuperAdmin)
+		if($this->isLead OR $this->isAdmin OR $this->isSuperAdmin)
 		{
 			$id = $this->input->post('id');
 			$active = $this->input->post('active');
 
-			$arr = array(				
+			$arr = array(
 				'active' => $active == 1 ? 1 : 0
 			);
 
@@ -165,7 +165,7 @@ class Vehicle extends PS_Controller
 	{
 		$sc = TRUE;
 
-		if($this->isAdmin OR $this->isSuperAdmin)
+		if($this->isLead OR $this->isAdmin OR $this->isSuperAdmin)
 		{
 			$id = $this->input->post('id');
 

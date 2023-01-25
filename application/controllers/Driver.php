@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Driver extends PS_Controller
 {
 	public $menu_code = 'DRIVER';
-	public $menu_group_code = 'AD';
+	public $menu_group_code = 'TR';
 	public $title = 'Driver';
 	public $segment = 3;
 
@@ -51,7 +51,7 @@ class Driver extends PS_Controller
 
 	public function add_new()
 	{
-		if($this->isAdmin OR $this->isSuperAdmin)
+		if($this->isLead OR $this->isAdmin OR $this->isSuperAdmin)
 		{
 			$this->load->view('driver/driver_add');
 		}
@@ -70,7 +70,7 @@ class Driver extends PS_Controller
 		$type = $this->input->post('type');
 		$active = $this->input->post('active');
 
-		if($this->isAdmin OR $this->isSuperAdmin)
+		if($this->isLead OR $this->isLead OR $this->isAdmin OR $this->isSuperAdmin)
 		{
 			if( ! empty($name))
 			{
@@ -112,7 +112,7 @@ class Driver extends PS_Controller
 
 	public function edit($id)
 	{
-		if($this->isAdmin OR $this->isSuperAdmin)
+		if($this->isLead OR $this->isAdmin OR $this->isSuperAdmin)
 		{
 			$rs = $this->driver_model->get($id);
 
@@ -137,7 +137,7 @@ class Driver extends PS_Controller
 	{
 		$sc = TRUE;
 
-		if($this->isAdmin OR $this->isSuperAdmin)
+		if($this->isLead OR $this->isAdmin OR $this->isSuperAdmin)
 		{
 			$emp_id = $this->input->post('emp_id');
 			$name = trim($this->input->post('name'));
@@ -188,7 +188,7 @@ class Driver extends PS_Controller
 	{
 		$sc = TRUE;
 
-		if($this->isAdmin OR $this->isSuperAdmin)
+		if($this->isLead OR $this->isAdmin OR $this->isSuperAdmin)
 		{
 			$emp_id = $this->input->post('emp_id');
 

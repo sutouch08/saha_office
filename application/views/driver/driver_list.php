@@ -5,7 +5,7 @@
     </div>
     <div class="col-sm-6 col-xs-6 padding-5">
     	<p class="pull-right top-p">
-      <?php if($this->isAdmin OR $this->isSuperAdmin) : ?>
+      <?php if($this->isLead OR $this->isAdmin OR $this->isSuperAdmin) : ?>
         <button type="button" class="btn btn-sm btn-success" onclick="goAdd()"><i class="fa fa-plus"></i> Add New</button>
       <?php endif; ?>
       </p>
@@ -74,7 +74,7 @@
 							<?php echo is_active($rs->active); ?>
 						</td>
 						<td class="text-right">
-							<?php if($this->isAdmin OR $this->isSuperAdmin) : ?>
+							<?php if($this->isLead OR $this->isAdmin OR $this->isSuperAdmin) : ?>
 								<button type="button" class="btn btn-mini btn-warning" onclick="goEdit(<?php echo $rs->emp_id; ?>)">
 									<i class="fa fa-pencil"></i>
 								</button>

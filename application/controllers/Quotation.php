@@ -483,15 +483,23 @@ class Quotation extends PS_Controller
 				{
 					$uom = "";
 					$UomList = $this->item_model->get_uom_list_by_item_code($rs->ItemCode);
+					$baseQty = 1;
 
 					if(!empty($UomList))
 					{
 						foreach($UomList as $ls)
 						{
 							$uom .= '<option data-qty="'.$ls->BaseQty.'" data-code="'.$ls->UomCode.'" value="'.$ls->UomEntry.'" '.is_selected($ls->UomCode, $rs->UomCode).'>'.$ls->UomName.'</option>';
+							if($ls->UomCode == $rs->UomCode)
+							{
+								$baseQty = $ls->BaseQty;
+							}
 						}
 					}
 
+					$item = $this->item_model->get($rs->ItemCode);
+					$rs->cost = empty($item) ? 0.00 : $item->cost;
+					$rs->baseQty = $baseQty;
 					$rs->uom = $uom;
 					$stock = $this->stock_model->get_stock($rs->ItemCode, NULL);
 					$totalAmount += ($rs->Qty * $rs->SellPrice);
@@ -902,6 +910,7 @@ class Quotation extends PS_Controller
 					'taxCode' => !empty($customerTax) ? $customerTax->taxCode : $item->taxCode,
 					'taxRate' => !empty($customerTax) ? $customerTax->taxRate : $item->taxRate,
 					'price' => $price,
+					'cost' => $item->cost,
 					'lastSellPrice' => empty($card_code) ? $price : $this->item_model->last_sell_price($item->code, $card_code, $DfUom),
 					'lastQuotePrice' => empty($card_code) ? $price : $this->item_model->last_quote_price($item->code, $card_code, $DfUom),
 					'discount' => $discount,
@@ -1763,13 +1772,15 @@ class Quotation extends PS_Controller
 		$sale = $this->user_model->get_sap_sale_data($doc->SlpCode);
 		$doc->prefix = empty($doc->BeginStr) ? $this->quotation_model->get_prefix($doc->Series) : $doc->BeginStr;
 		$doc->OwnerName = empty($doc->OwnerCode) ? "" : $this->user_model->get_emp_name($doc->OwnerCode);
-		$contact_person = empty($doc->CntctCode) ? "" : $this->customers_model->get_contact_person_name($doc->CntctCode);
+		$shipTo = $this->customers_model->get_ship_to_data($doc->CardCode, $doc->ShipToCode);
+		//$contact_person = empty($doc->CntctCode) ? "" : $this->customers_model->get_contact_person_name($doc->CntctCode);
 
 		$ds = array(
 			'doc' => $doc,
 			'details' => $details,
 			'customer' => $customer,
-			'contact_person' => $contact_person,
+			'shipTo' => $shipTo,
+			//'contact_person' => $contact_person,
 			'sale' => $sale,
 			'show_discount' => TRUE
 		);

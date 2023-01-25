@@ -52,6 +52,7 @@
           <th class="middle text-center" style="width:100px;">Tax Code</th>
           <th class="middle text-center" style="width:100px;">มูค่า/หน่วย หลังส่วนลด(ก่อน vat)</th>
           <th class="middle text-center" style="width:150px;">มูลค่ารวม (ก่อน vat)</th>
+          <th class="middle text-center" style="width:100px;">Gross Profit/Unit</th>
           <th class="middle text-center" style="width:150px;">Whs</th>
           <th class="middle text-center" style="width:100px;">In Stock</th>
           <th class="middle text-center" style="width:100px;">Commited</th>
@@ -64,7 +65,11 @@
         <?php $whs = select_whs(); ?>
         <?php if(!empty($details)) : ?>
         <?php   foreach($details as $ds) : ?>
+          <?php $cost = $ds->cost * $ds->baseQty; ?>
+          <?php $gp = $ds->SellPrice - $cost; ?>
           <tr id="row-<?php echo $no; ?>">
+            <input type="hidden" id="baseCost-<?php echo $no; ?>" value="<?php echo $ds->cost; ?>" />
+            <input type="hidden" id="cost-<?php echo $no; ?>" value="<?php echo $cost; ?>" />
             <td class="middle text-center">
               <input type="checkbox" class="ace chk" id="chk-<?php echo $no; ?>" value="<?php echo $no; ?>"/>
               <span class="lbl"></span>
@@ -135,6 +140,10 @@
             </td>
 
             <td class="middle">
+              <input type="text" class="form-control input-sm text-right" id="gp-<?php echo $no; ?>" value="<?php echo number($gp, 2); ?>" readonly disabled>
+            </td>
+
+            <td class="middle">
               <select class="form-control inpt-sm whs" id="whs-<?php echo $no; ?>" onchange="getStock(<?php echo $no; ?>)">
                 <?php echo select_whs($ds->WhsCode); ?>
               </select>
@@ -158,6 +167,8 @@
 
         <?php while($no <= $rows) : ?>
         <tr id="row-<?php echo $no; ?>">
+          <input type="hidden" id="baseCost-<?php echo $no; ?>" value="0.00" />
+          <input type="hidden" id="cost-<?php echo $no; ?>" value="0.00" />
           <td class="middle text-center">
             <input type="checkbox" class="ace chk" id="chk-<?php echo $no; ?>" value="<?php echo $no; ?>"/>
             <span class="lbl"></span>
@@ -223,6 +234,10 @@
           </td>
 
           <td class="middle">
+            <input type="text" class="form-control input-sm text-right" id="gp-<?php echo $no; ?>" value="0.00" readonly disabled>
+          </td>
+
+          <td class="middle">
             <select class="form-control inpt-sm whs" id="whs-<?php echo $no; ?>" onchange="getStock(<?php echo $no; ?>)">
               <?php echo $whs; ?>
             </select>
@@ -251,6 +266,8 @@
 <input type="hidden"  id="top-row" value="<?php echo ($no-1); ?>" />
 <script id="row-template" type="text/x-handlebarsTemplate">
   <tr id="row-{{no}}">
+  <input type="hidden" id="baseCost-{{no}}" value="0.00" />
+  <input type="hidden" id="cost-{{no}}" value="0.00" />
     <td class="middle text-center">
       <input type="checkbox" class="ace chk" id="chk-{{no}}" value="{{no}}"/>
       <span class="lbl"></span>
@@ -311,6 +328,10 @@
     <td class="middle">
       <input type="text" class="form-control input-sm text-right number input-amount" id="lineAmount-{{no}}" onkeyup="recalDiscount($(this))" disabled/>
       <input type="hidden" class="lineDisc" id="lineDiscPrcnt-{{no}}" value="0">
+    </td>
+
+    <td class="middle">
+      <input type="text" class="form-control input-sm text-right" id="gp-{{no}}" value="0.00" readonly disabled>
     </td>
 
     <td class="middle">
@@ -395,6 +416,10 @@
 </td>
 
 <td class="middle">
+  <input type="text" class="form-control input-sm text-right" id="gp-{{no}}" value="0.00" readonly disabled>
+</td>
+
+<td class="middle">
   <select class="form-control inpt-sm whs" id="whs-{{no}}">
     <?php echo $whs; ?>
   </select>
@@ -413,7 +438,7 @@
 
 <script id="text-template" type="text/x-handlebarsTemplate">
   <td class="middle text-center">
-    <input type="checkbox" class="ace" id="chk-{{no}}" value="{{no}}"/>
+    <input type="checkbox" class="ace chk" id="chk-{{no}}" value="{{no}}"/>
     <span class="lbl"></span>
   </td>
   <td class="middle text-center no">{{no}}</td>
@@ -423,7 +448,7 @@
       <option value="1" selected>Text</option>
     </select>
   </td>
-  <td colspan="19">
+  <td colspan="20">
     <textarea id="text-{{no}}" class="autosize autosize-transition" style="height:150px; width:800px;"></textarea>
   </td>
 </script>
