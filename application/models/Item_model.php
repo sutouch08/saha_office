@@ -12,12 +12,12 @@ class Item_model extends CI_Model
     $rs = $this->ms
     ->select('P.ItemCode AS code, P.ItemName AS name, P.UgpEntry, P.IUoMEntry')
     ->select('P.VatGourpSa AS taxCode, P.UserText AS detail, P.ValidComm')
-    ->select('P1.Price AS price, P2.Price AS cost')
+    ->select('P1.Price AS price, P.LstEvlPric AS cost')
     ->select('T.Rate AS taxRate')
     ->select('P.DfltWH AS dfWhsCode')
     ->from('OITM AS P')
     ->join('ITM1 AS P1', 'P.ItemCode = P1.ItemCode AND P1.PriceList = 1', 'left')
-    ->join('ITM1 AS P2', 'P.ItemCode = P2.ItemCode AND P2.PriceList = 2', 'left')
+    // ->join('ITM1 AS P2', 'P.ItemCode = P2.ItemCode AND P2.PriceList = 2', 'left')
     ->join('OVTG AS T', 'T.Code = P.VatGourpSa', 'left')
     ->where('P.ItemCode', $ItemCode)
     ->get();

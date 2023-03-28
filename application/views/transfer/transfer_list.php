@@ -48,6 +48,7 @@
 			<option value="Y" <?php echo is_selected('Y', $Status); ?>>Success</option>
 			<option value="F" <?php echo is_selected('F', $Status); ?>>Fail</option>
 			<option value="C" <?php echo is_selected('C', $Status); ?>>Cancelled</option>
+			<option value="M" <?php echo is_selected('C', $Status); ?>>Force Closed</option>
 		</select>
   </div>
 
@@ -120,6 +121,8 @@
 									<span class="red">Cancelled</span>
 								<?php elseif($rs->Status == 'F') : ?>
 									<button type="button" class="btn btn-minier btn-danger btn-block" onclick="viewDetail('<?php echo $rs->code; ?>')">Failed</button>
+								<?php elseif($rs->Status == 'M') : ?>
+									<span class="red">Force Closed</span>
 								<?php endif; ?>
 						</td>
 						<td class="middle text-right">

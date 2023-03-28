@@ -8,10 +8,13 @@
     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5">
     	<p class="pull-right top-p">
         <button type="button" class="btn btn-sm btn-default" onclick="goBack()"><i class="fa fa-arrow-left"></i> &nbsp; Back</button>
-				<?php if($doc->Status != 'C') : ?>
+				<?php if($doc->Status != 'C' && $doc->Status != 'M') : ?>
 				<button type="button" class="btn btn-sm btn-success" onclick="sendToSap()"><i class="fa fa-send"></i> &nbsp; Send to SAP</button>
 					<?php if($doc->Status == 'N') : ?>
 						<button type="button" class="btn btn-sm btn-danger" onclick="getDelete(<?php echo $doc->id; ?>, '<?php echo $doc->code; ?>')"><i class="fa fa-times"></i> ยกเลิก</button>
+					<?php endif; ?>
+					<?php if($doc->Status != 'M' && ($this->isAdmin OR $this->isSuperAdmin)) : ?>
+						<button type="button" class="btn btn-sm btn-danger" onclick="forceClose(<?php echo $doc->id; ?>, '<?php echo $doc->code; ?>')">บังคับปิด</button>
 					<?php endif; ?>
 				<?php endif; ?>
       </p>
@@ -21,6 +24,9 @@
 
 <?php if($doc->Status == 'C') : ?>
 	<?php $this->load->view('cancle_watermark'); ?>
+<?php endif; ?>
+<?php if($doc->Status == 'M') : ?>
+	<?php $this->load->view('force_close_watermark'); ?>
 <?php endif; ?>
 
 <div class="row">

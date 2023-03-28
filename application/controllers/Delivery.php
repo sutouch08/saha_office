@@ -1078,13 +1078,13 @@ class Delivery extends PS_Controller
 				->join('OINV AS O', 'R.DocEntry = O.DocEntry', 'left')
 				->join('CRD1 AS C', "O.CardCode = C.CardCode AND O.ShipToCode = C.Address AND C.AdresType = 'S'", 'left')
 				->where('O.CANCELED', 'N')
-				->where('R.BaseType !=', 15)
 				->like('O.DocNum', $term);
 
 				if($ship_type == 'P')
 				{
 					$this->ms
 					->group_start()
+					->where('R.BaseType !=', 15)
 					->where('O.U_Deliver_status IS NULL', NULL, FALSE)
 					->or_where('O.U_Deliver_status !=',4)
 					->group_end();
@@ -1207,16 +1207,42 @@ class Delivery extends PS_Controller
 				->get();
 			}
 
+
+
 			if($docType === 'IV')
 			{
-				$rs = $this->ms
-				->select('O.DocNum, O.DocDate, O.CardCode, O.CardName, O.Address2, O.DocTotal, O.U_Deliver_doc, O.U_Deliver_status')
-				->select('C.Address AS ShipToCode, C.Street, C.Block, C.ZipCode, C.City, C.County, C.Country')
-				->select('C.U_Contract AS Contact, C.U_Tel AS Phone, C.U_SP_DateWork AS WorkDate, C.U_SP_DateTime AS WorkTime')
-				->from('OINV AS O')
-				->join('CRD1 AS C', "O.CardCode = C.CardCode AND O.ShipToCode = C.Address AND C.AdresType = 'S'", 'left')
-				->where('O.DocNum', $docNum)
-				->get();
+				if($shipType == 'P')
+				{
+					$rs = $this->ms
+					->distinct()
+					->select('O.DocNum, O.DocDate, O.CardCode, O.CardName, O.Address2, O.DocTotal, O.U_Deliver_doc, O.U_Deliver_status')
+					->select('C.Address AS ShipToCode, C.Street, C.Block, C.ZipCode, C.City, C.County, C.Country')
+					->select('C.U_Contract AS Contact, C.U_Tel AS Phone, C.U_SP_DateWork AS WorkDate, C.U_SP_DateTime AS WorkTime')
+					->from('INV1 AS R')
+					->join('OINV AS O', 'R.DocEntry = O.DocEntry', 'left')
+					->join('CRD1 AS C', "O.CardCode = C.CardCode AND O.ShipToCode = C.Address AND C.AdresType = 'S'", 'left')
+					->where('O.CANCELED', 'N')
+					->where('O.DocNum', $docNum)
+					->group_start()
+					->where('R.BaseType !=', 15)
+					->where('O.U_Deliver_status IS NULL', NULL, FALSE)
+					->or_where('O.U_Deliver_status !=',4)
+					->group_end()
+					->get();
+				}
+
+
+				if($shipType == 'D')
+				{
+					$rs = $this->ms
+					->select('O.DocNum, O.DocDate, O.CardCode, O.CardName, O.Address2, O.DocTotal, O.U_Deliver_doc, O.U_Deliver_status')
+					->select('C.Address AS ShipToCode, C.Street, C.Block, C.ZipCode, C.City, C.County, C.Country')
+					->select('C.U_Contract AS Contact, C.U_Tel AS Phone, C.U_SP_DateWork AS WorkDate, C.U_SP_DateTime AS WorkTime')
+					->from('OINV AS O')
+					->join('CRD1 AS C', "O.CardCode = C.CardCode AND O.ShipToCode = C.Address AND C.AdresType = 'S'", 'left')
+					->where('O.DocNum', $docNum)
+					->get();
+				}
 			}
 
 			if($docType === 'CN')

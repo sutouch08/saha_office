@@ -152,7 +152,8 @@ class Customers_model extends CI_Model
 
   public function get_ship_to_data($cardCode, $shipToCode)
   {
-    $rs = $this->ms->where('CardCode', $cardCode)->where('AdresType', 'S')->where('Address', $shipToCode)->get('CRD1');
+    $qr = "SELECT * FROM CRD1 WHERE CardCode = N'{$cardCode}' AND AdresType = 'S' AND Address = N'{$shipToCode}'";
+    $rs = $this->ms->query($qr);
 
     if($rs->num_rows() === 1)
     {
