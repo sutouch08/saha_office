@@ -209,7 +209,7 @@ class Sync_transfer extends CI_Controller
         ->update('buffer');
       }
 
-      $this->db->where('BasePickQty', 0)->delete('buffer');
+      $this->db->where('BasePickQty <=', 0)->delete('buffer');
     }
   }
 
