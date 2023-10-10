@@ -50,9 +50,18 @@ class Delivery extends PS_Controller
 		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
 		$init	= pagination_config($this->home.'/index/', $rows, $perpage, $this->segment);
 
-		$rs = $this->delivery_model->get_list($filter, $perpage, $this->uri->segment($this->segment));
+		$data = $this->delivery_model->get_list($filter, $perpage, $this->uri->segment($this->segment));
 
-    $filter['data'] = $rs;
+		if( ! empty($data))
+		{
+			foreach($data as $rs)
+			{
+				$rs->total = $this->delivery_model->count_detail_rows($rs->code);
+				$rs->success = $this->delivery_model->count_success_rows($rs->code);
+			}
+		}
+
+    $filter['data'] = $data;
 
 		$this->pagination->initialize($init);
     $this->load->view('delivery/delivery_list', $filter);
@@ -857,7 +866,7 @@ class Delivery extends PS_Controller
 								$arr = array(
 						      'U_Deliver_doc' => $code,
 						      'U_Deliver_status' => $rs->result_status,
-									'U_Deliver_date' => now()
+									'U_Deliver_date' => $doc->ShipDate //now()
 						    );
 
 								switch ($rs->DocType) {

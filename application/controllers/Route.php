@@ -117,6 +117,8 @@ class Route extends PS_Controller
 
 			if(!empty($rs))
 			{
+				$rs->details = $this->route_model->get_details($id);
+
 				$this->load->view('route/route_edit', $rs);
 			}
 			else
@@ -174,6 +176,65 @@ class Route extends PS_Controller
 	}
 
 
+	public function add_zone()
+	{
+		$sc = TRUE;
+		$id = $this->input->post('id');
+		$data = json_decode($this->input->post('zone'));
+
+		if( ! empty($id))
+		{
+			//--drop current
+			$this->db->trans_begin();
+
+			if( ! $this->route_model->drop_details($id))
+			{
+				$sc = FALSE;
+				$this->error = "Delete Current Zone Failed";
+			}
+
+			if($sc === TRUE && ! empty($data))
+			{
+				foreach($data as $rs)
+				{
+					if($sc === FALSE)
+					{
+						break;
+					}
+
+					$arr = array(
+						'route_id' => $id,
+						'zone_id' => $rs->id,
+						'district' => $rs->district,
+						'province' => $rs->province,
+						'zipCode' => $rs->zipCode
+					);
+
+					if( ! $this->route_model->add_zone($arr))
+					{
+						$sc = FALSE;
+						$this->error = "Add Zone Failed";
+					}
+				}
+			}
+
+			if($sc === TRUE)
+			{
+				$this->db->trans_commit();
+			}
+			else
+			{
+				$this->db->trans_rollback();
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing Required Parameter";
+		}
+
+		$this->response($sc);
+	}
 
 	public function delete()
 	{
@@ -193,6 +254,11 @@ class Route extends PS_Controller
 					{
 						$sc = FALSE;
 						$this->error = "Delete Failed";
+					}
+
+					if($sc === TRUE)
+					{
+						$this->route_model->drop_details($id);
 					}
 				}
 				else

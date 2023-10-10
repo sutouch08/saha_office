@@ -283,7 +283,7 @@ class Delivery_model extends CI_Model
 
     return FALSE;
   }
-  
+
 
   public function get_list(array $ds = array(), $perpage = 20, $offset = 0)
   {
@@ -455,6 +455,17 @@ class Delivery_model extends CI_Model
     }
 
     return NULL;
+  }
+
+  public function count_detail_rows($code)
+  {
+    return $this->db->where('delivery_code', $code)->count_all_results($this->td);
+  }
+
+
+  public function count_success_rows($code)
+  {
+    return $this->db->where('delivery_code', $code)->where('result_status', 4)->count_all_results($this->td);
   }
 
 } //--- end model

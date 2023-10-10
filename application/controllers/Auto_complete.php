@@ -158,6 +158,30 @@ class Auto_complete extends PS_Controller
     echo json_encode($sc);
   }
 
+  public function get_delivery_zone()
+  {
+    $sc = array();
+    $adr = $this->db
+    ->where('active', 1)
+    ->group_start()
+    ->like('district', $_REQUEST['term'])
+    ->or_like('province', $_REQUEST['term'])
+    ->or_like('zipCode', $_REQUEST['term'])
+    ->group_end()
+    ->limit(20)
+    ->get('delivery_zone');
+
+    if($adr->num_rows() > 0)
+    {
+      foreach($adr->result() as $rs)
+      {
+        $sc[] = $rs->id.'>>'.$rs->district.'>>'.$rs->province.'>>'.$rs->zipCode;
+      }
+    }
+
+    echo json_encode($sc);
+  }
+
 
 
   public function get_document($objType = 23, $cardCode = NULL)

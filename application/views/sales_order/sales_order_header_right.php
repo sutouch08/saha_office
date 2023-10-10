@@ -37,13 +37,13 @@
           <i class="ace-icon fa fa-calendar-o"></i>
           </span>
         </div>
-      </div>
+      </div>      
 
       <div class="form-group">
         <label class="col-sm-9 control-label no-padding-right">Delivery Date</label>
         <div class="col-sm-3 col-xs-8">
           <span class="input-icon input-icon-right">
-          <input type="text" id="DocDueDate" class="form-control input-sm" value="" readonly/>
+          <input type="text" id="DocDueDate" class="form-control input-sm" value="<?php echo date('d-m-Y', strtotime('+1 days')); ?>" readonly/>
           <i class="ace-icon fa fa-calendar-o"></i>
           </span>
         </div>

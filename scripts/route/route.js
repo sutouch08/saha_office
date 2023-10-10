@@ -147,3 +147,79 @@ function getDelete(id, name){
     })
   })
 }
+
+$('#zone').autocomplete({
+  source:BASE_URL + 'auto_complete/get_delivery_zone',
+  autoFocus:true
+});
+
+function addZone() {
+  let zone = $('#zone').val();
+
+  let arr = zone.split(">>");
+
+  if(arr.length == 4) {
+    let no = parseDefault(parseInt($('#row-no').val()), 1);
+    let uid = arr[0]; //md5(arr[0]+arr[1]+arr[2]);
+    if($('#'+uid).length) {
+      console.log('exists');
+      $('#zone').val('').focus();
+      return false;
+    }
+
+    no++;
+    let ds = {"no" : no, "id" : arr[0], "district" : arr[1], "province" : arr[2], "zipCode" : arr[3], "uid" : uid};
+    let source = $('#zone-template').html();
+    let output = $('#zone-list');
+
+    render_append(source, ds, output);
+    $('#row-no').val(no);
+    $('#zone').val('').focus();
+  }
+}
+
+
+function removeZone(no) {
+  $('#row-'+no).remove();
+  $('#zone').val('').focus();
+}
+
+function updateZone() {
+  let id = $('#id').val();
+  let ds = [];
+
+  $('.zone-data').each(function() {
+    let row = {"id" : $(this).data('id'), "district" : $(this).data('district'), "province" : $(this).data('province'), "zipCode" : $(this).data('zipcode')};
+    ds.push(row);
+  });
+
+  load_in();
+  $.ajax({
+    url:HOME + 'add_zone',
+    type:'POST',
+    cache:false,
+    data: {
+      "id" : id,
+      "zone" : JSON.stringify(ds)
+    },
+    success:function(rs) {
+      load_out();
+
+      if(rs === 'success') {
+        swal({
+          title:'Success',
+          type:'success',
+          timer:1000
+        });
+      }
+      else {
+        swal({
+          title:'Error!',
+          text:rs,
+          type:'error'
+        });
+      }
+    }
+  });
+
+}

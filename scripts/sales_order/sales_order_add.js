@@ -30,6 +30,7 @@ function saveAdd() {
 		'BillTo' : $('#BillTo').val(),
 		'U_DO_IV_Print' : $('#doc_type').val(),
 		'U_Delivery_Urgency' : $('#doc_urgency').val(),
+		//'U_Delivery_Date' : $('#U_Delivery_Date').val(),
 		//---- footer
 		'owner' : $('#owner').val(),
 		'comments' : $.trim($('#comments').val()),
@@ -88,6 +89,15 @@ function saveAdd() {
 	else {
 		$('#DocDate').removeClass('has-error');
 	}
+
+	// if(!isDate(ds.U_Delivery_Date)) {
+	// 	swal("Invalid Delivery Date");
+	// 	$('#U_Delivery_Date').addClass('has-error');
+	// 	return false;
+	// }
+	// else {
+	// 	$('#U_Delivery_Date').removeClass('has-error');
+	// }
 
 
 	if(!isDate(ds.DocDueDate)) {
@@ -301,6 +311,7 @@ function update() {
 		'BillTo' : $('#BillTo').val(),
 		'U_DO_IV_Print' : $('#doc_type').val(),
 		'U_Delivery_Urgency' : $('#doc_urgency').val(),
+		// 'U_Delivery_Date' : $('#U_Delivery_Date').val(),
 		//---- footer
 		'owner' : $('#owner').val(),
 		'comments' : $.trim($('#comments').val()),
@@ -310,7 +321,7 @@ function update() {
 		'tax' : removeCommas($('#tax').val()), //-- VatSum
 		'docTotal' : removeCommas($('#docTotal').val())
 	}
-
+	
 		//--- check required parameter
 	if(ds.CardCode.length === 0) {
 		swal("กรุณาระบุลูกค้า");
@@ -358,6 +369,15 @@ function update() {
 	else {
 		$('#DocDate').removeClass('has-error');
 	}
+
+	// if(!isDate(ds.U_Delivery_Date)) {
+	// 	swal("Invalid Delivery Date");
+	// 	$('#U_Delivery_Date').addClass('has-error');
+	// 	return false;
+	// }
+	// else {
+	// 	$('#U_Delivery_Date').removeClass('has-error');
+	// }
 
 
 	if(!isDate(ds.DocDueDate)) {

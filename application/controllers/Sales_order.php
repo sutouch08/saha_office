@@ -126,6 +126,7 @@ class Sales_order extends PS_Controller
 				'U_DO_IV_Print' => get_null($ds->U_DO_IV_Print),
 				'U_Delivery_Urgency' => get_null($ds->U_Delivery_Urgency),
 				'U_Remark_Int' => get_null($ds->U_Remark_Int),
+				//'U_Delivery_Date' => sap_date($ds->U_Delivery_Date),
 				'user_id' => $this->user->id,
 				'uname' => $this->user->uname,
 				'sale_team' => $this->user->sale_team
@@ -289,6 +290,7 @@ class Sales_order extends PS_Controller
 					'Comments' => get_null($ds->Comments),
 					'U_DO_IV_Print' => get_null($ds->U_DO_IV_Print),
 					'U_Delivery_Urgency' => get_null($ds->U_Delivery_Urgency),
+					'U_Delivery_Date' => sap_date($ds->U_Delivery_Date),
 					'U_Remark_Int' => get_null($ds->U_Remark_Int),
 					'user_id' => $this->user->id,
 					'uname' => $this->user->uname,
@@ -748,6 +750,7 @@ class Sales_order extends PS_Controller
 							'Comments' => get_null($ds->comments),
 							'U_DO_IV_Print' => get_null($ds->U_DO_IV_Print),
 							'U_Delivery_Urgency' => get_null($ds->U_Delivery_Urgency),
+							//'U_Delivery_Date' => sap_date($ds->U_Delivery_Date),
 							'U_Remark_Int' => get_null($ds->U_Remark_Int),
 							'user_id' => $this->user->id,
 							'uname' => $this->user->uname,
@@ -1457,7 +1460,8 @@ class Sales_order extends PS_Controller
 							'U_IV_DO_print' => $doc->U_DO_IV_Print,
 							'U_Delivery_Urgency' => $doc->U_Delivery_Urgency,
 							'F_Web' => 'A',
-							'F_WebDate' => sap_date(now(), TRUE)
+							'F_WebDate' => sap_date(now(), TRUE),
+							'U_Required_Delivery_Date' => sap_date($doc->DocDueDate)
 						);
 
 						$docEntry = $this->sales_order_model->add_sap_sales_order($header);
