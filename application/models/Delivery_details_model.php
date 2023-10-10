@@ -241,7 +241,7 @@ class Delivery_details_model extends CI_Model
       $this->db->like('o.uname', $ds['uname']);
     }
 
-    $rs = $this->db->order_by('d.delivery_code')->limit($perpage, $offset)->get();
+    $rs = $this->db->order_by('d.delivery_code', 'DESC')->limit($perpage, $offset)->get();
 
     if($rs->num_rows() > 0)
     {

@@ -23,6 +23,17 @@ class Route_model extends CI_Model
   }
 
 
+  public function add_zone(array $ds = array())
+  {
+    if( ! empty($ds))
+    {
+      return $this->db->insert('delivery_route_detail', $ds);
+    }
+
+    return FALSE;
+  }
+
+
 
   public function update($id, $ds = array())
   {
@@ -52,6 +63,30 @@ class Route_model extends CI_Model
     }
 
     return NULL;
+  }
+
+  public function get_details($id)
+  {
+    $rs = $this->db->where('route_id', $id)->get('delivery_route_detail');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+  public function drop_details($id)
+  {
+    return $this->db->where('route_id', $id)->delete('delivery_route_detail');
+  }
+
+
+  public function count_zone($id)
+  {
+    return $this->db->where('route_id', $id)->count_all_results('delivery_route_detail');
   }
 
 
@@ -134,6 +169,19 @@ class Route_model extends CI_Model
     }
 
     $count = $this->db->where('name', $name)->count_all_results($this->tb);
+
+    if($count > 0)
+    {
+      return TRUE;
+    }
+
+    return FALSE;
+  }
+
+
+  public function is_exists_zone($id, $zone_id)
+  {
+    $count = $this->db->where('route_id', $id)->where('zone_id', $zone_id)->count_all_results('delivery_route_detail');
 
     if($count > 0)
     {

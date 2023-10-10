@@ -92,6 +92,7 @@
 		<select class="form-control input-sm" id="shipType">
 			<option value="P">ส่งสินค้า</option>
 			<option value="D">ส่งเอกสาร</option>
+			<option value="R">รับเช็ค</option>
 		</select>
 	</div>
 
@@ -164,17 +165,26 @@
 		            <select class="form-control input-sm" id="shipType-<?php echo $no; ?>" onchange="toggleDocType(<?php echo $no; ?>)" <?php echo $disabled; ?>>
 		              <option value="P" <?php echo is_selected('P', $rs->type); ?>>ส่งสินค้า</option>
 		              <option value="D" <?php echo is_selected('D', $rs->type); ?>>ส่งเอกสาร</option>
+									<option value="R" <?php echo is_selected('R', $rs->type); ?>>รับเช็ค</option>
 									<option value="O" <?php echo is_selected('O', $rs->type); ?>>อื่นๆ</option>
 		            </select>
 		          </td>
 		          <td class="middle">
 		            <select class="form-control input-sm" id="docType-<?php echo $no; ?>" onchange="docNumInit(<?php echo $no; ?>)" <?php echo $disabled; ?>>
 		              <option value=""></option>
+								<?php if($rs->type == 'P' OR $rs->type == 'O') : ?>
 		              <option value="DO" <?php echo is_selected('DO', $rs->DocType); ?>>DO</option>
 		              <option value="IV" <?php echo is_selected('IV', $rs->DocType); ?>>IV</option>
+								<?php endif; ?>
 								<?php if($rs->type == 'D') : ?>
+									<option value="DO" <?php echo is_selected('DO', $rs->DocType); ?>>DO</option>
+		              <option value="IV" <?php echo is_selected('IV', $rs->DocType); ?>>IV</option>
 		              <option value="PB" <?php echo is_selected('PB', $rs->DocType); ?>>PB</option>
 		              <option value="CN" <?php echo is_selected('CN', $rs->DocType); ?>>CN</option>
+								<?php endif; ?>
+								<?php if($rs->type == 'R') : ?>
+		              <option value="IV" <?php echo is_selected('IV', $rs->DocType); ?>>IV</option>
+		              <option value="PB" <?php echo is_selected('PB', $rs->DocType); ?>>PB</option>
 								<?php endif; ?>
 		            </select>
 		          </td>
@@ -234,6 +244,7 @@
 							<select class="form-control input-sm" id="shipType-<?php echo $no; ?>" onchange="toggleDocType(<?php echo $no; ?>)">
 								<option value="P">ส่งสินค้า</option>
 								<option value="D">ส่งเอกสาร</option>
+								<option value="R">รับเช็ค</option>
 								<option value="O">อื่นๆ</option>
 							</select>
 						</td>
@@ -362,6 +373,7 @@
 		<select class="form-control input-sm" id="shipType-{{no}}" onchange="toggleDocType({{no}})">
 			<option value="P">ส่งสินค้า</option>
 			<option value="D">ส่งเอกสาร</option>
+			<option value="R">รับเช็ค</option>
 			<option value="O">อื่นๆ</option>
 		</select>
 	</td>
@@ -420,6 +432,11 @@
 
 <script id="docTypeTemplate4" type="text/x-handlebarsTemplate">
 	<option value="DO">DO</option>
+	<option value="IV">IV</option>
+</script>
+
+<script id="docTypeTemplate5" type="text/x-handlebarsTemplate">
+	<option value="PB">PB</option>
 	<option value="IV">IV</option>
 </script>
 

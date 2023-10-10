@@ -266,6 +266,25 @@ class Delivery_model extends CI_Model
 
 
 
+  public function has_do($inv_code)
+  {
+    $rs = $this->ms
+    ->from('INV1 AS r')
+    ->join('OINV AS o', 'r.DocEntry = o.DocEntry', 'left')
+    ->where('o.DocNum', $inv_code)
+    ->where('r.BaseRef IS NOT NULL', NULL, FALSE)
+    ->where('r.BaseType', 15)
+    ->count_all_results();
+
+    if($rs > 0)
+    {
+       return TRUE;
+    }
+
+    return FALSE;
+  }
+
+
   public function get_list(array $ds = array(), $perpage = 20, $offset = 0)
   {
     if(isset($ds['code']) && $ds['code'] != '')
@@ -436,6 +455,17 @@ class Delivery_model extends CI_Model
     }
 
     return NULL;
+  }
+
+  public function count_detail_rows($code)
+  {
+    return $this->db->where('delivery_code', $code)->count_all_results($this->td);
+  }
+
+
+  public function count_success_rows($code)
+  {
+    return $this->db->where('delivery_code', $code)->where('result_status', 4)->count_all_results($this->td);
   }
 
 } //--- end model

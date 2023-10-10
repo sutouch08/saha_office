@@ -87,19 +87,20 @@
 <?php echo $this->pagination->create_links(); ?>
 <div class="row">
 	<div class="col-sm-12 col-xs-12 padding-5 table-responsive" style="max-height:400px; overflow:auto;">
-		<table class="table table-bordered border-1" style="min-width:1260px;">
+		<table class="table table-bordered border-1" style="min-width:1590px;">
 			<thead>
 				<tr>
 					<th class="fix-width-40 middle text-center">#</th>
 					<th class="fix-width-100 middle text-right"></th>
-					<th class="fix-width-120 middle text-center">วันที่</th>
-					<th class="fix-width-120 middle text-center">วันที่จัดส่ง</th>
-					<th class="fix-width-120 middle">เลขที่</th>
+					<th class="fix-width-100 middle text-center">วันที่</th>
+					<th class="fix-width-100 middle text-center">วันที่จัดส่ง</th>
+					<th class="fix-width-100 middle">เลขที่</th>
 					<th class="fix-width-120 middle text-right">มูลค่าจัดส่ง</th>
+					<th class="fix-width-100 middle text-center">สำเร็จ</th>
 					<th class="fix-width-100 middle text-center">ทะเบียนรถ</th>
-					<th class="fix-width-150 middle">พนักงานขับรถ</th>
-					<th class="min-width-250 middle">เด็กติดรถ</th>
-					<th class="fix-width-150 middle">เส้นทาง</th>
+					<th class="fix-width-200 middle">พนักงานขับรถ</th>
+					<th class="min-width-200 middle">เด็กติดรถ</th>
+					<th class="fix-width-250 middle">เส้นทาง</th>
 					<th class="fix-width-100 middle text-center">user</th>
 					<th class="fix-width-80 middle text-center">สถานะ</th>
 				</tr>
@@ -125,6 +126,7 @@
 						<td class="middle text-center"><?php echo thai_date($rs->ShipDate); ?></td>
 						<td class="middle"><?php echo $rs->code; ?></td>
 						<td class="middle text-right"><?php echo number($rs->DocTotal, 2); ?></td>
+						<td class="middle text-center"><?php echo $rs->success." / ".$rs->total; ?></td>
 						<td class="middle text-center"><?php echo $rs->vehicle_name; ?></td>
 						<td class="middle"><?php echo $rs->driver_name; ?></td>
 						<td class="middle"><?php echo get_delivery_employee_name('E', $rs->code); ?></td>

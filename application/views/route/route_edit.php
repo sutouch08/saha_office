@@ -48,14 +48,76 @@
     </div>
   </div>
 
-	<div class="divider-hidden">
-
-	</div>
-  <div class="form-group">
+	<div class="form-group">
     <label class="col-sm-3 control-label no-padding-right"></label>
     <div class="col-xs-12 col-sm-4">
       <p class="pull-right">
         <button type="button" class="btn btn-sm btn-success" onclick="update()"><i class="fa fa-save"></i> Update</button>
+      </p>
+    </div>
+  </div>
+
+	<div class="divider"></div>
+
+	<div class="form-group">
+    <label class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label no-padding-right">สายการส่ง</label>
+    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-8">
+			<input type="text" class="form-control input-sm" id="zone" />
+    </div>
+		<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4">
+			<button type="button" class="btn btn-xs btn-primary btn-block" onclick="addZone()">Add</button>
+		</div>
+  </div>
+
+	<div class="form-group">
+    <label class="col-lg-3 col-md-3 col-sm-3 col-xs-12 control-label no-padding-right">&nbsp;</label>
+    <div class="col-lg-6 col-md-6 col-sm-9 col-xs-12 table-responsive" style="max-height:400px; overflow:auto;">
+			<table class="table table-striped border-1">
+				<thead>
+					<tr>
+						<th class="fix-width-200">อำเภอ</th>
+						<th class="fix-width-200">จังหวัด</th>
+						<th class="fix-width-100">รหัสไปรษณีย์</th>
+						<th class="fix-width-40"></th>
+					</tr>
+				</thead>
+				<tbody id="zone-list">
+					<?php $no = 0; ?>
+					<?php if( ! empty($details)) : ?>
+						<?php $no++; ?>
+						<?php foreach($details as $rs) : ?>
+							<?php $uid = md5($rs->district.$rs->province.$rs->zipCode); ?>
+						<tr id="row-<?php echo $no; ?>">
+							<td class=""><?php echo $rs->district; ?></td>
+							<td class=""><?php echo $rs->province; ?></td>
+							<td class=""><?php echo $rs->zipCode; ?></td>
+							<td class="">
+								<a class="pointer bold pull-right red" onclick="removeZone(<?php echo $no; ?>)" style="margin-left:15px;">
+									<i class="fa fa-times"></i>
+								</a>
+								<input type="hidden" id="zone-<?php echo $no; ?>"
+									class="zone-data"
+									data-id="<?php echo $rs->id; ?>"
+									data-district="<?php echo $rs->district; ?>"
+									data-province="<?php echo $rs->province; ?>"
+									data-zipcode="<?php echo $rs->zipCode; ?>" />
+								<input type="hidden" id="<?php echo $uid; ?>" value="<?php echo $uid; ?>" />
+							</td>
+						</tr>
+						<?php $no++; ?>
+					<?php endforeach; ?>
+				<?php endif; ?>
+				</tbody>
+			</table>
+    </div>
+  </div>
+	<input type="hidden" id="row-no" value="<?php echo $no; ?>" />
+
+  <div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right"></label>
+    <div class="col-xs-12 col-sm-4">
+      <p class="pull-right">
+        <button type="button" class="btn btn-sm btn-success" onclick="updateZone()"><i class="fa fa-save"></i> Save</button>
       </p>
     </div>
     <div class="help-block col-xs-12 col-sm-reset inline">
@@ -64,8 +126,27 @@
   </div>
 
 	<input type="hidden" id="id" value="<?php echo $id; ?>" />
-
 </form>
 
-<script src="<?php echo base_url(); ?>scripts/route/route.js"></script>
+<script id="zone-template" type="text/x-handlebarsTemplate">
+	<tr id="row-{{no}}">
+		<td class="">{{district}}</td>
+		<td class="">{{province}}</td>
+		<td class="">{{zipCode}}</td>
+		<td class="">
+			<a class="pointer bold pull-right red" onclick="removeZone({{no}})" style="margin-left:15px;">
+				<i class="fa fa-times"></i>
+			</a>
+			<input type="hidden" id="zone-{{no}}"
+				class="zone-data"
+				data-id="{{id}}"
+				data-district="{{district}}"
+				data-province="{{province}}"
+				data-zipcode="{{zipCode}}" />
+			<input type="hidden" id="{{uid}}" value="{{uid}}" />
+		</td>
+	</tr>
+</script>
+<script src="<?php echo base_url(); ?>scripts/route/route.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>assets/js/md5.min.js"></script>
 <?php $this->load->view('include/footer'); ?>

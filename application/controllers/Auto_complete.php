@@ -88,6 +88,40 @@ class Auto_complete extends PS_Controller
     echo json_encode($sc);
   }
 
+  public function get_bp_code_and_name()
+  {
+    $df_cust = getConfig('DEFAULT_CUSTOMER_CODE');
+
+    $txt = trim($_REQUEST['term']);
+    $sc = array();
+
+    $qr  = "SELECT CardCode AS code, CardName AS name ";
+    $qr .= "FROM OCRD ";
+    $qr .= "WHERE CardType IN('C', 'L', 'S') ";
+
+    $qr .= "AND validFor = 'Y' ";
+
+    if($txt !== '*')
+    {
+      $qr .= "AND (CardCode = '{$df_cust}' OR CardCode LIKE N'%{$this->ms->escape_str($txt)}%' OR CardName LIKE N'%{$this->ms->escape_str($txt)}%') ";
+    }
+
+    $qr .= "ORDER BY 1 OFFSET 0 ROWS FETCH NEXT 50 ROWS ONLY";
+
+    $qs = $this->ms->query($qr);
+
+    if($qs->num_rows() > 0)
+    {
+      foreach($qs->result() as $rs)
+      {
+        $sc[] = $rs->code.' | '.$rs->name;
+      }
+    }
+
+
+    echo json_encode($sc);
+  }
+
 
   public function sub_district()
   {
@@ -118,6 +152,30 @@ class Auto_complete extends PS_Controller
       foreach($adr->result() as $rs)
       {
         $sc[] = $rs->amphur.'>>'.$rs->province.'>>'.$rs->zipcode;
+      }
+    }
+
+    echo json_encode($sc);
+  }
+
+  public function get_delivery_zone()
+  {
+    $sc = array();
+    $adr = $this->db
+    ->where('active', 1)
+    ->group_start()
+    ->like('district', $_REQUEST['term'])
+    ->or_like('province', $_REQUEST['term'])
+    ->or_like('zipCode', $_REQUEST['term'])
+    ->group_end()
+    ->limit(20)
+    ->get('delivery_zone');
+
+    if($adr->num_rows() > 0)
+    {
+      foreach($adr->result() as $rs)
+      {
+        $sc[] = $rs->id.'>>'.$rs->district.'>>'.$rs->province.'>>'.$rs->zipCode;
       }
     }
 

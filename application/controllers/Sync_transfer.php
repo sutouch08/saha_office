@@ -12,6 +12,7 @@ class Sync_transfer extends CI_Controller
     $this->mc = $this->load->database('mc', TRUE); //--- Temp Database
     $this->load->model('sync_data_model');
     $this->load->model('transfer_model');
+    //$this->load->model('pack_model');
     $limit = getConfig('SYNC_LIMIT');
     $this->limit = $limit > 0 ? $limit : 100;
   }
@@ -44,6 +45,7 @@ class Sync_transfer extends CI_Controller
               $this->transfer_model->update_by_code($ds->code, $arr);
               $this->close_pick_rows($ds->code);
               $this->update_buffer($ds->code);
+              //$this->update_sap_pack_code($ds->code);
 
               $logs = array(
                 'code' => $ds->code,
@@ -142,6 +144,34 @@ class Sync_transfer extends CI_Controller
 
 
 
+  function force_close()
+  {
+    $sc = TRUE;
+    $code = $this->input->post('code');
+
+    $arr = array(
+      'DocNum' => NULL,
+      'SapDate' => NULL,
+      'Status' => 'M',  //-- เข้า SAP แล้ว
+      'message' => NULL
+    );
+
+    if( ! $this->transfer_model->update_by_code($code, $arr))
+    {
+      $sc = FALSE;
+      $this->error = "Close Document failed";
+    }
+
+    if($sc === TRUE)
+    {
+      $this->close_pick_rows($code);
+      $this->update_buffer($code);
+    }
+
+    echo $sc === TRUE ? 'success' : $this->error;
+  }
+
+
   private function close_pick_rows($code)
   {
     $details = $this->transfer_model->get_details_by_code($code);
@@ -179,12 +209,9 @@ class Sync_transfer extends CI_Controller
         ->update('buffer');
       }
 
-      $this->db->where('BasePickQty', 0)->delete('buffer');
+      $this->db->where('BasePickQty <=', 0)->delete('buffer');
     }
   }
-
-
-
 
 } //--- end class
 

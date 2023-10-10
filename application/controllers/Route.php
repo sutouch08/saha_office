@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Route extends PS_Controller
 {
 	public $menu_code = 'ROUTE';
-	public $menu_group_code = 'AD';
+	public $menu_group_code = 'TR';
 	public $title = 'เส้นทางขนส่ง';
 	public $segment = 3;
 
@@ -50,7 +50,7 @@ class Route extends PS_Controller
 
 	public function add_new()
 	{
-		if($this->isAdmin OR $this->isSuperAdmin)
+		if($this->isLead OR $this->isAdmin OR $this->isSuperAdmin)
 		{
 			$this->load->view('route/route_add');
 		}
@@ -69,7 +69,7 @@ class Route extends PS_Controller
 		$level = $this->input->post('level');
 		$active = $this->input->post('active');
 
-		if($this->isAdmin OR $this->isSuperAdmin)
+		if($this->isLead OR $this->isAdmin OR $this->isSuperAdmin)
 		{
 			if(!empty($name))
 			{
@@ -111,12 +111,14 @@ class Route extends PS_Controller
 
 	public function edit($id)
 	{
-		if($this->isAdmin OR $this->isSuperAdmin)
+		if($this->isLead OR $this->isAdmin OR $this->isSuperAdmin)
 		{
 			$rs = $this->route_model->get($id);
 
 			if(!empty($rs))
 			{
+				$rs->details = $this->route_model->get_details($id);
+
 				$this->load->view('route/route_edit', $rs);
 			}
 			else
@@ -136,7 +138,7 @@ class Route extends PS_Controller
 	{
 		$sc = TRUE;
 
-		if($this->isAdmin OR $this->isSuperAdmin)
+		if($this->isLead OR $this->isAdmin OR $this->isSuperAdmin)
 		{
 			$id = $this->input->post('id');
 			$name = trim($this->input->post('name'));
@@ -174,12 +176,71 @@ class Route extends PS_Controller
 	}
 
 
+	public function add_zone()
+	{
+		$sc = TRUE;
+		$id = $this->input->post('id');
+		$data = json_decode($this->input->post('zone'));
+
+		if( ! empty($id))
+		{
+			//--drop current
+			$this->db->trans_begin();
+
+			if( ! $this->route_model->drop_details($id))
+			{
+				$sc = FALSE;
+				$this->error = "Delete Current Zone Failed";
+			}
+
+			if($sc === TRUE && ! empty($data))
+			{
+				foreach($data as $rs)
+				{
+					if($sc === FALSE)
+					{
+						break;
+					}
+
+					$arr = array(
+						'route_id' => $id,
+						'zone_id' => $rs->id,
+						'district' => $rs->district,
+						'province' => $rs->province,
+						'zipCode' => $rs->zipCode
+					);
+
+					if( ! $this->route_model->add_zone($arr))
+					{
+						$sc = FALSE;
+						$this->error = "Add Zone Failed";
+					}
+				}
+			}
+
+			if($sc === TRUE)
+			{
+				$this->db->trans_commit();
+			}
+			else
+			{
+				$this->db->trans_rollback();
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing Required Parameter";
+		}
+
+		$this->response($sc);
+	}
 
 	public function delete()
 	{
 		$sc = TRUE;
 
-		if($this->isAdmin OR $this->isSuperAdmin)
+		if($this->isLead OR $this->isAdmin OR $this->isSuperAdmin)
 		{
 			$id = $this->input->post('id');
 
@@ -193,6 +254,11 @@ class Route extends PS_Controller
 					{
 						$sc = FALSE;
 						$this->error = "Delete Failed";
+					}
+
+					if($sc === TRUE)
+					{
+						$this->route_model->drop_details($id);
 					}
 				}
 				else

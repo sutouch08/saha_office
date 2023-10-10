@@ -942,6 +942,71 @@ class Pick extends PS_Controller
 	}
 
 
+	// public function find_open_so()
+	// {
+	// 	$sc = TRUE;
+	// 	$ds = array();
+	// 	$docNum = $this->input->get('DocNum');
+	// 	$customer = $this->input->get('customer');
+	// 	$fromDate = $this->input->get('fromDate');
+	// 	$toDate = $this->input->get('toDate');
+	//
+	// 	$this->ms
+	// 	->select('DocEntry, DocNum, CardCode, CardName, DocDate, DocDueDate, Address2, Comments, U_Delivery_Urgency, U_Remark_Int')
+	// 	->where('DocStatus', 'O');
+	//
+	// 	if($docNum != NULL && $docNum != '')
+	// 	{
+	// 		$this->ms->like('DocNum', $docNum);
+	// 	}
+	//
+	// 	if($customer != NULL && $customer != '')
+	// 	{
+	// 		$this->ms
+	// 		->group_start()
+	// 		->like('CardCode', $customer)
+	// 		->or_like('CardName', $customer)
+	// 		->group_end();
+	// 	}
+	//
+	// 	if(!empty($fromDate) && !empty($toDate))
+	// 	{
+	// 		$this->ms
+	// 		->where('DocDate >=', from_date($fromDate))
+	// 		->where('DocDate <=', to_date($toDate));
+	// 	}
+	//
+	// 	$rs = $this->ms->order_by('DocNum', 'ASC')->get('ORDR');
+	//
+	// 	if($rs->num_rows() > 0)
+	// 	{
+	// 		foreach($rs->result() as $rd)
+	// 		{
+	// 			$arr = array(
+	// 				'DocEntry' => $rd->DocEntry,
+	// 				'DocNum' => $rd->DocNum,
+	// 				'CardCode' => $rd->CardCode,
+	// 				'CardName' => $rd->CardName,
+	// 				'DocDate' => thai_date($rd->DocDate, FALSE, '.'),
+	// 				'DocDueDate' => thai_date($rd->DocDueDate, FALSE, '.'),
+	// 				'PostingDate' => $rd->DocDate,
+	// 				'Urgency' => $rd->U_Delivery_Urgency,
+	// 				'Remark_int' => $rd->U_Remark_Int,
+	// 				'ShipTo' => escape_quot($rd->Address2),
+	// 				'remark' => escape_quot($rd->Comments)
+	// 			);
+	//
+	// 			array_push($ds, $arr);
+	// 		}
+	// 	}
+	// 	else
+	// 	{
+	// 		$sc = FALSE;
+	// 		$this->error = "ไม่พบผลการค้นหาตามเงื่อนไขที่กำหนด";
+	// 	}
+	//
+	// 	echo $sc === TRUE ? json_encode($ds) : $this->error;
+	// }
 
 
 	public function find_open_so()
@@ -1003,7 +1068,7 @@ class Pick extends PS_Controller
 			$sc = FALSE;
 			$this->error = "ไม่พบผลการค้นหาตามเงื่อนไขที่กำหนด";
 		}
-
+	
 		echo $sc === TRUE ? json_encode($ds) : $this->error;
 	}
 

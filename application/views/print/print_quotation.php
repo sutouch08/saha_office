@@ -162,16 +162,16 @@ while($total_page > 0 )
 
 	$top .= "<div style='width:190mm; height:140px; position:relative; margin:auto; border-top:solid 2px #333; padding-top:5px; border-radius:0px;'>";
 
-	$top .= 	"<div style='width:65%; float:left; padding-left:10px; padding-right:10px;'>";
-	$top .= 		"<table style='width:85%; border:none;'>";
+	$top .= 	"<div style='width:65%; float:left; padding-left:10px; padding-right:15px;'>";
+	$top .= 		"<table style='border:none;'>";
 	$top .= 			"<tr style='font-size:11px;'>";
 	$top .= 				"<td style='width:50px; vertical-align:text-top;'>ชื่อลูกค้า</td>";
-	$top .=					"<td style='white-space:pre-wrap; vertical-align:text-top;'>:{$doc->CardCode} &nbsp; {$doc->CardName}</td>";
+	$top .=					"<td style='white-space:pre-wrap; vertical-align:text-top;'>:{$doc->CardCode} &nbsp; {$doc->CardName} <span style='display:inline-block;'>(สาขา {$doc->PayToCode})</span></td>";
 	$top .= 			"</tr>";
 	$top .= 			"<tr style='font-size:11px;'>";
 	$top .= 				"<td style='vertical-align:text-top;'>ที่อยู่ </td>";
 	$top .=					"<td style='white-space:pre-wrap; vertical-align:text-top; padding-top:10px;'>:{$doc->Address} &nbsp;&nbsp; ";
-	$top .= 					(empty($customer) ? "" : (empty($customer->LicTradNum) ? "" : "<span>TAX ID : ".$customer->LicTradNum."</span>"));
+	$top .= 					(empty($customer) ? "" : (empty($customer->LicTradNum) ? "" : "<span style='display:inline-block;'>TAX ID : ".$customer->LicTradNum."</span>"));
 	$top .= 				"</td>";
 	$top .= 			"</tr>";
 	$top .= 			"<tr style='font-size:11px;'>";
@@ -186,8 +186,15 @@ while($total_page > 0 )
 	$top .= 				"</td>";
 	$top .= 			"</tr>";
 	$top .= 			"<tr style='font-size:11px;'>";
-	$top .= 				"<td style='vertical-align:text-top;'>ผู้ติดต่อ </td>";
-	$top .= 				"<td style='white-space:pre-wrap; vertical-align:text-top; padding-top:10px;'>: &nbsp;".(empty($contact_person) ? '-' : $contact_person)."</td>";
+	$top .= 				"<td style='vertical-align:text-top; padding-top:10px;'>ผู้ติดต่อ </td>";
+	$top .= 				"<td>";
+	$top .= 					"<div class='width-60' style='float:left; padding-top:10px;'>: &nbsp; ";
+	$top .= 						(empty($shipTo)) ? "-" : $shipTo->U_Contract;
+	$top .= 					"</div>";
+	$top .= 					"<div class='width-40' style='float:left; padding-top:10px;'>โทร &nbsp;: &nbsp; ";
+	$top .= 						(empty($shipTo) ? "-" : $shipTo->U_Tel);
+	$top .= 					"</div>";
+	$top .= 				"</td>";
 	$top .= 			"</tr>";
 	$top .= 			"<tr style='font-size:11px;'>";
 	$top .= 				"<td style='vertical-align:text-top;'>หมายเหตุ </td>";
@@ -232,7 +239,7 @@ while($total_page > 0 )
 	$top .= 			"<tr style='font-size:11px;'>";
 	$top .=					"<td style='vertical-align:text-top;'>ผู้เปิด </td>";
 	$top .=					"<td style='white-space:nowrap; overflow:hidden;'>: ";
-	$top .= 					$doc->OwnerName;	
+	$top .= 					$doc->OwnerName;
 	$top .= 				"</td>";
 	$top .= 			"</tr>";
 

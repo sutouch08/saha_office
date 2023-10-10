@@ -574,7 +574,7 @@ function updateBillTo() {
 		'subDistrict' : $('#bSubDistrict').val(),
 		'district' : $('#bDistrict').val(),
 		'country' : $('#bCountry').val(),
-		'province' : $('#bProvince').val(),		
+		'province' : $('#bProvince').val(),
 		'countryName' : $('#bCountry option:selected').text(),
 		'postcode' : $('#bPostCode').val()
 	};
@@ -940,10 +940,14 @@ function addRow() {
 }
 
 function removeRow() {
+
 	$('.chk').each(function(){
+		console.log('Pre');
 		if($(this).is(':checked')) {
 			var no = $(this).val();
+			console.log(no);
 			$('#row-'+no).remove();
+			console.log("removed");
 		}
 	})
 
@@ -971,6 +975,8 @@ function getItemData(code, no) {
 				var lastQuotePrice = parseDefault(parseFloat(ds.lastQuotePrice), 0.00);
 				var lineAmount = parseFloat(ds.lineAmount);
 				var whCode = ds.dfWhsCode;
+				var cost = parseDefault(parseFloat(ds.cost), 0);
+				var gp = price - cost;
 
 				$('#itemName-'+no).val(ds.name);
 				$('#itemDetail-'+no).val(ds.detail);
@@ -984,6 +990,9 @@ function getItemData(code, no) {
 				$('#lastSellPrice-'+no).val(lastSellPrice);
 				$('#lstPrice-'+no).val(addCommas(lastSellPrice.toFixed(2)));
 				$('#price-'+no).val(addCommas(price.toFixed(2)));
+				$('#cost-'+no).val(ds.cost);
+				$('#baseCost-'+no).val(ds.cost);
+				$('#gp-'+no).val(gp);
 				$('#priceDiff-'+no).val(addCommas(price.toFixed(2)));
 				$('#disc1-'+no).val(ds.discount);
 				$('#taxCode-'+no).val(ds.taxCode);
@@ -1048,8 +1057,13 @@ function recalPrice(el) {
 	let factor = parseDefault(parseFloat(el.find(':selected').data('qty')), 1); //--- ตัวคูณ
 	let basePrice = parseDefault(parseFloat($('#basePrice-'+no).val()), 0.00);
 	let newPrice = parseFloat(factor * basePrice);
+	let cost = parseDefault(parseFloat($('#baseCost-'+no).val()), 0.00);
+	let newCost = factor * cost;
+	let gp = newPrice - newCost;
+
 	$('#stdPrice-'+no).val(addCommas(newPrice.toFixed(2)));
 	$('#price-'+no).val(addCommas(newPrice.toFixed(2)));
+	$('#cost-'+no).val(newCost);
 
 	get_last_sell_price(no);
 
@@ -1118,14 +1132,17 @@ function recal(no) {
 	var qty = parseDefault(parseFloat(removeCommas($('#qty-'+no).val())), 0);
 	var price = parseDefault(parseFloat(removeCommas($('#price-'+no).val())), 0);
 	var disc1 = parseDefault(parseFloat($('#disc1-'+no).val()), 0);
+	var cost = parseDefault(parseFloat($('#cost-'+no).val()), 0);
 
 	var sellPrice = getSellPrice(price, disc1);
 	var lineAmount = qty * sellPrice;
 	var discPrcnt = ((price - sellPrice)/price) * 100; //--- discount percent per row
+	var gp = sellPrice - cost;
 	$('#priceDiff-'+no).val(priceDiffPercent(no));
 	$('#priceAfDiscBfTax-'+no).val(addCommas(sellPrice.toFixed(2)));
 	$('#lineAmount-'+no).val(addCommas(lineAmount.toFixed(2)));
 	$('#lineDiscPrcnt-'+no).val(discPrcnt.toFixed(2));
+	$('#gp-'+no).val(addCommas(gp.toFixed(2)));
 
 	recalTotal();
 }

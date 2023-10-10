@@ -181,7 +181,7 @@ while($total_page > 0 )
 				$rs->CardName,
 				$rs->Address,
 				$rs->contact,
-				$rs->type == 'P' ? 'สินค้า' : ($rs->type == 'D' ? 'เอกสาร' : 'อื่นๆ'),
+				$rs->type == 'P' ? 'สินค้า' : ($rs->type == 'D' ? 'เอกสาร' : ($rs->type == 'R' ? 'รับเช็ค' : 'อื่นๆ')),
 				$rs->DocType.'-'.$rs->DocNum,
 				number($rs->DocTotal, 2),
 				"",

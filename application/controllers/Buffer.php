@@ -56,6 +56,20 @@ class Buffer extends PS_Controller
   }
 
 
+	public function delete_buffer()
+	{
+		$sc = TRUE;
+		$id = $this->input->post('id');
+
+		if( ! $this->buffer_model->delete($id))
+		{
+			$sc = FALSE;
+			$this->error = "ลบรายการไม่สำเร็จ";
+		}
+
+		echo $sc === TRUE ? 'success' : $this->error;
+	}
+
 
 	public function clear_filter()
 	{

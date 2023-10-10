@@ -150,6 +150,20 @@ class Customers_model extends CI_Model
   }
 
 
+  public function get_ship_to_data($cardCode, $shipToCode)
+  {
+    $qr = "SELECT * FROM CRD1 WHERE CardCode = N'{$cardCode}' AND AdresType = 'S' AND Address = N'{$shipToCode}'";
+    $rs = $this->ms->query($qr);
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
+
   public function drop_address($LeadCode)
   {
     return $this->db->where('CardCode', $LeadCode)->delete('customer_address');

@@ -75,7 +75,7 @@
 
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-		<table class="table table-bordered dataTable" style="min-width:1100px;">
+		<table class="table table-bordered dataTable" style="min-width:1150px;">
 			<thead>
 				<tr>
 					<th style="width:50px;" class="middle text-center">#</th>
@@ -87,6 +87,7 @@
 					<th style="width:100px;" class="middle text-center">หน่วยนับ</th>
 					<th style="width:150px;" class="middle text-center sorting <?php echo $sort_BinCode; ?>" id="sort_BinCode" onclick="sort('BinCode')">BinCode</th>
 					<th style="width:100px;" class="middle text-center sorting <?php echo $sort_uname; ?>" id="sort_uname" onclick="sort('uname')">User</th>
+					<th style="width:50px;" class="middle"></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -94,7 +95,8 @@
 			<?php if(!empty($details)) : ?>
 				<?php $no = $this->uri->segment(3) + 1; ?>
 				<?php foreach($details as $rs) : ?>
-					<tr>
+					<?php $red = $rs->BasePickQty <= 0 ? 'class="red"' : ""; ?>
+					<tr id="row-<?php echo $rs->id; ?>" <?php echo $red; ?>>
 						<td class="middle text-center no"><?php echo $no; ?></td>
 						<td class="middle"><?php echo thai_date($rs->date_upd, TRUE,'/'); ?></td>
 						<td class="middle"><?php echo $rs->DocNum; ?></td>
@@ -104,6 +106,11 @@
 						<td class="middle text-center"><?php echo $rs->unitMsr; ?></td>
 						<td class="middle"><?php echo $rs->BinCode; ?></td>
 						<td class="middle text-center"><?php echo $rs->uname; ?></td>
+						<td class="middle text-right">
+							<?php if($this->isAdmin OR $this->isSuperAdmin) : ?>
+							<button type="button" class="btn btn-mini btn-danger" onclick="getDelete(<?php echo $rs->id; ?>, '<?php echo $rs->ItemCode; ?>', '<?php echo $rs->OrderCode; ?>')"><i class="fa fa-trash"></i></button>
+							<?php endif; ?>
+						</td>
 					</tr>
 					<?php $no++; ?>
 				<?php endforeach; ?>
@@ -118,5 +125,48 @@
 </div>
 
 <script src="<?php echo base_url(); ?>scripts/buffer/buffer.js?v=<?php echo date('YmdH'); ?>"></script>
+<script>
+function getDelete(id, item, soCode)
+{
+	swal({
+		title: "คุณแน่ใจ ?",
+		text: "ต้องการลบ "+item+" : "+soCode+" หรือไม่?",
+		type: "warning",
+		showCancelButton: true,
+		confirmButtonColor: "#DD6B55",
+		confirmButtonText: 'ยืนยัน',
+		cancelButtonText: 'ยกเลิก',
+		closeOnConfirm: false
+		}, function() {
+			load_in();
+
+			$.ajax({
+				url: HOME + 'delete_buffer',
+				type:"POST",
+				cache:"false",
+				data:{
+					'id' : id
+				},
+				success: function(rs){
+					load_out();
+					var rs = $.trim(rs);
+					if( rs == 'success' ){
+						swal({
+							title:'Success',
+							type:'success',
+							timer:1000
+						});
+
+						$('#row-'+id).remove();
+						reIndex();
+
+					}else{
+						swal("Error !", rs , "error");
+					}
+				}
+			});
+	});
+}
+</script>
 
 <?php $this->load->view('include/footer'); ?>

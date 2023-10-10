@@ -146,18 +146,27 @@
 		            <select class="form-control input-sm" id="shipType-<?php echo $no; ?>" disabled>
 		              <option value="P" <?php echo is_selected('P', $rs->type); ?>>ส่งสินค้า</option>
 		              <option value="D" <?php echo is_selected('D', $rs->type); ?>>ส่งเอกสาร</option>
+									<option value="D" <?php echo is_selected('R', $rs->type); ?>>รับเช็ค</option>
 									<option value="O" <?php echo is_selected('O', $rs->type); ?>>อื่นๆ</option>
 		            </select>
 		          </td>
 		          <td class="middle">
 		            <select class="form-control input-sm" id="docType-<?php echo $no; ?>" onchange="toggleDocType(<?php echo $no; ?>)" disabled>
 		              <option value=""></option>
-		              <option value="DO" <?php echo is_selected('DO', $rs->DocType); ?>>DO</option>
-		              <option value="IV" <?php echo is_selected('IV', $rs->DocType); ?>>IV</option>
-								<?php if($rs->type == 'D') : ?>
-		              <option value="PB" <?php echo is_selected('PB', $rs->DocType); ?>>PB</option>
-		              <option value="CN" <?php echo is_selected('CN', $rs->DocType); ?>>CN</option>
-								<?php endif; ?>
+									<?php if($rs->type == 'P' OR $rs->type == 'O') : ?>
+			              <option value="DO" <?php echo is_selected('DO', $rs->DocType); ?>>DO</option>
+			              <option value="IV" <?php echo is_selected('IV', $rs->DocType); ?>>IV</option>
+									<?php endif; ?>
+									<?php if($rs->type == 'D') : ?>
+										<option value="DO" <?php echo is_selected('DO', $rs->DocType); ?>>DO</option>
+			              <option value="IV" <?php echo is_selected('IV', $rs->DocType); ?>>IV</option>
+			              <option value="PB" <?php echo is_selected('PB', $rs->DocType); ?>>PB</option>
+			              <option value="CN" <?php echo is_selected('CN', $rs->DocType); ?>>CN</option>
+									<?php endif; ?>
+									<?php if($rs->type == 'R') : ?>
+			              <option value="IV" <?php echo is_selected('IV', $rs->DocType); ?>>IV</option>
+			              <option value="PB" <?php echo is_selected('PB', $rs->DocType); ?>>PB</option>
+									<?php endif; ?>
 		            </select>
 		          </td>
 		          <td class="middle">
