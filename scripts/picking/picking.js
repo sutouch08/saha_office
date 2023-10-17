@@ -10,7 +10,27 @@ function processList() {
 
 
 function goPicking(absEntry) {
-  window.location.href = HOME + 'process/'+absEntry;
+  let uuid = localStorage.getItem('ix_uuid');
+  $.ajax({
+    url:HOME + 'is_document_avalible',
+    type:'GET',
+    data:{
+      'AbsEntry' : absEntry,
+      'uuid' : uuid
+    },
+    success:function(rs) {
+      if(rs === 'available') {
+        window.location.href = HOME + 'process/'+absEntry+'/'+uuid;
+      }
+      else {
+        swal({
+          title:'Oops!',
+          text:'เอกสารกำลังถูกเปิด/แก้ไข โดยเครื่องอื่นอยู่ ไม่สามารถแก้ไขได้ในขณะนี้',
+          type:'warning'
+        });
+      }
+    }
+  });
 }
 
 

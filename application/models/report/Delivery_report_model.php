@@ -16,8 +16,15 @@ class Delivery_report_model extends CI_Model
     ->from("OINV AS o")
     ->join("CRD1 AS ad", "o.CardCode = ad.CardCode AND o.ShipToCode = ad.Address AND ad.AdresType = 'S'", "left")
     ->join("OHEM AS em", "o.OwnerCode = em.empId", "left")
-    ->where("o.U_Deliver_status !=", 4)
-    ->where('o.CANCELED', 'N');
+    ->where('o.CANCELED', 'N')
+    // ->group_start()
+    ->where('o.U_BEX_DO IS NULL', NULL, FALSE)
+    // ->or_where('o.U_BEX_DO !=', 'Y')
+    // ->group_end()
+    ->group_start()
+    ->where('o.U_Deliver_status IS NULL', NULL, FALSE)
+    ->or_where("o.U_Deliver_status !=", 4)
+    ->group_end();
 
     if($ds['date_type'] == 'R')
     {
@@ -60,8 +67,11 @@ class Delivery_report_model extends CI_Model
     ->from("ODLN AS o")
     ->join("CRD1 AS ad", "o.CardCode = ad.CardCode AND o.ShipToCode = ad.Address AND ad.AdresType = 'S'", "left")
     ->join("OHEM AS em", "o.OwnerCode = em.empId", "left")
-    ->where("o.U_Deliver_status !=", 4)
-    ->where('o.CANCELED', 'N');
+    ->where('o.CANCELED', 'N')
+    ->group_start()
+    ->where('o.U_Deliver_status IS NULL', NULL, FALSE)
+    ->or_where("o.U_Deliver_status !=", 4)
+    ->group_end();
 
     if($ds['date_type'] == 'R')
     {
@@ -143,6 +153,27 @@ class Delivery_report_model extends CI_Model
     ->where('rd.zipCode', $zip_code)
     ->where('rd.district', $city)
     ->group_by('rt.id')
+    ->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
+  public function get_route_by_zip_code_and_id($zip_code, $route_id)
+  {
+    $rs = $this->db
+    ->distinct('rt.id')
+    ->select('rt.name')
+    ->from('delivery_route_detail AS rd')
+    ->join('delivery_route AS rt', 'rd.route_id = rt.id', 'left')
+    ->where('rd.zipCode', $zip_code)
+    // ->where('rd.district', $city)
+    ->where('rt.id', $route_id)
     ->get();
 
     if($rs->num_rows() > 0)

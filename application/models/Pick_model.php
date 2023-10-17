@@ -142,7 +142,7 @@ class Pick_model extends CI_Model
     $rs = $this->db
     ->where('AbsEntry', $AbsEntry)
     ->where('ItemCode', $ItemCode)
-    ->where('OrderCode', $OrderCode)    
+    ->where('OrderCode', $OrderCode)
     ->where('BasePickQty <', 'BaseRelQty', FALSE)
     ->order_by('PickEntry', 'ASC')
     ->get('pick_row');
@@ -727,6 +727,35 @@ class Pick_model extends CI_Model
     }
 
     return NULL;
+  }
+
+
+  public function is_document_avalible($absEntry, $uuid)
+  {
+    $rs = $this->db
+    ->where('AbsEntry', $absEntry)
+    ->where('session_uuid !=', $uuid)
+    ->where('session_expire >=', date('Y-m-d H:i:s'))
+    ->count_all_results('pick_list');
+
+    if($rs == 0)
+    {
+      return TRUE;
+    }
+
+    return FALSE;
+  }
+
+
+  public function update_uuid($absEntry, $uuid)
+  {
+    $expiration = date('Y-m-d H:i:s', time() + 1 * 60);
+    $ds = array(
+      'session_uuid' => $uuid,
+      'session_expire' => $expiration
+    );
+
+    return $this->db->where('AbsEntry', $absEntry)->update('pick_list', $ds);
   }
 
 

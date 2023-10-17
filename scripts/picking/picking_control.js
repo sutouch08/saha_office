@@ -1,3 +1,18 @@
+setInterval(() => {
+  let absEntry = $('#AbsEntry').val();
+  let uuid = localStorage.getItem('ix_uuid'); 
+  $.ajax({
+    url:HOME + 'update_uuid',
+    type:'POST',
+    cache:false,
+    data:{
+      'AbsEntry' : absEntry,
+      'uuid' : uuid
+    }
+  })
+}, 30000);
+
+
 $('#zoneCode').autocomplete({
   source:HOME + 'find_bin_code',
   autoFocus:true
@@ -469,24 +484,27 @@ function decreseQty() {
 }
 
 
-var intv = setInterval(function() {
-  let absEntry = $('#AbsEntry').val();
-  $.ajax({
-    url:HOME + 'get_state',
-    type:'GET',
-    cache:false,
-    data: {
-      'AbsEntry' : absEntry
-    },
-    success:function(rs) {
-      var rs = $.trim(rs);
-
-      if(rs != 'ok') {
-        window.location.reload();
-      }
-    }
-  });
-}, 10000);
+// var intv = setInterval(function() {
+//   let absEntry = $('#AbsEntry').val();
+//   let uuid = localStorage.getItem('ix_uuid');
+//
+//   $.ajax({
+//     url:HOME + 'get_state',
+//     type:'GET',
+//     cache:false,
+//     data: {
+//       'AbsEntry' : absEntry,
+//       'uuid' : uuid
+//     },
+//     success:function(rs) {
+//       var rs = $.trim(rs);
+//
+//       if(rs != 'ok') {
+//         window.location.reload();
+//       }
+//     }
+//   });
+// }, 10000);
 
 
 

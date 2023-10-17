@@ -114,8 +114,34 @@ class Picking extends PS_Controller
 
 
 
+	public function is_document_avalible()
+  {
+    $absEntry = $this->input->get('AbsEntry');
+    $uuid = $this->input->get('uuid');
+    if( ! $this->pick_model->is_document_avalible($absEntry, $uuid))
+    {
+      echo "not_available";
+    }
+    else
+    {
+      echo "available";
+    }
+  }
 
-	public function process($absEntry)
+
+	public function update_uuid()
+  {
+    $sc = TRUE;
+    $absEntry = trim($this->input->post('AbsEntry'));
+    $uuid = trim($this->input->post('uuid'));
+
+    if( ! empty($uuid))
+    {
+      return $this->pick_model->update_uuid($absEntry, $uuid);
+    }
+  }
+
+	public function process($absEntry, $uuid)
 	{
 		$this->title = "จัดสินค้า";
 		$doc = $this->pick_model->get($absEntry);
@@ -152,6 +178,8 @@ class Picking extends PS_Controller
 				'details' => $details,
 				'orderList' => $this->pick_model->get_order_list($absEntry)
 			);
+
+			$this->pick_model->update_uuid($absEntry, $uuid);
 
 			$this->load->view('picking/picking_process', $data);
 		}

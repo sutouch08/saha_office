@@ -14,6 +14,8 @@ class Delivery_backlogs extends PS_Controller
     parent::__construct();
     $this->home = base_url().'report/delivery_backlogs';
 		$this->load->model('report/delivery_report_model');
+		$this->load->model('route_model');
+		$this->load->helper('transport');
   }
 
 
@@ -35,6 +37,8 @@ class Delivery_backlogs extends PS_Controller
 		$all_cust = $this->input->post('allCust');
 		$from_cust_code = $this->input->post('custFrom');
 		$to_cust_code = $this->input->post('custTo');
+		$route_id = $this->input->post('route');
+		$state = $this->input->post('state');
 
 		$no = 1;
 
@@ -62,39 +66,56 @@ class Delivery_backlogs extends PS_Controller
 				foreach($invoice as $rs)
 				{
 					$de = $this->delivery_report_model->get_delivery_doc($rs->DocNum, "IV");
-					$required_date = is_null($rs->U_Required_Delivery_Date) ? $rs->DocDate : $rs->U_Required_Delivery_Date;
+					$pass_state = TRUE;
+					$pass_route = TRUE;
 
-					$today_date = date_create(date('Y-m-d'));
-					$required_delivery_date = date_create($required_date);
-					$diff = date_diff($today_date, $required_delivery_date);
-					$days = $diff->format('%r%a') * -1;
+					if($state != 'all')
+					{
+						$pass_state = $state === 'NULL' ? (empty($de) ? TRUE : FALSE) : (empty($de) ? FALSE : ($de->line_status == $state ? TRUE : FALSE));
+					}
 
-					$arr = array(
-						'no' => $no,
-						'DocDate' => thai_date($rs->DocDate),
-						'Required_date' => thai_date($required_date),
-						'DocType' => 'IV',
-						'DocNum' => $rs->DocNum,
-						'Delivery_code' => empty($de) ? "ยังไม่ได้จัดสาย" : $de->delivery_code,
-						'Delivery_state' => empty($de) ? "" : $delivery_state[$de->line_status],
-						'Diff_date' => $days,
-						'Urgency_text' => $rs->U_Delivery_Urgency,
-						'CardCode' => $rs->CardCode,
-						'CardName' => $rs->CardName,
-						'DocTotal' => number($rs->DocTotal, 2),
-						'Deliver_status' => $this->delivery_state($rs->U_Deliver_status),
-						'Deliver_date' => empty($rs->U_Deliver_date) ? NULL : thai_date($rs->U_Deliver_date),
-						'ShipTo' => $rs->Address2,
-						'ZipCode' => $rs->ZipCode,
-						'Route' => $this->get_route_name($rs->ZipCode, $rs->City),
-						'Remark' => $rs->Comments,
-						'RemarkInt' => $rs->U_Remark_Int,
-						'Owner' => $rs->firstName.' '.$rs->lastName,
-						'color' => $days > 0 ? 'red' : ''
-					);
+					if($pass_state && $route_id != 'all')
+					{
+						$hasRoute = $this->delivery_report_model->get_route_by_zip_code_and_id($rs->ZipCode, $route_id);
+						$pass_route = empty($hasRoute) ? FALSE : TRUE;
+					}
 
-					array_push($data, $arr);
-					$no++;
+					if($pass_state && $pass_route)
+					{
+						$required_date = is_null($rs->U_Required_Delivery_Date) ? $rs->DocDate : $rs->U_Required_Delivery_Date;
+
+						$today_date = date_create(date('Y-m-d'));
+						$required_delivery_date = date_create($required_date);
+						$diff = date_diff($today_date, $required_delivery_date);
+						$days = $diff->format('%r%a') * -1;
+
+						$arr = array(
+							'no' => $no,
+							'DocDate' => thai_date($rs->DocDate),
+							'Required_date' => thai_date($required_date),
+							'DocType' => 'IV',
+							'DocNum' => $rs->DocNum,
+							'Delivery_code' => empty($de) ? "ยังไม่ได้จัดสาย" : $de->delivery_code,
+							'Delivery_state' => empty($de) ? "" : $delivery_state[$de->line_status],
+							'Diff_date' => $days,
+							'Urgency_text' => $rs->U_Delivery_Urgency,
+							'CardCode' => $rs->CardCode,
+							'CardName' => $rs->CardName,
+							'DocTotal' => number($rs->DocTotal, 2),
+							'Deliver_status' => $this->delivery_state($rs->U_Deliver_status),
+							'Deliver_date' => empty($rs->U_Deliver_date) ? NULL : thai_date($rs->U_Deliver_date),
+							'ShipTo' => $rs->Address2,
+							'ZipCode' => $rs->ZipCode,
+							'Route' => $this->get_route_name($rs->ZipCode, $rs->City),
+							'Remark' => $rs->Comments,
+							'RemarkInt' => $rs->U_Remark_Int,
+							'Owner' => $rs->firstName.' '.$rs->lastName,
+							'color' => $days > 0 ? 'red' : ''
+						);
+
+						array_push($data, $arr);
+						$no++;
+					}
 				}
 			}
 		}
@@ -108,39 +129,56 @@ class Delivery_backlogs extends PS_Controller
 				foreach($invoice as $rs)
 				{
 					$de = $this->delivery_report_model->get_delivery_doc($rs->DocNum, "DO");
-					$required_date = is_null($rs->U_Required_Delivery_Date) ? $rs->DocDate : $rs->U_Required_Delivery_Date;
+					$pass_state = TRUE;
+					$pass_route = TRUE;
 
-					$today_date = date_create(date('Y-m-d'));
-					$required_delivery_date = date_create($required_date);
-					$diff = date_diff($today_date, $required_delivery_date);
-					$days = $diff->format('%r%a') * -1;
+					if($state != 'all')
+					{
+						$pass_state = $state === 'NULL' ? (empty($de) ? TRUE : FALSE) : (empty($de) ? FALSE : ($de->line_status == $state ? TRUE : FALSE));
+					}
 
-					$arr = array(
-						'no' => $no,
-						'DocDate' => thai_date($rs->DocDate),
-						'Required_date' => thai_date($required_date),
-						'DocType' => 'DO',
-						'DocNum' => $rs->DocNum,
-						'Delivery_code' => empty($de) ? "ยังไม่ได้จัดสาย" : $de->delivery_code,
-						'Delivery_state' => empty($de) ? "" : $delivery_state[$de->line_status],
-						'Diff_date' => $days,
-						'Urgency_text' => $rs->U_Delivery_Urgency,
-						'CardCode' => $rs->CardCode,
-						'CardName' => $rs->CardName,
-						'DocTotal' => number($rs->DocTotal, 2),
-						'Deliver_status' => $this->delivery_state($rs->U_Deliver_status),
-						'Deliver_date' => empty($rs->U_Deliver_date) ? NULL : thai_date($rs->U_Deliver_date),
-						'ShipTo' => $rs->Address2,
-						'ZipCode' => $rs->ZipCode,
-						'Route' => $this->get_route_name($rs->ZipCode, $rs->City),
-						'Remark' => $rs->Comments,
-						'RemarkInt' => $rs->U_Remark_Int,
-						'Owner' => $rs->firstName.' '.$rs->lastName,
-						'color' => $days > 0 ? 'red' : ''
-					);
+					if($pass_state && $route_id != 'all')
+					{
+						$hasRoute = $this->delivery_report_model->get_route_by_zip_code_and_id($rs->ZipCode, $route_id);
+						$pass_route = empty($hasRoute) ? FALSE : TRUE;
+					}
 
-					array_push($data, $arr);
-					$no++;
+					if($pass_state && $pass_route)
+					{
+						$required_date = is_null($rs->U_Required_Delivery_Date) ? $rs->DocDate : $rs->U_Required_Delivery_Date;
+
+						$today_date = date_create(date('Y-m-d'));
+						$required_delivery_date = date_create($required_date);
+						$diff = date_diff($today_date, $required_delivery_date);
+						$days = $diff->format('%r%a') * -1;
+
+						$arr = array(
+							'no' => $no,
+							'DocDate' => thai_date($rs->DocDate),
+							'Required_date' => thai_date($required_date),
+							'DocType' => 'DO',
+							'DocNum' => $rs->DocNum,
+							'Delivery_code' => empty($de) ? "ยังไม่ได้จัดสาย" : $de->delivery_code,
+							'Delivery_state' => empty($de) ? "" : $delivery_state[$de->line_status],
+							'Diff_date' => $days,
+							'Urgency_text' => $rs->U_Delivery_Urgency,
+							'CardCode' => $rs->CardCode,
+							'CardName' => $rs->CardName,
+							'DocTotal' => number($rs->DocTotal, 2),
+							'Deliver_status' => $this->delivery_state($rs->U_Deliver_status),
+							'Deliver_date' => empty($rs->U_Deliver_date) ? NULL : thai_date($rs->U_Deliver_date),
+							'ShipTo' => $rs->Address2,
+							'ZipCode' => $rs->ZipCode,
+							'Route' => $this->get_route_name($rs->ZipCode, $rs->City),
+							'Remark' => $rs->Comments,
+							'RemarkInt' => $rs->U_Remark_Int,
+							'Owner' => $rs->firstName.' '.$rs->lastName,
+							'color' => $days > 0 ? 'red' : ''
+						);
+
+						array_push($data, $arr);
+						$no++;
+					}
 				}
 			}
 		}
@@ -157,6 +195,8 @@ class Delivery_backlogs extends PS_Controller
 		$all_cust = $this->input->post('allCust');
 		$from_cust_code = $this->input->post('custFrom');
 		$to_cust_code = $this->input->post('custTo');
+		$route_id = $this->input->post('route');
+		$state = $this->input->post('delivery_state');
 		$token = $this->input->post('token');
 
 		$no = 1;
@@ -243,39 +283,56 @@ class Delivery_backlogs extends PS_Controller
 				foreach($invoice as $rs)
 				{
 					$de = $this->delivery_report_model->get_delivery_doc($rs->DocNum, "IV");
-					$required_date = is_null($rs->U_Required_Delivery_Date) ? $rs->DocDate : $rs->U_Required_Delivery_Date;
+					$pass_state = TRUE;
+					$pass_route = TRUE;
 
-					$today_date = date_create(date('Y-m-d'));
-					$required_delivery_date = date_create($required_date);
-					$diff = date_diff($today_date, $required_delivery_date);
-					$days = $diff->format('%r%a') * -1;
-
-					$sheet->setCellValue("A{$row}", thai_date($rs->DocDate));
-					$sheet->setCellValue("B{$row}", thai_date($required_date));
-					$sheet->setCellValue("C{$row}", "IV");
-					$sheet->setCellValue("D{$row}", $rs->DocNum);
-					$sheet->setCellValue("E{$row}", (empty($de) ? "ยังไม่ได้จัดสาย" : $de->delivery_code));
-					$sheet->setCellValue("F{$row}", (empty($de) ? "" : $delivery_state[$de->line_status]));
-					$sheet->setCellValue("G{$row}", $days);
-					$sheet->setCellValue("H{$row}", $rs->U_Delivery_Urgency);
-					$sheet->setCellValue("I{$row}", $rs->CardCode);
-					$sheet->setCellValue("J{$row}", $rs->CardName);
-					$sheet->setCellValue("K{$row}", $rs->DocTotal);
-					$sheet->setCellValue("L{$row}", $this->delivery_state($rs->U_Deliver_status));
-					$sheet->setCellValue("M{$row}", empty($rs->U_Deliver_date) ? NULL : thai_date($rs->U_Deliver_date));
-					$sheet->setCellValue("N{$row}", $rs->Address2);
-					$sheet->setCellValue("O{$row}", $rs->ZipCode);
-					$sheet->setCellValue("P{$row}", $this->get_route_name($rs->ZipCode));
-					$sheet->setCellValue("Q{$row}", $rs->Comments);
-					$sheet->setCellValue("R{$row}", $rs->U_Remark_Int);
-					$sheet->setCellValue("S{$row}", $rs->firstName.' '.$rs->lastName);
-
-					if($days > 0)
+					if($state != 'all')
 					{
-						$sheet->getStyle("G{$row}")->getFont()->getColor()->setARGB(PHPExcel_Style_Color::COLOR_RED);
+						$pass_state = $state === 'NULL' ? (empty($de) ? TRUE : FALSE) : (empty($de) ? FALSE : ($de->line_status == $state ? TRUE : FALSE));
 					}
 
-					$row++;
+					if($pass_state && $route_id != 'all')
+					{
+						$hasRoute = $this->delivery_report_model->get_route_by_zip_code_and_id($rs->ZipCode, $route_id);
+						$pass_route = empty($hasRoute) ? FALSE : TRUE;
+					}
+
+					if($pass_state && $pass_route)
+					{
+						$required_date = is_null($rs->U_Required_Delivery_Date) ? $rs->DocDate : $rs->U_Required_Delivery_Date;
+
+						$today_date = date_create(date('Y-m-d'));
+						$required_delivery_date = date_create($required_date);
+						$diff = date_diff($today_date, $required_delivery_date);
+						$days = $diff->format('%r%a') * -1;
+
+						$sheet->setCellValue("A{$row}", thai_date($rs->DocDate));
+						$sheet->setCellValue("B{$row}", thai_date($required_date));
+						$sheet->setCellValue("C{$row}", "IV");
+						$sheet->setCellValue("D{$row}", $rs->DocNum);
+						$sheet->setCellValue("E{$row}", (empty($de) ? "ยังไม่ได้จัดสาย" : $de->delivery_code));
+						$sheet->setCellValue("F{$row}", (empty($de) ? "" : $delivery_state[$de->line_status]));
+						$sheet->setCellValue("G{$row}", $days);
+						$sheet->setCellValue("H{$row}", $rs->U_Delivery_Urgency);
+						$sheet->setCellValue("I{$row}", $rs->CardCode);
+						$sheet->setCellValue("J{$row}", $rs->CardName);
+						$sheet->setCellValue("K{$row}", $rs->DocTotal);
+						$sheet->setCellValue("L{$row}", $this->delivery_state($rs->U_Deliver_status));
+						$sheet->setCellValue("M{$row}", empty($rs->U_Deliver_date) ? NULL : thai_date($rs->U_Deliver_date));
+						$sheet->setCellValue("N{$row}", $rs->Address2);
+						$sheet->setCellValue("O{$row}", $rs->ZipCode);
+						$sheet->setCellValue("P{$row}", $this->get_route_name($rs->ZipCode, $rs->City));
+						$sheet->setCellValue("Q{$row}", $rs->Comments);
+						$sheet->setCellValue("R{$row}", $rs->U_Remark_Int);
+						$sheet->setCellValue("S{$row}", $rs->firstName.' '.$rs->lastName);
+
+						if($days > 0)
+						{
+							$sheet->getStyle("G{$row}")->getFont()->getColor()->setARGB(PHPExcel_Style_Color::COLOR_RED);
+						}
+
+						$row++;
+					}
 				}
 			}
 		}
@@ -289,39 +346,56 @@ class Delivery_backlogs extends PS_Controller
 				foreach($invoice as $rs)
 				{
 					$de = $this->delivery_report_model->get_delivery_doc($rs->DocNum, "DO");
-					$required_date = is_null($rs->U_Required_Delivery_Date) ? $rs->DocDate : $rs->U_Required_Delivery_Date;
+					$pass_state = TRUE;
+					$pass_route = TRUE;
 
-					$today_date = date_create(date('Y-m-d'));
-					$required_delivery_date = date_create($required_date);
-					$diff = date_diff($today_date, $required_delivery_date);
-					$days = $diff->format('%r%a') * -1;
-
-					$sheet->setCellValue("A{$row}", thai_date($rs->DocDate));
-					$sheet->setCellValue("B{$row}", thai_date($required_date));
-					$sheet->setCellValue("C{$row}", "DO");
-					$sheet->setCellValue("D{$row}", $rs->DocNum);
-					$sheet->setCellValue("E{$row}", (empty($de) ? "ยังไม่ได้จัดสาย" : $de->delivery_code));
-					$sheet->setCellValue("F{$row}", (empty($de) ? "" : $delivery_state[$de->line_status]));
-					$sheet->setCellValue("G{$row}", $days);
-					$sheet->setCellValue("H{$row}", $rs->U_Delivery_Urgency);
-					$sheet->setCellValue("I{$row}", $rs->CardCode);
-					$sheet->setCellValue("J{$row}", $rs->CardName);
-					$sheet->setCellValue("K{$row}", $rs->DocTotal);
-					$sheet->setCellValue("L{$row}", $this->delivery_state($rs->U_Deliver_status));
-					$sheet->setCellValue("M{$row}", empty($rs->U_Deliver_date) ? NULL : thai_date($rs->U_Deliver_date));
-					$sheet->setCellValue("N{$row}", $rs->Address2);
-					$sheet->setCellValue("O{$row}", $rs->ZipCode);
-					$sheet->setCellValue("P{$row}", $this->get_route_name($rs->ZipCode, $rs->City));
-					$sheet->setCellValue("Q{$row}", $rs->Comments);
-					$sheet->setCellValue("R{$row}", $rs->U_Remark_Int);
-					$sheet->setCellValue("S{$row}", $rs->firstName.' '.$rs->lastName);
-
-					if($days > 0)
+					if($state != 'all')
 					{
-						$sheet->getStyle("G{$row}")->getFont()->getColor()->setARGB(PHPExcel_Style_Color::COLOR_RED);
+						$pass_state = $state === 'NULL' ? (empty($de) ? TRUE : FALSE) : (empty($de) ? FALSE : ($de->line_status == $state ? TRUE : FALSE));
 					}
 
-					$row++;
+					if($pass_state && $route_id != 'all')
+					{
+						$hasRoute = $this->delivery_report_model->get_route_by_zip_code_and_id($rs->ZipCode, $route_id);
+						$pass_route = empty($hasRoute) ? FALSE : TRUE;
+					}
+
+					if($pass_state && $pass_route)
+					{
+						$required_date = is_null($rs->U_Required_Delivery_Date) ? $rs->DocDate : $rs->U_Required_Delivery_Date;
+
+						$today_date = date_create(date('Y-m-d'));
+						$required_delivery_date = date_create($required_date);
+						$diff = date_diff($today_date, $required_delivery_date);
+						$days = $diff->format('%r%a') * -1;
+
+						$sheet->setCellValue("A{$row}", thai_date($rs->DocDate));
+						$sheet->setCellValue("B{$row}", thai_date($required_date));
+						$sheet->setCellValue("C{$row}", "DO");
+						$sheet->setCellValue("D{$row}", $rs->DocNum);
+						$sheet->setCellValue("E{$row}", (empty($de) ? "ยังไม่ได้จัดสาย" : $de->delivery_code));
+						$sheet->setCellValue("F{$row}", (empty($de) ? "" : $delivery_state[$de->line_status]));
+						$sheet->setCellValue("G{$row}", $days);
+						$sheet->setCellValue("H{$row}", $rs->U_Delivery_Urgency);
+						$sheet->setCellValue("I{$row}", $rs->CardCode);
+						$sheet->setCellValue("J{$row}", $rs->CardName);
+						$sheet->setCellValue("K{$row}", $rs->DocTotal);
+						$sheet->setCellValue("L{$row}", $this->delivery_state($rs->U_Deliver_status));
+						$sheet->setCellValue("M{$row}", empty($rs->U_Deliver_date) ? NULL : thai_date($rs->U_Deliver_date));
+						$sheet->setCellValue("N{$row}", $rs->Address2);
+						$sheet->setCellValue("O{$row}", $rs->ZipCode);
+						$sheet->setCellValue("P{$row}", $this->get_route_name($rs->ZipCode, $rs->City));
+						$sheet->setCellValue("Q{$row}", $rs->Comments);
+						$sheet->setCellValue("R{$row}", $rs->U_Remark_Int);
+						$sheet->setCellValue("S{$row}", $rs->firstName.' '.$rs->lastName);
+
+						if($days > 0)
+						{
+							$sheet->getStyle("G{$row}")->getFont()->getColor()->setARGB(PHPExcel_Style_Color::COLOR_RED);
+						}
+
+						$row++;
+					}
 				}
 			}
 		}

@@ -75,6 +75,8 @@ function getReport() {
   let allCust = $('#allCust').val();
   let custFrom = $('#custFrom').val();
   let custTo = $('#custTo').val();
+  let route = $('#route').val();
+  let state = $('#delivery_state').val();
 
   if(! isDate(fromDate) || ! isDate(toDate)) {
     $('#fromDate').addClass('has-error');
@@ -111,7 +113,9 @@ function getReport() {
       "docType" : docType,
       "allCust" : allCust,
       "custFrom" : custFrom,
-      "custTo" : custTo
+      "custTo" : custTo,
+      "route" : route,
+      "state" : state
     },
     success:function(rs) {
       load_out();

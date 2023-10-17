@@ -44,8 +44,8 @@
 			<option value="DO">DO</option>
 		</select>
 	</div>
-	<div class="divider-hidden visible-sm"></div>
-	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
+
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2-harf col-xs-6 padding-5">
     <label class="display-block">ลูกค้า</label>
     <select class="form-control input-sm" id="allCust" name="allCust" onchange="toggleCustomer()">
 			<option value="1">ทั้งหมด</option>
@@ -62,12 +62,31 @@
 		<label class="not-show">End</label>
 		<input type="text" class="form-control input-sm text-center" name="custTo" id="custTo" placeholder="รหัสลูกค้าสิ้นสุด" disabled/>
 	</div>
+	<div class="col-lg-4 col-md-4 col-sm-6 col-xs-8 padding-5">
+		<label>สายการจัดส่ง</label>
+		<select class="form-control input-sm" id="route" name="route">
+			<option value="all">ทั้งหมด</option>
+			<?php echo select_route(NULL, TRUE); ?>
+		</select>
+	</div>
+
+	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
+		<label>การจัดสาย</label>
+		<select class="form-control input-sm" id="delivery_state" name="delivery_state">
+			<option value="all">ทั้งหมด</option>
+			<option value="O">Open</option>
+			<option value="R">Release</option>
+			<option value="C">Closed</option>
+			<option value="NULL">ไม่ได้จัดสาย</option>
+		</select>
+	</div>
+
 	<input type="hidden" id="token" name="token">
 </div>
 </form>
-<hr class="padding-5">
+<hr class="padding-5 margin-top-15 margin-bottom-15">
 <div class="row">
-	<div class="col-sm-12 col-xs-12 padding-5 table-responsive"  style="max-height:600px;">
+	<div class="col-sm-12 col-xs-12 padding-5 table-responsive"  style="padding-top:1px; max-height:600px;">
 		<table class="table table-bordered tableFixHead" style="min-width:2300px; margin-bottom:20px;">
 			<tr class="font-size-12 freez">
 				<th class="fix-width-40 text-center">#</th>

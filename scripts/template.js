@@ -1,3 +1,18 @@
+window.addEventListener('load', () => {
+  let uuid = get_uuid();
+
+  if(uuid == "" || uuid == null || uuid == undefined) {
+    uid = generateUID();
+
+		localStorage.setItem('ix_uuid', uid);
+  }
+});
+
+
+function get_uuid() {
+	return localStorage.getItem('ix_uuid');
+}
+
 function go_to(page){
 	window.location.href = BASE_URL + page;
 }
@@ -354,4 +369,9 @@ function validInput(input, regex){
 function print_url(target)
 {
 	$("<iframe>").hide().attr("src", target).appendTo("body");
+}
+
+function generateUID() {
+    return Math.random().toString(36).substring(2, 15) +
+        Math.random().toString(36).substring(2, 15);
 }
