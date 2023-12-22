@@ -84,7 +84,7 @@
       <div class="form-group">
         <label class="col-sm-9 control-label no-padding-right">Bill To</label>
         <div class="col-sm-3 col-xs-4">
-          <select class="form-control input-sm" id="billToCode" onchange="get_address_bill_to()">
+          <select class="width-100" id="billToCode" onchange="get_address_bill_to()">
             <?php if(!empty($billToCode)) : ?>
             <?php  foreach($billToCode as $rs) : ?>
               <option value="<?php echo $rs->Address; ?>" <?php echo is_selected($header->PayToCode, $rs->Address); ?>>

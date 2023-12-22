@@ -321,7 +321,7 @@ function update() {
 		'tax' : removeCommas($('#tax').val()), //-- VatSum
 		'docTotal' : removeCommas($('#docTotal').val())
 	}
-	
+
 		//--- check required parameter
 	if(ds.CardCode.length === 0) {
 		swal("กรุณาระบุลูกค้า");
@@ -769,7 +769,7 @@ function get_address_ship_to_code(code)
 				var source = $('#ship-to-template').html();
 				var output = $('#shipToCode');
 				render(source, data, output);
-
+				$('#shipToCode').select2();
 				get_address_ship_to();
 			}
 			else {

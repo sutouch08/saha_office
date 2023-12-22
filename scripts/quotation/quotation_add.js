@@ -742,7 +742,7 @@ function get_address_ship_to_code(code)
 				var source = $('#ship-to-template').html();
 				var output = $('#shipToCode');
 				render(source, data, output);
-
+				$('#shipToCode').select2();
 				get_address_ship_to();
 			}
 			else {

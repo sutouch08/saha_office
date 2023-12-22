@@ -55,8 +55,8 @@
 
     <div class="form-group">
       <label class="col-sm-3 control-label no-padding-right">Ship To</label>
-      <div class="col-sm-3 col-xs-4">
-        <select class="form-control input-sm" id="shipToCode" onchange="get_address_ship_to()">
+      <div class="col-lg-5 col-md-5 col-sm-5 col-xs-4">
+        <select class="width-100" id="shipToCode" onchange="get_address_ship_to()">
           <?php if(!empty($shipToCode)) : ?>
           <?php  foreach($shipToCode as $rs) : ?>
             <option value="<?php echo $rs->Address; ?>" <?php echo is_selected($header->ShipToCode, $rs->Address); ?>>
@@ -82,3 +82,7 @@
 
   </div>
 </div>
+
+<script>
+  $('#shipToCode').select2();
+</script>

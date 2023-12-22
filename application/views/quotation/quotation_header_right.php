@@ -69,7 +69,7 @@
       <div class="form-group">
         <label class="col-sm-9 control-label no-padding-right">Bill To</label>
         <div class="col-sm-3 col-xs-8">
-          <select class="form-control input-sm" id="billToCode" onchange="get_address_bill_to()"></select>
+          <select class="width-100" id="billToCode" onchange="get_address_bill_to()"></select>
         </div>
       </div>
 

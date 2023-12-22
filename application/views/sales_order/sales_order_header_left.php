@@ -55,8 +55,8 @@
 
     <div class="form-group">
       <label class="col-sm-3 control-label no-padding-right">Ship To</label>
-      <div class="col-sm-3 col-xs-4">
-        <select class="form-control input-sm" id="shipToCode" onchange="get_address_ship_to()"></select>
+      <div class="col-lg-5 col-md-5 col-sm-5 col-xs-4">
+        <select class="width-100" id="shipToCode" onchange="get_address_ship_to()"></select>
       </div>
     </div>
     <div class="form-group">
@@ -68,7 +68,6 @@
           <i class="fa fa-ellipsis-h"></i>
         </span>
       </div>
-
     </div>
   </div>
 </div>
