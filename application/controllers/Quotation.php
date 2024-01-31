@@ -892,11 +892,13 @@ class Quotation extends PS_Controller
 				$commitQty = !empty($stock) ? round($stock->IsCommited,2) : 0;
 				$orderedQty = !empty($stock) ? round($stock->OnOrder, 2) : 0;
 
+				$cost = $item->cost;
+
 				if($whsQty > 0)
 				{
-					if($stock->StockValue > 0)
+					if($item->StockValue > 0)
 					{
-						$cost = round(($stock->StockValue/$whsQty), 2);
+						$cost = round(($item->StockValue/$whsQty), 2);
 					}
 				}
 
@@ -910,7 +912,7 @@ class Quotation extends PS_Controller
 					'taxCode' => !empty($customerTax) ? $customerTax->taxCode : $item->taxCode,
 					'taxRate' => !empty($customerTax) ? $customerTax->taxRate : $item->taxRate,
 					'price' => $price,
-					'cost' => $item->cost,
+					'cost' => $cost,
 					'lastSellPrice' => empty($card_code) ? $price : $this->item_model->last_sell_price($item->code, $card_code, $DfUom),
 					'lastQuotePrice' => empty($card_code) ? $price : $this->item_model->last_quote_price($item->code, $card_code, $DfUom),
 					'discount' => $discount,

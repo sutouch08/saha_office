@@ -1016,7 +1016,6 @@ function getItemData(code, no) {
 				$('#taxCode-'+no).val(ds.taxCode);
 				$('#taxCode-'+no).data('rate', ds.taxRate);
 				$('#lineAmount-'+no).val(addCommas(lineAmount.toFixed(2)));
-				$('#warranty-'+no).val(ds.warranty);
 				$('#whs-'+no).val(whCode);
 
 				$('#whsQty-'+no).val(ds.whsQty);
@@ -1072,6 +1071,7 @@ function recalPrice(el) {
 	let cost = parseDefault(parseFloat($('#baseCost-'+no).val()), 0.00);
 	let newCost = factor * cost;
 	let gp = newPrice - newCost;
+	gp = newPrice > 0 ? (gp/newPrice) * 100 : gp;
 
 	$('#stdPrice-'+no).val(addCommas(newPrice.toFixed(2)));
 	$('#price-'+no).val(addCommas(newPrice.toFixed(2)));
@@ -1165,6 +1165,8 @@ function recal(no) {
 	var lineAmount = qty * sellPrice;
 	var discPrcnt = ((price - sellPrice)/price) * 100; //--- discount percent per row
 	var gp = sellPrice - cost;
+	gp = sellPrice > 0 ? (gp/sellPrice) * 100 : gp;
+
 	$('#priceDiff-'+no).val(priceDiffPercent(no));
 	$('#priceAfDiscBfTax-'+no).val(addCommas(sellPrice.toFixed(2)));
 	$('#lineAmount-'+no).val(addCommas(lineAmount.toFixed(2)));

@@ -12,7 +12,7 @@ class Item_model extends CI_Model
     $rs = $this->ms
     ->select('P.ItemCode AS code, P.ItemName AS name, P.UgpEntry, P.IUoMEntry')
     ->select('P.VatGourpSa AS taxCode, P.UserText AS detail, P.ValidComm')
-    ->select('P1.Price AS price, P.LstEvlPric AS cost')
+    ->select('P1.Price AS price, P.LstEvlPric AS cost, P.StockValue')
     ->select('T.Rate AS taxRate')
     ->select('P.DfltWH AS dfWhsCode')
     ->from('OITM AS P')

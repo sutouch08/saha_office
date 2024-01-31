@@ -35,7 +35,7 @@
           <th class="middle text-center" style="width:100px;">Tax Code</th>
           <th class="middle text-center" style="width:100px;">มูค่า/หน่วย หลังส่วนลด(ก่อน vat)</th>
           <th class="middle text-center" style="width:150px;">มูลค่ารวม (ก่อน vat)</th>
-          <th class="middle text-center" style="width:100px;">Gross Profit/Unit</th>
+          <th class="middle text-center" style="width:100px;">GP Margin(%)</th>
           <th class="middle text-center" style="width:150px;">Whs</th>
           <th class="middle text-center" style="width:100px;">In Stock</th>
           <th class="middle text-center" style="width:100px;">Commited</th>
@@ -50,6 +50,7 @@
         <?php   foreach($details as $ds) : ?>
           <?php $cost = $ds->cost * $ds->baseQty; ?>
           <?php $gp = $ds->SellPrice - $cost; ?>
+          <?php $gp = $ds->SellPrice > 0 ? round((($gp/$ds->SellPrice)*100), 2) : $gp; ?>
           <tr id="row-<?php echo $no; ?>">
             <input type="hidden" id="baseCost-<?php echo $no; ?>" value="<?php echo $ds->cost; ?>" />
             <input type="hidden" id="cost-<?php echo $no; ?>" value="<?php echo $cost; ?>" />

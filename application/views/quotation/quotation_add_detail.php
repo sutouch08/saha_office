@@ -35,7 +35,7 @@
           <th class="middle text-center" style="width:100px;">Tax Code</th>
           <th class="middle text-center" style="width:100px;">มูค่า/หน่วย หลังส่วนลด(ก่อน vat)</th>
           <th class="middle text-center" style="width:150px;">มูลค่ารวม (ก่อน vat)</th>
-          <th class="middle text-center" style="width:100px;">Gross Profit/Unit</th>
+          <th class="middle text-center" style="width:100px;">GP Margin(%)</th>
           <th class="middle text-center" style="width:150px;">Whs</th>
           <th class="middle text-center" style="width:100px;">In Stock</th>
           <th class="middle text-center" style="width:100px;">Commited</th>
@@ -270,7 +270,7 @@
 </td>
 <td class="middle">
   <input type="text" class="form-control input-sm text-right number" id="lstPrice-{{no}}" readonly disabled/>
-  <input type="hidden" id="lastSellPrice-{{no}}" value="0"/>  
+  <input type="hidden" id="lastSellPrice-{{no}}" value="0"/>
 </td>
 <td class="middle">
   <input type="text" class="form-control input-sm text-right number input-price" id="price-{{no}}" onkeyup="recalAmount($(this))"/>

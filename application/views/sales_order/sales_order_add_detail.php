@@ -35,7 +35,7 @@
           <th class="middle text-center" style="width:100px;">Tax Code</th>
           <th class="middle text-center" style="width:100px;">มูค่า/หน่วย หลังส่วนลด(ก่อน vat)</th>
           <th class="middle text-center" style="width:150px;">มูลค่ารวม (ก่อน vat)</th>
-          <th class="middle text-center" style="width:100px;">Gross Profit/Unit</th>
+          <th class="middle text-center" style="width:100px;">GP Margin(%)</th>
           <th class="middle text-center" style="width:150px;">Whs</th>
           <th class="middle text-center" style="width:100px;">In Stock</th>
           <th class="middle text-center" style="width:100px;">Commited</th>

@@ -977,6 +977,7 @@ function getItemData(code, no) {
 				var whCode = ds.dfWhsCode;
 				var cost = parseDefault(parseFloat(ds.cost), 0);
 				var gp = price - cost;
+				gp = price > 0 ? (gp/price) * 100 : gp;
 
 				$('#itemName-'+no).val(ds.name);
 				$('#itemDetail-'+no).val(ds.detail);
@@ -992,7 +993,7 @@ function getItemData(code, no) {
 				$('#price-'+no).val(addCommas(price.toFixed(2)));
 				$('#cost-'+no).val(ds.cost);
 				$('#baseCost-'+no).val(ds.cost);
-				$('#gp-'+no).val(gp);
+				$('#gp-'+no).val(addCommas(gp.toFixed(2)));
 				$('#priceDiff-'+no).val(addCommas(price.toFixed(2)));
 				$('#disc1-'+no).val(ds.discount);
 				$('#taxCode-'+no).val(ds.taxCode);
@@ -1138,6 +1139,7 @@ function recal(no) {
 	var lineAmount = qty * sellPrice;
 	var discPrcnt = ((price - sellPrice)/price) * 100; //--- discount percent per row
 	var gp = sellPrice - cost;
+	gp = sellPrice > 0 ? (gp/sellPrice) * 100 : gp;
 	$('#priceDiff-'+no).val(priceDiffPercent(no));
 	$('#priceAfDiscBfTax-'+no).val(addCommas(sellPrice.toFixed(2)));
 	$('#lineAmount-'+no).val(addCommas(lineAmount.toFixed(2)));
