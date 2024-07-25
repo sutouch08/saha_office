@@ -143,7 +143,7 @@ function set_rows($value = 20)
 function get_rows()
 {
   $CI =& get_instance();
-  return $CI->input->cookie('rows') === NULL ? 20 : $CI->input->cookie('rows');
+  return $CI->input->cookie('rows') === NULL ? 20 : ($CI->input->cookie('rows') > 300 ? 300 : $CI->input->cookie('rows'));
 }
 
 

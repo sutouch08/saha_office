@@ -76,6 +76,7 @@ class Delivery_details extends PS_Controller
 			case '5' : $name = 'ลูกค้าไม่รับของ'; break;
 			case '6' : $name = 'สินค้าผิด'; break;
 			case '7' : $name = 'เอกสารผิด'; break;
+			case '8' : $name = 'ติดต่อลูกค้าไม่ได้-ไม่ได้เข้าส่ง'; break;
 			default : $name = 'Loaded'; break;
 		}
 

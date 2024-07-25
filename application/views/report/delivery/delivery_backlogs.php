@@ -24,9 +24,7 @@
 			<option value="R">Required Delivery Date</option>
 		</select>
 	</div>
-	<?php $from_date = date_create(date('d-m-Y', strtotime("-365 days"))); ?>
-	<?php $min_date = date_create(date('d-m-Y', strtotime("2023-09-01"))); ?>
-	<?php $from_date = $from_date < $min_date ? $min_date : $from_date; ?>
+	<?php $from_date = date_create(date('01-m-Y')); ?>
 	<?php $to_date = date_create(date('d-m-Y')); ?>
   <div class="col-lg-2-harf col-md-2-harf col-sm-4 col-xs-6 padding-5">
     <label class="not-show">วันที่</label>
@@ -108,6 +106,7 @@
 				<th class="fix-width-200 text-center">เส้นทางการจัดส่งแนะนำ</th>
 				<th class="fix-width-100 text-center">Remark</th>
 				<th class="fix-width-200 text-center">Remark Internal</th>
+				<th class="fix-width-200 text-center">Delivery remark</th>
 				<th class="fix-width-100 text-center">ชื่อผู้ขาย</th>
 			</tr>
 			<tbody id="result">
@@ -139,6 +138,7 @@
 			<td class="middle">{{Route}}</td>
 			<td class="middle">{{Remark}}</td>
 			<td class="middle">{{RemarkInternal}}</td>
+			<td class="middle">{{Delivery_remark}}</td>
 			<td class="middle">{{Owner}}</td>
     </tr>
 {{/each}}

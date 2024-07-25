@@ -105,6 +105,7 @@
 			<option value="5" <?php echo is_selected($result_status, '5'); ?>>ลูกค้าไม่รับของ</option>
 			<option value="6" <?php echo is_selected($result_status, '6'); ?>>สินค้าผิด</option>
 			<option value="7" <?php echo is_selected($result_status, '7'); ?>>เอกสารผิด</option>
+			<option value="8" <?php echo is_selected($result_status, '8'); ?>>ติดต่อลูกค้าไม่ได้-ไม่ได้เข้าส่ง</option>
 		</select>
 	</div>
 
@@ -246,6 +247,7 @@
 								case '5' : echo "<span class='orange'>ลูกค้าไม่รับของ</span>"; break;
 								case '6' : echo "<span class='red'>สินค้าผิด</span>"; break;
 								case '7' : echo "<span class='red'>เอกสารผิด</span>"; break;
+								case '8' : echo "<span class='orange'>ติดต่อลูกค้าไม่ได้-ไม่ได้เข้าส่ง</span>"; break;
 								default : echo "Loaded"; break;
 							}
 							?>

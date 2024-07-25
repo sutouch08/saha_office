@@ -97,6 +97,7 @@ class Delivery_backlogs extends PS_Controller
 							'DocNum' => $rs->DocNum,
 							'Delivery_code' => empty($de) ? "ยังไม่ได้จัดสาย" : $de->delivery_code,
 							'Delivery_state' => empty($de) ? "" : $delivery_state[$de->line_status],
+							'Delivery_remark' => empty($de) ? "" : $de->remark,
 							'Diff_date' => $days,
 							'Urgency_text' => $rs->U_Delivery_Urgency,
 							'CardCode' => $rs->CardCode,
@@ -160,6 +161,7 @@ class Delivery_backlogs extends PS_Controller
 							'DocNum' => $rs->DocNum,
 							'Delivery_code' => empty($de) ? "ยังไม่ได้จัดสาย" : $de->delivery_code,
 							'Delivery_state' => empty($de) ? "" : $delivery_state[$de->line_status],
+							'Delivery_remark' => empty($de) ? "" : $de->remark,
 							'Diff_date' => $days,
 							'Urgency_text' => $rs->U_Delivery_Urgency,
 							'CardCode' => $rs->CardCode,
@@ -272,6 +274,7 @@ class Delivery_backlogs extends PS_Controller
 		$sheet->setCellValue("Q{$row}", "Remark");
 		$sheet->setCellValue("R{$row}", "Remark Internal");
 		$sheet->setCellValue("S{$row}", "ชื่อผู้ขาย");
+		$sheet->setCellValue("T{$row}", "Delivery Remark");
 		$row++;
 
 		if($doc_type == 'all' OR $doc_type == 'IV')
@@ -325,6 +328,7 @@ class Delivery_backlogs extends PS_Controller
 						$sheet->setCellValue("Q{$row}", $rs->Comments);
 						$sheet->setCellValue("R{$row}", $rs->U_Remark_Int);
 						$sheet->setCellValue("S{$row}", $rs->firstName.' '.$rs->lastName);
+						$sheet->setCellValue("T{$row}", empty($de) ? NULL : $de->remark);
 
 						if($days > 0)
 						{
@@ -388,6 +392,7 @@ class Delivery_backlogs extends PS_Controller
 						$sheet->setCellValue("Q{$row}", $rs->Comments);
 						$sheet->setCellValue("R{$row}", $rs->U_Remark_Int);
 						$sheet->setCellValue("S{$row}", $rs->firstName.' '.$rs->lastName);
+						$sheet->setCellValue("T{$row}", empty($de) ? NULL : $de->remark);
 
 						if($days > 0)
 						{

@@ -17,10 +17,8 @@ class Delivery_report_model extends CI_Model
     ->join("CRD1 AS ad", "o.CardCode = ad.CardCode AND o.ShipToCode = ad.Address AND ad.AdresType = 'S'", "left")
     ->join("OHEM AS em", "o.OwnerCode = em.empId", "left")
     ->where('o.CANCELED', 'N')
-    // ->group_start()
+    ->where('o.DocStatus !=', 'C')
     ->where('o.U_BEX_DO IS NULL', NULL, FALSE)
-    // ->or_where('o.U_BEX_DO !=', 'Y')
-    // ->group_end()
     ->group_start()
     ->where('o.U_Deliver_status IS NULL', NULL, FALSE)
     ->or_where("o.U_Deliver_status !=", 4)
@@ -107,7 +105,7 @@ class Delivery_report_model extends CI_Model
   public function get_delivery_doc($code, $type = "IV")
   {
     $rs = $this->db
-    ->select('delivery_code, line_status')
+    ->select('delivery_code, line_status, remark')
     ->where('DocType', $type)
     ->where('DocNum', $code)
     ->where('line_status !=', 'D')
