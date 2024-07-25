@@ -9,7 +9,7 @@
 	</div>
 	<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 padding-5">
 		<p class="pull-right top-p">
-      <button type="button" class="btn btn-sm btn-success" onclick="getReport()"><i class="fa fa-bar-chart"></i> รายงานxx</button>
+      <button type="button" class="btn btn-sm btn-success" onclick="getReport()"><i class="fa fa-bar-chart"></i> รายงาน</button>
 			<button type="button" class="btn btn-sm btn-primary" onclick="doExport()"><i class="fa fa-file-excel-o"></i> Export</button>
 		</p>
 	</div>
