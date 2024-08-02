@@ -347,6 +347,7 @@
 		<option value="5">ลูกค้าไม่รับของ</option>
 		<option value="6">สินค้าผิด</option>
 		<option value="7">เอกสารผิด</option>
+		<option value="8">ติดต่อลูกค้าไม่ได้-ไม่ได้เข้าส่ง</option>
 	</select>
 </td>
 </script>
