@@ -436,3 +436,9 @@ echo $page;
  		size:A4 portrait;
  	}
   </style>
+
+	<script>
+		window.onafterprint = function() {
+			$.get('<?php echo $this->home.'/add_print_logs/'.$doc->code; ?>');
+		};
+	</script>

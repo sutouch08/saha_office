@@ -158,11 +158,9 @@ class Quotation_model extends CI_Model
     }
 
 
-    if(!empty($ds['SaleName']))
+    if(isset($ds['SlpCode']) && $ds['SlpCode'] != 'all')
     {
-      $sale_in = $this->get_sale_in($ds['SaleName']);
-
-      $this->db->where_in('SlpCode', $sale_in);
+      $this->db->where('SlpCode', $ds['SlpCode']);
     }
 
     if(!empty($ds['DocNum']))
@@ -240,12 +238,9 @@ class Quotation_model extends CI_Model
       $this->db->group_end();
     }
 
-
-    if(!empty($ds['SaleName']))
+    if(isset($ds['SlpCode']) && $ds['SlpCode'] != 'all')
     {
-      $sale_in = $this->get_sale_in($ds['SaleName']);
-
-      $this->db->where_in('SlpCode', $sale_in);
+      $this->db->where('SlpCode', $ds['SlpCode']);
     }
 
     if(!empty($ds['DocNum']))

@@ -902,9 +902,6 @@ function get_new_series(month) {
 }
 
 
-
-
-
 function toggleText(el) {
 	var no = el.data('no');
 	var data = {"no" : no};
@@ -918,15 +915,32 @@ function toggleText(el) {
 	}
 
 	render(source, data, output);
-
+	reIndex();
 	init();
 }
 
 
+function insertBefore(rowNo) {
+	setTimeout(() => {
+		var no = $('#row-no').val();
+		var data = {"no" : no, "uid" : uniqueId()};
+		var source = $('#row-template').html();
+		var output = $('#row-'+rowNo);
+
+		render_before(source, data, output);
+		reIndex();
+		init();
+		$('#itemCode-'+no).focus();
+		no++;
+		$('#row-no').val(no);
+		return no;
+	}, 100)
+}
+
 function addRow() {
-	var no = $('#top-row').val();
+	var no = $('#row-no').val();
 	no++;
-	$('#top-row').val(no);
+	$('#row-no').val(no);
 
 	var data = {"no" : no};
 	var source = $('#row-template').html();

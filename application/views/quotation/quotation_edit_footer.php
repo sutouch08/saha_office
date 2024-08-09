@@ -90,18 +90,19 @@
   <input type="hidden" id="user_sale_id" value="<?php echo $this->user->sale_id; ?>" />
   <input type="hidden" id="is_draft" value="0">
 
-  <div class="col-sm-6 col-xs-6 padding-5">
-    <button type="button" class="btn btn-sm btn-primary" onclick="update()">Save</button>
-    <button type="button" class="btn btn-sm btn-warning" onclick="leave()">Cancel</button>
-    <button type="button" class="btn btn-sm btn-info" onclick="updateAsDraft()">Save AS Draft</button>
-  </div>
-  <div class="col-sm-6 col-xs-6 padding-5">
+  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5">
     <?php if(!empty($logs)) : ?>
-      <p class="pull-right" style="font-size:12px; font-style: italic; color:#c5d0dc;">
+      <p class="" style="font-size:12px; font-style: italic; color:#c5d0dc;">
       <?php foreach($logs as $log) : ?>
         <?php echo "*".logs_action_name($log->action) ." &nbsp;&nbsp; {$log->uname} &nbsp;&nbsp; {$log->emp_name}  &nbsp;&nbsp; ".thai_date($log->date_upd, TRUE)."<br/>"; ?>
       <?php endforeach; ?>
       </p>
     <?php endif; ?>
+  </div>
+
+  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5 text-right">
+    <button type="button" class="btn btn-sm btn-primary btn-100" onclick="update()">Save</button>
+    <button type="button" class="btn btn-sm btn-warning btn-100" onclick="leave()">Cancel</button>
+    <button type="button" class="btn btn-sm btn-info btn-100" onclick="updateAsDraft()">Save AS Draft</button>
   </div>
 </div>

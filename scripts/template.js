@@ -157,6 +157,18 @@ function render_append(source, data, output){
 }
 
 
+function render_after(source, data, output) {
+	var template = Handlebars.compile(source);
+	var html = template(data);
+	$(html).insertAfter(output);
+}
+
+function render_before(source, data, output) {
+	var template = Handlebars.compile(source);
+	var html = template(data);
+	$(html).insertBefore(output);
+}
+
 
 
 function set_rows()
@@ -331,6 +343,10 @@ $('.search-box').keyup(function(e){
 	}
 });
 
+$('.filter').change(function(){
+  getSearch();
+})
+
 
 function clearFilter() {
 	let url = HOME + 'clear_filter';
@@ -374,4 +390,9 @@ function print_url(target)
 function generateUID() {
     return Math.random().toString(36).substring(2, 15) +
         Math.random().toString(36).substring(2, 15);
+}
+
+function uniqueId()
+{
+	return Math.floor(Math.random() * Date.now());
 }

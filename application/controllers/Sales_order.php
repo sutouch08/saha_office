@@ -1966,55 +1966,10 @@ class Sales_order extends PS_Controller
 		}
 	}
 
-
-
-	// public function print_sales_order_no_discount($code)
-	// {
-	// 	$this->load->library('printer');
-	// 	$doc = $this->sales_order_model->get($code);
-	// 	$detail = $this->sales_order_model->get_details($code);
-	//
-	// 	$details = array();
-	//
-	//
-	// 	if(!empty($detail))
-	// 	{
-	// 		$no = 0;
-	// 		foreach($detail as $rs)
-	// 		{
-	// 			if($rs->Type == 1 && $no > 0)
-	// 			{
-	// 				$noo = $no -1;
-	// 				$details[$noo]->Dscription .= PHP_EOL.$rs->LineText;
-	// 			}
-	// 			else
-	// 			{
-	// 				$rs->UomName = $this->item_model->get_uom_name($rs->UomCode);
-	// 				$details[$no] = $rs;
-	// 				$no++;
-	// 			}
-	// 		}
-	// 	}
-	//
-	// 	$customer = $this->customers_model->get_sap_contact_data($doc->CardCode);
-	// 	$sale = $this->user_model->get_sale_data($doc->SlpCode);
-	// 	$empName = empty($sale) ? "" : $sale->emp_name;
-	// 	$division_name = empty($sale) ? "" : $this->user_model->get_division_name($sale->division_code);
-	// 	$doc->prefix = empty($doc->BeginStr) ? $this->sales_order_model->get_prefix($doc->Series) : $doc->BeginStr;
-	//
-	// 	$ds = array(
-	// 		'doc' => $doc,
-	// 		'details' => $details,
-	// 		'customer' => $customer,
-	// 		'empName' => $empName,
-	// 		'division_name' => $division_name,
-	// 		'show_discount' => FALSE
-	// 	);
-	//
-	// 	$this->load->view('print/print_sales_order', $ds);
-	// }
-
-
+	public function add_print_logs($code)
+	{
+		return $this->sales_order_logs_model->add('print', $code);
+	}
 
 
 	public function get_temp_data()

@@ -17,6 +17,7 @@ class Quotation extends PS_Controller
 		$this->load->model('item_model');
 		$this->load->helper('quotation');
 		$this->load->helper('currency');
+
   }
 
 
@@ -29,7 +30,7 @@ class Quotation extends PS_Controller
 			'DocNum' => get_filter('DocNum', 'sq_DocNum', ''),
 			'SoNo' => get_filter('SoNo', 'sq_SoNo', ''),
 			'CardCode' => get_filter('CardCode', 'sq_CardCode', ''),
-			'SaleName' => get_filter('SaleName', 'sq_SaleName', ''),
+			'SlpCode' => get_filter('SlpCode', 'sq_SlpCode', 'all'),
 			'CustRef' => get_filter('CustRef', 'sq_CustRef', ''),
 			'Approved' => get_filter('Approved', 'sq_Approved', 'all'),
 			'SapStatus' => get_filter('SapStatus', 'sq_SapStatus', 'all'),
@@ -1847,6 +1848,10 @@ class Quotation extends PS_Controller
 	}
 
 
+	public function add_print_logs($code)
+	{
+		return $this->quotation_logs_model->add('print', $code);
+	}
 
 
 	public function get_temp_data()
@@ -2063,7 +2068,7 @@ class Quotation extends PS_Controller
 			'sq_SoNo',
 			'sq_CardCode',
 			'sq_CardName',
-			'sq_SaleName',
+			'sq_SlpCode',
 			'sq_CustRef',
 			'sq_Approved',
 			'sq_SapStatus',

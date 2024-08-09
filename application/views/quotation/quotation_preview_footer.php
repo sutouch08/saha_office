@@ -4,11 +4,11 @@
     <table class="table">
       <tr>
         <td class="width-40 text-right">Sale Employee : </td>
-        <td class="width-60"> : <?php echo $sale_name; ?></td>
+        <td class="width-60"><?php echo $sale_name; ?></td>
       </tr>
       <tr>
         <td class="width-40 text-right">Owner : </td>
-        <td class="width-60"> : <?php echo $header->owner_name; ?></td>
+        <td class="width-60"><?php echo $header->owner_name; ?></td>
       </tr>
       <tr>
         <td class="width-40 text-right">Remark : </td>
@@ -51,10 +51,9 @@
   <div class="divider-hidden"></div>
   <div class="divider-hidden"></div>
 
-  <div class="col-sm-6 col-xs-6 padding-5">  </div>
-  <div class="col-sm-6 col-xs-6 padding-5">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
     <?php if(!empty($logs)) : ?>
-      <p class="pull-right" style="font-size:12px; font-style: italic; color:#c5d0dc;">
+      <p class="" style="font-size:12px; font-style: italic; color:#c5d0dc;">
       <?php foreach($logs as $log) : ?>
         <?php echo "*".logs_action_name($log->action) ." &nbsp;&nbsp; {$log->uname} &nbsp;&nbsp; {$log->emp_name}  &nbsp;&nbsp; ".thai_date($log->date_upd, TRUE)."<br/>"; ?>
       <?php endforeach; ?>

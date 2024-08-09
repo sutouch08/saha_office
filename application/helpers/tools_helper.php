@@ -342,7 +342,8 @@ function logs_action_name($name)
 		'pick' => 'เริ่มจัด โดย',
 		'picked' => 'จัดเสร็จ โดย',
 		'pack' => 'เริ่มแพ็ค โดย',
-		'packed' => 'แพ็คเสร็จ โดย'
+		'packed' => 'แพ็คเสร็จ โดย',
+		'print' => 'พิมพ์ โดย'
   );
 
   return $arr[$name];
