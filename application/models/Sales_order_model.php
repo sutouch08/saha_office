@@ -171,14 +171,6 @@ class Sales_order_model extends CI_Model
       $this->db->group_end();
     }
 
-
-    if(!empty($ds['SaleName']))
-    {
-      $sale_in = $this->get_sale_in($ds['SaleName']);
-
-      $this->db->where_in('SlpCode', $sale_in);
-    }
-
     if(!empty($ds['DocNum']))
     {
       $this->db->like('DocNum', $ds['DocNum']);
@@ -196,18 +188,22 @@ class Sales_order_model extends CI_Model
       $this->db->like('DeliveryNo', $ds['DeliveryNo']);
     }
 
-
     if(!empty($ds['InvoiceNo']))
     {
       $this->db->like('InvoiceNo', $ds['InvoiceNo']);
     }
 
+    if(!empty($ds['SqNo']))
+    {
+      $this->db->group_start();
+      $this->db->like('U_SQNO', $ds['SqNo'])->or_like('SqNo', $ds['SqNo']);
+      $this->db->group_end();
+    }
 
     if($ds['SapStatus'] !== 'all')
     {
       $this->db->where('SapStatus', $ds['SapStatus']);
     }
-
 
     if(!empty($ds['CustRef']))
     {
@@ -218,6 +214,11 @@ class Sales_order_model extends CI_Model
     {
       $this->db->where('DocDate >=', from_date($ds['fromDate']));
       $this->db->where('DocDate <=',to_date($ds['toDate']));
+    }
+
+    if( isset($ds['SlpCode']) && $ds['SlpCode'] != 'all')
+    {
+      $this->db->where('SlpCode', $ds['SlpCode']);
     }
 
     if($ds['Approved'] !== 'all')
@@ -246,9 +247,6 @@ class Sales_order_model extends CI_Model
   }
 
 
-
-
-
   function get_list(array $ds = array(), $perpage = 20, $offset = 0)
   {
     $order_by = empty($ds['order_by']) ? 'code' : $ds['order_by'];
@@ -267,19 +265,20 @@ class Sales_order_model extends CI_Model
       $this->db->group_end();
     }
 
-
-    if(!empty($ds['SaleName']))
-    {
-      $sale_in = $this->get_sale_in($ds['SaleName']);
-
-      $this->db->where_in('SlpCode', $sale_in);
-    }
-
     if(!empty($ds['DocNum']))
     {
       $this->db->like('DocNum', $ds['DocNum']);
     }
 
+    if(!empty($ds['DeliveryNo']))
+    {
+      $this->db->like('DeliveryNo', $ds['DeliveryNo']);
+    }
+
+    if(!empty($ds['InvoiceNo']))
+    {
+      $this->db->like('InvoiceNo', $ds['InvoiceNo']);
+    }
 
     if(!empty($ds['SqNo']))
     {
@@ -287,19 +286,6 @@ class Sales_order_model extends CI_Model
       $this->db->like('U_SQNO', $ds['SqNo'])->or_like('SqNo', $ds['SqNo']);
       $this->db->group_end();
     }
-
-
-    if(!empty($ds['DeliveryNo']))
-    {
-      $this->db->like('DeliveryNo', $ds['DeliveryNo']);
-    }
-
-
-    if(!empty($ds['InvoiceNo']))
-    {
-      $this->db->like('InvoiceNo', $ds['InvoiceNo']);
-    }
-
 
     if($ds['SapStatus'] !== 'all')
     {
@@ -315,6 +301,11 @@ class Sales_order_model extends CI_Model
     {
       $this->db->where('DocDate >=', from_date($ds['fromDate']));
       $this->db->where('DocDate <=',to_date($ds['toDate']));
+    }
+
+    if( isset($ds['SlpCode']) && $ds['SlpCode'] != 'all')
+    {
+      $this->db->where('SlpCode', $ds['SlpCode']);
     }
 
     if($ds['Approved'] !== 'all')
@@ -504,7 +495,7 @@ class Sales_order_model extends CI_Model
     }
 
     return NULL;
-    
+
   }
 
 

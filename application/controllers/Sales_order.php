@@ -23,8 +23,6 @@ class Sales_order extends PS_Controller
 
   public function index()
   {
-		//$this->update_status(100);
-
 		$filter = array(
 			'WebCode' => get_filter('WebCode', 'so_WebCode', ''),
 			'DocNum' => get_filter('DocNum', 'so_DocNum', ''),
@@ -32,7 +30,7 @@ class Sales_order extends PS_Controller
 			'DeliveryNo' => get_filter('DeliveryNo', 'so_DeliveryNo', ''),
 			'InvoiceNo' => get_filter('InvoiceNo', 'so_InvoiceNo', ''),
 			'CardCode' => get_filter('CardCode', 'so_CardCode', ''),
-			'SaleName' => get_filter('SaleName', 'so_SaleName', ''),
+			'SlpCode' => get_filter('SlpCode', 'so_SlpCode', 'all'),
 			'CustRef' => get_filter('CustRef', 'so_CustRef', ''),
 			'Approved' => get_filter('Approved', 'so_Approved', 'all'),
 			'SapStatus' => get_filter('SapStatus', 'so_SapStatus', 'all'),
@@ -43,26 +41,33 @@ class Sales_order extends PS_Controller
 			'sort_by' => get_filter('sort_by', 'so_sort_by', 'DESC'),
 		);
 
-		//--- แสดงผลกี่รายการต่อหน้า
-		$perpage = get_filter('set_rows', 'rows', 20);
-		//--- หาก user กำหนดการแสดงผลมามากเกินไป จำกัดไว้แค่ 300
-		if($perpage > 300)
+		if($this->input->post('search'))
 		{
-			$perpage = get_filter('rows', 'rows', 300);
+			redirect($this->home);
 		}
+		else
+		{
+			//--- แสดงผลกี่รายการต่อหน้า
+			$perpage = get_filter('set_rows', 'rows', 20);
+			//--- หาก user กำหนดการแสดงผลมามากเกินไป จำกัดไว้แค่ 300
+			if($perpage > 300)
+			{
+				$perpage = get_filter('rows', 'rows', 300);
+			}
 
-		$segment = 3; //-- url segment
-		$rows = $this->sales_order_model->count_rows($filter);
+			$segment = 3; //-- url segment
+			$rows = $this->sales_order_model->count_rows($filter);
 
-		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
-		$init	= pagination_config($this->home.'/index/', $rows, $perpage, $segment);
+			//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
+			$init	= pagination_config($this->home.'/index/', $rows, $perpage, $segment);
 
-		$rs = $this->sales_order_model->get_list($filter, $perpage, $this->uri->segment($segment));
+			$rs = $this->sales_order_model->get_list($filter, $perpage, $this->uri->segment($segment));
 
-    $filter['data'] = $rs;
+			$filter['data'] = $rs;
 
-		$this->pagination->initialize($init);
-    $this->load->view('sales_order/sales_order_list', $filter);
+			$this->pagination->initialize($init);
+			$this->load->view('sales_order/sales_order_list', $filter);
+		}
   }
 
 
@@ -743,6 +748,7 @@ class Sales_order extends PS_Controller
 							'Address2' => get_null($ds->ShipTo),
 							'Series' => $ds->Series,
 							'BeginStr' => $this->sales_order_model->get_prefix($ds->Series),
+							'Status' => $ds->isDraft == 1 ? 9 : 0,
 							'DocDate' => sap_date($ds->DocDate, TRUE),
 							'DocDueDate' => sap_date($ds->DocDueDate, TRUE),
 							'TextDate' => sap_date($ds->TextDate, TRUE),
@@ -1402,7 +1408,9 @@ class Sales_order extends PS_Controller
 	public function doExport($code)
 	{
 		$sc = TRUE;
+
 		$doc = $this->sales_order_model->get($code);
+
 		if(!empty($doc))
 		{
 			//---- Status ต้องยังไม่เข้า SAP && (ไม่ต้องอนุมัติ หรือ อนุมัติแล้ว เท่านั้น)
@@ -1410,13 +1418,13 @@ class Sales_order extends PS_Controller
 			{
 				//---- check SQ already in SAP
 				$sq = $this->sales_order_model->get_sap_sales_order($code);
-				//$sq = $this->sales_order_model->get_sap_sales_order_draft($code); //--- check ว่า SQ เข้า draft ไปแล้วหรือยัง
 
 				if(empty($sq))
 				{
 					//---- drop exists temp data
 					$temp = $this->sales_order_model->get_temp_sales_order($code);
-					if(!empty($temp))
+
+					if( ! empty($temp))
 		      {
 		        foreach($temp as $rows)
 		        {
@@ -1470,6 +1478,7 @@ class Sales_order extends PS_Controller
 						if($docEntry !== FALSE)
 						{
 							$details = $this->sales_order_model->get_details($code);
+
 							if(!empty($details))
 							{
 								$seqNum = 0;
@@ -1566,7 +1575,8 @@ class Sales_order extends PS_Controller
 		if(empty($sq))
 		{
 			//---- drop exists temp data
-			$temp = $this->sales_order_model->get_temp_sales_orders($code);
+			$temp = $this->sales_order_model->get_temp_sales_order($code);
+
 			if(!empty($temp))
 			{
 				foreach($temp as $rows)
@@ -1624,34 +1634,72 @@ class Sales_order extends PS_Controller
 	}
 
 
-
-
 	public function approve()
 	{
 		$sc = TRUE;
-		$code = trim($this->input->post('code'));
-		if(!empty($code))
+		$code = $this->input->post('code');
+
+		if( ! empty($code))
 		{
-			$rs = $this->do_approve($code);
-			if($rs === TRUE)
+			$doc = $this->sales_order_model->get($code);
+
+			if( ! empty($doc))
 			{
-				if(! $this->doExport($code))
+				//--- ตัองยังไม่ได้อนุมัติ และ ยังไม่เข้า SAP และ ยังไม่มีเลขที่เอกสารใน SAP
+				if($doc->Approved === 'P' && $doc->Status != 2 && $doc->DocNum === NULL)
+				{
+					//--- ตรวจสอบสิทธิ์ในการอนุาัติ
+					$max_discount = $this->sales_order_model->get_max_line_disc($code);
+					$can_approve = $this->sales_order_model->can_approve($this->user->uname, $doc->sale_team, $max_discount);
+
+					if($can_approve === TRUE)
+					{
+						$arr = array(
+							'Approved' => 'A',
+							'Approver' => $this->user->uname
+						);
+
+						if( ! $this->sales_order_model->update($code, $arr))
+						{
+							$sc = FALSE;
+							$this->error = "Failed to approve document";
+						}
+						else
+						{
+							if( ! $this->doExport($code))
+							{
+								$sc = FALSE;
+								$this->error = "Export to SAP Failed";
+							}
+
+							$this->sales_order_logs_model->add('approve', $code);
+						}
+					}
+					else
+					{
+						$sc = FALSE;
+						$this->error = "Missing Permission";
+					}
+				}
+				else
 				{
 					$sc = FALSE;
+					$this->error = "Invalid Document Status";
 				}
 			}
 			else
 			{
 				$sc = FALSE;
+				$this->error = "Document not found";
 			}
 		}
 		else
 		{
 			$sc = FALSE;
-			$this->error = "Missing required parameter : code";
+			$this->error = "Missing required parameter: code";
 		}
 
-		$this->response($sc);
+		echo $sc === TRUE ? 'success' : $this->error;
 	}
 
 
@@ -1714,6 +1762,7 @@ class Sales_order extends PS_Controller
 	{
 		$sc = TRUE;
 		$doc = $this->sales_order_model->get($code);
+
 		if(!empty($doc))
 		{
 			//--- ตัองยังไม่ได้อนุมัติ และ ยังไม่เข้า SAP และ ยังไม่มีเลขที่เอกสารใน SAP
@@ -2183,7 +2232,7 @@ class Sales_order extends PS_Controller
 			'so_SapStatus',
 			'so_CardCode',
 			'so_CardName',
-			'so_SaleName',
+			'so_SlpCode',
 			'so_CustRef',
 			'so_Approved',
 			'so_Status',

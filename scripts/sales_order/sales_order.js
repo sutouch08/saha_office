@@ -11,7 +11,7 @@ function doApprove() {
     },
     success:function(rs) {
       var rs = $.trim(rs);
-      if(rs === 'success') {
+      if(rs == 'success') {
         swal({
           title:'Success',
           type:'success',

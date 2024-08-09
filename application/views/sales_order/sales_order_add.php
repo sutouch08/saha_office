@@ -9,16 +9,14 @@
 	}
 </style>
 <div class="row">
-	<div class="col-sm-6 col-xs-6 padding-5">
-    <h3 class="title">
-      <?php echo $this->title; ?>
-    </h3>
-    </div>
-    <div class="col-sm-6 col-xs-6 padding-5">
-    	<p class="pull-right top-p">
-        <button type="button" class="btn btn-sm btn-default" onclick="leave()"><i class="fa fa-arrow-left"></i> &nbsp; Back</button>
-      </p>
-    </div>
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5">
+		<h3 class="title"><?php echo $this->title; ?></h3>
+	</div>
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5">
+		<p class="pull-right top-p">
+			<button type="button" class="btn btn-sm btn-default" onclick="leave()"><i class="fa fa-arrow-left"></i> &nbsp; Back</button>
+		</p>
+	</div>
 </div><!-- End Row -->
 <hr class="padding-5"/>
 <form id="addForm" method="post" action="<?php echo $this->home; ?>/add">
@@ -64,7 +62,7 @@
 
 <script src="<?php echo base_url(); ?>scripts/sales_order/sales_order.js?v=<?php echo date('YmdH'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/sales_order/sales_order_add.js?v=<?php echo date('YmdH'); ?>"></script>
-<script src="<?php echo base_url(); ?>scripts/address.js"></script>
+<script src="<?php echo base_url(); ?>scripts/address.js?v=<?php echo date('Ymd'); ?>"></script>
 
 
 

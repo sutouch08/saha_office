@@ -588,6 +588,7 @@ class Quotation extends PS_Controller
 							'Address2' => get_null($ds->ShipTo),
 							'Series' => $ds->Series,
 							'BeginStr' => $this->quotation_model->get_prefix($ds->Series),
+							'Status' => $ds->isDraft == 1 ? 9 : 0,
 							'DocDate' => sap_date($ds->DocDate, TRUE),
 							'DocDueDate' => sap_date($ds->DocDueDate, TRUE),
 							'TextDate' => sap_date($ds->TextDate, TRUE),
@@ -597,12 +598,6 @@ class Quotation extends PS_Controller
 							'uname' => $this->user->uname,
 							'sale_team' => $this->user->sale_team
 						);
-
-
-						if($ds->isDraft == 1)
-						{
-							$arr['Status'] = 9;
-						}
 
 						$this->db->trans_begin();
 

@@ -1,72 +1,52 @@
-<div class="col-sm-6 col-xs-12 padding-5">
+<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12 padding-5">
   <div class="form-horizontal">
     <div class="form-group">
-      <label class="col-sm-3 col-xs-12 control-label no-padding-right">Customer</label>
-      <div class="col-sm-3 col-xs-12">
-        <input type="text" id="CardCode" class="form-control input-sm" autofocus/>
+      <label class="col-lg-2 col-md-2-harf col-sm-2-harf col-xs-4 control-label-xs no-padding-right">Customer</label>
+      <div class="col-lg-3 col-md-3 col-sm-3 col-xs-8">
+        <input type="text" id="CardCode" class="form-control input-xs" autofocus/>
       </div>
     </div>
 
     <div class="form-group">
-      <label class="col-sm-3 col-xs-12 control-label no-padding-right">Name</label>
-      <div class="col-sm-7 col-xs-8">
-        <input type="text" id="CardName" class="form-control input-sm" />
+      <label class="col-lg-2 col-md-2-harf col-sm-2-harf col-xs-4 control-label-xs no-padding-right">Name</label>
+      <div class="col-lg-7 col-md-7-harf col-sm-8-harf col-xs-8">
+        <input type="text" id="CardName" class="form-control input-xs" />
       </div>
     </div>
 
     <div class="form-group">
-      <label class="col-sm-3 col-xs-12 control-label no-padding-right">Contact Person</label>
-      <div class="col-sm-7 col-xs-8">
-        <select class="form-control input-sm" id="Contact">
+      <label class="col-lg-2 col-md-2-harf col-sm-2-harf col-xs-4 control-label-xs no-padding-right">Contact Person</label>
+      <div class="col-lg-3 col-md-3 col-sm-3 col-xs-8">
+        <select class="form-control input-xs" id="Contact">
           <option value=""></option>
         </select>
       </div>
     </div>
 
-
     <div class="form-group">
-      <label class="col-sm-3 col-xs-12 control-label no-padding-right">Customer Ref</label>
-      <div class="col-sm-7 col-xs-8">
-        <input type="text" id="NumAtCard" class="form-control input-sm input-medium"  />
+      <label class="col-lg-2 col-md-2-harf col-sm-2-harf col-xs-4 control-label-xs no-padding-right">Customer Ref</label>
+      <div class="col-lg-3 col-md-3 col-sm-3 col-xs-8">
+        <input type="text" id="NumAtCard" class="form-control input-xs input-medium"  maxlength="100"/>
       </div>
     </div>
 
-
     <div class="form-group">
-      <label class="col-sm-3 control-label no-padding-right">ฝ่าย</label>
-      <div class="col-sm-7 col-xs-8">
-        <select class="form-control input-sm" id="Department">
+      <label class="col-lg-2 col-md-2-harf col-sm-2-harf col-xs-4 control-label-xs no-padding-right">ฝ่าย</label>
+      <div class="col-lg-7 col-md-7-harf col-sm-8-harf col-xs-8">
+        <select class="form-control input-xs" id="Department">
           <option value=""></option>
           <?php echo select_department($this->user->department_code); ?>
         </select>
       </div>
     </div>
 
-
     <div class="form-group">
-      <label class="col-sm-3 control-label no-padding-right">แผนก</label>
-      <div class="col-sm-7 col-xs-8">
-        <select class="form-control input-sm" id="Division">
+      <label class="col-lg-2 col-md-2-harf col-sm-2-harf col-xs-4 control-label-xs no-padding-right">แผนก</label>
+      <div class="col-lg-7 col-md-7-harf col-sm-8-harf col-xs-8">
+        <select class="form-control input-xs" id="Division">
           <option value=""></option>
           <?php echo select_division($this->user->division_code); ?>
         </select>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label class="col-sm-3 control-label no-padding-right">Ship To</label>
-      <div class="col-lg-5 col-md-5 col-sm-5 col-xs-4">
-        <select class="width-100" id="shipToCode" onchange="get_address_ship_to()"></select>
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="col-sm-3 control-label no-padding-right"></label>
-      <div class="col-sm-7 col-xs-8">
-        <textarea id="ShipTo" class="autosize autosize-transition form-control" row="5" disabled></textarea>
-        <span class="badge badge-yellow pull-right margin-top-5 hide"
-        style="padding-bottom:0px; padding-top: 0px; border-radius:3px; cursor:pointer;" onclick="editShipTo()">
-          <i class="fa fa-ellipsis-h"></i>
-        </span>
       </div>
     </div>
   </div>

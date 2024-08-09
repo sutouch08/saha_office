@@ -97,9 +97,9 @@
   <div class="divider-hidden"></div>
   <div class="divider-hidden"></div>
 
-  <div class="col-sm-12 col-xs-12 padding-5">
-    <button type="button" class="btn btn-sm btn-primary" onclick="saveAdd()">Add</button>
-    <button type="button" class="btn btn-sm btn-warning" onclick="leave()">Cancel</button>
-    <button type="button" class="btn btn-sm btn-info" onclick="saveAsDraft()">Save AS Draft</button>
+  <div class="col-sm-12 col-xs-12 padding-5 text-right">
+    <button type="button" class="btn btn-sm btn-primary btn-100" onclick="saveAdd()">Add</button>
+    <button type="button" class="btn btn-sm btn-warning btn-100" onclick="leave()">Cancel</button>
+    <button type="button" class="btn btn-sm btn-info btn-100" onclick="saveAsDraft()">Save AS Draft</button>
   </div>
 </div>

@@ -90,16 +90,6 @@ function saveAdd() {
 		$('#DocDate').removeClass('has-error');
 	}
 
-	// if(!isDate(ds.U_Delivery_Date)) {
-	// 	swal("Invalid Delivery Date");
-	// 	$('#U_Delivery_Date').addClass('has-error');
-	// 	return false;
-	// }
-	// else {
-	// 	$('#U_Delivery_Date').removeClass('has-error');
-	// }
-
-
 	if(!isDate(ds.DocDueDate)) {
 		swal("Invalid Delivery Date");
 		$('#DocDueDate').addClass('has-error');
@@ -370,15 +360,6 @@ function update() {
 		$('#DocDate').removeClass('has-error');
 	}
 
-	// if(!isDate(ds.U_Delivery_Date)) {
-	// 	swal("Invalid Delivery Date");
-	// 	$('#U_Delivery_Date').addClass('has-error');
-	// 	return false;
-	// }
-	// else {
-	// 	$('#U_Delivery_Date').removeClass('has-error');
-	// }
-
 
 	if(!isDate(ds.DocDueDate)) {
 		swal("Invalid Delivery Date");
@@ -508,9 +489,6 @@ function update() {
 
 	//--- หากไม่มีข้อผิดพลาด
 
-	// console.log(ds);
-	// console.log(details);
-	// console.log(textRow);
 	load_in();
 	$.ajax({
 		url:HOME + 'update',
@@ -927,10 +905,6 @@ function get_new_series(month) {
 	})
 }
 
-
-
-
-
 function toggleText(el) {
 	var no = el.data('no');
 	var data = {"no" : no};
@@ -944,15 +918,31 @@ function toggleText(el) {
 	}
 
 	render(source, data, output);
-
+	reIndex();
 	init();
 }
 
+function insertBefore(rowNo) {
+	setTimeout(() => {
+		var no = $('#row-no').val();
+		var data = {"no" : no, "uid" : uniqueId()};
+		var source = $('#row-template').html();
+		var output = $('#row-'+rowNo);
+
+		render_before(source, data, output);
+		reIndex();
+		init();
+		$('#itemCode-'+no).focus();
+		no++;
+		$('#row-no').val(no);
+		return no;
+	}, 100)
+}
 
 function addRow() {
-	var no = $('#top-row').val();
+	var no = $('#row-no').val();
 	no++;
-	$('#top-row').val(no);
+	$('#row-no').val(no);
 
 	var data = {"no" : no};
 	var source = $('#row-template').html();

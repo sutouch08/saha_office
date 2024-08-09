@@ -1,68 +1,99 @@
 <?php $this->load->view('include/header'); ?>
+
 <style>
 	label.search-label {
 		font-size:12px;
 	}
+
+	@media (min-width: 768px) {
+
+    .fix-no {
+      left: 0;
+      position: sticky;
+    }
+
+    .fix-action {
+      left: 40px;
+      position: sticky;
+    }
+
+    .fix-approve {
+      left:120px;
+      position: sticky;
+    }
+
+    .fix-status {
+      left:200px;
+      position: sticky;
+    }
+
+    .fix-date {
+      left:280px;
+      position: sticky;
+    }
+
+		.fix-code {
+      left:380px;
+      position: sticky;
+    }
+
+    td[scope=row] {
+      background-color: white;
+      border: 0 !important;
+      outline: solid 1px #dddddd;
+    }
+  }
+
 </style>
 <div class="row">
-	<div class="col-sm-6 col-xs-6 padding-5">
-    <h3 class="title">
-      <?php echo $this->title; ?>
-    </h3>
-    </div>
-    <div class="col-sm-6 col-xs-6 padding-5">
-    	<p class="pull-right top-p">
-        <button type="button" class="btn btn-sm btn-success" onclick="goAdd()"><i class="fa fa-plus"></i> Add Sales Order</button>
-      </p>
-    </div>
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5">
+		<h3 class="title"><?php echo $this->title; ?></h3>
+	</div>
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5">
+		<p class="pull-right top-p">
+			<button type="button" class="btn btn-sm btn-success" onclick="goAdd()"><i class="fa fa-plus"></i> Add Sales Order</button>
+		</p>
+	</div>
 </div><!-- End Row -->
 <hr class="padding-5"/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
 <div class="row">
-  <div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+  <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label class="search-label">Web Order</label>
     <input type="text" class="form-control input-sm text-center search-box" name="WebCode" value="<?php echo $WebCode; ?>" />
   </div>
 
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label class="search-label">SO No.</label>
     <input type="text" class="form-control input-sm text-center search-box" name="DocNum" value="<?php echo $DocNum; ?>" />
   </div>
 
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label class="search-label">SQ No.</label>
     <input type="text" class="form-control input-sm text-center search-box" name="SqNo" value="<?php echo $SqNo; ?>" />
   </div>
 
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label class="search-label">DO No.</label>
     <input type="text" class="form-control input-sm text-center search-box" name="DeliveryNo" value="<?php echo $DeliveryNo; ?>" />
   </div>
 
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label class="search-label">INV No.</label>
     <input type="text" class="form-control input-sm text-center search-box" name="InvoiceNo" value="<?php echo $InvoiceNo; ?>" />
   </div>
 
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label class="search-label">Customer</label>
     <input type="text" class="form-control input-sm text-center search-box" name="CardCode" value="<?php echo $CardCode; ?>" placeholder="Code OR Name" />
   </div>
 
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label class="search-label">Cust. Ref</label>
     <input type="text" class="form-control input-sm text-center search-box" name="CustRef" value="<?php echo $CustRef; ?>" />
   </div>
 
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
-    <label class="search-label">Sales Emp.</label>
-    <input type="text" class="form-control input-sm text-center search-box" name="SaleName" value="<?php echo $SaleName; ?>" />
-  </div>
-
-
-
-
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
     <label class="search-label">Approved</label>
     <select class="form-control input-sm" name="Approved" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -73,7 +104,17 @@
 		</select>
   </div>
 
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+	<div class="col-lg-2-harf col-md-3 col-sm-3 col-xs-6 padding-5">
+    <label class="search-label">Sales Emp.</label>
+		<select class="width-100 filter" name="SlpCode" id="slp-code">
+			<option value="all">ทั้งหมด</option>
+			<?php echo select_saleman($SlpCode); ?>
+		</select>
+  </div>
+
+
+
+	<div class="col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
     <label class="search-label">SAP Status</label>
     <select class="form-control input-sm" name="SapStatus" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -83,7 +124,7 @@
 		</select>
   </div>
 
-	<div class="col-sm-1 col-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
     <label class="search-label">Temp Status</label>
     <select class="form-control input-sm" name="Status" onchange="getSearch()">
 			<option value="all">ทั้งหมด</option>
@@ -95,7 +136,7 @@
 		</select>
   </div>
 
-	<div class="col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
 		<label class="search-label">Posting Date</label>
 		<div class="input-daterange input-group">
 			<input type="text" class="form-control input-sm width-50 from-date text-center" id="fromDate" name="fromDate" value="<?php echo $fromDate; ?>" placeholder="From" readonly/>
@@ -103,19 +144,20 @@
 		</div>
 	</div>
 
-  <div class="col-sm-1 col-xs-6 padding-5">
-    <label class="display-block not-show">buton</label>
+  <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+    <label class="search-label display-block not-show">buton</label>
     <button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
   </div>
-	<div class="col-sm-1 col-xs-6 padding-5">
-    <label class="display-block not-show">buton</label>
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+    <label class="search-label display-block not-show">buton</label>
     <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
   </div>
 </div>
-<hr class="margin-top-15 padding-5">
 <input type="hidden" name="order_by" id="order_by" value="<?php echo $order_by; ?>">
 <input type="hidden" name="sort_by" id="sort_by" value="<?php echo $sort_by; ?>">
+<input type="hidden" name="search" value="1" />
 </form>
+<hr class="margin-top-15 padding-5">
 <?php echo $this->pagination->create_links(); ?>
 
 <?php
@@ -133,26 +175,26 @@
  ?>
 
 <div class="row">
-	<div class="col-sm-12 col-xs-12 padding-5 table-responsive">
-		<table class="table table-striped table-hover border-1 dataTable" style="table-layout: fixed; width:100%; min-width:980px;">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive" style="margin-top:-1px; margin-left: 5px; padding-left: 0px; min-height:250px; max-height:600px; overflow:auto;">
+		<table class="table table-striped table-bordered dataTable tableFixHead" style="min-width:1600px;">
 			<thead>
-				<tr style="font-size:10px;">
-					<th style="width:20px;" class="middle text-center">#</th>
-					<th style="width:100px;" class="middle sorting <?php echo $sort_PostingDate; ?>" id="sort_DocDate" onclick="sort('DocDate')">Posting Date</th>
-					<th style="width:100px;" class="middle sorting <?php echo $sort_WebCode; ?>" id="sort_code" onclick="sort('code')">Web Order</th>
-					<th style="width:100px;" class="middle sorting <?php echo $sort_DocNum; ?>" id="sort_DocNum" onclick="sort('DocNum')">SalesOrder No.</th>
-					<th style="width:100px;" class="middle sorting <?php echo $sort_SqNo; ?>" id="sort_SqNo" onclick="sort('SqNo')">Quotation No.</th>
-					<th style="width:100px;" class="middle sorting <?php echo $sort_DeliveryNo; ?>" id="sort_DeliveryNo" onclick="sort('DeliveryNo')">Delivery No.</th>
-					<th style="width:100px;" class="middle sorting <?php echo $sort_InvoiceNo; ?>" id="sort_InvoiceNo" onclick="sort('InvoiceNo')">Invoice No.</th>
-					<th style="width:100px;" class="middle sorting <?php echo $sort_CardCode; ?>" id="sort_CardCode" onclick="sort('CardCode')">Cust. Code</th>
-					<th style="width:200px;" class="middle sorting <?php echo $sort_CardName; ?>" id="sort_CardName" onclick="sort('CardName')">Cust. Name</th>
-					<th style="width:100px;" class="middle sorting <?php echo $sort_NumAtCard; ?>" id="sort_NumAtCard" onclick="sort('NumAtCard')">Cust. Ref</th>
-					<th style="width:100px;" class="middle text-center sorting <?php echo $sort_DocTotal; ?>" id="sort_DocTotal" onclick="sort('DocTotal')">Doc Total</th>
-					<th style="width:80px;" class="middle text-center sorting <?php echo $sort_uname; ?>" id="sort_uname" onclick="sort('uname')">User</th>
-					<th style="width:80px;" class="middle text-center">SAP Status</th>
-					<th style="width:80px;" class="middle text-center">Approved</th>
-					<th style="width:80px;" class="middle text-center">Temp Status</th>
-					<th style="width:100px;" class="middle text-right"></th>
+				<tr class="font-size-10">
+					<th class="fix-width-40 fix-no fix-header middle text-center">#</th>
+					<th class="fix-width-80 fix-action fix-header middle text-center">action</th>
+					<th class="fix-width-80 fix-approve fix-header middle text-center">Approved</th>
+					<th class="fix-width-80 fix-status fix-header middle text-center">Temp Status</th>
+					<th class="fix-width-100 fix-date fix-header middle sorting <?php echo $sort_PostingDate; ?>" id="sort_DocDate" onclick="sort('DocDate')">Posting Date</th>
+					<th class="fix-width-100 fix-code fix-header middle sorting <?php echo $sort_WebCode; ?>" id="sort_code" onclick="sort('code')">Web Order</th>
+					<th class="fix-width-100 middle sorting <?php echo $sort_DocNum; ?>" id="sort_DocNum" onclick="sort('DocNum')">SalesOrder No.</th>
+					<th class="fix-width-100 middle sorting <?php echo $sort_SqNo; ?>" id="sort_SqNo" onclick="sort('SqNo')">Quotation No.</th>
+					<th class="fix-width-100 middle sorting <?php echo $sort_DeliveryNo; ?>" id="sort_DeliveryNo" onclick="sort('DeliveryNo')">Delivery No.</th>
+					<th class="fix-width-100 middle sorting <?php echo $sort_InvoiceNo; ?>" id="sort_InvoiceNo" onclick="sort('InvoiceNo')">Invoice No.</th>
+					<th class="fix-width-100 middle sorting <?php echo $sort_CardCode; ?>" id="sort_CardCode" onclick="sort('CardCode')">Cust. Code</th>
+					<th class="min-width-250 middle sorting <?php echo $sort_CardName; ?>" id="sort_CardName" onclick="sort('CardName')">Cust. Name</th>
+					<th class="fix-width-100 middle sorting <?php echo $sort_NumAtCard; ?>" id="sort_NumAtCard" onclick="sort('NumAtCard')">Cust. Ref</th>
+					<th class="fix-width-100 middle text-center sorting <?php echo $sort_DocTotal; ?>" id="sort_DocTotal" onclick="sort('DocTotal')">Doc Total</th>
+					<th class="fix-width-80 middle text-center sorting <?php echo $sort_uname; ?>" id="sort_uname" onclick="sort('uname')">User</th>
+					<th class="fix-width-80 middle text-center">SAP Status</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -160,10 +202,45 @@
 			<?php if(!empty($data)) : ?>
 				<?php $no = $this->uri->segment(3) + 1; ?>
 				<?php foreach($data as $rs) : ?>
-					<tr style="font-size:10px;">
-						<td class="middle text-center no"><?php echo $no; ?></td>
-						<td class="middle"><?php echo thai_date($rs->DocDate, FALSE,'/'); ?></td>
-						<td class="middle"><?php echo $rs->code; ?></td>
+					<tr class="font-size-10">
+						<td class="middle text-center fix-no no" scope="row"><?php echo $no; ?></td>
+						<td class="middle fix-action" scope="row">
+							<button type="button" class="btn btn-minier btn-primary" title="Preview" onclick="goDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
+							<?php if($rs->Status == 0 OR $rs->Status == 9 ) : ?>
+							<button type="button" class="btn btn-minier btn-warning" title="Edit" onclick="goEdit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil"></i></button>
+							<?php endif; ?>
+							<?php if($rs->Status == 2) : ?>
+							<button type="button" class="btn btn-minier btn-info" title="Print" onclick="printSalesOrder('<?php echo $rs->code; ?>')"><i class="fa fa-print"></i></button>
+							<?php endif; ?>
+						</td>
+						<td class="middle fix-approve" scope="row">
+							<?php if($rs->Status != 9) : ?>
+								<?php if($rs->Approved == 'A') : ?>
+									<span class="btn btn-minier btn-success btn-block">อนุมัติ</span>
+								<?php elseif($rs->Approved == 'P') : ?>
+									<span class="btn btn-minier btn-warning btn-block">รออนุมัติ</span>
+								<?php elseif($rs->Approved == 'R') : ?>
+									<span class="btn btn-minier btn-danger btn-block">ไม่อนุมัติ</span>
+								<?php endif; ?>
+							<?php endif; ?>
+						</td>
+						<td class="middle fix-status" scope="row">
+							<?php if($rs->Status == 2) : ?>
+								<button type="button" class="btn btn-minier btn-success btn-block" onclick="viewDetail('<?php echo $rs->code; ?>')">Success</button>
+							<?php endif; ?>
+							<?php if($rs->Status == 3) : ?>
+								<button type="button" class="btn btn-minier btn-danger btn-block" onclick="viewDetail('<?php echo $rs->code; ?>')">Failed</button>
+							<?php endif; ?>
+							<?php if($rs->Status == 1) : ?>
+								<button type="button" class="btn btn-minier btn-warning btn-block" onclick="viewDetail('<?php echo $rs->code; ?>')">Pending</button>
+							<?php endif; ?>
+
+							<?php if($rs->Status == 9) : ?>
+								<span class="btn btn-minier btn-purple btn-block">Draft</span>
+							<?php endif; ?>
+						</td>
+						<td class="middle fix-date" scope="row"><?php echo thai_date($rs->DocDate, FALSE,'/'); ?></td>
+						<td class="middle fix-code" scope="row"><?php echo $rs->code; ?></td>
 						<td class="middle"><?php echo $rs->DocNum; ?></td>
 						<td class="middle">
 							<?php echo (!empty($rs->SqNo) ? $rs->SqNo : (!empty($rs->U_SQNO) ? $rs->U_SQNO : "")); ?>
@@ -186,59 +263,21 @@
 								Open
 							<?php endif; ?>
 						</td>
-						<td class="middle text-center">
-							<?php if($rs->Status != 9) : ?>
-								<?php if($rs->Approved == 'A') : ?>
-									<span class="label label-success">อนุมัติ</span>
-								<?php elseif($rs->Approved == 'P') : ?>
-									<span class="label label-warning">รออนุมัติ</span>
-								<?php elseif($rs->Approved == 'R') : ?>
-									<span class="label label-danger">ไม่อนุมัติ</span>
-								<?php endif; ?>
-							<?php endif; ?>
-						</td>
-						<td class="middle text-center">
-							<?php if($rs->Status == 2) : ?>
-								<button type="button" class="btn btn-minier btn-success btn-block" onclick="viewDetail('<?php echo $rs->code; ?>')">Success</button>
-							<?php endif; ?>
-							<?php if($rs->Status == 3) : ?>
-								<button type="button" class="btn btn-minier btn-danger btn-block" onclick="viewDetail('<?php echo $rs->code; ?>')">Failed</button>
-							<?php endif; ?>
-							<?php if($rs->Status == 1) : ?>
-								<button type="button" class="btn btn-minier btn-warning btn-block" onclick="viewDetail('<?php echo $rs->code; ?>')">Pending</button>
-							<?php endif; ?>
-							
-							<?php if($rs->Status == 9) : ?>
-								<span class="label label-purple">Draft</span>
-							<?php endif; ?>
-						</td>
-						<td class="middle text-right">
-							<button type="button" class="btn btn-minier btn-primary" title="Preview" onclick="goDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
-							<?php if($rs->Status == 0 OR $rs->Status == 9 ) : ?>
-							<button type="button" class="btn btn-minier btn-warning" title="Edit" onclick="goEdit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil"></i></button>
-							<?php endif; ?>
-							<?php if($rs->Status == 2) : ?>
-							<button type="button" class="btn btn-minier btn-info" title="Print" onclick="printSalesOrder('<?php echo $rs->code; ?>')"><i class="fa fa-print"></i></button>
-							<?php endif; ?>
-
-						</td>
 					</tr>
 					<?php $no++; ?>
 					<?php $sum_total += $rs->DocTotal; ?>
 				<?php endforeach; ?>
+				<tr>
+					<td colspan="12" class="middle text-right font-size-14">รวม</td>
+					<td colspan="2" class="middle text-right font-size-14"><?php echo number($sum_total, 2); ?></td>
+					<td colspan="2" class="middle"></td>
+				</tr>
 			<?php else : ?>
 				<tr>
-					<td colspan="12" class="middle text-center">ไม่พบรายการ</td>
+					<td colspan="16" class="middle text-center">ไม่พบรายการ</td>
 				</tr>
 			<?php endif; ?>
 			</tbody>
-			<tfoot class="border-1">
-				<tr>
-					<td colspan="9" class="middle text-right font-size-14">รวม</td>
-					<td colspan="2" class="middle text-right font-size-14"><?php echo number($sum_total, 2); ?></td>
-					<td colspan="5" class="middle"></td>
-				</tr>
-			</tfoot>
 		</table>
 	</div>
 </div>
@@ -317,6 +356,8 @@
 			window.location.reload();
 		}, 1000*60*5); //--- reload every 5 minutes
 	});
+
+	$('#slp-code').select2();
 </script>
 <script src="<?php echo base_url(); ?>scripts/sales_order/sales_order.js?v=<?php echo date('YmdH'); ?>"></script>
 

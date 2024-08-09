@@ -4,20 +4,34 @@
 		font-size:12px;
 	}
 
-	@media (min-width: 768px) {
-    .fix-no {
+	@media (min-width:768px) {
+		.fix-no {
       left: 0;
       position: sticky;
-      background-color: #eee !important;
     }
 
-    .fix-date {
+    .fix-action {
       left: 40px;
       position: sticky;
     }
 
-    .fix-code {
-      left:140px;
+    .fix-approve {
+      left:120px;
+      position: sticky;
+    }
+
+    .fix-status {
+      left:200px;
+      position: sticky;
+    }
+
+    .fix-date {
+      left:280px;
+      position: sticky;
+    }
+
+		.fix-code {
+      left:380px;
       position: sticky;
     }
 
@@ -26,7 +40,7 @@
       border: 0 !important;
       outline: solid 1px #dddddd;
     }
-  }
+	}
 </style>
 <div class="row">
 	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5">
@@ -145,23 +159,23 @@
  ?>
 
 <div class="row">
-	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-		<table class="table table-striped table-hover border-1 dataTable" style="table-layout: fixed; min-width:1280px;">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive" style="margin-top:-1px; margin-left: 5px; padding-left: 0px; min-height:250px; max-height:600px; overflow:auto;">
+		<table class="table table-striped table-bordered dataTable tableFixHead" style="min-width:1400px;">
 			<thead>
-				<tr style="font-size:10px;">
-					<th class="fix-width-40 middle text-center">#</th>
-					<th class="fix-width-100 middle sorting <?php echo $sort_PostingDate; ?>" id="sort_DocDate" onclick="sort('DocDate')">Posting Date</th>
-					<th class="fix-width-100 middle sorting <?php echo $sort_WebCode; ?>" id="sort_code" onclick="sort('code')">Web Order</th>
+				<tr class="font-size-10">
+					<th class="fix-width-40 fix-no fix-header middle text-center">#</th>
+					<th class="fix-width-80 fix-action fix-header middle text-center">action</th>
+					<th class="fix-width-80 fix-approve fix-header middle text-center">Approved</th>
+					<th class="fix-width-80 fix-status fix-header middle text-center">Temp Status</th>
+					<th class="fix-width-100 fix-date fix-header middle sorting <?php echo $sort_PostingDate; ?>" id="sort_DocDate" onclick="sort('DocDate')">Posting Date</th>
+					<th class="fix-width-100 fix-code fix-header middle sorting <?php echo $sort_WebCode; ?>" id="sort_code" onclick="sort('code')">Web Order</th>
 					<th class="fix-width-100 middle sorting <?php echo $sort_DocNum; ?>" id="sort_DocNum" onclick="sort('DocNum')">SQ No.</th>
 					<th class="fix-width-100 middle sorting <?php echo $sort_SoNo; ?>" id="sort_SoNo" onclick="sort('SoNo')">SO No.</th>
 					<th class="fix-width-100 middle sorting <?php echo $sort_CardCode; ?>" id="sort_CardCode" onclick="sort('CardCode')">Cust. Code</th>
-					<th class="fix-width-200 middle sorting <?php echo $sort_CardName; ?>" id="sort_CardName" onclick="sort('CardName')">Cust. Name</th>
+					<th class="min-width-250 middle sorting <?php echo $sort_CardName; ?>" id="sort_CardName" onclick="sort('CardName')">Cust. Name</th>
 					<th class="fix-width-100 middle sorting <?php echo $sort_NumAtCard; ?>" id="sort_NumAtCard" onclick="sort('NumAtCard')">Cust. Ref</th>
 					<th class="fix-width-100 middle sorting <?php echo $sort_DocTotal; ?>" id="sort_DocTotal" onclick="sort('DocTotal')">Doc Total</th>
 					<th class="fix-width-80 middle sorting <?php echo $sort_uname; ?>" id="sort_uname" onclick="sort('uname')">User</th>
-					<th class="fix-width-80 middle text-center">Approved</th>
-					<th class="fix-width-80 middle text-center">Temp Status</th>
-					<th class="fix-width-100 middle text-right"></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -169,29 +183,29 @@
 			<?php if(!empty($data)) : ?>
 				<?php $no = $this->uri->segment(3) + 1; ?>
 				<?php foreach($data as $rs) : ?>
-					<tr style="font-size:10px;">
-						<td class="middle text-center no"><?php echo $no; ?></td>
-						<td class="middle"><?php echo thai_date($rs->DocDate, FALSE,'/'); ?></td>
-						<td class="middle"><?php echo $rs->code; ?></td>
-						<td class="middle"><?php echo $rs->DocNum; ?></td>
-						<td class="middle"><?php echo $rs->SoNo; ?></td>
-						<td class="middle"><?php echo $rs->CardCode; ?></td>
-						<td class="middle"><?php echo $rs->CardName; ?></td>
-						<td class="middle"><?php echo $rs->NumAtCard; ?></td>
-						<td class="middle text-right"><?php echo number($rs->DocTotal, 2); ?></td>
-						<td class="middle text-center"><?php echo $rs->uname; ?></td>
-						<td class="middle text-center">
+					<tr class="font-size-10">
+						<td class="middle text-center no fix-no" scope="row"><?php echo $no; ?></td>
+						<td class="middle fix-action" scope="row">
+							<button type="button" class="btn btn-minier btn-primary" title="Preview" onclick="goDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
+							<?php if(($rs->Status == 0 OR $rs->Status == 9)) : ?>
+							<button type="button" class="btn btn-minier btn-warning" title="Edit" onclick="goEdit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil"></i></button>
+							<?php endif; ?>
+							<?php if($rs->Status == 2) : ?>
+							<button type="button" class="btn btn-minier btn-info" title="Print" onclick="printQuotation('<?php echo $rs->code; ?>')"><i class="fa fa-print"></i></button>
+							<?php endif; ?>
+						</td>
+						<td class="middle text-center fix-approve" scope="row">
 							<?php if($rs->Status != 9) : ?>
 								<?php if($rs->Approved == 'A') : ?>
-									<span class="label label-success">อนุมัติ</span>
+									<span class="btn btn-minier btn-success btn-block">อนุมัติ</span>
 								<?php elseif($rs->Approved == 'P') : ?>
-									<span class="label label-warning">รออนุมัติ</span>
+									<span class="btn btn-minier btn-warning btn-block">รออนุมัติ</span>
 								<?php elseif($rs->Approved == 'R') : ?>
-									<span class="label label-danger">ไม่อนุมัติ</span>
+									<span class="btn btn-minier btn-danger btn-block">ไม่อนุมัติ</span>
 								<?php endif; ?>
 							<?php endif; ?>
 						</td>
-						<td class="middle text-center">
+						<td class="middle text-center fix-status" scope="row">
 							<?php if($rs->Status == 2) : ?>
 								<button type="button" class="btn btn-minier btn-success btn-block" onclick="viewDetail('<?php echo $rs->code; ?>')">Success</button>
 							<?php endif; ?>
@@ -208,32 +222,32 @@
 								<button type="button" class="btn btn-minier btn-danger btn-block">Canceled</button>
 							<?php endif; ?>
 							<?php if($rs->Status == 9) : ?>
-								<span class="label label-purple">Draft</span>
+								<span class="btn btn-minier btn-purple btn-block">Draft</span>
 							<?php endif; ?>
 						</td>
-						<td class="middle text-right">
-							<button type="button" class="btn btn-minier btn-primary" title="Preview" onclick="goDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
-							<?php if(($rs->Status == 0 OR $rs->Status == 9)) : ?>
-							<button type="button" class="btn btn-minier btn-warning" title="Edit" onclick="goEdit('<?php echo $rs->code; ?>')"><i class="fa fa-pencil"></i></button>
-							<?php endif; ?>
-							<?php if($rs->Status == 2) : ?>
-							<button type="button" class="btn btn-minier btn-info" title="Print" onclick="printQuotation('<?php echo $rs->code; ?>')"><i class="fa fa-print"></i></button>
-							<?php endif; ?>
-						</td>
+						<td class="middle fix-date" scope="row"><?php echo thai_date($rs->DocDate, FALSE,'/'); ?></td>
+						<td class="middle fix-code" scope="row"><?php echo $rs->code; ?></td>
+						<td class="middle"><?php echo $rs->DocNum; ?></td>
+						<td class="middle"><?php echo $rs->SoNo; ?></td>
+						<td class="middle"><?php echo $rs->CardCode; ?></td>
+						<td class="middle"><?php echo $rs->CardName; ?></td>
+						<td class="middle"><?php echo $rs->NumAtCard; ?></td>
+						<td class="middle text-right"><?php echo number($rs->DocTotal, 2); ?></td>
+						<td class="middle text-center"><?php echo $rs->uname; ?></td>
 					</tr>
 					<?php $no++; ?>
 					<?php $sum_total += $rs->DocTotal; ?>
 				<?php endforeach; ?>
+				<tr>
+					<td colspan="10" class="middle text-right font-size-14">รวม</td>
+					<td colspan="2" class="middle text-right font-size-14"><?php echo number($sum_total, 2); ?></td>
+					<td class="middle"></td>
+				</tr>
 			<?php else : ?>
 				<tr>
 					<td colspan="13" class="middle text-center">ไม่พบรายการ</td>
 				</tr>
 			<?php endif; ?>
-				<tr>
-					<td colspan="7" class="middle text-right font-size-14">รวม</td>
-					<td colspan="2" class="middle text-right font-size-14"><?php echo number($sum_total, 2); ?></td>
-					<td colspan="4" class="middle"></td>
-				</tr>
 			</tbody>
 		</table>
 	</div>
