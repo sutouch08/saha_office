@@ -48,3 +48,8 @@
     </div>
   </div>
 </div>
+
+<script>
+  $('#shipToCode').select2();
+  $('#billToCode').select2();
+</script>

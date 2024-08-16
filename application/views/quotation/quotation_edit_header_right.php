@@ -42,36 +42,23 @@
       <div class="form-group">
         <label class="col-lg-8-harf col-md-8 col-sm-7 col-xs-12 control-label-xs no-padding-right">Posting Date</label>
         <div class="col-lg-3-harf col-md-4 col-sm-5 col-xs-12">
-          <span class="input-icon input-icon-right">
           <input type="text" id="DocDate" class="form-control input-xs" value="<?php echo thai_date($header->DocDate); ?>" readonly/>
-          <i class="ace-icon fa fa-calendar-o"></i>
-          </span>
         </div>
       </div>
 
       <div class="form-group">
         <label class="col-lg-8-harf col-md-8 col-sm-7 col-xs-12 control-label-xs no-padding-right">Valid Until</label>
         <div class="col-lg-3-harf col-md-4 col-sm-5 col-xs-12">
-          <span class="input-icon input-icon-right">
           <input type="text" id="DocDueDate" class="form-control input-xs" value="<?php echo thai_date($header->DocDueDate); ?>" readonly/>
-          <i class="ace-icon fa fa-calendar-o"></i>
-          </span>
         </div>
       </div>
 
       <div class="form-group">
         <label class="col-lg-8-harf col-md-8 col-sm-7 col-xs-12 control-label-xs no-padding-right">Document Date</label>
         <div class="col-lg-3-harf col-md-4 col-sm-5 col-xs-12">
-          <span class="input-icon input-icon-right">
           <input type="text" id="TextDate" class="form-control input-xs" value="<?php echo thai_date($header->TextDate); ?>" readonly/>
-          <i class="ace-icon fa fa-calendar-o"></i>
-          </span>
         </div>
       </div>
     </div>
   </div>
 </div>
-
-<script>
-  $('#shipToCode').select2();
-</script>
