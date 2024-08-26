@@ -29,6 +29,29 @@
     <input type="text" class="form-control input-sm text-center search-box" name="ItemCode" value="<?php echo $ItemCode; ?>" />
   </div>
 
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+    <label class="search-label">Pick Status</label>
+    <select class="form-control input-sm" name="PickStatus" onchange="getSearch()">
+			<option value="all">ทั้งหมด</option>
+			<option value="N" <?php echo is_selected('N', $PickStatus); ?>>รอดำเนินการ</option>
+			<option value="R" <?php echo is_selected('R', $PickStatus); ?>>รอจัด</option>
+			<option value="P" <?php echo is_selected('P', $PickStatus); ?>>กำลังจัด</option>
+			<option value="Y" <?php echo is_selected('Y', $PickStatus); ?>>จัดแล้ว</option>
+			<option value="C" <?php echo is_selected('C', $PickStatus); ?>>Closed</option>
+			<option value="D" <?php echo is_selected('D', $PickStatus); ?>>ยกเลิก</option>
+		</select>
+  </div>
+
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+    <label class="search-label">Line Status</label>
+    <select class="form-control input-sm" name="LineStatus" onchange="getSearch()">
+			<option value="all">ทั้งหมด</option>
+			<option value="O" <?php echo is_selected('O', $LineStatus); ?>>Open</option>
+			<option value="C" <?php echo is_selected('C', $LineStatus); ?>>Closed</option>
+			<option value="D" <?php echo is_selected('D', $LineStatus); ?>>Cancelled</option>
+		</select>
+  </div>
+
   <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
     <label class="search-label display-block not-show">buton</label>
     <button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
@@ -45,7 +68,7 @@
 <?php echo $this->pagination->create_links(); ?>
 
 <?php
-	$sort_DocNum = get_sort('DocNum', $order_by, $sort_by);
+	$sort_code = get_sort('code', $order_by, $sort_by);
 	$sort_OrderCode = get_sort('OrderCode', $order_by, $sort_by);
 	$sort_ItemCode = get_sort('ItemCode', $order_by, $sort_by);
  ?>
@@ -56,7 +79,7 @@
 			<thead>
 				<tr>
 					<th style="width:50px;" class="middle text-center">#</th>
-					<th style="width:100px;" class="middle text-center sorting <?php echo $sort_DocNum; ?>" id="sort_DocNum" onclick="sort('DocNum')">เลขที่เอกสาร</th>
+					<th style="width:100px;" class="middle text-center sorting <?php echo $sort_code; ?>" id="sort_code" onclick="sort('code')">เลขที่เอกสาร</th>
 					<th style="width:100px;" class="middle text-center sorting <?php echo $sort_OrderCode; ?>" id="sort_OrderCode" onclick="sort('OrderCode')">เลขที่ SO</th>
 					<th style="min-width:250px;" class="middle text-center sorting <?php echo $sort_ItemCode; ?>" id="sort_ItemCode" onclick="sort('ItemCode')">สินค้า</th>
 					<th style="width:100px;" class="middle text-center">Uom</th>
@@ -76,7 +99,7 @@
 				<?php foreach($details as $rs) : ?>
 					<tr>
 						<td class="middle text-center no"><?php echo $no; ?></td>
-						<td class="middle"><?php echo $rs->DocNum; ?></td>
+						<td class="middle"><?php echo $rs->code; ?></td>
 						<td class="middle"><?php echo $rs->OrderCode; ?></td>
 						<td class="middle"><?php echo $rs->ItemCode.' : '.$rs->ItemName; ?></td>
 						<td class="middle text-center"><?php echo $rs->unitMsr; ?></td>
@@ -85,8 +108,8 @@
 						<td class="middle text-right"><?php echo number($rs->RelQtty, 2); ?></td>
 						<td class="middle text-right"><?php echo number($rs->BaseRelQty, 2); ?></td>
 						<td class="middle text-right"><?php echo number($rs->BasePickQty, 2); ?></td>
-						<td class="middle text-center"><?php echo $rs->PickStatus; ?></td>
-						<td class="middle text-center"><?php echo $rs->LineStatus; ?></td>
+						<td class="middle text-center"><?php echo pick_status_label($rs->PickStatus); ?></td>
+						<td class="middle text-center"><?php echo line_status_label($rs->LineStatus); ?></td>
 					</tr>
 					<?php $no++; ?>
 				<?php endforeach; ?>

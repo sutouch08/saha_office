@@ -555,6 +555,7 @@ class Pick extends PS_Controller
 									//--- insert new row
 									$arr = array(
 										'AbsEntry' => $absEntry,
+										'code' => $doc->DocNum,
 										'PickEntry' => $lineNum,
 										'OrderCode' => $rs->OrderCode,
 										'OrderEntry' => $rs->DocEntry,

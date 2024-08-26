@@ -13,6 +13,7 @@ class Pick_rows extends PS_Controller
     parent::__construct();
     $this->home = base_url().'pick_rows';
 		$this->load->model('pick_rows_model');
+		$this->load->helper('picklist');
   }
 
 
@@ -20,11 +21,13 @@ class Pick_rows extends PS_Controller
   public function index()
   {
 		$filter = array(
-			'DocNum' => get_filter('DocNum', 'pick_DocNum', ''),
-			'ItemCode' => get_filter('ItemCode', 'pick_ItemCode', ''),
-			'OrderCode' => get_filter('OrderCode', 'pick_OrderCode', ''),
-			'order_by' => get_filter('order_by', 'pick_order_by', 'DocNum'),
-			'sort_by' => get_filter('sort_by', 'pick_sort_by', 'DESC')
+			'DocNum' => get_filter('DocNum', 'pick_row_DocNum', ''),
+			'ItemCode' => get_filter('ItemCode', 'pick_row_ItemCode', ''),
+			'OrderCode' => get_filter('OrderCode', 'pick_row_OrderCode', ''),
+			'PickStatus' => get_filter('PickStatus', 'pick_row_PickStatus', 'all'),
+			'LineStatus' => get_filter('LineStatus', 'pick_row_LineStatus', 'all'),
+			'order_by' => get_filter('order_by', 'pick_row_order_by', 'code'),
+			'sort_by' => get_filter('sort_by', 'pick_row_sort_by', 'DESC')
 		);
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -54,15 +57,13 @@ class Pick_rows extends PS_Controller
 	public function clear_filter()
 	{
 		$filter = array(
-			'pick_DocNum',
-			'pick_ItemCode',
-			'pick_OrderCode',
-			'pick_uname',
-			'pick_BinCode',
-			'pick_fromDate',
-			'pick_toDate',
-			'pick_order_by',
-			'pick_sort_by'
+			'pick_row_DocNum',
+			'pick_row_ItemCode',
+			'pick_row_OrderCode',
+			'pick_row_PickStatus',
+			'pick_row_LineStatus',
+			'pick_row_order_by',
+			'pick_row_sort_by'
 		);
 
 		clear_filter($filter);
