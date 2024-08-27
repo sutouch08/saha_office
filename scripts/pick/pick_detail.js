@@ -115,6 +115,50 @@ function removeRow(rowNum, absEntry, pickEntry) {
 }
 
 
+function removePickRow(id, absEntry, pickEntry) {
+  let so = $('#row-'+id).data('so');
+  let item = $('#row-'+id).data('item');
+
+  swal({
+    title:'Are sure ?',
+    text:'ต้องการลบรายการหรือไม่ ?',
+    type:'warning',
+    showCancelButton:true,
+    cancelButtonText:'No',
+    confirmButtonText:'Yes',
+    confirmButtonColor:'#d15b47',
+    closeOnConfirm:true
+  }, function() {
+    setTimeout(() => {
+      load_in();
+
+      $.ajax({
+        url:HOME + 'remove_pick_row',
+        type:'POST',
+        cache:false,
+        data:{
+          'AbsEntry' : absEntry,
+          'PickEntry' : pickEntry
+        },
+        success:function(rs) {
+          load_out();
+
+          if(rs == 'success') {
+            window.location.reload();
+          }
+          else {
+            swal({
+              title:'Error!',
+              text:rs,
+              type:'error'
+            });
+          }
+        }
+      })
+    }, 200);
+  })
+}
+
 
 function recalTotal() {
   let totalQty = 0;

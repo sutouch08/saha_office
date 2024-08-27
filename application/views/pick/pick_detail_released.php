@@ -13,6 +13,7 @@
           <th class="middle text-right" style="width:120px;">Base Released</th>
           <th class="middle text-right" style="width:100px;">Base Picked</th>
           <th class="middle text-right" style="width:100px;">Base Balance</th>
+          <th class="" style="width:50px;"></th>
         </tr>
       </thead>
       <tbody id="pick-list-items">
@@ -26,7 +27,8 @@
           <?php $no = 1; ?>
           <?php foreach($details as $rs) : ?>
             <?php $balance = $rs->BaseRelQty - $rs->BasePickQty; ?>
-            <tr>
+            <?php $id = $rs->AbsEntry.$rs->PickEntry; ?>
+            <tr id="row-<?php echo $id; ?>" data-so="<?php echo $rs->OrderCode; ?>" data-item="<?php echo $rs->ItemCode; ?>">
               <td class="middle text-center no"><?php echo $no; ?></td>
               <td class="middle text-center"><?php echo $rs->OrderCode; ?></td>
               <td class="middle"><?php echo $rs->CardName; ?></td>
@@ -37,6 +39,15 @@
               <td class="middle text-right"><?php echo number($rs->BaseRelQty, 2); ?></td>
               <td class="middle text-right"><?php echo number($rs->BasePickQty, 2); ?></td>
               <td class="middle text-right"><?php echo number($balance, 2); ?></td>
+              <td class="middle text-center">
+              <?php if($rs->BasePickQty == 0) : ?>
+                <button type="button"
+                class="btn btn-danger btn-minier"
+                onclick="removePickRow(<?php echo $id; ?>, <?php echo $rs->AbsEntry; ?>, <?php echo $rs->PickEntry; ?>)">
+                <i class="fa fa-trash"></i>
+              </button>
+              <?php endif; ?>
+              </td>
             </tr>
             <?php
               $no++;
@@ -54,6 +65,7 @@
           <td class="middle text-right" id="totalBaseReleased"><?php echo number($totalBaseReleased, 2); ?></td>
           <td class="middle text-right" id="totalPicked"><?php echo number($totalPicked, 2); ?></td>
           <td class="middle text-right" id="totalBalance"><?php echo number($totalBalance, 2); ?></td>
+          <td class=""></td>
         </tr>
       </tfoot>
     </table>
