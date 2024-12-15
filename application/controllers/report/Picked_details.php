@@ -99,11 +99,11 @@ class Picked_details extends PS_Controller
 
 	public function do_export()
 	{
-		ini_set('memory_limit','512M'); // This also needs to be increased in some cases. Can be changed to a higher value as per need)
+		ini_set('memory_limit','1024M'); // This also needs to be increased in some cases. Can be changed to a higher value as per need)
     ini_set('sqlsrv.ClientBufferMaxKBSize','524288'); // Setting to 512M
     ini_set('pdo_sqlsrv.client_buffer_max_kb_size','524288'); // Setting to 512M - for pdo_sqlsrv
 		set_time_limit(600);
-		
+
 		$allUser = $this->input->post('allUser') == 1 ? TRUE : FALSE;
 		$users = $this->input->post('users');
 		$selectDate = $this->input->post('selectDate');
