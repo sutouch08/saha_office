@@ -210,10 +210,10 @@ class Picked_details extends PS_Controller
 			$this->excel->getActiveSheet()->getStyle('D4:E'.$row)->getAlignment()->setHorizontal('left');
 		}
 
-		// setToken($token);
+		setToken($token);
 		$file_name = "Pick Details Report.xlsx";
 		header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'); /// form excel 2007 XLSX
-		header('Content-Disposition: attachment;filename="'.$file_name.'"');
+		header('Content-Disposition: attachment;filename="'.$file_name.'"', true);
 		$writer = PHPExcel_IOFactory::createWriter($this->excel, 'Excel2007');
 		$writer->save('php://output');
 	}

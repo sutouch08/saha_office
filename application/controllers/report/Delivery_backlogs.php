@@ -408,7 +408,7 @@ class Delivery_backlogs extends PS_Controller
 		setToken($token);
     $file_name = "รายงาน งานยังไม่ได้ส่ง.xlsx";
     header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'); /// form excel 2007 XLSX
-    header('Content-Disposition: attachment;filename="'.$file_name.'"');
+    header('Content-Disposition: attachment;filename="'.$file_name.'"', true);
     $writer = PHPExcel_IOFactory::createWriter($this->excel, 'Excel2007');
     $writer->save('php://output');
 	}
@@ -434,7 +434,7 @@ class Delivery_backlogs extends PS_Controller
 			'5' => 'ลูกค้าไม่รับสินค้า',
 			'6' => 'สินค้าผิด',
 			'7' => 'เอกสารผิด',
-			'8' => 'ติดต่อลูกค้าไม่ได้-ไม่ได้เข้าส่ง'			
+			'8' => 'ติดต่อลูกค้าไม่ได้-ไม่ได้เข้าส่ง'
 		);
 
 		return empty($status) ? NULL : $arr[$status];

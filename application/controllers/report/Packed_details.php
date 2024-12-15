@@ -33,7 +33,7 @@ class Packed_details extends PS_Controller
     ini_set('sqlsrv.ClientBufferMaxKBSize','524288'); // Setting to 512M
     ini_set('pdo_sqlsrv.client_buffer_max_kb_size','524288'); // Setting to 512M - for pdo_sqlsrv
 		set_time_limit(600);
-		
+
 		$sc = TRUE;
 		$ds = array();
 
@@ -100,7 +100,7 @@ class Packed_details extends PS_Controller
 
 	public function do_export()
 	{
-		ini_set('memory_limit','512M'); // This also needs to be increased in some cases. Can be changed to a higher value as per need)
+		ini_set('memory_limit','1024M'); // This also needs to be increased in some cases. Can be changed to a higher value as per need)
     ini_set('sqlsrv.ClientBufferMaxKBSize','524288'); // Setting to 512M
     ini_set('pdo_sqlsrv.client_buffer_max_kb_size','524288'); // Setting to 512M - for pdo_sqlsrv
 		set_time_limit(600);
@@ -217,7 +217,7 @@ class Packed_details extends PS_Controller
 		setToken($token);
 		$file_name = "Pack Details Report.xlsx";
 		header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'); /// form excel 2007 XLSX
-		header('Content-Disposition: attachment;filename="'.$file_name.'"');
+		header('Content-Disposition: attachment;filename="'.$file_name.'"', true);
 		$writer = PHPExcel_IOFactory::createWriter($this->excel, 'Excel2007');
 		$writer->save('php://output');
 	}

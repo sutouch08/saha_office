@@ -220,7 +220,7 @@ class Sales_order_backlogs extends PS_Controller
 		setToken($token);
     $file_name = "รายงานออเดอร์ค้างส่ง".date('YmdHi').".xlsx";
     header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'); /// form excel 2007 XLSX
-    header('Content-Disposition: attachment;filename="'.$file_name.'"');
+    header('Content-Disposition: attachment;filename="'.$file_name.'"', true);
     $writer = PHPExcel_IOFactory::createWriter($this->excel, 'Excel2007');
     $writer->save('php://output');
 	}
