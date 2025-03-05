@@ -205,7 +205,7 @@ class Sync_data extends PS_Controller
                 'Message' => 'Mark as success in Temp But not found in SAP'
               );
 
-              $this->sales_order_model->update($ds->code, $arr);
+              $this->sales_order_model->update($rs->code, $arr);
 
               $logs = array(
                 'code' => $rs->code,
