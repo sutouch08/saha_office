@@ -3214,19 +3214,16 @@ class Upload {
      * @return integer Size in bytes
      */
     function getsize($size) {
-			if(!is_int($size) && !empty($size)) {
-	        $last = strtolower($size[strlen($size)-1]);
-	        $size = substr($size, 0,-1);
-	        switch($last) {
-	            case 'g':
-	                $size *= 1024;
-	            case 'm':
-	                $size *= 1024;
-	            case 'k':
-	                $size *= 1024;
-	        }
-				}
-
+        $last = strtolower($size{strlen($size)-1});
+        $size = substr($size, 0,-1);
+        switch($last) {
+            case 'g':
+                $size *= 1024;
+            case 'm':
+                $size *= 1024;
+            case 'k':
+                $size *= 1024;
+        }
         return $size;
     }
 

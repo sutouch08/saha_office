@@ -103,6 +103,7 @@ class Delivery_details extends PS_Controller
 
 	public function export_filter()
 	{
+		ini_set('memory_limit','2048M'); // This also needs to be increased in some cases. Can be changed to a higher value as per need)
 		$token = $this->input->post('token');
     $this->load->library('excel');
     $this->excel->setActiveSheetIndex(0);
