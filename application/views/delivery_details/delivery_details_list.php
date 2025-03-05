@@ -173,7 +173,7 @@
 	<input type="hidden" name="xResultStatus" id="x-resultStatus" value="all" />
 	<input type="hidden" name="xLineStatus" id="x-lineStatus" value="all" />
 	<input type="hidden" name="xFromDate" id="x-fromDate" value="" />
-	<input type="hidden" name="xToDate" id="x-todate" value="" />
+	<input type="hidden" name="xToDate" id="x-toDate" value="" />
 	<input type="hidden" name="xShipFrom" id="x-shipFrom" value="" />
 	<input type="hidden" name="xShipTo" id="x-shipTo" value="" />
 	<input type="hidden" name="xReleaseFrom" id="x-releaseFrom" value="" />

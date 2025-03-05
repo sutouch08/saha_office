@@ -167,7 +167,7 @@ class Delivery_details extends PS_Controller
       'to_date' => get_filter('xToDate', 'to_date', ''),
       'uname' => get_filter('xUname', 'uname', '')
 		);
-
+	
 		$ds = $this->delivery_details_model->getExportList($filter);
 
 		if( ! empty($ds))
