@@ -349,45 +349,49 @@ class Pack extends PS_Controller
 								{
 									$pick = $this->pick_model->get_by_code($doc->pickCode);
 
-									if(!empty($pick))
+									if( ! empty($pick))
 									{
-										//---- restore buffer
-										$details = $this->pack_model->get_pack_results($code);
+										//--- ตัดยอดออกจาก buffer ที่เมื่อไร pack = เมื่อแพ็คเสร็จ  transfer = เมื่อโอนเสร็จ
+										$buffer_state = getConfig('REMOVE_BUFFER_STATE') == 'pack' ? 'pack' : 'transfer';
 
-										if(!empty($details))
+										if($buffer_state == 'pack')
 										{
-											foreach($details as $detail)
+											//---- restore buffer
+											$details = $this->pack_model->get_pack_results($code);
+
+											if(!empty($details))
 											{
-												if($sc === FALSE)
+												foreach($details as $detail)
 												{
-													break;
-												}
+													if($sc === FALSE)
+													{
+														break;
+													}
 
+													$arr = array(
+														'AbsEntry' => $pick->AbsEntry,
+														'DocNum' => $detail->pickCode,
+														'OrderCode' => $detail->OrderCode,
+														'ItemCode' => $detail->ItemCode,
+														'ItemName' => $detail->ItemName,
+														'UomEntry' => $detail->UomEntry2,
+														'UomCode' => $detail->UomCode2,
+														'unitMsr' => $detail->unitMsr2,
+														'BasePickQty' => $detail->BasePackQty,
+														'BinCode' => $detail->BinCode,
+														'user_id' => $detail->user_id,
+														'uname' => $this->user->uname,
+														'date_upd' => now()
+													);
 
-												$arr = array(
-													'AbsEntry' => $pick->AbsEntry,
-													'DocNum' => $detail->pickCode,
-													'OrderCode' => $detail->OrderCode,
-													'ItemCode' => $detail->ItemCode,
-													'ItemName' => $detail->ItemName,
-													'UomEntry' => $detail->UomEntry2,
-													'UomCode' => $detail->UomCode2,
-													'unitMsr' => $detail->unitMsr2,
-													'BasePickQty' => $detail->BasePackQty,
-													'BinCode' => $detail->BinCode,
-													'user_id' => $detail->user_id,
-													'uname' => $this->user->uname,
-													'date_upd' => now()
-												);
-
-												if(! $this->picking_model->restore_buffer($arr))
-												{
-													$sc = FALSE;
-													$this->error = "Restore buffer failed";
+													if(! $this->picking_model->restore_buffer($arr))
+													{
+														$sc = FALSE;
+														$this->error = "Restore buffer failed";
+													}
 												}
 											}
 										}
-
 
 										if($sc === TRUE)
 										{

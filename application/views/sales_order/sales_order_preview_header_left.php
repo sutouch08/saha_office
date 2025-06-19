@@ -35,5 +35,9 @@
       <td class="width-40 bg-green">Ship To :  (สาขาที่ <?php echo $header->ShipToCode; ?>)</td>
       <td class="width-60"><?php echo $header->Address2; ?></td>
     </tr>
+    <tr>
+      <td class="width-40 bg-green">Transfer No. </td>
+      <td class="width-60"><?php echo empty($header->transfer_code) ? '-' : $header->transfer_code; ?></td>
+    </tr>
   </table>
 </div>

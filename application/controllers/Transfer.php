@@ -19,9 +19,8 @@ class Transfer extends PS_Controller
   }
 
 
-
-  public function index()
-  {
+	public function index()
+	{
 		//$this->update_status(100);
 
 		$filter = array(
@@ -54,11 +53,11 @@ class Transfer extends PS_Controller
 
 		$rs = $this->transfer_model->get_list($filter, $perpage, $this->uri->segment($segment));
 
-    $filter['data'] = $rs;
+		$filter['data'] = $rs;
 
 		$this->pagination->initialize($init);
-    $this->load->view('transfer/transfer_list', $filter);
-  }
+		$this->load->view('transfer/transfer_list', $filter);
+	}
 
 
 	public function add_new()
@@ -255,7 +254,6 @@ class Transfer extends PS_Controller
 	}
 
 
-
 	public function cancle_transfer()
 	{
 		$sc = TRUE;
@@ -398,8 +396,6 @@ class Transfer extends PS_Controller
 	}
 
 
-
-
 	public function view_detail($id)
 	{
 		$this->title = "Transfer Details";
@@ -436,8 +432,6 @@ class Transfer extends PS_Controller
 
 		echo $sc === TRUE ? 'success' : $this->error;
 	}
-
-
 
 
 	public function doExport($id)
@@ -614,7 +608,6 @@ class Transfer extends PS_Controller
 	}
 
 
-
 	public function get_open_pallet()
 	{
 		$sc = array();
@@ -765,15 +758,14 @@ class Transfer extends PS_Controller
 	}
 
 
-
 	public function get_temp_data()
-  {
-    $code = $this->input->get('code'); //--- U_WEBORDER
+	{
+		$code = $this->input->get('code'); //--- U_WEBORDER
 
-    $data = $this->transfer_model->get_temp_data($code);
+		$data = $this->transfer_model->get_temp_data($code);
 
-    if(!empty($data))
-    {
+		if(!empty($data))
+		{
 
 			$status = 'Pending';
 
@@ -791,48 +783,48 @@ class Transfer extends PS_Controller
 			}
 
 
-      $arr = array(
-        'U_WEBORDER' => $data->U_WEBORDER,
-        'F_WebDate' => thai_date($data->F_WebDate, TRUE),
-        'F_SapDate' => empty($data->F_SapDate) ? '-' : thai_date($data->F_SapDate, TRUE),
-        'F_Sap' => $status,
-        'Message' => empty($data->Message) ? '' : $data->Message,
+			$arr = array(
+				'U_WEBORDER' => $data->U_WEBORDER,
+				'F_WebDate' => thai_date($data->F_WebDate, TRUE),
+				'F_SapDate' => empty($data->F_SapDate) ? '-' : thai_date($data->F_SapDate, TRUE),
+				'F_Sap' => $status,
+				'Message' => empty($data->Message) ? '' : $data->Message,
 				'del_btn' => ($status === "Pending" OR $status === "Failed") ? 'ok' : ''
-      );
+			);
 
-      echo json_encode($arr);
-    }
-    else
-    {
-      echo 'No data found';
-    }
-  }
+			echo json_encode($arr);
+		}
+		else
+		{
+			echo 'No data found';
+		}
+	}
 
 
 	public function remove_temp()
-  {
-    $sc = TRUE;
-    $code = $this->input->post('U_WEBORDER');
-    $temp = $this->transfer_model->get_temp_status($code);
+	{
+		$sc = TRUE;
+		$code = $this->input->post('U_WEBORDER');
+		$temp = $this->transfer_model->get_temp_status($code);
 
-    if(empty($temp))
-    {
-      $sc = FALSE;
-      $this->error = "Temp data not exists";
-    }
-    else if($temp->F_Sap === 'Y')
-    {
-      $sc = FALSE;
-      $this->error = "Delete Failed : Temp Data already in SAP";
-    }
+		if(empty($temp))
+		{
+			$sc = FALSE;
+			$this->error = "Temp data not exists";
+		}
+		else if($temp->F_Sap === 'Y')
+		{
+			$sc = FALSE;
+			$this->error = "Delete Failed : Temp Data already in SAP";
+		}
 
-    if($sc === TRUE)
-    {
-      if(! $this->transfer_model->drop_transfer_temp_data($temp->DocEntry))
-      {
-        $sc = FALSE;
-        $this->error = "Delete Failed : Delete Temp Failed";
-      }
+		if($sc === TRUE)
+		{
+			if(! $this->transfer_model->drop_transfer_temp_data($temp->DocEntry))
+			{
+				$sc = FALSE;
+				$this->error = "Delete Failed : Delete Temp Failed";
+			}
 			else
 			{
 				$arr = array(
@@ -845,12 +837,11 @@ class Transfer extends PS_Controller
 
 				$this->transfer_model->update_by_code($code, $arr);
 			}
-    }
+		}
 
 
-    $this->response($sc);
-  }
-
+		$this->response($sc);
+	}
 
 
 	public function update_order_line($transfer_id, $method = 1)
@@ -945,7 +936,6 @@ class Transfer extends PS_Controller
 	}
 
 
-
 	public function manual_update_order_line($transfer_id, $method = 1)
 	{
 		$sc= TRUE;
@@ -1037,8 +1027,6 @@ class Transfer extends PS_Controller
 	}
 
 
-
-
 	public function update_order_location($id)
 	{
 		$sc = TRUE;
@@ -1066,14 +1054,17 @@ class Transfer extends PS_Controller
 
 	public function update_order_transfer_code($code)
 	{
+		$this->load->model('sales_order_model');
+
 		$orders = $this->transfer_model->get_order_by_transfer_code($code);
 
-		if(!empty($orders))
+		if( ! empty($orders))
 		{
 			foreach($orders as $rs)
 			{
 				$this->transfer_model->update_order_transfer_code($rs->orderCode, $code);
-			}
+				$this->sales_order_model->update_by_doc_num($rs->orderCode, ['transfer_code' => $code]);
+			}			
 		}
 	}
 

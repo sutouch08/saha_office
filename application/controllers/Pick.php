@@ -18,10 +18,8 @@ class Pick extends PS_Controller
 		$this->load->model('pick_list_logs_model');
   }
 
-
-
-  public function index()
-  {
+	public function index()
+	{
 		//$this->update_status(100);
 
 		$filter = array(
@@ -60,11 +58,11 @@ class Pick extends PS_Controller
 			}
 		}
 
-    $filter['data'] = $rs;
+		$filter['data'] = $rs;
 
 		$this->pagination->initialize($init);
-    $this->load->view('pick/pick_list', $filter);
-  }
+		$this->load->view('pick/pick_list', $filter);
+	}
 
 
 	public function add_new()
@@ -158,7 +156,6 @@ class Pick extends PS_Controller
 	}
 
 
-
 	public function view_detail($AbsEntry)
 	{
 		$this->title = "Pick Details";
@@ -201,8 +198,6 @@ class Pick extends PS_Controller
 	}
 
 
-
-
 	public function remove_pick_row()
 	{
 		$sc = TRUE;
@@ -219,13 +214,10 @@ class Pick extends PS_Controller
 	}
 
 
-
-
 	public function get_committed_stock($ItemCode)
 	{
 		return $this->pick_model->get_committed_stock($ItemCode);
 	}
-
 
 
 	public function get_committed_stock_by_pick_list($absEntry, $ItemCode)
@@ -255,7 +247,6 @@ class Pick extends PS_Controller
 
 		$this->response($sc);
 	}
-
 
 
 	public function add_order_to_list()
@@ -329,7 +320,6 @@ class Pick extends PS_Controller
 
 		echo $sc === TRUE ? json_encode($ds) : $this->error;
 	}
-
 
 
 	public function add_items_to_list()
@@ -406,7 +396,6 @@ class Pick extends PS_Controller
 	}
 
 
-
 	public function get_open_order_details()
 	{
 		$sc = TRUE;
@@ -477,8 +466,6 @@ class Pick extends PS_Controller
 	}
 
 
-
-
 	public function validate_item()
 	{
 		$sc = TRUE;
@@ -513,9 +500,6 @@ class Pick extends PS_Controller
 
 		echo $sc === TRUE ? (empty($error) ? 'success' : json_encode($error)) : $this->error;
 	}
-
-
-
 
 
 	public function save()
@@ -849,8 +833,6 @@ class Pick extends PS_Controller
 	}
 
 
-
-
 	public function unrelease_picklist()
 	{
 		$sc = TRUE;
@@ -1007,30 +989,27 @@ class Pick extends PS_Controller
 	}
 
 
-
 	public function get_new_code($date = NULL)
-  {
-    $date = empty($date) ? date('Y-m-d') : $date;
-    $Y = date('y', strtotime($date));
-    $M = date('m', strtotime($date));
-    $prefix = getConfig('PREFIX_PICK_LIST');
-    $run_digit = getConfig('RUN_DIGIT_PICK_LIST');
-    $pre = $prefix .'-'.$Y.$M;
-    $code = $this->pick_model->get_max_code($pre);
-    if(! empty($code))
-    {
-      $run_no = mb_substr($code, ($run_digit*-1), NULL, 'UTF-8') + 1;
-      $new_code = $prefix . '-' . $Y . $M . sprintf('%0'.$run_digit.'d', $run_no);
-    }
-    else
-    {
-      $new_code = $prefix . '-' . $Y . $M . sprintf('%0'.$run_digit.'d', '001');
-    }
+	{
+		$date = empty($date) ? date('Y-m-d') : $date;
+		$Y = date('y', strtotime($date));
+		$M = date('m', strtotime($date));
+		$prefix = getConfig('PREFIX_PICK_LIST');
+		$run_digit = getConfig('RUN_DIGIT_PICK_LIST');
+		$pre = $prefix .'-'.$Y.$M;
+		$code = $this->pick_model->get_max_code($pre);
+		if(! empty($code))
+		{
+			$run_no = mb_substr($code, ($run_digit*-1), NULL, 'UTF-8') + 1;
+			$new_code = $prefix . '-' . $Y . $M . sprintf('%0'.$run_digit.'d', $run_no);
+		}
+		else
+		{
+			$new_code = $prefix . '-' . $Y . $M . sprintf('%0'.$run_digit.'d', '001');
+		}
 
-    return $new_code;
-  }
-
-
+		return $new_code;
+	}
 
 
 	public function print_pick_order_slip($code)
@@ -1060,7 +1039,6 @@ class Pick extends PS_Controller
 	}
 
 
-
 	public function getOrder($SoNo)
 	{
 		$rs = $this->ms->where('DocNum', $SoNo)->get('ORDR');
@@ -1072,7 +1050,6 @@ class Pick extends PS_Controller
 
 		return NULL;
 	}
-
 
 
 	public function cancle_pick()
@@ -1193,7 +1170,6 @@ class Pick extends PS_Controller
 
 		$this->response($sc);
 	}
-
 
 
 	public function clear_filter()

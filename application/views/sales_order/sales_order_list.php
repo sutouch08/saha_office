@@ -190,11 +190,12 @@
 					<th class="fix-width-100 middle sorting <?php echo $sort_DeliveryNo; ?>" id="sort_DeliveryNo" onclick="sort('DeliveryNo')">Delivery No.</th>
 					<th class="fix-width-100 middle sorting <?php echo $sort_InvoiceNo; ?>" id="sort_InvoiceNo" onclick="sort('InvoiceNo')">Invoice No.</th>
 					<th class="fix-width-100 middle sorting <?php echo $sort_CardCode; ?>" id="sort_CardCode" onclick="sort('CardCode')">Cust. Code</th>
-					<th class="min-width-250 middle sorting <?php echo $sort_CardName; ?>" id="sort_CardName" onclick="sort('CardName')">Cust. Name</th>
+					<th class="fix-width-250 middle sorting <?php echo $sort_CardName; ?>" id="sort_CardName" onclick="sort('CardName')">Cust. Name</th>
 					<th class="fix-width-100 middle sorting <?php echo $sort_NumAtCard; ?>" id="sort_NumAtCard" onclick="sort('NumAtCard')">Cust. Ref</th>
 					<th class="fix-width-100 middle text-center sorting <?php echo $sort_DocTotal; ?>" id="sort_DocTotal" onclick="sort('DocTotal')">Doc Total</th>
 					<th class="fix-width-80 middle text-center sorting <?php echo $sort_uname; ?>" id="sort_uname" onclick="sort('uname')">User</th>
 					<th class="fix-width-80 middle text-center">SAP Status</th>
+					<th class="fix-width-100 middle text-center">Transfer No.</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -263,6 +264,7 @@
 								Open
 							<?php endif; ?>
 						</td>
+						<td class="middle"><?php echo $rs->transfer_code; ?></td>
 					</tr>
 					<?php $no++; ?>
 					<?php $sum_total += $rs->DocTotal; ?>

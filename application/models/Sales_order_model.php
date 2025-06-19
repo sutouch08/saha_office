@@ -141,6 +141,17 @@ class Sales_order_model extends CI_Model
     return FALSE;
   }
 
+
+  public function update_by_doc_num($docNum, array $ds = array())
+  {
+    if( ! empty($ds))
+    {
+      return $this->db->where('DocNum', $docNum)->update('sales_order', $ds);
+    }
+
+    return FALSE;
+  }
+
   //---- get sum of all line total (after discount)
   public function sum_line_total($code)
   {
