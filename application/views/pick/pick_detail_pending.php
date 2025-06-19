@@ -1,19 +1,20 @@
 <div class="row">
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-striped border-1" style="min-width:900px;">
+    <table class="table table-striped border-1" style="min-width:1350px;">
       <thead>
         <tr>
-          <th class="middle text-center" style="width:50px;">#</th>
-          <th class="middle text-center" style="width:100px;">SO No.</th>
-          <th class="middle" style="width:200px;">Customer</th>
-          <th class="middle" style="width:250px;">Items</th>
-          <th class="middle text-right" style="width:100px;">Price</th>
-          <th class="middle text-right" style="width:100px;">UOM</th>
-          <th class="middle text-right" style="width:100px;">Order</th>
-          <th class="middle text-right" style="width:100px;">Open</th>
-          <th class="middle text-right" style="width:100px;">Qty</th>
-          <th class="middle text-right" style="width:100px;">Available</th>
-          <th class="" style="width:50px;"></th>
+          <th class="fix-width-50 middle text-center">#</th>
+          <th class="fix-width-100 middle text-center">SO No.</th>
+          <th class="fix-width-200 middle">Customer</th>
+          <th class="fix-width-250 middle">Items</th>
+          <th class="fix-width-100 middle text-right">Price</th>
+          <th class="fix-width-100 middle text-right">UOM</th>
+          <th class="fix-width-100 middle text-right">Order</th>
+          <th class="fix-width-100 middle text-right">Open</th>
+          <th class="fix-width-100 middle text-right">Qty</th>
+          <th class="fix-width-100 middle text-right">Available</th>
+          <th class="fix-width-100 middle text-center">Status</th>
+          <th class="fix-width-50"></th>
         </tr>
       </thead>
       <tbody id="pick-list-items">
@@ -40,6 +41,7 @@
               <td class="middle text-right" id="openQty-<?php echo $rowNum; ?>"><?php echo number($rs->OpenQty, 2); ?></td>
               <td class="middle text-right" id="qty-<?php echo $rowNum; ?>"><?php echo number($rs->RelQtty, 2); ?></td>
               <td class="middle text-right" id="onhand-<?php echo $rowNum; ?>"><?php echo number(($rs->OnHand/$rs->BaseQty), 2); ?></td>
+              <td class="middle text-center"><?php echo $rs->LineStatus == 'D' ? 'Canceled' : ($rs->LineStatus == 'C' ? 'Closed' : 'Open'); ?></td>
               <td class="middle text-center">
                 <button type="button"
                 class="btn btn-danger btn-minier"
@@ -65,6 +67,7 @@
           <td class="middle text-right" id="totalQty"><?php echo number($totalQty, 2); ?></td>
           <td class="middle text-right"></td>
           <td></td>
+          <td class=""></td>
         </tr>
       </tfoot>
     </table>

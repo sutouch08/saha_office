@@ -1,19 +1,20 @@
 <div class="row">
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-    <table class="table table-striped border-1" style="min-width:900px;">
+    <table class="table table-striped border-1" style="min-width:1370px;">
       <thead>
         <tr>
-          <th class="middle text-center" style="width:50px;">#</th>
-          <th class="middle text-center" style="width:100px;">SO No.</th>
-          <th class="middle" style="max-width:200px;">ลูกค้า</th>
-          <th class="middle" style="max-width:250px;">สินค้า</th>
-          <th class="middle text-right" style="width:100px;">ราคา</th>
-          <th class="middle text-right" style="width:100px;">Released</th>
-          <th class="middle text-right" style="width:100px;">UOM (SO)</th>
-          <th class="middle text-right" style="width:120px;">Base Released</th>
-          <th class="middle text-right" style="width:100px;">Base Picked</th>
-          <th class="middle text-right" style="width:100px;">Base Balance</th>
-          <th class="" style="width:50px;"></th>
+          <th class="fix-width-50 middle text-center">#</th>
+          <th class="fix-width-100 middle text-center">SO No.</th>
+          <th class="fix-width-200 middle">ลูกค้า</th>
+          <th class="fix-width-250 middle">สินค้า</th>
+          <th class="fix-width-100 middle text-right">ราคา</th>
+          <th class="fix-width-100 middle text-right">Released</th>
+          <th class="fix-width-100 middle text-right">UOM (SO)</th>
+          <th class="fix-width-120 middle text-right">Base Released</th>
+          <th class="fix-width-100 middle text-right">Base Picked</th>
+          <th class="fix-width-100 middle text-right">Base Balance</th>
+          <th class="fix-width-100 middle text-center">Status</th>
+          <th class="fix-width-50"></th>
         </tr>
       </thead>
       <tbody id="pick-list-items">
@@ -39,6 +40,7 @@
               <td class="middle text-right"><?php echo number($rs->BaseRelQty, 2); ?></td>
               <td class="middle text-right"><?php echo number($rs->BasePickQty, 2); ?></td>
               <td class="middle text-right"><?php echo number($balance, 2); ?></td>
+              <td class="middle text-center"><?php echo $rs->LineStatus == 'D' ? 'Canceled' : ($rs->LineStatus == 'C' ? 'Closed' : 'Open'); ?></td>
               <td class="middle text-center">
               <?php if($rs->BasePickQty == 0) : ?>
                 <button type="button"
@@ -65,6 +67,7 @@
           <td class="middle text-right" id="totalBaseReleased"><?php echo number($totalBaseReleased, 2); ?></td>
           <td class="middle text-right" id="totalPicked"><?php echo number($totalPicked, 2); ?></td>
           <td class="middle text-right" id="totalBalance"><?php echo number($totalBalance, 2); ?></td>
+          <td class=""></td>
           <td class=""></td>
         </tr>
       </tfoot>
