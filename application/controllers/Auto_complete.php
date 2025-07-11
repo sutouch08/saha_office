@@ -10,6 +10,44 @@ class Auto_complete extends PS_Controller
     //$this->ms = $this->load->database('ms', TRUE); //--- SAP database
   }
 
+  public function get_zone_code_and_name($warehouse_code = NULL)
+	{
+		$sc = array();
+
+		$txt = trim($_REQUEST['term']);
+
+    $qr = "SELECT BinCode AS code, SL1Code AS name FROM OBIN WHERE Disabled = 'N' ";
+
+    if( ! empty($warehouse_code = NULL))
+    {
+      $qr .= "AND WhsCode = '{$warehouse_code}' ";
+    }
+
+    if($txt != '*')
+    {
+      $qr .= "AND (BinCode LIKE N'%{$txt}%' OR SL1Code LIKE N'%{$txt}%') ";      
+    }
+
+    $qr .= "ORDER BY BinCode ASC OFFSET 0 ROWS FETCH NEXT 20 ROWS ONLY";
+
+		$qs = $this->ms->query($qr);
+
+		if($qs->num_rows() > 0)
+		{
+			foreach($qs->result() as $rs)
+			{
+				$sc[] = $rs->code. ' | '.$rs->name;
+			}
+		}
+		else
+		{
+			$sc[] = "not found";
+		}
+
+
+		echo json_encode($sc);
+	}
+
 
   public function get_item_code_and_name()
   {
@@ -52,27 +90,23 @@ class Auto_complete extends PS_Controller
   }
 
 
-
-
-  public function get_customer_code_and_name()
+  public function get_vendor_code_and_name()
   {
-    $df_cust = getConfig('DEFAULT_CUSTOMER_CODE');
-
     $txt = trim($_REQUEST['term']);
-    $sc = array();
+    $sc = [];
 
     $qr  = "SELECT CardCode AS code, CardName AS name ";
     $qr .= "FROM OCRD ";
-    $qr .= "WHERE CardType IN('C', 'L') ";
+    $qr .= "WHERE CardType = 'S' ";
 
     $qr .= "AND validFor = 'Y' ";
 
     if($txt !== '*')
     {
-      $qr .= "AND (CardCode = '{$df_cust}' OR CardCode LIKE N'%{$this->ms->escape_str($txt)}%' OR CardName LIKE N'%{$this->ms->escape_str($txt)}%') ";
+      $qr .= "AND (CardCode LIKE N'%{$this->ms->escape_str($txt)}%' OR CardName LIKE N'%{$this->ms->escape_str($txt)}%') ";
     }
 
-    $qr .= "ORDER BY 1 OFFSET 0 ROWS FETCH NEXT 50 ROWS ONLY";
+    $qr .= "ORDER BY CardCode ASC OFFSET 0 ROWS FETCH NEXT 50 ROWS ONLY";
 
     $qs = $this->ms->query($qr);
 
@@ -88,7 +122,50 @@ class Auto_complete extends PS_Controller
     echo json_encode($sc);
   }
 
-  public function get_bp_code_and_name()
+
+  public function get_po_code($vendor = NULL)
+  {
+    $sc = array();
+    $txt = trim($_REQUEST['term']);
+
+
+    if( ! empty($vendor))
+    {
+      $this->ms->select('DocNum, CardCode, CardName')->where('DocStatus', 'O');
+      $this->ms->where('CardCode', $vendor);
+
+      if($txt != '*')
+      {
+        $this->ms->group_start();
+        $this->ms->like('DocNum', $txt);
+        $this->ms->or_like('NumAtCard', $txt);
+        $this->ms->group_end();
+      }
+
+      $po = $this->ms->order_by('DocNum', 'ASC')->limit(100)->get('OPOR');
+
+      if($po->num_rows() > 0)
+      {
+        foreach($po->result() as $row)
+        {
+          $sc[] = $row->DocNum. ' | '.$row->CardCode.' | '.$row->CardName;
+        }
+      }
+      else
+      {
+        $sc[] = "not found";
+      }
+    }
+    else
+    {
+      $sc[] = "กรุณาระบุผู้จำหน่าย";
+    }
+
+    echo json_encode($sc);
+  }
+
+
+  public function get_customer_code_and_name()
   {
     $df_cust = getConfig('DEFAULT_CUSTOMER_CODE');
 
@@ -97,7 +174,7 @@ class Auto_complete extends PS_Controller
 
     $qr  = "SELECT CardCode AS code, CardName AS name ";
     $qr .= "FROM OCRD ";
-    $qr .= "WHERE CardType IN('C', 'L', 'S') ";
+    $qr .= "WHERE CardType IN('C', 'L') ";
 
     $qr .= "AND validFor = 'Y' ";
 
@@ -158,6 +235,7 @@ class Auto_complete extends PS_Controller
     echo json_encode($sc);
   }
 
+
   public function get_delivery_zone()
   {
     $sc = array();
@@ -181,7 +259,6 @@ class Auto_complete extends PS_Controller
 
     echo json_encode($sc);
   }
-
 
 
   public function get_document($objType = 23, $cardCode = NULL)
@@ -255,7 +332,6 @@ class Auto_complete extends PS_Controller
 	}
 
 
-
   public function get_employee()
   {
     $sc = array();
@@ -285,7 +361,6 @@ class Auto_complete extends PS_Controller
 
     echo json_encode($sc);
   }
-
 
 
   public function get_web_employee()
@@ -405,39 +480,6 @@ class Auto_complete extends PS_Controller
       $this->ms->like('Code', $txt);
     }
     $qs = $this->ms->limit(20)->get('OVTG');
-
-    if($qs->num_rows() > 0)
-    {
-      foreach($qs->result() as $rs)
-      {
-        $sc[] = $rs->code.' | '.$rs->name;
-      }
-    }
-    else
-    {
-      $sc[] = 'Not found';
-    }
-
-    echo json_encode($sc);
-  }
-
-
-  public function get_project_code_name_name()
-  {
-    $sc = array();
-    $txt = $_REQUEST['term'];
-
-    $qr = "SELECT PrjCode AS code, PrjName AS name FROM OPRJ ";
-    $qr .= "WHERE Active = 'Y' ";
-
-    if($txt !== '*')
-    {
-      $qr .= "AND (PrjCode LIKE N'%{$txt}%' OR PrjName LIKE N'%{$txt}%') ";
-    }
-
-    $qr .= "ORDER BY PrjCode ASC OFFSET 0 ROWS FETCH NEXT 20 ROWS ONLY";
-
-    $qs = $this->ms->query($qr);
 
     if($qs->num_rows() > 0)
     {

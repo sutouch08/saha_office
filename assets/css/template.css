@@ -8,6 +8,9 @@ hr {
     margin-right: -7px;
 }
 
+input.width-100 {
+  height: 30px;
+}
 
 .container {
   padding-right: 15px;
@@ -54,6 +57,10 @@ input[type=date]::-webkit-clear-button
     -webkit-appearance: none; /* turn off default browser styling */
 }
 
+
+select[disabled] {
+  background-color: #eeeeee;
+}
 
 
 /* Framework start from here */
@@ -997,6 +1004,16 @@ hr.padding-5 {
   	width: 95.833333333%;
   }
 
+  .title {
+    font-size:20px;
+    margin-top:0px;
+    margin-bottom:10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    text-align: center;
+    background-color: #eee;
+  }
+
 }
 
 
@@ -1338,8 +1355,9 @@ hr.padding-5 {
 	font-size: 10px;
 }
 
-
-
+.font-size-11 {
+  font-size: 11px;
+}
 
 .font-size-12 {
 	font-size: 12px;
@@ -1955,4 +1973,71 @@ input[type=number]::-webkit-outer-spin-button {
   font-size: 12px;
   font-style: italic;
   color: #7a8c9f;
+}
+
+
+.dropdown-menu > li.success > a {
+  color: #87b87f !important;
+}
+
+.dropdown-menu > li.success > a:hover {
+  color: #ffffff !important;
+  background-color: #87b87f !important;
+}
+
+.dropdown-menu > li.primary > a {
+  color: #428bca !important;
+}
+
+.dropdown-menu > li.primary > a:hover {
+  color: #ffffff !important;
+  background-color: #428bca !important;
+}
+
+.dropdown-menu > li.info > a {
+  color: #6fb3e0;
+}
+
+.dropdown-menu > li.info > a:hover {
+  color: #ffffff !important;
+  background-color: #6fb3e0 !important;
+}
+
+.dropdown-menu > li.warning > a {
+  color: #ffb752;
+}
+
+.dropdown-menu > li.warning > a:hover {
+  color: #ffffff !important;
+  background-color: #ffb752 !important;
+}
+
+.dropdown-menu > li.danger > a {
+  color: #d15b47 !important;
+}
+
+.dropdown-menu > li.danger > a:hover {
+  color:#ffffff !important;
+  background-color: #d15b47;
+}
+
+.dropdown-menu > li.purple > a {
+  color: #7461aa !important;
+}
+
+.dropdown-menu > li.purple > a:hover {
+  color:#ffffff !important;
+  background-color: #7461aa;
+}
+
+.highlight {
+  background-color: #cff1f1 !important;
+}
+
+.select2-container.has-error {
+  border:0 !important;
+}
+
+.select2-container.has-error > .select2-choice {
+  border:solid 1px red !important;
 }

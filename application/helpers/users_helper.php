@@ -45,6 +45,24 @@ function select_user_group($code = NULL)
 }
 
 
+function select_user($uname = NULL)
+{
+  $ds = '';
+  $ci =& get_instance();
+  $qs = $ci->user_model->get_all();
+
+  if( ! empty($qs))
+  {
+    foreach($qs as $rs)
+    {
+      $ds .= '<option value="'.$rs->uname.'" data-id="'.$rs->id.'" '.is_selected($rs->uname, $uname).'>'.$rs->uname.' | '.$rs->emp_name.'</option>';
+    }
+  }
+
+  return $ds;
+}
+
+
 function select_department($code = NULL)
 {
   $ds = '';

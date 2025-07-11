@@ -1992,8 +1992,6 @@ class Sales_order extends PS_Controller
 		$sale = $this->user_model->get_sap_sale_data($doc->SlpCode);
 		$doc->prefix = empty($doc->BeginStr) ? $this->sales_order_model->get_prefix($doc->Series) : $doc->BeginStr;
 		$doc->OwnerName = empty($doc->OwnerCode) ? "" : $this->user_model->get_emp_name($doc->OwnerCode);
-
-		//$contact_person = empty($doc->CntctCode) ? "" : $this->customers_model->get_contact_person_name($doc->CntctCode);
 		$doc->reference = !empty($doc->NumAtCard) ? $doc->NumAtCard : $doc->U_SQNO;
 
 		$ds = array(

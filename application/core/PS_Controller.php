@@ -44,12 +44,6 @@ class PS_Controller extends CI_Controller
     {
       redirect(base_url().'maintenance');
     }
-
-    // $valid_date = date('Y-m-d', strtotime('2021-07-31'));
-    // if(date('Y-m-d') > $valid_date)
-    // {
-    //   $this->expired_page();
-    // }
   }
 
 
