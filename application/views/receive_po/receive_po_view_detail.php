@@ -89,7 +89,21 @@
 	<input type="hidden" id="purchase-vat-rate" value="<?php echo getConfig('PURCHASE_VAT_RATE'); ?>" />
 </div>
 <hr class="margin-top-10 margin-bottom-10"/>
-
+<?php $po_ref = $doc->po_code; ?>
+<?php if( ! empty($po_refs)) : ?>
+	<?php $po_ref = ""; ?>
+	<?php $p = 1; ?>
+	<?php foreach($po_refs as $ref) : ?>
+		<?php $po_ref .= $p == 1 ? $ref->po_code : ", {$ref->po_code}"; ?>
+		<?php $p++; ?>
+	<?php endforeach; ?>
+<?php endif; ?>
+<div class="row">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
+		<b>Po reference : </b><?php echo $po_ref; ?>
+	</div>
+</div>
+<hr class="margin-top-10 margin-bottom-10"/>
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 border-1 table-responsive" id="receiveTable" style="padding-left:0; padding-right:0; max-height:400px; overflow:auto;">
 		<table class="table table-bordered" style="font-size:11px; min-width:1010px; margin-bottom:0;">

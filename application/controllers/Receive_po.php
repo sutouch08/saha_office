@@ -270,6 +270,7 @@ class Receive_po extends PS_Controller
 			$ds = array(
 				'doc' => $doc,
 				'details' => $this->receive_po_model->get_details($code),
+				'po_refs' => $this->receive_po_model->get_po_refs($code),
 				'logs' => $this->receive_po_model->get_logs($code)
 			);
 
