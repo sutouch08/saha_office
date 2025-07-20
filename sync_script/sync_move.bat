@@ -1,2 +1,2 @@
-cd C:\xampp\htdocs\
+cd C:\xampp\htdocs\web\
 php index.php sync_move index
