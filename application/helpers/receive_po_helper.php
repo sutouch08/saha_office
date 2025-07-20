@@ -3,7 +3,7 @@
   {
     $label = [
       'P' => 'Draft',
-      'O' => 'Open',
+      'O' => 'Pending',
       'C' => 'Closed',
       'D' => 'Canceled'
     ];

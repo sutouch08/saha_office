@@ -1,21 +1,46 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-lg-6 col-md-4 col-sm-4 col-xs-12 padding-5 hidden-xs">
-  	<h4 class="title margin-top-20"><?php echo $this->title; ?></h4>
+	<div class="col-lg-6 col-md-4 col-sm-4 col-xs-12 padding-5">
+  	<h4 class="title"><?php echo $this->title; ?></h4>
   </div>
-	<div class="col-lg-6 col-md-8 col-sm-8 col-xs-12 padding-5">
-		<p class="pull-right top-p">
-			<?php if($this->isAdmin OR $this->isSuperAdmin) : ?>
-			<button type="button" class="btn btn-sm btn-primary margin-top-5" onclick="syncData('SQ')">Sync SQ</button>
-			<button type="button" class="btn btn-sm btn-primary margin-top-5" onclick="syncData('SO')">Sync SO</button>
-			<button type="button" class="btn btn-sm btn-primary margin-top-5" onclick="syncData('TR')">Sync TR</button>
-			<button type="button" class="btn btn-sm btn-primary margin-top-5" onclick="syncData('MV')">Sync MV</button>
-			<?php endif; ?>
-			<?php if($this->isAdmin OR $this->isSuperAdmin) : ?>
-				<button type="button" class="btn btn-sm btn-warning margin-top-5" onclick="clearLogs()">Clear Logs</button>
-				<button type="button" class="btn btn-sm btn-danger margin-top-5" onclick="clearAllLogs()">Clear All Logs</button>
-			<?php endif; ?>
-		</p>
+	<div class="col-lg-6 col-md-8 col-sm-8 col-xs-12 padding-5 text-right">
+		<div class="btn-group">
+			<button data-toggle="dropdown" class="btn btn-primary btn-white dropdown-toggle margin-top-5" aria-expanded="false">
+				<i class="ace-icon fa fa-refresh icon-on-left"></i> Manual Sync
+				<i class="ace-icon fa fa-angle-down icon-on-right"></i>
+			</button>
+			<ul class="dropdown-menu dropdown-menu-right">
+				<li class="primary">
+					<a href="javascript:syncData('SQ')">Sync SQ</a>
+				</li>
+				<li class="primary">
+					<a href="javascript:syncData('SO')">Sync SO</a>
+				</li>
+				<li class="primary">
+					<a href="javascript:syncData('TR')">Sync TR</a>
+				</li>
+				<li class="primary">
+					<a href="javascript:syncData('MV')">Sync MV</a>
+				</li>
+				<li class="primary">
+					<a href="javascript:syncData('GR')">Sync GR</a>
+				</li>
+			</ul>
+		</div>
+		<div class="btn-group">
+			<button data-toggle="dropdown" class="btn btn-danger btn-white dropdown-toggle margin-top-5" aria-expanded="false">
+				<i class="ace-icon fa fa-history icon-on-left"></i> Clear logs
+				<i class="ace-icon fa fa-angle-down icon-on-right"></i>
+			</button>
+			<ul class="dropdown-menu dropdown-menu-right">
+				<li class="warning">
+					<a href="javascript:clearLogs()">Clear logs</a>
+				</li>
+				<li class="danger">
+					<a href="javascript:clearAllLogs()">Clear all logs</a>
+				</li>
+			</ul>
+		</div>	
 	</div>
 </div><!-- End Row -->
 <hr class="padding-5"/>
@@ -39,6 +64,7 @@
 			<option value="SO" <?php echo is_selected('SO', $docType); ?>>SO</option>
 			<option value="TR" <?php echo is_selected('TR', $docType); ?>>TR</option>
 			<option value="MV" <?php echo is_selected('MV', $docType); ?>>MV</option>
+			<option value="GR" <?php echo is_selected('GR', $docType); ?>>GR</option>
 			<option value="Logs" <?php echo is_selected('Logs', $docType); ?>>Logs</option>
 		</select>
   </div>

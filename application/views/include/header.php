@@ -64,7 +64,9 @@
 					</a>
 				</div>
 
+				<?php if( ! isset($_GET['nomenu'])) : ?>
 					<?php $this->load->view('include/top_menu'); ?>
+				<?php endif; ?>
 				<div class="navbar-buttons navbar-header pull-right" role="navigation">
 					<ul class="nav ace-nav">
 
@@ -109,19 +111,20 @@
 				try{ace.settings.check('main-container' , 'fixed')}catch(e){}
 			</script>
 			<!-- #section:basics/sidebar -->
-			<div id="sidebar" class="sidebar responsive <?php echo get_cookie('sidebar_layout'); ?>" data-sidebar="true" data-sidebar-scoll="true" data-sidebar-hover="true">
-				<script type="text/javascript">
+			<?php if( ! isset($_GET['nomenu'])) : ?>
+				<div id="sidebar" class="sidebar responsive <?php echo get_cookie('sidebar_layout'); ?>" data-sidebar="true" data-sidebar-scoll="true" data-sidebar-hover="true">
+					<script type="text/javascript">
 					try{ace.settings.check('sidebar' , 'fixed')}catch(e){}
-				</script>
-						<!--- side menu  ------>
-				<?php $this->load->view("include/side_menu"); ?>
+					</script>
+					<!--- side menu  ------>
+					<?php $this->load->view("include/side_menu"); ?>
 
-				<!-- #section:basics/sidebar.layout.minimize -->
-				<div class="sidebar-toggle sidebar-collapse" id="sidebar-collapse" onclick="toggle_layout()">
-					<i class="ace-icon fa fa-angle-double-left" data-icon1="ace-icon fa fa-angle-double-left" data-icon2="ace-icon fa fa-angle-double-right"></i>
+					<!-- #section:basics/sidebar.layout.minimize -->
+					<div class="sidebar-toggle sidebar-collapse" id="sidebar-collapse" onclick="toggle_layout()">
+						<i class="ace-icon fa fa-angle-double-left" data-icon1="ace-icon fa fa-angle-double-left" data-icon2="ace-icon fa fa-angle-double-right"></i>
+					</div>
 				</div>
-
-			</div>
+			<?php endif; ?>
 			<!-- /section:basics/sidebar -->
 			<div class="main-content">
 				<div class="main-content-inner">

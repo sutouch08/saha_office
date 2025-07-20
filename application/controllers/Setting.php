@@ -11,6 +11,9 @@ class Setting extends PS_Controller{
     parent::__construct();
     $this->home = base_url().'setting';
 		$this->load->model('config_model');
+		$this->load->model('warehouse_model');
+		$this->load->model('zone_model');
+		$this->load->helper('warehouse');
   }
 
 

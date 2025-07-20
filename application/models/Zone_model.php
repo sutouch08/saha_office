@@ -7,6 +7,21 @@ class Zone_model extends CI_Model
   }
 
 
+  public function get($binCode)
+  {
+    $rs = $this->ms
+    ->select('BinCode AS code, SL1Code AS name, WhsCode AS warehouse_code')
+    ->where('BinCode', $binCode)
+    ->get('OBIN');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
   public function is_exists_bin_code($binCode)
   {
     $rs = $this->ms->select('AbsEntry')->where('BinCode', $binCode)->get('OBIN');

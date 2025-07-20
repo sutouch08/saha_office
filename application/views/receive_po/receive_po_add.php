@@ -12,45 +12,63 @@
 <hr />
 
 <div class="row">
-	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
 		<label>เลขที่เอกสาร</label>
 		<input type="text" class="width-100" value="" disabled />
 	</div>
-	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
-		<label>วันที่</label>
-		<input type="text" class="width-100 text-center r" id="date-add" value="<?php echo date('d-m-Y'); ?>" readonly/>
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+		<label>Doc Date</label>
+		<input type="text" class="width-100 text-center r" value="<?php echo date('d-m-Y'); ?>" disabled/>
 	</div>
-	<div class="col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-4 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+		<label>Posting Date</label>
+		<input type="text" class="width-100 text-center r" id="posting-date" value="<?php echo date('d-m-Y'); ?>" readonly/>
+	</div>
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
 		<label>รหัสผู้ขาย</label>
 		<input type="text" class="width-100 text-center r" id="vendor-code" placeholder="รหัสผู้ขาย" value=""/>
 	</div>
-	<div class="col-lg-5-harf col-md-6-harf col-sm-6 col-xs-8 padding-5">
+	<div class="col-lg-4-harf col-md-5-harf col-sm-5-harf col-xs-8 padding-5">
 		<label>ชื่อผู้ขาย</label>
 		<input type="text" class="width-100 r" id="vendor-name" placeholder="ชื่อผู้ขาย" readonly/>
 	</div>
-	<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2-harf col-xs-6 padding-5">
 		<label>ใบส่งสินค้า</label>
 		<input type="text" class="width-100 text-center r" id="invoice" placeholder="ใบส่งสินค้า" />
 	</div>
-	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
+		<label>PO No.</label>
+		<input type="text" class="width-100 text-center r" id="po-no" placeholder="อ้างอิงใบสั่งซื้อ" />
+	</div>
+	<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-3 padding-5">
 		<label>Currency</label>
 		<select class="width-100" id="DocCur" onchange="changeRate()">
 			<?php echo select_currency("THB"); ?>
 		</select>
 	</div>
-	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
+	<div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-3 padding-5">
 		<label>Rate</label>
 		<input type="number" class="width-100 text-center r" id="DocRate" value="1.00" />
 	</div>
 
-	<div class="col-lg-3 col-md-6 col-sm-6 col-xs-12 padding-5">
+	<div class="col-lg-3 col-md-2-harf col-sm-4 col-xs-6 padding-5">
 		<label>คลัง</label>
-		<select class="width-100 r" id="warehouse" onchange="zoneInit()">
+		<select class="width-100 r" id="warehouse" onchange="changeWhs()">
 			<option value="">Select</option>
-			<?php echo select_warehouse(getConfig('DEFAULT_WAREHOUSE')); ?>
+			<?php echo select_warehouse(getConfig('INBOUND_WAREHOUSE')); ?>
 		</select>
 	</div>
-	<div class="col-lg-6 col-md-10-harf col-sm-10-harf col-xs-12 padding-5">
+	<?php $inbound_zone = getConfig('INBOUND_ZONE'); ?>
+	<?php $inbound_zone_name = $this->zone_model->getName($inbound_zone); ?>
+	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
+		<label>Bin Location</label>
+		<input type="text" class="width-100 text-center r" id="zone-code" placeholder="Bin Location" value="<?php echo $inbound_zone; ?>" />
+	</div>
+	<div class="col-lg-3-harf col-md-1-harf col-sm-2 col-xs-8 padding-5">
+		<label class="not-show">bin name</label>
+		<input type="text" class="width-100 r" id="zone-name" value="<?php echo $inbound_zone_name; ?>" readonly />
+	</div>
+	<div class="col-lg-11 col-md-10-harf col-sm-6-harf col-xs-12 padding-5">
 		<label>หมายเหตุ</label>
 		<input type="text" class="width-100" id="remark" />
 	</div>

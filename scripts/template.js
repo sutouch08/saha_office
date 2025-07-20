@@ -277,6 +277,16 @@ function parseDefault(value, def){
 	return value;
 }
 
+
+function parseDefaultFloat(value, def) {
+  return parseDefault(parseFloat(value), def);
+}
+
+
+function parseDefaultInt(value, def) {
+  return parseDefault(parseInt(value), def); 
+}
+
 //--- return discount array
 function parseDiscount(discount_label, price)
 {
@@ -427,4 +437,17 @@ function clearErrorByClass(className) {
     $('#'+name+'-error').text('');
     $(this).removeClass('has-error');
   })
+}
+
+function showError(response) {
+  load_out();
+
+  setTimeout(() => {
+    swal({
+      title:'Error!',
+      text:(typeof response === 'object') ? response.responseText : response,
+      type:'error',
+      html:true
+    })
+  }, 100);
 }

@@ -53,6 +53,11 @@ class PS_Controller extends CI_Controller
 		echo $sc === TRUE ? 'success' : $this->error;
 	}
 
+  public function _response($sc = TRUE)
+  {
+    echo $sc === TRUE ? 'success' : $this->error;
+  }
+
 
   public function deny_page()
   {

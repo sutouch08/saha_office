@@ -18,14 +18,14 @@ class Auto_complete extends PS_Controller
 
     $qr = "SELECT BinCode AS code, SL1Code AS name FROM OBIN WHERE Disabled = 'N' ";
 
-    if( ! empty($warehouse_code = NULL))
+    if( ! empty($warehouse_code))
     {
       $qr .= "AND WhsCode = '{$warehouse_code}' ";
     }
 
     if($txt != '*')
     {
-      $qr .= "AND (BinCode LIKE N'%{$txt}%' OR SL1Code LIKE N'%{$txt}%') ";      
+      $qr .= "AND (BinCode LIKE N'%{$txt}%' OR SL1Code LIKE N'%{$txt}%') ";
     }
 
     $qr .= "ORDER BY BinCode ASC OFFSET 0 ROWS FETCH NEXT 20 ROWS ONLY";

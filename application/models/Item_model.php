@@ -383,6 +383,49 @@ class Item_model extends CI_Model
   }
 
 
+  // public function getBarcodeList($ItemCode)
+  // {
+  //   $rs = $this->ms
+  //   ->select('OBCD.BcdCode as Barcode, OITM.ItemCode, OITM.ItemName')
+  //   ->select('UGP1.UomEntry, UGP1.BaseQty, OUOM.UomCode, OUOM.UomName')
+  //   ->from('OBCD')
+  //   ->join('OITM', 'OBCD.ItemCode = OITM.ItemCode')
+  //   ->join('UGP1', 'OITM.UgpEntry = UGP1.UgpEntry AND OBCD.UomEntry = UGP1.UomEntry')
+  //   ->join('OUOM', 'OBCD.UomEntry = OUOM.UomEntry')
+  //   ->where('OBCD.ItemCode', $ItemCode)
+  //   ->get();
+  //
+  //   if($rs->num_rows() > 0)
+  //   {
+  //     return $rs->result();
+  //   }
+  //
+  //   return NULL;
+  // }
+
+  public function getBarcodeList($ItemCode)
+  {
+    $rs = $this->ms
+    ->select('OITM.ItemCode, OITM.ItemName')
+    ->select('UGP1.UomEntry, UGP1.BaseQty')
+    ->select('OUOM.UomCode, OUOM.UomName')
+    ->select('OBCD.BcdCode AS Barcode')
+    ->from('OITM')
+    ->join('UGP1', 'OITM.UgpEntry = UGP1.UgpEntry', 'left')
+    ->join('OUOM', 'UGP1.UomEntry = OUOM.UomEntry', 'left')
+    ->join('OBCD', 'OITM.ItemCode = OBCD.ItemCode AND OBCD.UomEntry = OUOM.UomEntry', 'left')
+    ->where('OITM.ItemCode', $ItemCode)
+    ->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+
   public function get_item_code_uom_by_barcode($barcode)
   {
     $rs = $this->ms

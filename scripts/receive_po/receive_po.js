@@ -1,6 +1,19 @@
 // JavaScript Document
 var HOME = BASE_URL + 'receive_po/';
 
+function leave(){
+	swal({
+		title: 'ยกเลิกข้อมูลนี้ ?',
+		type: 'warning',
+		showCancelButton: true,
+		cancelButtonText: 'No',
+		confirmButtonText: 'Yes',
+		closeOnConfirm: false
+	}, function(){
+		goBack();
+	});
+}
+
 $('#warehouse').select2();
 $('#user').select2();
 
@@ -11,44 +24,40 @@ function cancel(code){
 		type: "warning",
 		showCancelButton: true,
 		confirmButtonColor: "#DD6B55",
-		confirmButtonText: 'ใช่, ฉันต้องการ',
-		cancelButtonText: 'ไม่ใช่',
+		confirmButtonText: 'Yes',
+		cancelButtonText: 'No',
 		closeOnConfirm: true
 		}, function(){
 			$('#cancle-code').val(code);
 			$('#cancle-reason').val('').removeClass('has-error');
-
-			cancle_received(code);
+			$('#cancle-modal').modal('show');
 	});
 }
 
 
+function cancle_received(code) {
+	var reason = $('#cancle-reason').val().trim();
 
-function cancle_received(code)
-{
-	var reason = $.trim($('#cancle-reason').val());
-
-	if(reason.length < 10)
-	{
-		$('#cancle-modal').modal('show');
-		return false;
-	}
+	// if(reason.length < 10)
+	// {
+	// 	$('#cancle-modal').modal('show');
+	// 	return false;
+	// }
 
 	load_in();
 
 	$.ajax({
-		url: HOME + 'cancle_received',
+		url: HOME + 'cancel',
 		type:"POST",
 		cache:"false",
 		data:{
-			"receive_code" : code,
+			"code" : code,
 			"reason" : reason
 		},
-		success: function(rs){
+		success: function(rs) {
 			load_out();
 
-			var rs = $.trim(rs);
-			if( rs == 'success' ){
+			if( rs.trim() == 'success' ) {
 				swal({
 					title: 'Cancled',
 					type: 'success',
@@ -59,9 +68,15 @@ function cancle_received(code)
 					window.location.reload();
 				}, 1200);
 
-			}else{
-				swal("Error !", rs, "error");
 			}
+			else {
+				beep();
+				showError(rs);
+			}
+		},
+		error:function(rs) {
+			beep();
+			showError(rs);
 		}
 	});
 }
@@ -69,12 +84,12 @@ function cancle_received(code)
 
 function doCancle() {
 	let code = $('#cancle-code').val();
-	let reason = $.trim($('#cancle-reason').val());
-
-	if( reason.length < 10) {
-		$('#cancle-reason').addClass('has-error').focus();
-		return false;
-	}
+	let reason = $('#cancle-reason').val().trim();
+	//
+	// if( reason.length < 10) {
+	// 	$('#cancle-reason').addClass('has-error').focus();
+	// 	return false;
+	// }
 
 	$('#cancle-modal').modal('hide');
 
@@ -96,6 +111,16 @@ function addNew(){
 
 function edit(code){
 	window.location.href = HOME + 'edit/'+ code;
+}
+
+
+function process(code) {
+	window.location.href = HOME + 'process/'+code;
+}
+
+
+function processMobile(code) {
+	window.location.href = HOME + 'process_mobile/'+code;
 }
 
 
@@ -148,9 +173,7 @@ function printReceived(){
 }
 
 
-
-function doExport(){
-	var code = $('#receive_code').val();
+function sendToSap(code){
 	load_in();
 	$.ajax({
 		url: HOME + 'do_export/'+code,
@@ -158,7 +181,7 @@ function doExport(){
 		cache:false,
 		success:function(rs){
 			load_out();
-			if(rs == 'success'){
+			if(rs.trim() == 'success'){
 				swal({
 					title:'Success',
 					text:'Send data successfully',
@@ -177,30 +200,72 @@ function doExport(){
 }
 
 
-function sendToSap(code){
-	load_in();
-	$.ajax({
-		url: HOME + 'do_export/'+code,
-		type:'POST',
-		cache:false,
-		success:function(rs){
-			load_out();
-			if(rs == 'success'){
-				swal({
-					title:'Success',
-					text:'Send data successfully',
-					type:'success',
-					timer:1000
-				});
-			}else{
-				swal({
-					title:'Errow!',
-					text: rs,
-					type:'error'
-				});
-			}
-		}
-	})
+function viewTemp(code) {
+  $.ajax({
+    url:HOME + 'get_temp_data',
+    type:'GET',
+    data:{
+      'code' : code //--- U_WEBORDER
+    },
+    success:function(rs) {
+      if(isJson(rs)) {
+        var data = $.parseJSON(rs);
+        var source = $('#temp-template').html();
+        var output = $('#temp-table');
+
+        render(source, data, output);
+
+        $('#tempModal').modal('show');
+      }
+      else {
+        showError(rs);
+      }
+    }
+  })
+}
+
+
+function removeTemp() {
+  $('#tempModal').modal('hide');
+  let U_WEBORDER = $('#U_WEBORDER').val();
+	let DocEntry = $('#DocEntry').val();
+
+  $.ajax({
+    url:HOME + 'remove_temp',
+    type:'POST',
+    data:{
+      'U_WEBORDER' : U_WEBORDER,
+			'DocEntry' : DocEntry
+    },
+    success:function(rs) {
+      var rs = $.trim(rs);
+      if(rs === 'success') {
+        swal({
+          title:'Success',
+          type:'success',
+          timer:1000
+        });
+
+        setTimeout(function(){
+          window.location.reload();
+        }, 1000);
+      }
+      else {
+        swal({
+          title:'Error!',
+          text:rs,
+          type:'error'
+        })
+      }
+    }
+  })
+}
+
+
+function viewTempDetail(id) {
+	let target = BASE_URL + 'temp/temp_receive_po/get_detail/'+id+'?nomenu';
+	let center = ($(document).width() - 1200) /2;
+	window.open(target, "_blank", "width=1200, height=800, left="+center+", scrollbars=yes");
 }
 
 

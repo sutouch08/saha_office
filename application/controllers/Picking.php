@@ -20,9 +20,8 @@ class Picking extends PS_Controller
   }
 
 
-
-  public function index()
-  {
+	public function index()
+	{
 		$this->title = "รอจัด";
 
 		$filter = array(
@@ -60,11 +59,11 @@ class Picking extends PS_Controller
 			}
 		}
 
-    $filter['data'] = $rs;
+		$filter['data'] = $rs;
 
 		$this->pagination->initialize($init);
-    $this->load->view('picking/picking_list', $filter);
-  }
+		$this->load->view('picking/picking_list', $filter);
+	}
 
 
 	public function process_list()
@@ -113,33 +112,33 @@ class Picking extends PS_Controller
 	}
 
 
-
 	public function is_document_avalible()
-  {
-    $absEntry = $this->input->get('AbsEntry');
-    $uuid = $this->input->get('uuid');
-    if( ! $this->pick_model->is_document_avalible($absEntry, $uuid))
-    {
-      echo "not_available";
-    }
-    else
-    {
-      echo "available";
-    }
-  }
+	{
+		$absEntry = $this->input->get('AbsEntry');
+		$uuid = $this->input->get('uuid');
+		if( ! $this->pick_model->is_document_avalible($absEntry, $uuid))
+		{
+			echo "not_available";
+		}
+		else
+		{
+			echo "available";
+		}
+	}
 
 
 	public function update_uuid()
-  {
-    $sc = TRUE;
-    $absEntry = trim($this->input->post('AbsEntry'));
-    $uuid = trim($this->input->post('uuid'));
+	{
+		$sc = TRUE;
+		$absEntry = trim($this->input->post('AbsEntry'));
+		$uuid = trim($this->input->post('uuid'));
 
-    if( ! empty($uuid))
-    {
-      return $this->pick_model->update_uuid($absEntry, $uuid);
-    }
-  }
+		if( ! empty($uuid))
+		{
+			return $this->pick_model->update_uuid($absEntry, $uuid);
+		}
+	}
+
 
 	public function process($absEntry, $uuid)
 	{
@@ -227,7 +226,6 @@ class Picking extends PS_Controller
     return $stock - $prepared;
 
   }
-
 
 
 	public function pick_item()

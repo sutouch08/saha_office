@@ -60,7 +60,10 @@
         <span class="form-control left-label">Default Warehouse</span>
       </div>
       <div class="col-sm-8">
-        <input type="text" class="form-control input-sm input-small" id="default_warehouse" name="DEFAULT_WAREHOUSE" value="<?php echo $DEFAULT_WAREHOUSE; ?>" />
+				<select class="input-xlarge" name="DEFAULT_WAREHOUSE" id="default-warehouse">
+					<option value="">Select</option>
+					<?php echo select_warehouse($DEFAULT_WAREHOUSE); ?>
+				</select>
       </div>
       <div class="divider-hidden"></div>
 
@@ -68,7 +71,29 @@
         <span class="form-control left-label">Buffer Warehouse</span>
       </div>
       <div class="col-sm-8">
-        <input type="text" class="form-control input-sm input-small" id="buffer_warehouse" name="BUFFER_WAREHOUSE" value="<?php echo $BUFFER_WAREHOUSE; ?>" />
+				<select class="input-xlarge" name="BUFFER_WAREHOUSE" id="buffer-warehouse">
+					<option value="">Select</option>
+					<?php echo select_warehouse($BUFFER_WAREHOUSE); ?>
+				</select>
+      </div>
+      <div class="divider-hidden"></div>
+
+			<div class="col-sm-4">
+        <span class="form-control left-label">Inbound Warehouse</span>
+      </div>
+      <div class="col-sm-8">
+				<select class="input-xlarge" name="INBOUND_WAREHOUSE" id="inbound-warehouse" onchange="inboundZoneInit()">
+					<option value="">Select</option>
+					<?php echo select_warehouse($INBOUND_WAREHOUSE); ?>
+				</select>
+      </div>
+      <div class="divider-hidden"></div>
+
+			<div class="col-sm-4">
+        <span class="form-control left-label">Inbound Bin Location</span>
+      </div>
+      <div class="col-sm-8">
+        <input type="text" class="input-medium r" id="inbound-code" name="INBOUND_ZONE" value="<?php echo $INBOUND_ZONE; ?>" />
       </div>
       <div class="divider-hidden"></div>
 
@@ -116,38 +141,34 @@
   	</div><!--/ row -->
   </form>
 	<script>
-
-		$('#default_warehouse').autocomplete({
-			source:BASE_URL + 'auto_complete/get_warehouse_code_and_name',
-			autoFocus:true,
-			close:function(){
-				var rs = $(this).val();
-				var arr = rs.split(' | ');
-				if(arr.length === 2) {
-					$(this).val(arr[0]);
-				}
-				else {
-					$(this).val('');
-				}
-			}
+		window.addEventListener('load', () => {
+			inboundZoneInit();
 		});
 
 
-		$('#buffer_warehouse').autocomplete({
-			source:BASE_URL + 'auto_complete/get_warehouse_code_and_name',
-			autoFocus:true,
-			close:function(){
-				var rs = $(this).val();
-				var arr = rs.split(' | ');
-				if(arr.length === 2) {
-					$(this).val(arr[0]);
-				}
-				else {
-					$(this).val('');
-				}
-			}
-		});
+		$('#default-warehouse').select2();
+		$('#buffer-warehouse').select2();
+		$('#inbound-warehouse').select2();
 
+		function inboundZoneInit() {
+			let WhsCode = $('#inbound-warehouse').val();
+
+			$('#inbound-code').autocomplete({
+		    source:BASE_URL + 'auto_complete/get_zone_code_and_name/'+WhsCode,
+		    close:function() {
+		      let arr = $(this).val().split(' | ');
+
+		      if(arr.length == 2){
+		        $('#inbound-code').val(arr[0]);
+		        $('#inbound-name').val(arr[1]);
+		      }
+		      else {
+		        $('#inbound-code').val('');
+		        $('#inbound-name').val('');
+		      }
+		    }
+		  })
+		}
 
 		$('#default_customer').autocomplete({
 			source:BASE_URL + 'auto_complete/get_customer_code_and_name',

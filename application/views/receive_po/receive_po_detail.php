@@ -13,12 +13,13 @@
 					<th class="fix-width-40 text-center">#</th>
 					<th class="fix-width-100 text-center">รหัสสินค้า</th>
 					<th class="min-width-250 text-center">ชื่อสินค้า</th>
-					<th class="fix-width-100 text-center">หน่วยนับ</th>
-					<th class="fix-width-100 text-center">ราคา</th>
-					<th class="fix-width-100 text-center">ส่วนลด</th>
+					<th class="fix-width-80 text-center">หน่วยนับ</th>
+					<th class="fix-width-80 text-center">PO No.</th>
+					<th class="fix-width-80 text-center">ราคา</th>
+					<th class="fix-width-80 text-center">ส่วนลด</th>
 					<th class="fix-width-80 text-center">ค้างรับ</th>
 					<th class="fix-width-100 text-center">จำนวน</th>
-					<th class="fix-width-120 text-center">มูลค่า</th>
+					<th class="fix-width-100 text-center">มูลค่า</th>
 				</tr>
 			</thead>
 			<tbody id="receive-list">
@@ -32,34 +33,36 @@
 		<?php $limit = empty($rs->limit) ? -1 : $rs->limit; ?>
 				<tr id="row-<?php echo $uid; ?>">
 					<td class="middle text-center">
-						<label><input type="checkbox" class="ace chk" value="<?php echo $no; ?>" /><span class="lbl"></span></label>
+						<label><input type="checkbox" class="ace chk" value="<?php echo $uid; ?>" /><span class="lbl"></span></label>
 					</td>
 					<td class="middle text-center no"><?php echo $no; ?></td>
-					<td class="middle"><?php echo $rs->product_code; ?></td>
-					<td class="middle"><?php echo $rs->product_name; ?></td>
+					<td class="middle"><?php echo $rs->ItemCode; ?></td>
+					<td class="middle"><?php echo $rs->ItemName; ?></td>
 					<td class="middle text-center"><?php echo $rs->unitMsr; ?></td>
+					<td class="middle text-center"><?php echo $rs->baseCode; ?></td>
 					<td class="middle text-center"><?php echo number($rs->PriceBefDi, 2); ?></td>
 					<td class="middle text-center"><?php echo number($rs->DiscPrcnt, 2); ?></td>
-					<td class="middle text-center"><?php echo number($rs->before_backlogs, 2); ?></td>
+					<td class="middle text-center"><?php echo number($rs->backlogs, 2); ?></td>
 					<td class="middle text-center">
-						<input type="text" class="form-control input-sm text-right row-qty e"
+						<input type="text" class="form-control input-sm text-right row-qty"
 							id="row-qty-<?php echo $uid; ?>"
 							onchange="recalAmount('<?php echo $uid; ?>')"
 							data-uid="<?php echo $uid; ?>"
 							data-id="<?php echo $rs->id; ?>"
-							data-code="<?php echo $rs->product_code; ?>"
-							data-name="<?php echo $rs->product_name; ?>"
-							data-vatcode="<?php echo $rs->vatGroup; ?>"
-							data-vatrate="<?php echo $rs->vatRate; ?>"
+							data-code="<?php echo $rs->ItemCode; ?>"
+							data-name="<?php echo $rs->ItemName; ?>"
+							data-vatcode="<?php echo $rs->VatGroup; ?>"
+							data-vatrate="<?php echo $rs->VatRate; ?>"
+							data-vatperqty="<?php echo $rs->VatPerQty; ?>"
 							data-limit="<?php echo $limit; ?>"
 							data-price="<?php echo $rs->Price; ?>"
 							data-bfprice="<?php echo $rs->PriceBefDi; ?>"
-							data-afprice="<?php echo $rs->Price; ?>"
-							data-backlogs="<?php echo $rs->before_backlogs; ?>"
+							data-afprice="<?php echo $rs->PriceAfVAT; ?>"
+							data-discprcnt="<?php echo $rs->DiscPrcnt; ?>"
+							data-backlogs="<?php echo $rs->backlogs; ?>"
 							data-basecode="<?php echo $rs->baseCode; ?>"
 							data-baseline="<?php echo $rs->baseLine; ?>"
 							data-baseentry="<?php echo $rs->baseEntry; ?>"
-							data-unit="<?php echo $rs->unit_code; ?>"
 							data-unitmsr="<?php echo $rs->unitMsr; ?>"
 							data-numpermsr="<?php echo $rs->NumPerMsr; ?>"
 							data-unitmsr2="<?php echo $rs->unitMsr2; ?>"
@@ -72,7 +75,7 @@
 					</td>
 					<td class="middle text-right">
 						<input type="text" class="form-control input-sm text-right row-total" id="row-total-<?php echo $uid; ?>" value="<?php echo number($rs->LineTotal, 2); ?>" disabled />
-						<input type="hidden" id="row-vat-amount-<?php echo $uid; ?>" value="<?php echo $rs->vatAmount; ?>" />
+						<input type="hidden" id="row-vat-amount-<?php echo $uid; ?>" value="<?php echo $rs->VatAmount; ?>" />
 					</td>
 				</tr>
 				<?php $no++; ?>
@@ -154,6 +157,7 @@
 			<td class="middle">{{product_code}}</td>
 			<td class="middle">{{product_name}}</td>
 			<td class="middle text-center">{{unitMsr}}</td>
+			<td class="middle text-center">{{baseCode}}</td>
 			<td class="middle text-center">{{PriceBefDiLabel}}</td>
 			<td class="middle text-center">{{DiscPrcnt}} %</td>
 			<td class="middle text-center">{{backlogs}}</td>
@@ -166,8 +170,10 @@
 					data-code="{{product_code}}"
           data-name="{{product_name}}"
 					data-price="{{Price}}"
+					data-discprcnt="{{DiscPrcnt}}"
 					data-bfprice="{{PriceBefDi}}"
-					data-afprice="{{Price}}"
+					data-afprice="{{PriceAfVAT}}"
+					data-vatperqty="{{VatPerQty}}"
 					data-vatcode="{{vatCode}}"
           data-vatrate="{{vatRate}}"
 					data-unit="{{unitCode}}"
@@ -218,7 +224,8 @@
 					data-backlogs="{{backlogs}}"
           data-price="{{Price}}"
 					data-bfprice="{{PriceBefDi}}"
-					data-afprice="{{Price}}"
+					data-afprice="{{PriceAfVAT}}"
+					data-vatperqty="{{VatPerQty}}"
 					data-discprcnt="{{DiscPrcnt}}"
           data-vatcode="{{vatCode}}"
           data-vatrate="{{vatRate}}"

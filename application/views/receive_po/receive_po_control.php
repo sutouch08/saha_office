@@ -2,7 +2,7 @@
 <div class="row">
 	<div class="col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
 		<label>ใบสั่งซื้อ</label>
-		<input type="text" class="form-control input-sm text-center"	id="po-code" value="121120315" placeholder="ค้นหาใบสั่งซื้อ" />
+		<input type="text" class="form-control input-sm text-center"	id="po-code" value="<?php echo $doc->po_code; ?>" placeholder="ค้นหาใบสั่งซื้อ" />
 	</div>
 	<div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-3 padding-5">
 		<label class="display-block not-show">confirm</label>
@@ -24,33 +24,6 @@
 </div>
 
 <div class="divider-hidden">	</div>
-
-
-
-<div class="modal fade" id="itemGrid" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-	<div class="modal-dialog" id="modal" style="min-width:300px; min-height:400px; max-width:95vw; max-height:95vh;">
-		<div class="modal-content">
-  			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-				<h4 class="modal-title" id="modalTitle">title</h4>
-			 </div>
-			 <div class="modal-body">
-         <div class="row">
-           <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5"
-           id="modalBody"
-           style="position:relative; min-width:250px; min-height:400px; max-width:100%; max-height:60vh; overflow:auto;">
-
-           </div>
-         </div>
-       </div>
-			 <div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal">ปิด</button>
-				<button type="button" class="btn btn-primary" onClick="addItems()" >เพิ่มในรายการ</button>
-			 </div>
-		</div>
-	</div>
-</div>
-
 
 <div class="modal fade" id="poGrid" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog" style="width:900px; max-width:95vw;">
