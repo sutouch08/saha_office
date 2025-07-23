@@ -38,7 +38,7 @@
 	</div>
 	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
 		<label>PO No.</label>
-		<input type="text" class="width-100 text-center r" id="po-no" placeholder="อ้างอิงใบสั่งซื้อ" />
+		<input type="text" class="width-100 text-center r" id="po-no" placeholder="อ้างอิงใบสั่งซื้อ" autocomplete="off" autofocus />
 	</div>
 	<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-3 padding-5">
 		<label>Currency</label>

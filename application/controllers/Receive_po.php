@@ -715,37 +715,83 @@ class Receive_po extends PS_Controller
 
 		if( ! empty($doc))
 		{
-			if($doc->status == 'O')
-			{
-				$arr = array(
-					'status' => 'P',
-					'update_user' => $this->user->uname,
-					'date_upd' => now()
-				);
+			$sap = $this->receive_po_model->get_sap_receive_doc($code);
 
-				if( ! $this->receive_po_model->update($doc->code, $arr))
+			if(empty($sap))
+			{
+				if($doc->status == 'C')
 				{
-					$sc = FALSE;
-					$this->error = "Failed to update document status";
+					$middle = $this->receive_po_model->get_temp_exists_data($code);
+
+					if(!empty($middle))
+					{
+						foreach($middle as $rows)
+						{
+							if( ! $this->receive_po_model->drop_temp_data($rows->DocEntry))
+							{
+								$sc = FALSE;
+								$this->error = "ลบรายการที่ค้างใน temp ไม่สำเร็จ";
+							}
+						}
+					}
 				}
 
 				if($sc === TRUE)
 				{
-					$logs = array(
-						'code' => $code,
-						'user_id' => $this->user->id,
-						'uname' => $this->user->uname,
-						'emp_name' => $this->user->emp_name,
-						'action' => 'rollback'
+					$this->db->trans_begin();
+
+					$arr = array(
+						'status' => 'P',
+						'update_user' => $this->user->uname,
+						'date_upd' => now()
 					);
 
-					$this->receive_po_model->add_logs($logs);
+					if( ! $this->receive_po_model->update($doc->code, $arr))
+					{
+						$sc = FALSE;
+						$this->error = "Failed to update document status";
+					}
+
+					if($sc === TRUE)
+					{
+						$arr = array(
+							'LineStatus' => 'O'
+						);
+
+						if( ! $this->receive_po_model->update_details($doc->code, $arr))
+						{
+							$sc = FALSE;
+							$this->error = "Failed to update row item status";
+						}
+					}
+
+					if($sc === TRUE)
+					{
+						$this->db->trans_commit();
+					}
+					else
+					{
+						$this->db->trans_rollback();
+					}
+
+					if($sc === TRUE)
+					{
+						$logs = array(
+							'code' => $code,
+							'user_id' => $this->user->id,
+							'uname' => $this->user->uname,
+							'emp_name' => $this->user->emp_name,
+							'action' => 'rollback'
+						);
+
+						$this->receive_po_model->add_logs($logs);
+					}
 				}
 			}
 			else
 			{
 				$sc = FALSE;
-				$this->error = "Invalid document status";
+				$this->error = "เอกสารถูกนำเข้า SAP แล้ว หากต้องการเปลี่ยนแปลงกรุณายกเลิกเอกสารใน SAP ก่อน";
 			}
 		}
 		else
@@ -1092,6 +1138,30 @@ class Receive_po extends PS_Controller
 		$this->_response($sc);
 	}
 
+
+	public function get_vendor_by_po_code()
+	{
+		$sc = TRUE;
+
+		$po_code = $this->input->post('po_code');
+
+		$po = $this->receive_po_model->get_po($po_code);
+
+		if(empty($po))
+		{
+			$sc = FALSE;
+			$this->error = "Not found !";
+		}
+
+		$arr = array(
+			'status' => $sc === TRUE ? 'success' : 'failed',
+			'message' => $sc === TRUE ? 'success' : $this->error,
+			'code' => $sc === TRUE ? $po->CardCode : NULL,
+			'name' => $sc === TRUE ? $po->CardName : NULL
+		);
+
+		echo json_encode($arr);
+	}
 
 
 	public function get_new_code($date = NULL)

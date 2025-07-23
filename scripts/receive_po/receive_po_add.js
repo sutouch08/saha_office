@@ -787,7 +787,6 @@ $('#vendor-code').autocomplete({
 });
 
 
-
 $('#vendor-name').focusout(function(event) {
 	if($(this).val() == ''){
 		$('#vendor-code').val('');
@@ -838,7 +837,9 @@ function headerPoInit() {
       var arr = $(this).val().split(' | ');
 
       if(arr.length > 2){
-        $(this).val(arr[0]);
+        $(this).val(arr[0].trim());
+        $('#vendor-code').val(arr[1].trim());
+        $('#vendor-name').val(arr[2].trim());
       }
       else {
         $(this).val('');
@@ -846,6 +847,45 @@ function headerPoInit() {
     }
   });
 }
+
+$('#po-no').keyup(function(e) {
+  if(e.keyCode == 13) {
+    let code = $(this).val().trim();
+
+    if(code.length > 7) {
+
+      $.ajax({
+        url:HOME + 'get_vendor_by_po_code',
+        type:'POST',
+        cache:false,
+        data:{
+          'po_code' : code
+        },
+        success:function(rs) {
+          if(isJson(rs)) {
+            let ds = JSON.parse(rs);
+
+            if(ds.status === 'success') {
+              $('#vendor-code').val(ds.code);
+              $('#vendor-name').val(ds.name);
+
+              $('#remark').focus();
+            }
+            else {
+              showError(ds.message);
+            }
+          }
+          else {
+            showError(rs);
+          }
+        },
+        error:function(rs) {
+          showError(rs);
+        }
+      })
+    }
+  }
+})
 
 
 function unSave(code){

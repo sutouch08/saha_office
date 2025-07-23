@@ -82,7 +82,7 @@ class Auto_complete extends PS_Controller
 
     echo json_encode($sc);
   }
-  
+
 
   public function get_item_code_and_name()
   {
@@ -163,37 +163,33 @@ class Auto_complete extends PS_Controller
     $sc = array();
     $txt = trim($_REQUEST['term']);
 
+    $this->ms->select('DocNum, CardCode, CardName')->where('DocStatus', 'O');
 
     if( ! empty($vendor))
     {
-      $this->ms->select('DocNum, CardCode, CardName')->where('DocStatus', 'O');
       $this->ms->where('CardCode', $vendor);
+    }
 
-      if($txt != '*')
-      {
-        $this->ms->group_start();
-        $this->ms->like('DocNum', $txt);
-        $this->ms->or_like('NumAtCard', $txt);
-        $this->ms->group_end();
-      }
+    if($txt != '*')
+    {
+      $this->ms->group_start();
+      $this->ms->like('DocNum', $txt);
+      $this->ms->or_like('NumAtCard', $txt);
+      $this->ms->group_end();
+    }
 
-      $po = $this->ms->order_by('DocNum', 'ASC')->limit(100)->get('OPOR');
+    $po = $this->ms->order_by('DocNum', 'ASC')->limit(100)->get('OPOR');
 
-      if($po->num_rows() > 0)
+    if($po->num_rows() > 0)
+    {
+      foreach($po->result() as $row)
       {
-        foreach($po->result() as $row)
-        {
-          $sc[] = $row->DocNum. ' | '.$row->CardCode.' | '.$row->CardName;
-        }
-      }
-      else
-      {
-        $sc[] = "not found";
+        $sc[] = $row->DocNum. ' | '.$row->CardCode.' | '.$row->CardName;
       }
     }
     else
     {
-      $sc[] = "กรุณาระบุผู้จำหน่าย";
+      $sc[] = "not found";
     }
 
     echo json_encode($sc);

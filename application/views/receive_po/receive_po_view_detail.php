@@ -5,11 +5,13 @@
 	</div>
   <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 text-right">
 		<button type="button" class="btn btn-white btn-warning top-btn" onclick="goBack()"><i class="fa fa-arrow-left"></i> กลับ</button>
+		<?php if(($doc->status == 'O' && ! $this->isSale) OR (($doc->status == 'C' OR $doc->status == 'D') && ($this->isAdmin OR $this->isSuperAdmin))) : ?>
+			<button type="button" class="btn btn-white btn-primary top-btn" onclick="rollback('<?php echo $doc->code; ?>')"><i class="fa fa-refresh"></i> ย้อนสถานะ</button>
+		<?php endif; ?>
 		<?php if($doc->status == 'C') : ?>
 			<button type="button" class="btn btn-white btn-success top-btn" onclick="sendToSap('<?php echo $doc->code; ?>')"><i class="fa fa-send"></i> Send to SAP</button>
 		<?php endif; ?>
 		<?php if($doc->status == 'O') : ?>
-			<button type="button" class="btn btn-white btn-primary top-btn" onclick="rollback('<?php echo $doc->code; ?>')"><i class="fa fa-refresh"></i> ย้อนสถานะ</button>
 			<button type="button" class="btn btn-white btn-purple top-btn" onclick="process('<?php echo $doc->code; ?>')"><i class="fa fa-qrcode"></i> รับสินค้า</button>
 		<?php endif; ?>
 		<?php if($doc->status == 'P') : ?>

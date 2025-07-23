@@ -15,9 +15,11 @@
 				<li class="primary">
 					<a href="javascript:save('P')">บันทึกเป็นดราฟท์</a>
 				</li>
-				<li class="success">
-					<a href="javascript:save('C')">บันทึกรับเข้าทันที</a>
-				</li>
+				<?php if( ! $this->isSale) : ?>
+					<li class="success">
+						<a href="javascript:save('C')">บันทึกรับเข้าทันที</a>
+					</li>
+				<?php endif; ?>
 				<li class="purple">
 					<a href="javascript:save('O')">บันทึกรอรับ</a>
 				</li>
