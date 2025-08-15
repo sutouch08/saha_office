@@ -171,6 +171,11 @@ class Receive_po_model extends CI_Model
       $this->db->like('invoice_code', $ds['invoice']);
     }
 
+    if( ! empty($ds['sap_no']))
+    {
+      $this->db->like('DocNum', $ds['sap_no']);
+    }
+
     if(isset($ds['warehouse']) && $ds['warehouse'] != 'all')
     {
       $this->db->where('warehouse_code', $ds['warehouse']);
@@ -234,6 +239,11 @@ class Receive_po_model extends CI_Model
     if( ! empty($ds['invoice']))
     {
       $this->db->like('invoice_code', $ds['invoice']);
+    }
+
+    if( ! empty($ds['sap_no']))
+    {
+      $this->db->like('DocNum', $ds['sap_no']);
     }
 
     if(isset($ds['warehouse']) && $ds['warehouse'] != 'all')
@@ -442,7 +452,7 @@ class Receive_po_model extends CI_Model
     return NULL;
   }
 
-  
+
   public function get_sap_doc_num($code)
   {
     $rs = $this->ms->select('DocNum')->where('U_WEBORDER', $code)->where('CANCELED', 'N')->get('OPDN');

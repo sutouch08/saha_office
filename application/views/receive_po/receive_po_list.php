@@ -12,27 +12,32 @@
 <hr class="padding-5"/>
 <form id="searchForm" method="post" action="<?php echo current_url(); ?>">
   <div class="row">
-    <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+    <div class="col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
       <label class="search-label">Web code</label>
       <input type="text" class="form-control input-sm text-center search-box" name="code" value="<?php echo $code; ?>" />
     </div>
 
-    <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+    <div class="col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
       <label class="search-label">Vendor</label>
       <input type="text" class="form-control input-sm text-center search-box" name="vendor" value="<?php echo $vendor; ?>" />
     </div>
 
-    <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+    <div class="col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
       <label class="search-label">PO No.</label>
       <input type="text" class="form-control input-sm text-center search-box" name="po_code" value="<?php echo $po_code; ?>" />
     </div>
 
-    <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+    <div class="col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
       <label class="search-label">Invoice No.</label>
       <input type="text" class="form-control input-sm text-center search-box" name="invoice" value="<?php echo $invoice; ?>" />
     </div>
 
-    <div class="col-lg-2-harf col-md-4 col-sm-4 col-xs-6 padding-5">
+    <div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
+      <label class="search-label">SAP No.</label>
+      <input type="text" class="form-control input-sm text-center search-box" name="sap_no" value="<?php echo $sap_no; ?>" />
+    </div>
+
+    <div class="col-lg-2-harf col-md-4-harf col-sm-4-harf col-xs-6 padding-5">
       <label class="search-label">Warehouse</label>
       <select class="width-100 filter" name="warehouse" id="warehouse">
         <option value="all">All</option>
@@ -40,7 +45,7 @@
       </select>
     </div>
 
-    <div class="col-lg-2-harf col-md-4 col-sm-4 col-xs-6 padding-5">
+    <div class="col-lg-2 col-md-4-harf col-sm-4-harf col-xs-6 padding-5">
       <label>User</label>
       <select class="width-100 filter" name="user" id="user">
         <option value="all">All</option>
@@ -78,11 +83,11 @@
       </div>
     </div>
 
-    <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
+    <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
       <label class="search-label display-block not-show">buton</label>
       <button type="submit" class="btn btn-xs btn-primary btn-block"><i class="fa fa-search"></i> Search</button>
     </div>
-    <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
+    <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
       <label class="search-label display-block not-show">buton</label>
       <button type="button" class="btn btn-xs btn-warning btn-block" onclick="clearFilter()"><i class="fa fa-retweet"></i> Reset</button>
     </div>
