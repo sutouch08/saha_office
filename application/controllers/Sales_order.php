@@ -21,10 +21,11 @@ class Sales_order extends PS_Controller
 
 
 
-  public function index()
-  {
+	public function index()
+	{
 		$filter = array(
 			'WebCode' => get_filter('WebCode', 'so_WebCode', ''),
+			'reference' => get_filter('reference', 'so_reference', ''),
 			'DocNum' => get_filter('DocNum', 'so_DocNum', ''),
 			'SqNo' => get_filter('SqNo', 'so_SqNo', ''),
 			'DeliveryNo' => get_filter('DeliveryNo', 'so_DeliveryNo', ''),
@@ -68,7 +69,7 @@ class Sales_order extends PS_Controller
 			$this->pagination->initialize($init);
 			$this->load->view('sales_order/sales_order_list', $filter);
 		}
-  }
+	}
 
 
 	public function add_new()
@@ -76,15 +77,11 @@ class Sales_order extends PS_Controller
 		$this->title = "New Sales Order";
 
 		$ds = array(
-			'sale_name' => $this->user_model->get_saleman_name($this->user->sale_id)
+		'sale_name' => $this->user_model->get_saleman_name($this->user->sale_id)
 		);
 
 		$this->load->view('sales_order/sales_order_add', $ds);
 	}
-
-
-
-
 
 
 	public function add()
@@ -429,7 +426,6 @@ class Sales_order extends PS_Controller
 	}
 
 
-
 	//--- call from quotation_add.js
 	//---- create sales order from quotation
 	public function create_from_quotation()
@@ -622,8 +618,6 @@ class Sales_order extends PS_Controller
 	}
 
 
-
-
 	function edit($code)
 	{
 		$in_sap = $this->sales_order_model->is_sap_exists_code($code);
@@ -692,7 +686,6 @@ class Sales_order extends PS_Controller
 		}
 
 	}
-
 
 
 	public function update()
@@ -905,8 +898,6 @@ class Sales_order extends PS_Controller
 	}
 
 
-
-
 	//---- Preview Quotation detail
 	public function view_detail($code)
 	{
@@ -966,10 +957,6 @@ class Sales_order extends PS_Controller
 	}
 
 
-
-
-
-
 	//--- ตรวจสอบเงื่อนไขว่าต้องอนุมัติหรือไม่ ถ้าไม่เข้าเงื่อนไข ไม่ต้องอนุมัติ
 	public function must_approve($code)
 	{
@@ -987,8 +974,6 @@ class Sales_order extends PS_Controller
 
 		return FALSE;
 	}
-
-
 
 
 	function get_item_data()
@@ -1101,7 +1086,6 @@ class Sales_order extends PS_Controller
 	}
 
 
-
 	public function get_contact_person()
 	{
 		$sc = TRUE;
@@ -1169,7 +1153,6 @@ class Sales_order extends PS_Controller
 	}
 
 
-
 	public function get_address_ship_to()
 	{
 		$code = trim($this->input->get('CardCode'));
@@ -1210,7 +1193,6 @@ class Sales_order extends PS_Controller
 			echo json_encode($arr);
 		}
 	}
-
 
 
 	public function get_address_bill_to_code()
@@ -1328,8 +1310,6 @@ class Sales_order extends PS_Controller
 	}
 
 
-
-
 	public function get_sale_by_customer()
 	{
 		$code = trim($this->input->get('CardCode'));
@@ -1402,7 +1382,6 @@ class Sales_order extends PS_Controller
 
 		echo $sc === TRUE ? json_encode($arr) : $this->error;
 	}
-
 
 
 	public function doExport($code)
@@ -1564,7 +1543,6 @@ class Sales_order extends PS_Controller
 	}
 
 
-
 	public function unExport($code)
 	{
 		$sc = TRUE;
@@ -1703,7 +1681,6 @@ class Sales_order extends PS_Controller
 	}
 
 
-
 	public function unapprove()
 	{
 		$sc = TRUE;
@@ -1733,8 +1710,6 @@ class Sales_order extends PS_Controller
 	}
 
 
-
-
 	public function reject()
 	{
 		$sc = TRUE;
@@ -1754,8 +1729,6 @@ class Sales_order extends PS_Controller
 
 		$this->response($sc);
 	}
-
-
 
 
 	public function do_approve($code)
@@ -1804,7 +1777,6 @@ class Sales_order extends PS_Controller
 
 		return $sc;
 	}
-
 
 
 	//---- Un approve
@@ -1902,7 +1874,6 @@ class Sales_order extends PS_Controller
 	}
 
 
-
 	public function un_reject($code)
 	{
 		$sc = TRUE;
@@ -1948,8 +1919,6 @@ class Sales_order extends PS_Controller
 
 		return $sc;
 	}
-
-
 
 
 	public function print_sales_order($code)
@@ -2013,6 +1982,7 @@ class Sales_order extends PS_Controller
 		}
 	}
 
+
 	public function add_print_logs($code)
 	{
 		return $this->sales_order_logs_model->add('print', $code);
@@ -2020,12 +1990,12 @@ class Sales_order extends PS_Controller
 
 
 	public function get_temp_data()
-  {
-    $code = $this->input->get('code'); //--- U_WEBORDER
+	{
+		$code = $this->input->get('code'); //--- U_WEBORDER
 
-    $data = $this->sales_order_model->get_temp_data($code);
-    if(!empty($data))
-    {
+		$data = $this->sales_order_model->get_temp_data($code);
+		if(!empty($data))
+		{
 			//$btn = "<button type='button' class='btn btn-sm btn-danger' onClick='removeTemp()'' ><i class='fa fa-trash'></i> Delete Temp</button>";
 
 			$status = 'Pending';
@@ -2061,68 +2031,67 @@ class Sales_order extends PS_Controller
 			}
 
 
-      $arr = array(
-        'U_WEBORDER' => $data->U_WEBORDER,
-        'CardCode' => $data->CardCode,
-        'CardName' => $data->CardName,
-        'F_WebDate' => thai_date($data->F_WebDate, TRUE),
-        'F_SapDate' => empty($data->F_SapDate) ? '-' : thai_date($data->F_SapDate, TRUE),
-        'F_Sap' => $status, //$data->F_Sap === 'Y' ? 'Success' : ($data->F_Sap === 'N' ? 'Failed' : 'Pending'),
-        'Message' => empty($data->Message) ? '' : $data->Message,
+			$arr = array(
+				'U_WEBORDER' => $data->U_WEBORDER,
+				'CardCode' => $data->CardCode,
+				'CardName' => $data->CardName,
+				'F_WebDate' => thai_date($data->F_WebDate, TRUE),
+				'F_SapDate' => empty($data->F_SapDate) ? '-' : thai_date($data->F_SapDate, TRUE),
+				'F_Sap' => $status, //$data->F_Sap === 'Y' ? 'Success' : ($data->F_Sap === 'N' ? 'Failed' : 'Pending'),
+				'Message' => empty($data->Message) ? '' : $data->Message,
 				'del_btn' => ($status === "Pending" OR $status === "Failed") ? 'ok' : ''
-      );
-
-      echo json_encode($arr);
-    }
-    else
-    {
-      echo 'No data found';
-    }
-  }
-
-
-	public function remove_temp()
-  {
-    $sc = TRUE;
-    $code = $this->input->post('U_WEBORDER');
-    $temp = $this->sales_order_model->get_temp_status($code);
-
-    if(empty($temp))
-    {
-      $sc = FALSE;
-      $this->error = "Temp data not exists";
-    }
-    else if($temp->F_Sap === 'Y')
-    {
-      $sc = FALSE;
-      $this->error = "Delete Failed : Temp Data already in SAP";
-    }
-
-    if($sc === TRUE)
-    {
-      if(! $this->sales_order_model->drop_temp_exists_data($code))
-      {
-        $sc = FALSE;
-        $this->error = "Delete Failed : Delete Temp Failed";
-      }
-			else
-			{
-				$arr = array(
-					'Status' => 0,
-					'DocNum' => NULL,
-					'Message' => NULL,
-					'sap_date' => NULL,
-					'temp_date' => NULL
 				);
 
-				$this->sales_order_model->update($code, $arr);
+				echo json_encode($arr);
 			}
-    }
+			else
+			{
+				echo 'No data found';
+			}
+		}
 
 
-    $this->response($sc);
-  }
+		public function remove_temp()
+		{
+			$sc = TRUE;
+			$code = $this->input->post('U_WEBORDER');
+			$temp = $this->sales_order_model->get_temp_status($code);
 
+			if(empty($temp))
+			{
+				$sc = FALSE;
+				$this->error = "Temp data not exists";
+			}
+			else if($temp->F_Sap === 'Y')
+			{
+				$sc = FALSE;
+				$this->error = "Delete Failed : Temp Data already in SAP";
+			}
+
+			if($sc === TRUE)
+			{
+				if(! $this->sales_order_model->drop_temp_exists_data($code))
+				{
+					$sc = FALSE;
+					$this->error = "Delete Failed : Delete Temp Failed";
+				}
+				else
+				{
+					$arr = array(
+						'Status' => 0,
+						'DocNum' => NULL,
+						'Message' => NULL,
+						'sap_date' => NULL,
+						'temp_date' => NULL
+					);
+
+					$this->sales_order_model->update($code, $arr);
+				}
+			}
+
+
+			$this->response($sc);
+		}
 
 
 	public function get_payment_term()
@@ -2182,7 +2151,6 @@ class Sales_order extends PS_Controller
 	}
 
 
-
 	public function get_last_sell_price()
 	{
 		$cardCode = get_null(trim($this->input->get('cardCode')));
@@ -2196,33 +2164,59 @@ class Sales_order extends PS_Controller
 
 
 	public function get_new_code($date = NULL)
-  {
-    $date = empty($date) ? date('Y-m-d') : $date;
-    $Y = date('y', strtotime($date));
-    $M = date('m', strtotime($date));
-    $prefix = getConfig('PREFIX_SALES_ORDER');
-    $run_digit = getConfig('RUN_DIGIT_SALES_ORDER');
-    $pre = $prefix .'-'.$Y.$M;
-    $code = $this->sales_order_model->get_max_code($pre);
-    if(! empty($code))
-    {
-      $run_no = mb_substr($code, ($run_digit*-1), NULL, 'UTF-8') + 1;
-      $new_code = $prefix . '-' . $Y . $M . sprintf('%0'.$run_digit.'d', $run_no);
-    }
-    else
-    {
-      $new_code = $prefix . '-' . $Y . $M . sprintf('%0'.$run_digit.'d', '001');
-    }
+	{
+		$date = empty($date) ? date('Y-m-d') : $date;
+		$Y = date('y', strtotime($date));
+		$M = date('m', strtotime($date));
+		$prefix = getConfig('PREFIX_SALES_ORDER');
+		$run_digit = getConfig('RUN_DIGIT_SALES_ORDER');
+		$pre = $prefix .'-'.$Y.$M;
+		$code = $this->sales_order_model->get_max_code($pre);
+		if(! empty($code))
+		{
+			$run_no = mb_substr($code, ($run_digit*-1), NULL, 'UTF-8') + 1;
+			$new_code = $prefix . '-' . $Y . $M . sprintf('%0'.$run_digit.'d', $run_no);
+		}
+		else
+		{
+			$new_code = $prefix . '-' . $Y . $M . sprintf('%0'.$run_digit.'d', '001');
+		}
 
-    return $new_code;
-  }
+		return $new_code;
+	}
 
+
+	public function get_template_file()
+	{
+		$path = $this->config->item('upload_path').'orders/';
+		$file_name = $path."import_order_template.xlsx";
+
+		if(file_exists($file_name))
+		{
+			header('Content-Description: File Transfer');
+			header('Content-Type:Application/octet-stream');
+			header('Cache-Control: no-cache, must-revalidate');
+			header('Expires: 0');
+			header('Content-Disposition: attachment; filename="'.basename($file_name).'"');
+			header('Content-Length: '.filesize($file_name));
+			header('Pragma: public');
+
+			flush();
+			readfile($file_name);
+			die();
+		}
+		else
+		{
+			echo "File Not Found";
+		}
+	}
 
 
   public function clear_filter()
 	{
 		$filter = array(
 			'so_WebCode',
+			'so_reference',
 			'so_DocNum',
 			'so_SqNo',
 			'so_DeliveryNo',

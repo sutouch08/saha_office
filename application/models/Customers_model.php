@@ -6,6 +6,26 @@ class Customers_model extends CI_Model
     parent::__construct();
   }
 
+  public function get($code)
+  {
+    $rs = $this->ms
+    ->select('C.CardCode, C.CardName, C.GroupCode, C.GroupNum, C.ListNum, C.SlpCode, C.CntctPrsn')
+    ->select('C.CreditLine, C.VatStatus, C.LicTradNum')
+    ->select('P.GroupNum AS TermCode, P.PymntGroup AS TermName')
+    ->from('OCRD AS C')
+    ->join('OCTG AS P', 'C.GroupNum = P.GroupNum', 'left')
+    ->where('C.CardCode', $code)
+    ->get();
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
+
   public function get_sap_contact_data($code)
   {
     $rs = $this->ms

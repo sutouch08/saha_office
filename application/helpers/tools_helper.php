@@ -487,4 +487,23 @@ function baht_text($number, $include_unit = true, $display_zero = true)
     return $text;
 }
 
+
+function parse_address($adr)
+{
+	if( ! empty($adr))
+	{
+		$ad  = empty($adr->Street) ? "" : get_empty_text($adr->Street)." ";
+		$ad .= empty($adr->StreetNo) ? "" : get_empty_text($adr->StreetNo)." ";
+		$ad .= empty($adr->Block) ? "" : get_empty_text($adr->Block)." ";
+		$ad .= empty($adr->City) ? "" : get_empty_text($adr->City)." ";
+		$ad .= empty($adr->County) ? "" : get_empty_text($adr->County)." ";
+		$ad .= empty($adr->ZipCode) ? "" : get_empty_text($adr->ZipCode)." ";
+		$ad .= $adr->Country == 'TH' ? "" : get_empty_text($adr->countryName);
+
+		return trim($ad);
+	}
+
+	return NULL;
+}
+
  ?>

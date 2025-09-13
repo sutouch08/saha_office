@@ -174,6 +174,11 @@ class Sales_order_model extends CI_Model
       $this->db->like('code', $ds['WebCode']);
     }
 
+    if( ! empty($ds['reference']))
+    {
+      $this->db->like('reference', $ds['reference']);
+    }
+    
     if(!empty($ds['CardCode']))
     {
       $this->db->group_start();
@@ -266,6 +271,11 @@ class Sales_order_model extends CI_Model
     if(!empty($ds['WebCode']))
     {
       $this->db->like('code', $ds['WebCode']);
+    }
+
+    if( ! empty($ds['reference']))
+    {
+      $this->db->like('reference', $ds['reference']);
     }
 
     if(!empty($ds['CardCode']))
@@ -462,6 +472,44 @@ class Sales_order_model extends CI_Model
     if($rs->num_rows() === 1)
     {
       return $rs->row()->name;
+    }
+
+    return NULL;
+  }
+
+
+  public function get_active_order_code_by_reference($reference)
+  {
+    $rs = $this->db
+    ->select('code')
+    ->where('reference', $reference)
+    ->get('sales_order');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row()->code;
+    }
+
+    return NULL;
+  }
+
+
+  public function get_series_code($prefix = NULL, $month = NULL)
+  {
+    $month = empty($month) ? date('Y-m') : date('Y-m', strtotime($month));
+    $prefix = empty($prefix) ? getConfig('DEFAULT_SALES_ORDER_SERIES') : $prefix;
+
+    $rs = $this->ms
+    ->select('Series')
+    ->where('ObjectCode', 17)
+    ->where('Indicator', $month)
+    ->where('BeginStr', $prefix)
+    ->order_by('Series', 'ASC')
+    ->get('NNM1');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row()->Series;
     }
 
     return NULL;

@@ -10,14 +10,13 @@ class Item_model extends CI_Model
   public function get($ItemCode)
   {
     $rs = $this->ms
-    ->select('P.ItemCode AS code, P.ItemName AS name, P.UgpEntry, P.IUoMEntry')
+    ->select('P.ItemCode AS code, P.ItemName AS name, P.UgpEntry, P.SUoMEntry, P.IUoMEntry')
     ->select('P.VatGourpSa AS taxCode, P.UserText AS detail, P.ValidComm')
     ->select('P1.Price AS price, P.LstEvlPric AS cost, P.StockValue')
     ->select('T.Rate AS taxRate')
     ->select('P.DfltWH AS dfWhsCode')
     ->from('OITM AS P')
-    ->join('ITM1 AS P1', 'P.ItemCode = P1.ItemCode AND P1.PriceList = 1', 'left')
-    // ->join('ITM1 AS P2', 'P.ItemCode = P2.ItemCode AND P2.PriceList = 2', 'left')
+    ->join('ITM1 AS P1', 'P.ItemCode = P1.ItemCode AND P1.PriceList = 1', 'left')    
     ->join('OVTG AS T', 'T.Code = P.VatGourpSa', 'left')
     ->where('P.ItemCode', $ItemCode)
     ->get();
@@ -74,6 +73,25 @@ class Item_model extends CI_Model
     return NULL;
   }
 
+
+  public function get_uom_by_item_code_and_uom_name($ItemCode, $UomName)
+  {
+    $qr  = "SELECT g.UomEntry, g.BaseQty, u.UomCode, U.UomName, i.ItemCode ";
+    $qr .= "FROM UGP1 AS g ";
+    $qr .= "LEFT JOIN OITM AS i ON i.UgpEntry = g.UgpEntry ";
+    $qr .= "LEFT JOIN OUOM AS u ON g.UomEntry = u.UomEntry ";
+    $qr .= "WHERE i.ItemCode = '{$ItemCode}' ";
+    $qr .= "AND u.UomName = N'{$UomName}' ";
+
+    $rs = $this->ms->query($qr);
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
 
 
   public function get_uom_list($UgpEntry)
@@ -132,6 +150,20 @@ class Item_model extends CI_Model
   }
 
 
+  public function get_uom_code($UomEntry)
+  {
+    $rs = $this->ms
+    ->select('UomCode')
+    ->where('UomEntry', $UomEntry)
+    ->get('OUOM');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->UomCode;
+    }
+
+    return NULL;
+  }
 
   public function get_uom_name($UomCode)
   {
@@ -264,13 +296,14 @@ class Item_model extends CI_Model
   {
     if($uom !== NULL)
     {
-      $qr = "SELECT TOP(1) Price
-              FROM OINV A
-              INNER JOIN INV1 B ON A.DocEntry = B.DocEntry
-              WHERE B.ItemCode = '{$itemCode}'
-              AND A.CardCode = '{$cardCode}'
-              AND B.UomEntry = {$uom}
-              ORDER BY A.DocDate DESC";
+      $qr  = "SELECT TOP(1) Price ";
+      $qr .= "FROM OINV A ";
+      $qr .= "INNER JOIN INV1 B ON A.DocEntry = B.DocEntry ";
+      $qr .= "WHERE B.ItemCode = '{$itemCode}' ";
+      $qr .= "AND A.CardCode = '{$cardCode}' ";
+      $qr .= "AND B.UomEntry = {$uom} ";
+      $qr .= "ORDER BY A.DocDate DESC";
+
       $rs = $this->ms->query($qr);
 
       if($rs->num_rows() === 1)

@@ -11,12 +11,171 @@ class Export
     $this->ci =& get_instance();
 	}
 
+  public function export_order($code)
+  {
+    $sc = TRUE;
+    $this->ci->load->model('sales_order_model');
+    $doc = $this->ci->sales_order_model->get($code);
+
+    if( ! empty($doc))
+    {
+      if($doc->Status != 2 && ($doc->must_approve == 0 OR ($doc->Approved == 'A' OR $doc->Approved == 'S' )))
+      {
+        $so = $this->ci->sales_order_model->get_sap_sales_order($code);
+
+        if(empty($so))
+				{
+					//---- drop exists temp data
+					$temp = $this->ci->sales_order_model->get_temp_sales_order($code);
+
+					if( ! empty($temp))
+		      {
+		        foreach($temp as $rows)
+		        {
+		          if($this->ci->sales_order_model->drop_sales_order_temp_data($rows->DocEntry) === FALSE)
+		          {
+		            $sc = FALSE;
+		            $this->error = "ลบรายการที่ค้างใน Temp ไม่สำเร็จ";
+		          }
+		        }
+		      }
+
+					if($sc === TRUE)
+					{
+						$header = array(
+							'DocDate' => sap_date($doc->DocDate, TRUE),
+							'DocDueDate' => sap_date($doc->DocDueDate, TRUE),
+							'CardCode' => $doc->CardCode,
+							'CardName' => $doc->CardName,
+							'PayToCode' => $doc->PayToCode,
+							//'Address' => $doc->Address,
+							'ShipToCode' => $doc->ShipToCode,
+							//'Address2' => $doc->Address2,
+							'NumAtCard' => $doc->NumAtCard,
+							'VatSum' => $doc->VatSum,
+							'DiscPrcnt' => $doc->DiscPrcnt,
+							'DiscSum' => ($this->ci->sales_order_model->sum_line_total($code) * ($doc->DiscPrcnt * 0.01)),
+							'DocCur' => $doc->DocCur,
+							'DocRate' => $doc->DocRate,
+							'RoundDif' => $doc->RoundDif,
+							'DocTotal' => $doc->DocTotal,
+							'TaxDate' => sap_date($doc->TextDate, TRUE), //--- Tax date
+							'Series' => $doc->Series,
+							'SlpCode' => $doc->SlpCode,
+							'OwnerCode' => $doc->OwnerCode,
+							'CntctCode' => $doc->CntctCode,
+							'Comments' => $doc->Comments,
+							'U_WEBORDER' => $doc->code,
+							'U_ORIGINALSO' => $doc->U_ORIGINALSO,
+							'U_SQNO' => $doc->U_SQNO,
+							'U_Remark_Int' => $doc->U_Remark_Int,
+							'U_IV_DO_print' => $doc->U_DO_IV_Print,
+							'U_Delivery_Urgency' => $doc->U_Delivery_Urgency,
+							'F_Web' => 'A',
+							'F_WebDate' => sap_date(now(), TRUE),
+							'U_Required_Delivery_Date' => sap_date($doc->DocDueDate)
+						);
+
+						$docEntry = $this->ci->sales_order_model->add_sap_sales_order($header);
+
+						if($docEntry !== FALSE)
+						{
+							$details = $this->ci->sales_order_model->get_details($code);
+
+							if( ! empty($details))
+							{
+								$seqNum = 0;
+
+								foreach($details as $rs)
+								{
+									//---- if text row
+									if($rs->Type == 1)
+									{
+										$arr = array(
+											'DocEntry' => $docEntry,
+											'LineSeq' => $seqNum,
+											'LineText' => $rs->LineText,
+											'AftLineNum' => $rs->AfLineNum,
+											'U_WEBORDER' => $rs->sales_order_code
+										);
+
+										$this->ci->sales_order_model->add_sap_sales_order_text_row($arr);
+										$seqNum++;
+									}
+									else
+									{
+										$arr = array(
+											'DocEntry' => $docEntry,
+											'U_WEBORDER' => $rs->sales_order_code,
+											'LineNum' => $rs->LineNum,
+											'ItemCode' => $rs->ItemCode,
+											'Dscription' => $rs->Dscription,
+											'Quantity' => $rs->Qty,
+											'UomCode' => $rs->UomCode,
+											'Price' => $rs->SellPrice,
+											'LineTotal' => $rs->LineTotal,
+											'DiscPrcnt' => $rs->DiscPrcnt,
+											'PriceBefDi' => $rs->Price,
+											'Currency' => $doc->DocCur,
+											'Rate' => $doc->DocRate,
+											'VatGroup' => $rs->VatGroup,
+											'VatPrcnt' => $rs->VatRate,
+											'PriceAfVAT' => (($rs->VatRate * 0.01) + 1) * $rs->SellPrice,
+											'VatSum' => ($rs->VatRate * 0.01) * $rs->LineTotal,
+											'GTotal' => (($rs->VatRate * 0.01) + 1) * $rs->LineTotal,
+											'WhsCode' => $rs->WhsCode,
+											'SlpCode' => $doc->SlpCode,
+											'Text' => $rs->ItemDetail,
+											'FreeTxt' => $rs->FreeText,
+											'OcrCode' => $doc->OcrCode,
+											'OcrCode2' => $doc->OcrCode1,
+											'OwnerCode' => $doc->OwnerCode,
+											'U_DISWEB' => $rs->U_DISWEB,
+											'U_DISCEX' => $rs->U_DISCEX,
+											'U_SO_LSALEPRICE' => $rs->lastSellPrice
+										);
+
+										$this->ci->sales_order_model->add_sap_sales_order_row($arr);
+									}
+
+								} //--- end foreach details
+							} //-- end if empty details
+
+						} //--- end if docEntry
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "เอกสารถูกนำเข้า SAP แล้ว";
+				}
+      }
+    }
+    else
+    {
+      $sc = FALSE;
+      $this->error = "ไม่พบเอกสาร {$code}";
+    }
+
+    if($sc === TRUE)
+		{
+			$arr = array(
+				'Status' => 1,
+				'temp_date' => now()
+			);
+
+			$this->ci->sales_order_model->update($code, $arr);
+		}
+
+    return $sc;
+  }
+
   //--- Receive PO
   //--- OPDN PDN1
   public function export_receive($code)
   {
     $sc = TRUE;
-    $this->ci->load->model('inventory/receive_po_model');
+    $this->ci->load->model('receive_po_model');
     $doc = $this->ci->receive_po_model->get($code);
     $sap = $this->ci->receive_po_model->get_sap_receive_doc($code);
 
