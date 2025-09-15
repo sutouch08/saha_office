@@ -936,10 +936,14 @@ class Sales_order extends PS_Controller
 							'Status' => -1
 						);
 
-						if( ! $this->sales_order_model->update($code, $arr))
+						if( ! $this->sales_order_model->update($code, ['Status' => -1]))
 						{
 							$sc = FALSE;
 							$this->error = "Failed to update Document status";
+						}
+						else
+						{
+							$this->sales_order_logs_model->add('cancel', $code);
 						}
 					}
 				}

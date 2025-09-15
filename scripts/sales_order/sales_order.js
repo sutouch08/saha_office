@@ -212,10 +212,12 @@ function cancelSo(code)
             }, 1200);
           }
           else {
+            beep();
             showError(rs);
           }
         },
         error:function(rs) {
+          beep();
           showError(rs);
         }
       })
