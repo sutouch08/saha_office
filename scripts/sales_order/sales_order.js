@@ -174,47 +174,53 @@ function goDetail(code){
 
 
 
-function getDelete(code)
+function cancelSo(code)
 {
+  swal({
+    title: "คุณแน่ใจ ?",
+    text: "ต้องการยกเลิก '"+code+"' หรือไม่?",
+    type: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#DD6B55",
+    confirmButtonText: 'ยืนยัน',
+    cancelButtonText: 'ยกเลิก',
+    closeOnConfirm: true
+  }, function(){
+    setTimeout(() => {
+      load_in();
 
-	swal({
-		title: "คุณแน่ใจ ?",
-		text: "ต้องการยกเลิก '"+code+"' หรือไม่?",
-		type: "warning",
-		showCancelButton: true,
-		confirmButtonColor: "#DD6B55",
-		confirmButtonText: 'ยืนยัน',
-		cancelButtonText: 'ยกเลิก',
-		closeOnConfirm: false
-		}, function(){
-			load_in();
-			$.ajax({
-				url: BASE_URL + 'orders/sales_order/cancle_sales_order',
-				type:"GET",
-        cache:"false",
-				data:{
-					'code' : code
-				},
-				success: function(rs){
-					load_out();
-					var rs = $.trim(rs);
-					if( rs == 'success' ){
-						swal({
-							title:'Success',
-							text:'ยกเลิกรายการเรียบร้อยแล้ว',
-							type:'success',
-							timer:1000
-						});
+      $.ajax({
+        url:HOME + 'cancel',
+        type:'POST',
+        cache:false,
+        data:{
+          'code' : code
+        },
+        success:function(rs) {
+          load_out();
 
-						setTimeout(function(){
-							window.location.reload();
-						},1200);
-					}else{
-						swal("Error !", rs , "error");
-					}
-				}
-			});
-	});
+          if(rs.trim() === 'success') {
+            swal({
+              title:'Canceled',
+              text:'ยกเลิกเอกสารเรียบร้อยแล้ว',
+              type:'success',
+              timer:1000
+            })
+
+            setTimeout(() => {
+              window.location.reload();
+            }, 1200);
+          }
+          else {
+            showError(rs);
+          }
+        },
+        error:function(rs) {
+          showError(rs);
+        }
+      })
+    }, 200);
+  });
 }
 
 

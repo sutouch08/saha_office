@@ -36,6 +36,9 @@
 				<?php if(($header->Status == 1 OR $header->Status == 3) && ($header->Approved === 'A' OR $header->Approved === 'S')) : ?>
 					<button type="button" class="btn btn-xs btn-success" onclick="sendToSAP()"><i class="fa fa-send"></i> Send To SAP</button>
 				<?php endif; ?>
+				<?php if($header->Status >= 0) : ?>
+					<button type="button" class="btn btn-xs btn-danger" onclick="cancelSo('<?php echo $header->code; ?>')"><i class="fa fa-times"></i> Cancel</button>
+				<?php endif; ?>
       </p>
     </div>
 </div><!-- End Row -->
@@ -50,7 +53,7 @@
 	{
 		$this->load->view('cancle_watermark');
 	}
-	?>
+?>
 
 <input type="hidden" name="code" id="code" value="<?php echo $header->code; ?>" />
 <input type="hidden" id="sq-code" value="<?php echo $header->code; ?>" />

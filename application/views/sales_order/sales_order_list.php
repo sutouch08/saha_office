@@ -136,8 +136,9 @@
 			<option value="0" <?php echo is_selected('0', $Status); ?>>Not Export</option>
 			<option value="1" <?php echo is_selected('1', $Status); ?>>Pending</option>
 			<option value="2" <?php echo is_selected('2', $Status); ?>>Success</option>
-			<option value="3" <?php echo is_selected('3', $Status); ?>>Error</option>
+			<option value="3" <?php echo is_selected('3', $Status); ?>>Failed</option>
 			<option value="9" <?php echo is_selected('9', $Status); ?>>Draft</option>
+			<option value="-1" <?php echo is_selected('-1', $Status); ?>>Canceled</option>
 		</select>
   </div>
 
@@ -244,6 +245,9 @@
 
 							<?php if($rs->Status == 9) : ?>
 								<span class="btn btn-minier btn-purple btn-block">Draft</span>
+							<?php endif; ?>
+							<?php if($rs->Status == -1) : ?>
+								<span class="btn btn-minier btn-default btn-block">Canceled</span>
 							<?php endif; ?>
 						</td>
 						<td class="middle fix-date" scope="row"><?php echo thai_date($rs->DocDate, FALSE,'/'); ?></td>

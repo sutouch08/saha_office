@@ -898,6 +898,67 @@ class Sales_order extends PS_Controller
 	}
 
 
+	public function cancel()
+	{
+		$sc = TRUE;
+
+		$code = $this->input->post('code');
+
+		$doc = $this->sales_order_model->get($code);
+
+		if( ! empty($doc))
+		{
+			if($doc->Status >= 0)
+			{
+				//--- check sap
+				$in_sap = $this->sales_order_model->is_sap_exists_code($code);
+
+				if( ! $in_sap)
+				{
+					//---- drop exists temp data
+					$temp = $this->sales_order_model->get_temp_sales_order($code);
+
+					if( ! empty($temp))
+		      {
+		        foreach($temp as $rows)
+		        {
+		          if( ! $this->sales_order_model->drop_sales_order_temp_data($rows->DocEntry))
+		          {
+		            $sc = FALSE;
+		            $this->error = "ลบรายการที่ค้างใน Temp ไม่สำเร็จ";
+		          }
+		        }
+		      }
+
+					if($sc === TRUE)
+					{
+						$arr = array(
+							'Status' => -1
+						);
+
+						if( ! $this->sales_order_model->update($code, $arr))
+						{
+							$sc = FALSE;
+							$this->error = "Failed to update Document status";
+						}
+					}
+				}
+				else
+				{
+					$sc = FALSE;
+					$this->error = "เอกสารเข้า SAP แล้ว กรุณายกเลิกเอกสารใน SAP ก่อนยกเลิกเอกสารนี้";
+				}
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "ไม่พบเลขที่เอกสาร";
+		}
+
+		$this->_response($sc);
+	}
+
 	//---- Preview Quotation detail
 	public function view_detail($code)
 	{

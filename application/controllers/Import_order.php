@@ -86,6 +86,7 @@ class Import_order extends PS_Controller
 
         $VatRate = getConfig('SALE_VAT_RATE');
         $VatRate = empty($VatRate) ? 0.07 : $VatRate * 0.01;
+        $DefaultWarehouse = getConfig('DEFAULT_WAREHOUSE');
 
         if($sc === TRUE)
         {
@@ -105,7 +106,9 @@ class Import_order extends PS_Controller
               $order_code = $this->sales_order_model->get_active_order_code_by_reference($order->reference);
 
               $DocTotal = 0;
-              $TaxAmount = 0;
+              $TotalAmount = 0; // total amount before tax
+              $TaxAmount = 0; //
+              $DiscPrcnt = 0;
 
               if( empty($order_code) )
               {
@@ -189,7 +192,7 @@ class Import_order extends PS_Controller
           							'VatGroup' => $rs->VatGroup,
           							'VatRate' => $rs->VatRate,
           							'LineTotal' => round($rs->LineTotalBefTax, 2),
-          							'WhsCode' => $rs->WhsCode
+          							'WhsCode' => empty($rs->WhsCode) ? $DefaultWarehouse : $rs->WhsCode
           						);
 
                       if( ! $this->sales_order_model->add_detail($arr))
@@ -199,6 +202,7 @@ class Import_order extends PS_Controller
                       }
                       else
                       {
+                        $TotalAmount += $rs->LineTotalBefTax;
                         $DocTotal += round($rs->LineTotalAfTax, 2);
                         $TaxAmount += $rs->VatRate > 0 ? $rs->LineTotalBefTax : 0;
                       }
@@ -241,7 +245,7 @@ class Import_order extends PS_Controller
           							'VatGroup' => $taxCode,
           							'VatRate' => $taxRate,
           							'LineTotal' => $priceBefTax,
-          							'WhsCode' => NULL
+          							'WhsCode' => empty($shipping_item->dfWhsCode) ? $DefaultWarehouse : $shipping_item->dfWhsCode
           						);
 
                       if( ! $this->sales_order_model->add_detail($arr))
@@ -251,6 +255,7 @@ class Import_order extends PS_Controller
                       }
                       else
                       {
+                        $TotalAmount += $priceBefTax;
                         $DocTotal += $price;
                         $TaxAmount += $taxRate > 0 ? $priceBefTax : 0;
                       }
@@ -263,9 +268,18 @@ class Import_order extends PS_Controller
                 //-- add state
                 if($res === TRUE)
                 {
+                  $billDiscAmount = $order->billDiscAmount > 0 ? $order->billDiscAmount : 0;
+                  $DiscPrcnt = $TotalAmount > 0 ? round(($billDiscAmount / $TotalAmount) * 100, 2) : 0;
+                  $amountAfterDisc = $TotalAmount - $billDiscAmount;
+                  $totalDiscTax = $TaxAmount * $DiscPrcnt; //--- ส่วนลดที่คำนวนจากยอดที่ต้องคิด VAT เท่านั้น
+                  $amountToPayTax = $TaxAmount - $totalDiscTax;
+                  $VatSum = round($amountToPayTax * $VatRate, 2);
+                  $DocTotal = round($amountAfterDisc + $VatSum, 2);
+
                   $arr = array(
                     'DocTotal' => $DocTotal,
-                    'VatSum' => $TaxAmount * $VatRate
+                    'VatSum' => $TaxAmount * $VatRate,
+                    'DiscPrcnt' => $DiscPrcnt
                   );
 
                   $this->sales_order_model->update($order_code, $arr);
@@ -391,7 +405,7 @@ class Import_order extends PS_Controller
                 							'VatGroup' => $rs->VatGroup,
                 							'VatRate' => $rs->VatRate,
                 							'LineTotal' => round($rs->LineTotalBefTax, 2),
-                							'WhsCode' => $rs->WhsCode
+                							'WhsCode' => empty($rs->WhsCode) ? $DefaultWarehouse : $rs->WhsCode
                 						);
 
                             if( ! $this->sales_order_model->add_detail($arr))
@@ -401,6 +415,7 @@ class Import_order extends PS_Controller
                             }
                             else
                             {
+                              $TotalAmount += $rs->LineTotalBefTax;
                               $DocTotal += round($rs->LineTotalAfTax, 2);
                               $TaxAmount += $rs->VatRate > 0 ? $rs->LineTotalBefTax : 0;
                             }
@@ -444,7 +459,7 @@ class Import_order extends PS_Controller
                 							'VatGroup' => $taxCode,
                 							'VatRate' => $taxRate,
                 							'LineTotal' => $priceBefTax,
-                							'WhsCode' => NULL
+                							'WhsCode' => empty($shipping_item->dfWhsCode) ? $DefaultWarehouse : $shipping_item->dfWhsCode
                 						);
 
                             if( ! $this->sales_order_model->add_detail($arr))
@@ -454,6 +469,7 @@ class Import_order extends PS_Controller
                             }
                             else
                             {
+                              $TotalAmount += $priceBefTax;
                               $DocTotal += $price;
                               $TaxAmount += $taxRate > 0 ? $priceBefTax : 0;
                             }
@@ -467,9 +483,18 @@ class Import_order extends PS_Controller
                     //-- add state
                     if($res === TRUE)
                     {
+                      $billDiscAmount = $order->billDiscAmount > 0 ? $order->billDiscAmount : 0;
+                      $DiscPrcnt = $TotalAmount > 0 ? round(($billDiscAmount / $TotalAmount) * 100, 2) : 0;
+                      $amountAfterDisc = $TotalAmount - $billDiscAmount;
+                      $totalDiscTax = $TaxAmount * $DiscPrcnt; //--- ส่วนลดที่คำนวนจากยอดที่ต้องคิด VAT เท่านั้น
+                      $amountToPayTax = $TaxAmount - $totalDiscTax;
+                      $VatSum = round($amountToPayTax * $VatRate, 2);
+                      $DocTotal = round($amountAfterDisc + $VatSum, 2);
+
                       $arr = array(
                         'DocTotal' => $DocTotal,
-                        'VatSum' => $TaxAmount * $VatRate
+                        'VatSum' => $TaxAmount * $VatRate,
+                        'DiscPrcnt' => $DiscPrcnt
                       );
 
                       $this->sales_order_model->update($order_code, $arr);
@@ -562,7 +587,7 @@ class Import_order extends PS_Controller
   }
 
 
-	private function parse_order_data($sheet)
+  private function parse_order_data($sheet)
   {
     $sc = TRUE;
 
@@ -605,7 +630,7 @@ class Import_order extends PS_Controller
         'F' => 'Qty',
         'G' => 'Uom',
         'H' => 'Sell Price',
-        'I' => 'Total Amount',
+        'I' => 'Bill Discount',
         'J' => 'Shipping Fee',
         'K' => 'Remark',
         'L' => 'Force Update'
@@ -696,9 +721,9 @@ class Import_order extends PS_Controller
                     $billTo = $this->customers_model->get_address_bill_to($customer_code);
                     $shipTo = $this->customers_model->get_address_ship_to($customer_code);
 
-                    $customer->BillToCode = empty($billTo) ? '0000' : $billTo->Address;
+                    $customer->BillToCode = empty($billTo) ? NULL : $billTo->Address;
                     $customer->Address = empty($billTo) ? NULL : parse_address($billTo);
-                    $customer->ShipToCode = empty($shipTo) ? '0000' : $shipTo->Address;
+                    $customer->ShipToCode = empty($shipTo) ? NULL : $shipTo->Address;
                     $customer->Address2 = empty($shipTo) ? NULL : parse_address($shipTo);
                     $customer->customerTax = $this->customers_model->get_tax($customer_code);
 
@@ -763,6 +788,9 @@ class Import_order extends PS_Controller
                 $shipping_fee = empty($rs['J']) ? 0.00 : trim($rs['J']);
                 $shipping_fee = is_numeric($shipping_fee) ? $shipping_fee : 0.00;
 
+                $billDiscount = empty($rs['I']) ? 0.00 : str_replace(",", "", $rs['I']);
+                $billDiscount = is_numeric($billDiscount) ? $billDiscount : 0;
+
                 //-- remark
                 $remark = get_null(trim($rs['K']));
 
@@ -799,53 +827,54 @@ class Import_order extends PS_Controller
                 $LineTotalAfTax = $price * $qty;
 
                 $ds[$ref_code] = (object) array(
-                  'reference' => $ref_code,
-          				'CardCode' => $customer->CardCode,
-          				'CardName' => $customer->CardName,
-                  'CustomerTaxCode' => empty($customerTax) ? NULL : $customerTax->taxCode,
-                  'CustomerTaxRate' => empty($customerTax) ? NULL : $customerTax->taxRate,
-          				'SlpCode' => $this->user->sale_id,
-          				'GroupNum' => $customer->GroupNum,
-          				'Term' => $customer->TermName,
-                  'PayToCode' => $customer->BillToCode,
-                  'ShipToCode' => $customer->ShipToCode,
-                  'Address' => $customer->Address,
-                  'Address2' => $customer->Address2,
-          				'Series' => $series,
-          				'BeginStr' => $prefix,
-          				'DocDate' => sap_date($date_add, TRUE),
-          				'DocDueDate' => sap_date($date_add, TRUE),
-          				'TextDate' => sap_date($date_add, TRUE),
-          				'OwnerCode' => $this->user->emp_id,
-          				'Comments' => $remark,
-          				'U_DO_IV_Print' => 'เปิดบิล IV',
-          				'U_Delivery_Urgency' => 'ส่งทันทีเมื่อพร้อม',
-          				'user_id' => $this->user->id,
-          				'uname' => $this->user->uname,
-          				'sale_team' => $this->user->sale_team,
-                  'shipping_fee' => $shipping_fee,
-                  'force_update' => (trim($rs['L']) == 1 OR trim($rs['L']) == 'Y' OR trim($rs['L']) == 'y') ? TRUE : FALSE,
-                  'items' => []
-          			);
+                'reference' => $ref_code,
+                'CardCode' => $customer->CardCode,
+                'CardName' => $customer->CardName,
+                'CustomerTaxCode' => empty($customerTax) ? NULL : $customerTax->taxCode,
+                'CustomerTaxRate' => empty($customerTax) ? NULL : $customerTax->taxRate,
+                'SlpCode' => $this->user->sale_id,
+                'GroupNum' => $customer->GroupNum,
+                'Term' => $customer->TermName,
+                'PayToCode' => $customer->BillToCode,
+                'ShipToCode' => $customer->ShipToCode,
+                'Address' => $customer->Address,
+                'Address2' => $customer->Address2,
+                'Series' => $series,
+                'BeginStr' => $prefix,
+                'DocDate' => sap_date($date_add, TRUE),
+                'DocDueDate' => sap_date($date_add, TRUE),
+                'TextDate' => sap_date($date_add, TRUE),
+                'OwnerCode' => $this->user->emp_id,
+                'Comments' => $remark,
+                'U_DO_IV_Print' => 'เปิดบิล IV',
+                'U_Delivery_Urgency' => 'ส่งทันทีเมื่อพร้อม',
+                'user_id' => $this->user->id,
+                'uname' => $this->user->uname,
+                'sale_team' => $this->user->sale_team,
+                'shipping_fee' => $shipping_fee,
+                'billDiscAmount' => $billDiscount,
+                'force_update' => (trim($rs['L']) == 1 OR trim($rs['L']) == 'Y' OR trim($rs['L']) == 'y') ? TRUE : FALSE,
+                'items' => []
+                );
 
                 $row = (object) array(
-    							'ItemCode' => $item->code,
-    							'Dscription' => $item->name,
-                  'ItemDetail' => $item->detail,
-    							'Qty' => $qty,
-    							'UomCode' => get_null($uomCode),
-    							'lastSellPrice' => $last_sell_price,
-    							'basePrice' => $item->price,
-    							'stdPrice' => $item->price,
-    							'Price' => $priceBefTax,
-    							'priceDiffPercent' => $priceDiffPercent,
-    							'SellPrice' => $priceBefTax,
-    							'VatGroup' => $item->taxCode,
-    							'VatRate' => $item->taxRate,
-    							'LineTotalBefTax' => $LineTotalBefTax,
-                  'LineTotalAfTax' => $LineTotalAfTax,
-    							'WhsCode' => get_null($item->dfWhsCode)
-    						);
+                'ItemCode' => $item->code,
+                'Dscription' => $item->name,
+                'ItemDetail' => $item->detail,
+                'Qty' => $qty,
+                'UomCode' => get_null($uomCode),
+                'lastSellPrice' => $last_sell_price,
+                'basePrice' => $item->price,
+                'stdPrice' => $item->price,
+                'Price' => $priceBefTax,
+                'priceDiffPercent' => $priceDiffPercent,
+                'SellPrice' => $priceBefTax,
+                'VatGroup' => $item->taxCode,
+                'VatRate' => $item->taxRate,
+                'LineTotalBefTax' => $LineTotalBefTax,
+                'LineTotalAfTax' => $LineTotalAfTax,
+                'WhsCode' => get_null($item->dfWhsCode)
+                );
 
                 $ds[$ref_code]->items[$item->code] = $row;
               }
@@ -947,22 +976,22 @@ class Import_order extends PS_Controller
                 if( ! $isUpdate)
                 {
                   $row = (object) array(
-                    'ItemCode' => $item->code,
-                    'Dscription' => $item->name,
-                    'ItemDetail' => $item->detail,
-                    'Qty' => $qty,
-                    'UomCode' => get_null($uomCode),
-                    'lastSellPrice' => $last_sell_price,
-                    'basePrice' => $item->price,
-                    'stdPrice' => $item->price,
-                    'Price' => $priceBefTax,
-                    'priceDiffPercent' => $priceDiffPercent,
-                    'SellPrice' => $priceBefTax,
-                    'VatGroup' => $item->taxCode,
-                    'VatRate' => $item->taxRate,
-                    'LineTotalBefTax' => $LineTotalBefTax,
-                    'LineTotalAfTax' => $LineTotalAfTax,
-                    'WhsCode' => get_null($item->dfWhsCode)
+                  'ItemCode' => $item->code,
+                  'Dscription' => $item->name,
+                  'ItemDetail' => $item->detail,
+                  'Qty' => $qty,
+                  'UomCode' => get_null($uomCode),
+                  'lastSellPrice' => $last_sell_price,
+                  'basePrice' => $item->price,
+                  'stdPrice' => $item->price,
+                  'Price' => $priceBefTax,
+                  'priceDiffPercent' => $priceDiffPercent,
+                  'SellPrice' => $priceBefTax,
+                  'VatGroup' => $item->taxCode,
+                  'VatRate' => $item->taxRate,
+                  'LineTotalBefTax' => $LineTotalBefTax,
+                  'LineTotalAfTax' => $LineTotalAfTax,
+                  'WhsCode' => get_null($item->dfWhsCode)
                   );
 
                   $ds[$ref_code]->items[$item->code] = $row;
