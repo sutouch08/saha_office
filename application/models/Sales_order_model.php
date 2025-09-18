@@ -178,7 +178,7 @@ class Sales_order_model extends CI_Model
     {
       $this->db->like('reference', $ds['reference']);
     }
-    
+
     if(!empty($ds['CardCode']))
     {
       $this->db->group_start();
@@ -483,6 +483,7 @@ class Sales_order_model extends CI_Model
     $rs = $this->db
     ->select('code')
     ->where('reference', $reference)
+    ->where('status !=', -1)
     ->get('sales_order');
 
     if($rs->num_rows() > 0)
