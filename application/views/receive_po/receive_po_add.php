@@ -36,7 +36,7 @@
 		<label>ใบส่งสินค้า</label>
 		<input type="text" class="width-100 text-center r" id="invoice" placeholder="ใบส่งสินค้า" />
 	</div>
-	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-2 col-md-1-harf col-sm-2 col-xs-6 padding-5">
 		<label>PO No.</label>
 		<input type="text" class="width-100 text-center r" id="po-no" placeholder="อ้างอิงใบสั่งซื้อ" autocomplete="off" autofocus />
 	</div>
@@ -51,22 +51,19 @@
 		<input type="number" class="width-100 text-center r" id="DocRate" value="1.00" />
 	</div>
 
-	<div class="col-lg-3 col-md-2-harf col-sm-4 col-xs-6 padding-5">
+	<div class="col-lg-4 col-md-2-harf col-sm-4 col-xs-6 padding-5">
 		<label>คลัง</label>
 		<select class="width-100 r" id="warehouse" onchange="changeWhs()">
 			<option value="">Select</option>
-			<?php echo select_warehouse(getConfig('INBOUND_WAREHOUSE')); ?>
+			<?php echo select_warehouse($whsCode); ?>
 		</select>
 	</div>
-	<?php $inbound_zone = getConfig('INBOUND_ZONE'); ?>
-	<?php $inbound_zone_name = $this->zone_model->getName($inbound_zone); ?>
-	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
+	<div class="col-lg-4 col-md-3-harf col-sm-4 col-xs-8 padding-5">
 		<label>Bin Location</label>
-		<input type="text" class="width-100 text-center r" id="zone-code" placeholder="Bin Location" value="<?php echo $inbound_zone; ?>" />
-	</div>
-	<div class="col-lg-3-harf col-md-1-harf col-sm-2 col-xs-8 padding-5">
-		<label class="not-show">bin name</label>
-		<input type="text" class="width-100 r" id="zone-name" value="<?php echo $inbound_zone_name; ?>" readonly />
+		<select class="width-100 r" id="zone-code">
+			<option value="" data-whs="" data-name="">Select</option>
+			<?php echo select_zone($binCode, $whsCode); ?>
+		</select>
 	</div>
 	<div class="col-lg-11 col-md-10-harf col-sm-6-harf col-xs-12 padding-5">
 		<label>หมายเหตุ</label>
@@ -84,6 +81,10 @@
 </div>
 <hr class="margin-top-10 margin-bottom-10"/>
 
+<script>
+	$('#warehouse').select2();
+	$('#zone-code').select2();
+</script>
 <script src="<?php echo base_url(); ?>scripts/receive_po/receive_po.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/receive_po/receive_po_add.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

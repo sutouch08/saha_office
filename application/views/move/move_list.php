@@ -83,18 +83,18 @@
 
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive">
-		<table class="table table-striped table-hover border-1 dataTable" >
+		<table class="table table-bordered table-hover border-1 dataTable" style="min-width:1100px;">
 			<thead>
-				<tr>
-					<th style="width:50px;" class="middle text-center">#</th>
-					<th style="width:100px;" class="middle text-center sorting <?php echo $sort_DocDate; ?>" id="sort_DocDate" onclick="sort('DocDate')">Date</th>
-					<th style="width:150px;" class="middle text-center sorting <?php echo $sort_code; ?>" id="sort_code" onclick="sort('code')">Web Code</th>
-					<th style="width:150px;" class="middle text-center sorting <?php echo $sort_DocNum; ?>" id="sort_DocNum" onclick="sort('DocNum')">Transfer No.</th>
-					<th style="width:150px;" class="middle text-center sorting <?php echo $sort_fromWhs; ?>" id="sort_fromWhsCode" onclick="sort('fromWhsCode')">From Whs.</th>
-					<th style="width:150px;" class="middle text-center sorting <?php echo $sort_toWhs; ?>" id="sort_toWhsCode" onclick="sort('toWhsCode')">To Whs.</th>
-					<th style="width:150px;" class="middle text-center sorting <?php echo $sort_uname; ?>" id="sort_uname" onclick="sort('uname')">User</th>
-					<th style="width:100px;" class="middle text-center">Status</th>
-					<th class="middle text-right" style="min-width:100px;"></th>
+				<tr class="font-size-11">
+					<th class="fix-width-100"></th>
+					<th class="fix-width-50 middle text-center">#</th>
+					<th class="fix-width-100 middle text-center sorting <?php echo $sort_DocDate; ?>" id="sort_DocDate" onclick="sort('DocDate')">Date</th>
+					<th class="fix-width-150 middle sorting <?php echo $sort_code; ?>" id="sort_code" onclick="sort('code')">Web Code</th>
+					<th class="fix-width-100 middle text-center">Status</th>
+					<th class="fix-width-150 middle sorting <?php echo $sort_DocNum; ?>" id="sort_DocNum" onclick="sort('DocNum')">Transfer No.</th>
+					<th class="fix-width-150 middle sorting <?php echo $sort_fromWhs; ?>" id="sort_fromWhsCode" onclick="sort('fromWhsCode')">From Whs.</th>
+					<th class="fix-width-150 middle sorting <?php echo $sort_toWhs; ?>" id="sort_toWhsCode" onclick="sort('toWhsCode')">To Whs.</th>
+					<th class="min-width-150 middle">User</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -102,14 +102,25 @@
 			<?php if(!empty($data)) : ?>
 				<?php $no = $this->uri->segment(3) + 1; ?>
 				<?php foreach($data as $rs) : ?>
-					<tr>
+					<tr class="font-size-11">
+						<td class="middle">
+							<button type="button" class="btn btn-minier btn-primary" title="View Details" onclick="goDetail('<?php echo $rs->id; ?>')">
+								<i class="fa fa-eye"></i>
+							</button>
+							<?php if($rs->Status == 'O') : ?>
+								<button type="button" class="btn btn-minier btn-warning" title="Edit" onclick="goEdit(<?php echo $rs->id; ?>)">
+									<i class="fa fa-pencil"></i>
+								</button>
+							<?php endif; ?>
+							<?php if($rs->Status !== 'Y' && $rs->Status !== 'C') : ?>
+								<button type="button" class="btn btn-minier btn-danger" title="Cancle" onclick="getDelete(<?php echo $rs->id; ?>, '<?php echo $rs->code; ?>')">
+									<i class="fa fa-trash"></i>
+								</button>
+							<?php endif; ?>
+						</td>
 						<td class="middle text-center no"><?php echo $no; ?></td>
 						<td class="middle text-center"><?php echo thai_date($rs->DocDate, FALSE,'.'); ?></td>
-						<td class="middle text-center"><?php echo $rs->code; ?></td>
-						<td class="middle text-center"><?php echo $rs->DocNum; ?></td>
-						<td class="middle text-center"><?php echo $rs->fromWhsCode; ?></td>
-						<td class="middle text-center"><?php echo $rs->toWhsCode; ?></td>
-						<td class="middle text-center"><?php echo $rs->uname; ?></td>
+						<td class="middle"><?php echo $rs->code; ?></td>
 						<td class="middle text-center">
 								<?php if($rs->Status == 'N') : ?>
 									<span class="orange">Not Export</span>
@@ -125,21 +136,10 @@
 									<button type="button" class="btn btn-minier btn-danger btn-block" onclick="viewDetail('<?php echo $rs->code; ?>')">Failed</button>
 								<?php endif; ?>
 						</td>
-						<td class="middle text-right">
-							<button type="button" class="btn btn-minier btn-primary" title="View Details" onclick="goDetail('<?php echo $rs->id; ?>')">
-								<i class="fa fa-eye"></i>
-							</button>
-							<?php if($rs->Status == 'O') : ?>
-								<button type="button" class="btn btn-minier btn-warning" title="Edit" onclick="goEdit(<?php echo $rs->id; ?>)">
-									<i class="fa fa-pencil"></i>
-								</button>
-							<?php endif; ?>
-							<?php if($rs->Status !== 'Y' && $rs->Status !== 'C') : ?>
-								<button type="button" class="btn btn-minier btn-danger" title="Cancle" onclick="getDelete(<?php echo $rs->id; ?>, '<?php echo $rs->code; ?>')">
-									<i class="fa fa-trash"></i>
-								</button>
-							<?php endif; ?>
-						</td>
+						<td class="middle"><?php echo $rs->DocNum; ?></td>
+						<td class="middle"><?php echo $rs->fromWhsCode; ?></td>
+						<td class="middle"><?php echo $rs->toWhsCode; ?></td>
+						<td class="middler"><?php echo $rs->uname; ?></td>
 					</tr>
 					<?php $no++; ?>
 				<?php endforeach; ?>

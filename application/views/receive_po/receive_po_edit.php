@@ -30,23 +30,23 @@
 <hr />
 
 <div class="row">
-	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
+	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-6 padding-5">
 		<label>เลขที่เอกสาร</label>
 		<input type="text" class="width-100 text-center" id="code" value="<?php echo $doc->code; ?>" disabled />
 	</div>
-	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
 		<label>Doc Date</label>
 		<input type="text" class="width-100 text-center r" id="date-add" data-prev="<?php echo thai_date($doc->date_add); ?>" value="<?php echo thai_date($doc->date_add); ?>" disabled />
 	</div>
-	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
 		<label>Posting Date</label>
 		<input type="text" class="width-100 text-center r" id="posting-date" data-prev="<?php echo thai_date($doc->posting_date); ?>" value="<?php echo thai_date($doc->posting_date); ?>" readonly />
 	</div>
-	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-4 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
 		<label>รหัสผู้ขาย</label>
 		<input type="text" class="width-100 text-center r" id="vendor-code" placeholder="รหัสผู้ขาย" data-prev="<?php echo $doc->vendor_code; ?>" value="<?php echo $doc->vendor_code; ?>" />
 	</div>
-	<div class="col-lg-5 col-md-5-harf col-sm-5 col-xs-8 padding-5">
+	<div class="col-lg-5 col-md-5-harf col-sm-5 col-xs-12 padding-5">
 		<label>ชื่อผู้ขาย</label>
 		<input type="text" class="width-100 r" id="vendor-name" placeholder="ชื่อผู้ขาย" data-prev="<?php echo $doc->vendor_code; ?>" value="<?php echo $doc->vendor_name; ?>" readonly />
 	</div>
@@ -54,36 +54,34 @@
 		<label>ใบส่งสินค้า</label>
 		<input type="text" class="width-100 text-center r" id="invoice" placeholder="ใบส่งสินค้า" data-prev="<?php echo $doc->invoice_code; ?>" value="<?php echo $doc->invoice_code; ?>" />
 	</div>
-	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-2 col-md-1-harf col-sm-2 col-xs-6 padding-5">
 		<label>PO No.</label>
 		<input type="text" class="width-100 text-center r" id="po-no" placeholder="อ้างอิงใบสั่งซื้อ" data-prev="<?php echo $doc->po_code; ?>" value="<?php echo $doc->po_code; ?>" />
 	</div>
-	<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-3 padding-5">
+	<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
 		<label>Currency</label>
 		<select class="width-100 r" id="DocCur" data-prev="<?php echo $doc->Currency; ?>" >
 			<?php echo select_currency($doc->Currency); ?>
 		</select>
 	</div>
-	<div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-3 padding-5">
+	<div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-6 padding-5">
 		<label>Rate</label>
 		<input type="number" class="width-100 text-center r" data-prev="<?php echo $doc->Rate; ?>" id="DocRate" value="<?php echo $doc->Rate; ?>"  />
 	</div>
 
-	<div class="col-lg-3 col-md-2-harf col-sm-4 col-xs-6 padding-5">
+	<div class="col-lg-4 col-md-3 col-sm-4 col-xs-12 padding-5">
 		<label>คลัง</label>
-		<select class="width-100 r" id="warehouse" data-prev="<?php echo $doc->warehouse_code; ?>" onchange="zoneInit()">
+		<select class="width-100 r" id="warehouse" data-prev="<?php echo $doc->warehouse_code; ?>" onchange="changeWhs()">
 			<option value="">Select</option>
 			<?php echo select_warehouse($doc->warehouse_code); ?>
 		</select>
 	</div>
-	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-4 padding-5">
+	<div class="col-lg-4 col-md-3 col-sm-4 col-xs-12 padding-5">
 		<label>Bin Location</label>
-		<input type="text" class="width-100 text-center r" id="zone-code" data-prev="<?php echo $doc->zone_code; ?>" placeholder="Bin Location" value="<?php echo $doc->zone_code; ?>" />
-	</div>
-	<?php $zoneName = $this->zone_model->getName($doc->zone_code); ?>
-	<div class="col-lg-3-harf col-md-1-harf col-sm-2 col-xs-8 padding-5">
-		<label class="not-show">bin name</label>
-		<input type="text" class="width-100 r" id="zone-name" data-prev="<?php echo $zoneName; ?>" value="<?php echo $zoneName; ?>" readonly />
+		<select class="width-100 r" id="zone-code">
+			<option value="" data-whs="" data-name="">Select</option>
+			<?php echo select_zone($doc->zone_code, $doc->warehouse_code); ?>
+		</select>
 	</div>
 	<div class="col-lg-12 col-md-12 col-sm-8 col-xs-12 padding-5">
 		<label>หมายเหตุ</label>
@@ -99,6 +97,10 @@
 <?php $this->load->view('receive_po/receive_po_control'); ?>
 <?php $this->load->view('receive_po/receive_po_detail'); ?>
 
+<script>
+	$('#warehouse').select2();
+	$('#zone-code').select2();
+</script>
 <script src="<?php echo base_url(); ?>scripts/receive_po/receive_po.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/receive_po/receive_po_add.js?v=<?php echo date('Ymd'); ?>"></script>
 <script src="<?php echo base_url(); ?>scripts/receive_po/receive_po_control.js?v=<?php echo date('Ymd'); ?>"></script>

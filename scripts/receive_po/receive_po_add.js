@@ -3,36 +3,38 @@ var click = 0;
 window.addEventListener('load', () => {
   headerPoInit();
   poInit();
-  zoneInit();
+  // zoneInit();
 });
 
 
 function zoneInit() {
-  let warehouse_code = $('#warehouse').val();
+  let whsCode = $('#warehouse').val();
 
-  $('#zone-code').autocomplete({
-    source:BASE_URL + 'auto_complete/get_zone_code_and_name/'+warehouse_code,
-    close:function() {
-      let arr = $(this).val().split(' | ');
+  load_in();
 
-      if(arr.length == 2){
-        $('#zone-code').val(arr[0]);
-        $('#zone-name').val(arr[1]);
-      }
-      else {
-        $('#zone-code').val('');
-        $('#zone-name').val('');
-      }
+  $.ajax({
+    url:HOME + 'get_zone_list',
+    type:'POST',
+    cache:false,
+    data: {
+      'whsCode' : whsCode
+    },
+    success:function(rs) {
+      load_out();
+
+      options = `<option value="" data-whsCode="" data-name="">Select</option>`;
+      options = options + rs;
+      $('#zone-code').html(options);
+      $('#zone-code').select2().change();
+    },
+    error:function(rs) {
+      showError(rs);
     }
   })
 }
 
-
 function changeWhs() {
   zoneInit();
-  $('#zone-code').val('');
-  $('#zone-name').val('');
-  $('#zone-code').focus();
 }
 
 
@@ -51,7 +53,7 @@ function add() {
       'Rate' : $('#DocRate').val(),
       'warehouse_code' : $('#warehouse').val(),
       'zone_code' : $('#zone-code').val().trim(),
-      'zone_name' : $('#zone-name').val().trim(),
+      'zone_name' : $('#zone-code').data('name'),
       'remark' : $('#remark').val().trim()
     }
 

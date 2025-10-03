@@ -3,7 +3,7 @@
     style="min-height:300px; overflow:auto; border-top:solid 1px #ccc;">
   <table class="table table-striped" style="margin-bottom:0px; min-width:1000px;">
       <thead>
-        <tr>
+        <tr class="font-size-11">
           <th class="fix-width-40 text-center">#</th>
           <th class="fix-width-120 middle">Item Code</th>
           <th class="fix-width-300 middle">Item Name</th>
@@ -20,7 +20,7 @@
           <?php		$no = 1;						?>
           <?php   $total_qty = 0;  ?>
           <?php		foreach($details as $rs) : 	?>
-            <tr class="font-size-12" id="row-move-<?php echo $rs->id; ?>">
+            <tr class="font-size-11" id="row-move-<?php echo $rs->id; ?>">
               <td class="middle text-center move-no"><?php echo $no; ?></td>
               <td class="middle"><?php echo $rs->ItemCode; ?></td>
               <td class="middle"><?php echo $rs->ItemName; ?></td>
@@ -69,7 +69,7 @@
 				<td></td><td></td>
 			</tr>
 		{{else}}
-		<tr class="font-size-12" id="row-move-{{ id }}">
+		<tr class="font-size-11" id="row-move-{{ id }}">
 			<td class="middle text-center move-no">{{ no }}</td>
 			<td class="middle">{{itemCode}}</td>
 			<td class="middle">{{itemName}}</td>

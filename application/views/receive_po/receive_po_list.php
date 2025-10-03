@@ -217,6 +217,10 @@
   </table>
 </script>
 
+<script>
+$('#warehouse').select2();
+$('#user').select2();
+</script>
 <script src="<?php echo base_url(); ?>scripts/receive_po/receive_po.js?v=<?php echo date('Ymd'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

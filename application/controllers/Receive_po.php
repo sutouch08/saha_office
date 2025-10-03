@@ -57,7 +57,12 @@ class Receive_po extends PS_Controller
 
 	public function add_new()
 	{
-		$this->load->view('receive_po/receive_po_add');
+		$ds = [
+			'whsCode' => getConfig('INBOUND_WAREHOUSE'),
+			'binCode' => getConfig('INBOUND_ZONE')
+		];
+
+		$this->load->view('receive_po/receive_po_add', $ds);
 	}
 
 
@@ -1162,6 +1167,13 @@ class Receive_po extends PS_Controller
 		);
 
 		echo json_encode($arr);
+	}
+
+
+	public function get_zone_list()
+	{
+		$whsCode = $this->input->post('whsCode');
+		echo select_zone(NULL, $whsCode);
 	}
 
 

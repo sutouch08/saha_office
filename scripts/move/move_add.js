@@ -1,50 +1,51 @@
-$('#fromWhsCode').autocomplete({
-  source:BASE_URL+'auto_complete/get_warehouse_code_and_name',
-  autoFocus:true,
-  close:function() {
-    let rs = $(this).val();
-    let arr = rs.split(' | ');
+function fromZoneInit() {
+  let whsCode = $('#fromWhsCode').val();
 
-    if(arr.length == 2) {
-      $(this).val(arr[0]);
+  $.ajax({
+    url:HOME + 'get_zone_list',
+    type:'POST',
+    cache:false,
+    data: {
+      'whsCode' : whsCode
+    },
+    success:function(rs) {
+      load_out();
 
-      if($('#toWhsCode').val() == "") {
-        $('#toWhsCode').focus();
-      }
-      else {
-        $('#remark').focus();
-      }
+      options = `<option value="" data-whsCode="" data-name="">Select</option>`;
+      options = options + rs;
+      $('#from-zone').html(options);
+      $('#from-zone').select2().change();
+    },
+    error:function(rs) {
+      showError(rs);
     }
-    else {
-      $(this).val('');
+  })
+}
+
+
+function toZoneInit() {
+  let whsCode = $('#toWhsCode').val();
+
+  $.ajax({
+    url:HOME + 'get_zone_list',
+    type:'POST',
+    cache:false,
+    data: {
+      'whsCode' : whsCode
+    },
+    success:function(rs) {
+      load_out();
+
+      options = `<option value="" data-whsCode="" data-name="">Select</option>`;
+      options = options + rs;
+      $('#to-zone').html(options);
+      $('#to-zone').select2().change();
+    },
+    error:function(rs) {
+      showError(rs);
     }
-  }
-});
-
-
-
-$('#toWhsCode').autocomplete({
-  source:BASE_URL+'auto_complete/get_warehouse_code_and_name',
-  autoFocus:true,
-  close:function() {
-    let rs = $(this).val();
-    let arr = rs.split(' | ');
-
-    if(arr.length == 2) {
-      $(this).val(arr[0]);
-
-      if($('#fromWhsCode').val() == "") {
-        $('#fromWhsCode').focus();
-      }
-      else {
-        $('#remark').focus();
-      }
-    }
-    else {
-      $(this).val('');
-    }
-  }
-});
+  })
+}
 
 
 function add() {
@@ -133,7 +134,7 @@ function update() {
 
         $('.edit').attr('disabled', 'disabled');
         $('#btn-update').addClass('hide');
-        $('#btn-edit').removeClass('hide');
+        $('#btn-edit').removeClass('hide');        
       }
       else {
         swal({

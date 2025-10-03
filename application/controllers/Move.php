@@ -17,12 +17,12 @@ class Move extends PS_Controller
 		$this->load->model('warehouse_model');
 		$this->load->model('zone_model');
 		$this->load->model('stock_model');
+		$this->load->helper('warehouse');
   }
 
 
-
-  public function index()
-  {
+	public function index()
+	{
 
 		$filter = array(
 			'code' => get_filter('code', 'mvCode', ''),
@@ -52,13 +52,12 @@ class Move extends PS_Controller
 
 		$rs = $this->move_model->get_list($filter, $perpage, $this->uri->segment($segment));
 
-    $filter['data'] = $rs;
+		$filter['data'] = $rs;
 
 		$this->pagination->initialize($init);
 
-    $this->load->view('move/move_list', $filter);
-  }
-
+		$this->load->view('move/move_list', $filter);
+	}
 
 
 	public function save($move_id)
@@ -128,14 +127,12 @@ class Move extends PS_Controller
 	}
 
 
-
 	public function export_move($id)
 	{
 		$sc = $this->doExport($id);
 
 		echo $sc === TRUE ? 'success' : $this->error;
 	}
-
 
 
 	public function add_new()
@@ -180,8 +177,6 @@ class Move extends PS_Controller
 	}
 
 
-
-
 	public function edit($id, $method = 'barcode')
 	{
 		//--- method  'barcode', 'normal'
@@ -199,7 +194,7 @@ class Move extends PS_Controller
 				}
 			}
 
-			$temp = $this->move_model->get_temp_details($id);
+			// $temp = $this->move_model->get_temp_details($id);
 
 			$ds = array(
 				'doc' => $doc,
@@ -710,7 +705,7 @@ class Move extends PS_Controller
 
       $item = $this->item_model->getItemByBarcode($barcode);
 
-      if(! empty($item))
+      if( ! empty($item))
       {
 				$qty = $qty * $item->BaseQty;
 
@@ -774,13 +769,13 @@ class Move extends PS_Controller
       else
       {
         $sc = FALSE;
-        $message = 'บาร์โค้ดไม่ถูกต้อง';
+        $this->error = 'บาร์โค้ดไม่ถูกต้อง';
       }
     }
     else
     {
       $sc = FALSE;
-      $message = 'ไม่พบเลขที่เอกสาร';
+      $this->error = 'ไม่พบเลขที่เอกสาร';
     }
 
     echo $sc === TRUE ? json_encode($ds) : $this->error;
@@ -1382,6 +1377,13 @@ class Move extends PS_Controller
     $this->response($sc);
   }
 
+
+	public function get_zone_list()
+	{
+		$whsCode = $this->input->post('whsCode');
+		echo select_zone(NULL, $whsCode);
+	}
+	
 
 	public function get_new_code($date = NULL)
   {

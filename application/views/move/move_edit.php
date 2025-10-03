@@ -1,14 +1,14 @@
 <?php $this->load->view('include/header'); ?>
 <div class="row">
-	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5">
-    <h4 class="title"><?php echo $this->title; ?></h4>
-    </div>
-    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 padding-5">
-    	<p class="pull-right top-p">
-        <button type="button" class="btn btn-sm btn-default" onclick="goBack()"><i class="fa fa-arrow-left"></i> &nbsp; Back</button>
-				<button type="button" class="btn btn-sm btn-success" onclick="save()"><i class="fa fa-save"></i> &nbsp; Save</button>
-      </p>
-    </div>
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
+		<h3 class="title"><?php echo $this->title; ?></h3>
+	</div>
+	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
+		<p class="pull-right top-p">
+			<button type="button" class="btn btn-white btn-default top-btn" onclick="goBack()"><i class="fa fa-arrow-left"></i> &nbsp; Back</button>
+			<button type="button" class="btn btn-white btn-success top-btn" onclick="save()"><i class="fa fa-save"></i> &nbsp; Save</button>
+		</p>
+	</div>
 </div><!-- End Row -->
 <hr class="padding-5"/>
 
@@ -19,8 +19,8 @@
 		<div class="tabbable">
 			<ul id="myTab1" class="nav nav-tabs">
 				<li class="active"><a href="#move-tab" data-toggle="tab" onclick="getMoveTable()">รายการโอนย้าย</a></li>
-				<li class=""><a href="#from-tab" data-toggle="tab" onclick="getMoveOut()">ย้ายสินค้าออก</a></li>
-			  <li class=""><a href="#temp-tab" data-toggle="tab" onclick="getMoveIn()">Temp</a></li>
+				<li class=""><a href="#from-tab" data-toggle="tab">ย้ายสินค้าออก</a></li>
+			  <li class=""><a href="#temp-tab" data-toggle="tab" onclick="getMoveIn()">ย้ายสินค้าเข้า</a></li>
 			</ul>
 
 			<div class="tab-content width-100">

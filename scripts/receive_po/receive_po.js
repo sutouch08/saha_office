@@ -14,9 +14,6 @@ function leave(){
 	});
 }
 
-$('#warehouse').select2();
-$('#user').select2();
-
 function cancel(code){
 	swal({
 		title: "คุณแน่ใจ ?",
@@ -37,12 +34,6 @@ function cancel(code){
 
 function cancle_received(code) {
 	var reason = $('#cancle-reason').val().trim();
-
-	// if(reason.length < 10)
-	// {
-	// 	$('#cancle-modal').modal('show');
-	// 	return false;
-	// }
 
 	load_in();
 
@@ -85,11 +76,6 @@ function cancle_received(code) {
 function doCancle() {
 	let code = $('#cancle-code').val();
 	let reason = $('#cancle-reason').val().trim();
-	//
-	// if( reason.length < 10) {
-	// 	$('#cancle-reason').addClass('has-error').focus();
-	// 	return false;
-	// }
 
 	$('#cancle-modal').modal('hide');
 

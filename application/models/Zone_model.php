@@ -61,6 +61,34 @@ class Zone_model extends CI_Model
     return NULL;
   }
 
+
+  public function getBinList($binCode = NULL, $whsCode = NULL)
+  {
+    $this->ms->select('BinCode AS code, SL1Code AS name, WhsCode AS warehouse_code');
+
+    if( ! empty($whsCode))
+    {
+      $this->ms->where('WhsCode', $whsCode);
+    }
+
+    if( ! empty($binCode))
+    {
+      $this->ms->where('BinCode', $binCode);
+    }
+
+    $rs = $this->ms
+    ->order_by('WhsCode', 'ASC')
+    ->order_by('BinCode', 'ASC')
+    ->get('OBIN');
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
 }
 
 ?>

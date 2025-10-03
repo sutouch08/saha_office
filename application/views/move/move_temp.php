@@ -1,5 +1,12 @@
 <div class="row">
-  <div class="col-lg-3 col-md-3 col-sm-3 col-xs-8 padding-5">
+  <div class="col-lg-4 col-md-4 col-sm-4 col-xs-8 padding-5">
+		<label>Location (ปลายทาง)</label>
+		<select class="width-100" id="to-zone" onchange="getProductInZone()">
+			<option value="">Select</option>
+			<?php echo select_zone(NULL, $doc->toWhsCode); ?>
+		</select>
+	</div>
+  <!-- <div class="col-lg-3 col-md-3 col-sm-3 col-xs-8 padding-5">
     <label>Location (ปลายทาง)</label>
     <input type="text" class="form-control input-sm" id="toZone-barcode" />
   </div>
@@ -8,28 +15,28 @@
     <label class="display-block not-show">change</label>
     <button type="button" class="btn btn-xs btn-primary btn-block" id="btn-set-to-zone" onclick="getZoneTo()">OK</button>
     <button type="button" class="btn btn-xs btn-info btn-block hide" id="btn-new-to-zone" onclick="newToZone()">เปลี่ยน</button>
-  </div>
+  </div> -->
 
   <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
     <label>จำนวน</label>
-    <input type="number" class="form-control input-sm text-center" id="qty-to" value="1" disabled />
+    <input type="number" class="form-control input-sm text-center" id="qty-to" value="1" />
   </div>
 
   <div class="col-lg-3 col-md-3 col-sm-3 col-xs-6 padding-5">
     <label>บาร์โค้ดสินค้า</label>
-    <input type="text" class="form-control input-sm" id="barcode-item-to" disabled />
+    <input type="text" class="form-control input-sm" id="barcode-item-to" />
   </div>
 
   <div class="col-lg-1 col-md-1 col-sm-1 col-xs-3 padding-5">
     <label class="display-block not-show">ok</label>
-    <button type="button" class="btn btn-xs btn-primary btn-block" id="btn-add-to-zone" onclick="addToZone()" disabled>OK</button>
+    <button type="button" class="btn btn-xs btn-primary btn-block" id="btn-add-to-zone" onclick="addToZone()">OK</button>
   </div>
 
   <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-0 margin-top-10 table-responsive"
     id="temp-table" style="min-height:350px; border-top:solid 1px #ccc;">
     <table class="table table-striped" style="margin-bottom:0px; min-width:1080px;">
       <thead>
-        <tr>
+        <tr class="font-size-11">
           <th class="fix-width-40 text-center">#</th>
           <th class="fix-width-120 middle">Item Code</th>
           <th class="min-width-300 middle">Item Name</th>
@@ -82,4 +89,8 @@
 		{{/if}}
 	{{/if}}
 {{/each}}
+</script>
+
+<script>
+	$('#to-zone').select2();
 </script>

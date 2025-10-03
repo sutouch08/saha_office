@@ -20,9 +20,7 @@ class Transfer extends PS_Controller
 
 
 	public function index()
-	{
-		//$this->update_status(100);
-
+	{		
 		$filter = array(
 			'code' => get_filter('code', 'trCode', ''),
 			'orderCode' => get_filter('orderCode', 'trOrderCode', ''),
@@ -1064,7 +1062,7 @@ class Transfer extends PS_Controller
 			{
 				$this->transfer_model->update_order_transfer_code($rs->orderCode, $code);
 				$this->sales_order_model->update_by_doc_num($rs->orderCode, ['transfer_code' => $code]);
-			}			
+			}
 		}
 	}
 
