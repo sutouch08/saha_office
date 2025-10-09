@@ -1,50 +1,5 @@
 <?php $this->load->view('include/header'); ?>
-
-<style>
-	label.search-label {
-		font-size:12px;
-	}
-
-	@media (min-width: 768px) {
-
-    .fix-no {
-      left: 0;
-      position: sticky;
-    }
-
-    .fix-action {
-      left: 40px;
-      position: sticky;
-    }
-
-    .fix-approve {
-      left:120px;
-      position: sticky;
-    }
-
-    .fix-status {
-      left:200px;
-      position: sticky;
-    }
-
-    .fix-date {
-      left:280px;
-      position: sticky;
-    }
-
-		.fix-code {
-      left:380px;
-      position: sticky;
-    }
-
-    td[scope=row] {
-      background-color: white;
-      border: 0 !important;
-      outline: solid 1px #dddddd;
-    }
-  }
-
-</style>
+<?php $this->load->view('sales_order/order_list_style'); ?>
 <div class="row">
 	<div class="col-lg-6 col-md-4 col-sm-4 col-xs-12 padding-5">
 		<h3 class="title"><?php echo $this->title; ?></h3>
@@ -54,6 +9,7 @@
 			<button type="button" class="btn btn-white btn-primary top-btn btn-100" onclick="getUploadFile()"><i class="fa fa-upload"></i> &nbsp; Import Order</button>
 			<button type="button" class="btn btn-white btn-purple top-btn btn-100" onclick="getTemplate()"><i class="fa fa-download"></i> &nbsp; Template</button>
 			<button type="button" class="btn btn-white btn-success top-btn btn-100" onclick="goAdd()"><i class="fa fa-plus"></i> Add Sales Order</button>
+			<button type="button" class="btn btn-white btn-info top-btn" onclick="printMultipleSO()"><i class="fa fa-print"></i> Print</button>
 		</p>
 	</div>
 </div><!-- End Row -->
@@ -182,9 +138,15 @@
 
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 table-responsive border-1" style="margin-top:-1px; margin-left: 5px; padding-left: 0px; min-height:250px; max-height:600px; overflow:auto;">
-		<table class="table table-striped table-bordered dataTable tableFixHead" style="min-width:1610px;">
+		<table class="table table-striped table-bordered dataTable tableFixHead" style="min-width:1660px;">
 			<thead>
 				<tr class="font-size-10">
+					<th class="fix-width-50 fix-chk fix-header middle text-center">
+						<label>
+							<input type="checkbox" class="ace chk-all" onchange="checkAll($(this))">
+							<span class="lbl"></span>
+						</lable>
+					</th>
 					<th class="fix-width-40 fix-no fix-header middle text-center">#</th>
 					<th class="fix-width-80 fix-action fix-header middle text-center">action</th>
 					<th class="fix-width-80 fix-approve fix-header middle text-center">Approved</th>
@@ -211,6 +173,14 @@
 				<?php $no = $this->uri->segment(3) + 1; ?>
 				<?php foreach($data as $rs) : ?>
 					<tr class="font-size-10">
+						<td class="middle text-center fix-chk" scope="row">
+							<?php if($rs->Status == 2) : ?>
+								<label>
+									<input type="checkbox" class="ace chk" value="<?php echo $rs->code; ?>">
+									<span class="lbl"></span>
+								</label>
+							<?php endif; ?>
+						</td>
 						<td class="middle text-center fix-no no" scope="row"><?php echo $no; ?></td>
 						<td class="middle fix-action" scope="row">
 							<button type="button" class="btn btn-minier btn-primary" title="Preview" onclick="goDetail('<?php echo $rs->code; ?>')"><i class="fa fa-eye"></i></button>
@@ -287,7 +257,7 @@
 				</tr>
 			<?php else : ?>
 				<tr>
-					<td colspan="16" class="middle text-center">ไม่พบรายการ</td>
+					<td colspan="17" class="middle text-center">ไม่พบรายการ</td>
 				</tr>
 			<?php endif; ?>
 			</tbody>
@@ -296,6 +266,11 @@
 </div>
 
 <?php $this->load->view('sales_order/import_order'); ?>
+
+<form id="print-form" method="post" action="<?php echo $this->home; ?>print_multiple_sales_order">
+	<input type="hidden" id="data" name="data" value=""/>
+	<input type="hidden" id="token" name="token" value="xx" />
+</form>
 
 <div class="modal fade" id="printModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog" style="max-width:350px;">

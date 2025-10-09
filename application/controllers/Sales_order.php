@@ -2053,6 +2053,88 @@ class Sales_order extends PS_Controller
 		return $this->sales_order_logs_model->add('print', $code);
 	}
 
+	public function add_multiple_print_logs()
+	{
+		$ds = json_decode($this->input->post('codes'));
+
+		if( ! empty($ds))
+		{
+			foreach($ds as $code)
+			{
+				$this->sales_order_logs_model->add('print', $code);
+			}
+		}
+	}
+
+
+	public function print_multiple_sales_order()
+	{
+		$this->load->model('stock_model');
+		$this->load->library('printer');
+		$data = [];
+		$ds = json_decode($this->input->post('data'));
+
+		if( ! empty($ds))
+		{
+			foreach($ds as $code)
+			{
+				$doc = $this->sales_order_model->get($code);			
+				$detail = $this->sales_order_model->get_details($code);
+				$details = [];
+
+				if( ! empty($detail))
+				{
+					$no = 0;
+
+					foreach($detail as $rs)
+					{
+						if($rs->Type == 1 && $no > 0)
+						{
+							$noo = $no -1;
+							$details[$noo]->Dscription .= PHP_EOL.$rs->LineText;
+						}
+						else
+						{
+							$rs->UomName = $this->item_model->get_uom_name($rs->UomCode);
+							$details[$no] = $rs;
+
+							$stock = $this->stock_model->get_stock_zone_qty($rs->ItemCode, $rs->WhsCode);
+
+							$rs->zone_code = empty($stock) ? NULL : $stock->zone_code;
+							$rs->InStock = empty($stock) ? 0 : $stock->qty;
+							$no++;
+						}
+					}
+				}
+
+				$customer = $this->customers_model->get_sap_contact_data($doc->CardCode);
+				$shipTo = $this->customers_model->get_ship_to_data($doc->CardCode, $doc->ShipToCode);
+				$sale = $this->user_model->get_sap_sale_data($doc->SlpCode);
+				$doc->prefix = empty($doc->BeginStr) ? $this->sales_order_model->get_prefix($doc->Series) : $doc->BeginStr;
+				$doc->OwnerName = empty($doc->OwnerCode) ? "" : $this->user_model->get_emp_name($doc->OwnerCode);
+				$doc->reference = !empty($doc->NumAtCard) ? $doc->NumAtCard : $doc->U_SQNO;
+
+				$data[] = (object) array(
+					'doc' => $doc,
+					'details' => $details,
+					'customer' => $customer,
+					'shipTo' => $shipTo,
+					'sale' => $sale,
+					'show_discount' => TRUE
+				);
+			} // end foreach
+		}
+		else
+		{
+			echo "No sales order found";
+		}
+
+		if( ! empty($data))
+		{
+			$this->load->view('print/print_multiple_sales_order', ['data' => $data]);
+		}
+	}
+
 
 	public function get_temp_data()
 	{

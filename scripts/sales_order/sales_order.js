@@ -225,6 +225,53 @@ function cancelSo(code)
   });
 }
 
+function checkAll(el) {
+  if(el.is(':checked')) {
+    $('.chk').prop('checked', true);
+  }
+  else {
+    $('.chk').prop('checked', false);
+  }
+}
+
+
+function printMultipleSO() {
+  if($('.chk:checked').length > 0) {
+    let so = [];
+
+    $('.chk:checked').each(function() {
+      so.push($(this).val());
+    });
+
+    if(so.length > 0) {
+      let center = ($(document).width() - 800) / 2;
+      let prop = "width=800, height=900, left=" + center + ", scrollbars=yes";
+      let mapForm = document.createElement("form");
+      let mapInput = document.createElement("input");
+      mapForm.target = "Map";
+      mapForm.method = "POST";
+      mapForm.action = HOME + 'print_multiple_sales_order';
+      mapInput.type = "text";
+      mapInput.name = "data";
+      mapInput.value = JSON.stringify(so);
+      mapForm.appendChild(mapInput);
+      document.body.appendChild(mapForm);
+      map = window.open("", "Map", prop);
+
+      if(map) {
+        mapForm.submit();
+      }
+      else {
+        swal({
+          title:'Error!',
+          text:'You must allow popups for this action to work.',
+          type:'error'
+        });
+      }
+    }
+  }
+}
+
 
 function chooseLayout(code) {
   $('#sq-code').val(code);
@@ -234,8 +281,8 @@ function chooseLayout(code) {
 
 function printSalesOrder(code) {
   //--- properties for print
-  var prop 		= "width=800, height=900. left="+center+", scrollbars=yes";
   var center  = ($(document).width() - 800)/2;
+  var prop 		= "width=800, height=900, left="+center+", scrollbars=yes";
   var target  = HOME + 'print_sales_order/'+code;
   window.open(target, '_blank', prop);
 }
