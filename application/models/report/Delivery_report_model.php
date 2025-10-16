@@ -6,19 +6,35 @@ class Delivery_report_model extends CI_Model
     parent::__construct();
   }
 
+  public function get_internal_remark($inv_code)
+  {
+    $rs = $this->ms->select('U_Remark_Int')->where('DocNum', $inv_code)->get('OINV');
+
+    if($rs->num_rows() === 1)
+    {
+      return $rs->row()->U_Remark_Int;
+    }
+
+    return NULL;
+  }
+
+
   public function get_iv_data($ds)
   {
     $this->ms
+    ->distinct()
     ->select("o.DocDate, o.DocNum, o.CardCode, o.CardName, o.OwnerCode, o.DocTotal")
-    ->select("o.Address2, o.Comments, o.U_Remark_Int, o.U_Delivery_Urgency, o.U_Deliver_status")
+    ->select("o.Address2, o.Comments, o.U_Delivery_Urgency, o.U_Deliver_status")
     ->select("o.U_Deliver_date, o.U_Required_Delivery_Date, o.U_Deliver_Doc")
     ->select("ad.ZipCode, ad.City, em.firstName, em.lastName")
-    ->from("OINV AS o")
+    ->from("INV1 AS d")
+    ->join("OINV AS o", "d.DocEntry = o.DocEntry", "left")
     ->join("CRD1 AS ad", "o.CardCode = ad.CardCode AND o.ShipToCode = ad.Address AND ad.AdresType = 'S'", "left")
     ->join("OHEM AS em", "o.OwnerCode = em.empId", "left")
     ->where('o.CANCELED', 'N')
     ->where('o.DocStatus !=', 'C')
     ->where('o.U_BEX_DO IS NULL', NULL, FALSE)
+    ->where('d.BaseType !=', 15)
     ->group_start()
     ->where('o.U_Deliver_status IS NULL', NULL, FALSE)
     ->or_where("o.U_Deliver_status !=", 4)

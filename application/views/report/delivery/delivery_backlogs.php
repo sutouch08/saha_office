@@ -137,7 +137,7 @@
 			<td class="middle text-center">{{ZipCode}}</td>
 			<td class="middle">{{Route}}</td>
 			<td class="middle">{{Remark}}</td>
-			<td class="middle">{{RemarkInternal}}</td>
+			<td class="middle">{{RemarkInt}}</td>
 			<td class="middle">{{Delivery_remark}}</td>
 			<td class="middle">{{Owner}}</td>
     </tr>

@@ -109,7 +109,7 @@ class Delivery_backlogs extends PS_Controller
 							'ZipCode' => $rs->ZipCode,
 							'Route' => $this->get_route_name($rs->ZipCode, $rs->City),
 							'Remark' => $rs->Comments,
-							'RemarkInt' => $rs->U_Remark_Int,
+							'RemarkInt' => NULL,
 							'Owner' => $rs->firstName.' '.$rs->lastName,
 							'color' => $days > 0 ? 'red' : ''
 						);
@@ -326,7 +326,7 @@ class Delivery_backlogs extends PS_Controller
 						$sheet->setCellValue("O{$row}", $rs->ZipCode);
 						$sheet->setCellValue("P{$row}", $this->get_route_name($rs->ZipCode, $rs->City));
 						$sheet->setCellValue("Q{$row}", $rs->Comments);
-						$sheet->setCellValue("R{$row}", $rs->U_Remark_Int);
+						$sheet->setCellValue("R{$row}", NULL);
 						$sheet->setCellValue("S{$row}", $rs->firstName.' '.$rs->lastName);
 						$sheet->setCellValue("T{$row}", empty($de) ? NULL : $de->remark);
 
