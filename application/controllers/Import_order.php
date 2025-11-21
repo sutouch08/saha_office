@@ -90,7 +90,7 @@ class Import_order extends PS_Controller
 
         if($sc === TRUE)
         {
-          $ds = $this->parse_order_data($worksheet);
+          $ds = $this->parse_order_data($worksheet);          
 
           if( ! empty($ds))
           {
@@ -876,7 +876,8 @@ class Import_order extends PS_Controller
                 'WhsCode' => get_null($item->dfWhsCode)
                 );
 
-                $ds[$ref_code]->items[$item->code] = $row;
+                $key = $item->code.$priceBefTax;
+                $ds[$ref_code]->items[$key] = $row;
               }
             }
             else
@@ -955,22 +956,21 @@ class Import_order extends PS_Controller
 
                 $isUpdate = FALSE;
 
-                if(isset($ds[$ref_code]->items[$item->code]))
+                $key = $item->code.$priceBefTax;
+
+                if(isset($ds[$ref_code]->items[$key]))
                 {
-                  $row = $ds[$ref_code]->items[$item->code];
+                  $row = $ds[$ref_code]->items[$key];
 
-                  if($row->UomCode == $uomCode && $row->Price == $priceBefTax)
-                  {
-                    $newQty = $row->Qty + $qty;
-                    $TotalBefTax = $row->LineTotalBefTax + $LineTotalBefTax;
-                    $TotalAfTax = $row->LineTotalAfTax + $LineTotalAfTax;
+                  $newQty = $row->Qty + $qty;
+                  $TotalBefTax = $row->LineTotalBefTax + $LineTotalBefTax;
+                  $TotalAfTax = $row->LineTotalAfTax + $LineTotalAfTax;
 
-                    $ds[$ref_code]->items[$item->code]->Qty = $newQty;
-                    $ds[$ref_code]->items[$item->code]->LineTotalBefTax = $TotalBefTax;
-                    $ds[$ref_code]->items[$item->code]->LineTotalAfTax = $TotalAfTax;
+                  $ds[$ref_code]->items[$key]->Qty = $newQty;
+                  $ds[$ref_code]->items[$key]->LineTotalBefTax = $TotalBefTax;
+                  $ds[$ref_code]->items[$key]->LineTotalAfTax = $TotalAfTax;
 
-                    $isUpdate = TRUE;
-                  }
+                  $isUpdate = TRUE;
                 }
 
                 if( ! $isUpdate)
@@ -994,7 +994,7 @@ class Import_order extends PS_Controller
                   'WhsCode' => get_null($item->dfWhsCode)
                   );
 
-                  $ds[$ref_code]->items[$item->code] = $row;
+                  $ds[$ref_code]->items[$key] = $row;
                 }
               }
             } //--- end if( ! isset($ds[$ref_code]));
