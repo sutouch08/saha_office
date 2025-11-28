@@ -1229,7 +1229,7 @@ class Move extends PS_Controller
 		                  'Price' => 0.000000,
 		                  'TotalFrgn' => 0.000000,
 		                  'FromWhsCod' => $rs->fromWhsCode,
-		                  'WhsCode' => $doc->toWhsCode,
+		                  'WhsCode' => $rs->toWhsCode,
 		                  'F_FROM_BIN' => $rs->fromBinCode,
 											'F_TO_BIN' => $rs->toBinCode,
 		                  'TaxStatus' => 'Y',
@@ -1383,7 +1383,7 @@ class Move extends PS_Controller
 		$whsCode = $this->input->post('whsCode');
 		echo select_zone(NULL, $whsCode);
 	}
-	
+
 
 	public function get_new_code($date = NULL)
   {
