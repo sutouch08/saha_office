@@ -1,10 +1,9 @@
 <?php
-class Receive_po_model extends CI_Model
+class Return_request_model extends CI_Model
 {
-  private $tb = "receive_po";
-  private $td = "receive_po_details";
-  private $tr = "receive_po_ref";
-  private $log = "receive_po_logs";
+  private $tb = "return_request";
+  private $td = "return_request_detail";
+  private $log = "return_request_logs";
 
   public function __construct()
   {
@@ -27,20 +26,7 @@ class Receive_po_model extends CI_Model
 
   public function get_details($code)
   {
-    $rs = $this->db->where('receive_code', $code)->get($this->td);
-
-    if($rs->num_rows() > 0)
-    {
-      return $rs->result();
-    }
-
-    return NULL;
-  }
-
-
-  public function get_po_refs($code)
-  {
-    $rs = $this->db->where('code', $code)->get($this->tr);
+    $rs = $this->db->where('return_code', $code)->get($this->td);
 
     if($rs->num_rows() > 0)
     {
@@ -79,27 +65,6 @@ class Receive_po_model extends CI_Model
   }
 
 
-  public function add_po_refs($code, array $po_refs = array())
-  {
-    if( ! empty($po_refs))
-    {
-      $qr = "INSERT INTO receive_po_ref (code, po_code) VALUES ";
-
-      $i = 1;
-
-      foreach($po_refs as $po_code)
-      {
-        $qr .= $i == 1 ? "('{$code}', '{$po_code}')" : ", ('{$code}', '{$po_code}')";
-        $i++;
-      }
-
-      return $this->db->query($qr);
-    }
-
-    return FALSE;
-  }
-
-
   public function update($code, array $ds = array())
   {
     if( ! empty($ds))
@@ -115,7 +80,7 @@ class Receive_po_model extends CI_Model
   {
     if( ! empty($ds))
     {
-      return $this->db->where('receive_code', $code)->update($this->td, $ds);
+      return $this->db->where('return_code', $code)->update($this->td, $ds);
     }
 
     return FALSE;
@@ -130,13 +95,7 @@ class Receive_po_model extends CI_Model
 
   public function delete_details($code)
   {
-    return $this->db->where('receive_code', $code)->delete($this->td);
-  }
-
-
-  public function delete_po_refs($code)
-  {
-    return $this->db->where('code', $code)->delete($this->tr);
+    return $this->db->where('return_code', $code)->delete($this->td);
   }
 
 
@@ -147,38 +106,18 @@ class Receive_po_model extends CI_Model
       $this->db->like('code', $ds['code']);
     }
 
-    if( ! empty($ds['vendor']))
+    if( ! empty($ds['customer']))
     {
       $this->db
       ->group_start()
-      ->like('vendor_code', $ds['vendor'])
-      ->or_like('vendor_name', $ds['vendor'])
+      ->like('CardCode', $ds['customer'])
+      ->or_like('CardName', $ds['customer'])
       ->group_end();
-    }
-
-    if( ! empty($ds['po_code']))
-    {
-      $codes = $this->get_receive_codes_by_po_no($ds['po_code']);
-
-      if( ! empty($codes))
-      {
-        $this->db->where_in('code', $codes);
-      }
-    }
-
-    if( ! empty($ds['invoice']))
-    {
-      $this->db->like('invoice_code', $ds['invoice']);
     }
 
     if( ! empty($ds['sap_no']))
     {
       $this->db->like('DocNum', $ds['sap_no']);
-    }
-
-    if(isset($ds['warehouse']) && $ds['warehouse'] != 'all')
-    {
-      $this->db->where('warehouse_code', $ds['warehouse']);
     }
 
     if( ! empty($ds['from_date']))
@@ -217,38 +156,18 @@ class Receive_po_model extends CI_Model
       $this->db->like('code', $ds['code']);
     }
 
-    if( ! empty($ds['vendor']))
+    if( ! empty($ds['customer']))
     {
       $this->db
       ->group_start()
-      ->like('vendor_code', $ds['vendor'])
-      ->or_like('vendor_name', $ds['vendor'])
+      ->like('CardCode', $ds['customer'])
+      ->or_like('CardName', $ds['customer'])
       ->group_end();
-    }
-
-    if( ! empty($ds['po_code']))
-    {
-      $codes = $this->get_receive_codes_by_po_no($ds['po_code']);
-
-      if( ! empty($codes))
-      {
-        $this->db->where_in('code', $codes);
-      }
-    }
-
-    if( ! empty($ds['invoice']))
-    {
-      $this->db->like('invoice_code', $ds['invoice']);
     }
 
     if( ! empty($ds['sap_no']))
     {
       $this->db->like('DocNum', $ds['sap_no']);
-    }
-
-    if(isset($ds['warehouse']) && $ds['warehouse'] != 'all')
-    {
-      $this->db->where('warehouse_code', $ds['warehouse']);
     }
 
     if( ! empty($ds['from_date']))
@@ -276,8 +195,6 @@ class Receive_po_model extends CI_Model
       $this->db->where('user', $ds['user']);
     }
 
-    // echo $this->db->order_by('id', 'DESC')->limit($perpage, $offset)->get_compiled_select($this->tb);
-
     $rs = $this->db
     ->order_by('id', 'DESC')
     ->limit($perpage, $offset)
@@ -293,37 +210,41 @@ class Receive_po_model extends CI_Model
   }
 
 
-  public function get_po($po_code)
+  public function is_exists_inv($code)
   {
-    $rs = $this->ms
-    ->select('DocEntry, DocNum, DocStatus, CardCode, CardName, DocCur, DocRate, DiscPrcnt')
-    ->where('DocNum', $po_code)
+    $count = $this->ms
+    ->where('DocNum', $code)
     ->where('CANCELED', 'N')
-    ->get('OPOR');
+    ->count_all_results('OINV');
 
-    if($rs->num_rows() === 1)
-    {
-      return $rs->row();
-    }
-
-    return NULL;
+    return $count === 1 ? TRUE : FALSE;
   }
 
 
-  public function get_po_details($po_code)
+  public function is_exists_do($code)
+  {
+    $count = $this->ms
+    ->where('DocNum', $code)
+    ->where('CANCELED', 'N')
+    ->count_all_results('ODLN');
+
+    return $count === 1 ? TRUE : FALSE;
+  }
+
+
+  public function get_invoice_details($code)
   {
     $rs = $this->ms
-    ->select('d.DocEntry, d.LineNum, d.ItemCode, d.Dscription, d.Text')
-    ->select('d.Quantity, d.LineStatus, d.OpenQty, d.Price')
-    ->select('d.PriceBefDi, d.PriceAfVAT, d.DiscPrcnt, d.INMPrice')
-		->select('d.Currency, d.Rate, d.VatGroup, d.VatPrcnt, d.unitMsr')
-    ->select('d.unitMsr, d.NumPerMsr, d.unitMsr2, d.NumPerMsr2')
-    ->select('d.UomEntry, d.UomEntry2, d.UomCode, d.UomCode2')
-    ->from('POR1 AS d')
-    ->join('OPOR AS o', 'd.DocEntry = o.DocEntry', 'left')
-    ->where('o.DocNum', $po_code)
-    ->where('o.DocStatus', 'O')
-    ->where('d.LineStatus', 'O')
+    ->select('ivd.DocEntry, ivd.LineNum, iv.DocNum')
+    ->select('ivd.ItemCode, ivd.Dscription, ivd.PriceBefDi, ivd.PriceAfVAT, ivd.Price')
+    ->select('ivd.DiscPrcnt, ivd.Quantity AS Qty, ivd.OpenQty, ivd.Currency, ivd.Rate, ivd.SlpCode')
+    ->select('ivd.VatGroup, ivd.VatPrcnt, ivd.VatSum')
+    ->select('ivd.UomCode, ivd.UomCode2, ivd.UomEntry, ivd.UomEntry2')
+    ->select('ivd.unitMsr, ivd.unitMsr2, ivd.NumPerMsr, ivd.NumPerMsr2')
+    ->from('INV1 AS ivd')
+    ->join('OINV AS iv', 'ivd.DocEntry = iv.DocEntry', 'left')
+    ->where('iv.DocNum', $code)
+    ->where('iv.CANCELED', 'N')
     ->get();
 
     if($rs->num_rows() > 0)
@@ -335,94 +256,57 @@ class Receive_po_model extends CI_Model
   }
 
 
-  public function get_po_detail($po_code, $item_code)
+  public function get_do_details($code)
   {
     $rs = $this->ms
-    ->select('POR1.DocEntry, POR1.LineNum, POR1.ItemCode, POR1.Dscription, POR1.Quantity, POR1.LineStatus, POR1.OpenQty, POR1.PriceAfVAT AS price')
-    ->select('POR1.Currency, POR1.Rate, POR1.VatGroup, POR1.VatPrcnt')
-    ->from('POR1')
-    ->join('OPOR', 'POR1.DocEntry = OPOR.DocEntry', 'left')
-    ->where('OPOR.DocNum', $po_code)
-    ->where('POR1.ItemCode', $item_code)
-    ->where('OPOR.DocStatus', 'O')
+    ->select('dd.DocEntry, dd.LineNum, do.DocNum')
+    ->select('dd.ItemCode, dd.Dscription, dd.PriceBefDi, dd.PriceAfVAT, dd.Price')
+    ->select('dd.DiscPrcnt, dd.Quantity AS Qty, dd.OpenQty, dd.Currency, dd.Rate, dd.SlpCode')
+    ->select('dd.VatGroup, dd.VatPrcnt, dd.VatSum')
+    ->select('dd.UomCode, dd.UomCode2, dd.UomEntry, dd.UomEntry2')
+    ->select('dd.unitMsr, dd.unitMsr2, dd.NumPerMsr, dd.NumPerMsr2')
+    ->from('DLN1 AS dd')
+    ->join('ODLN AS do', 'dd.DocEntry = do.DocEntry', 'left')
+    ->where('do.DocNum', $code)
+    ->where('do.CANCELED', 'N')
     ->get();
 
     if($rs->num_rows() > 0)
     {
-      return $rs->row();
+      return $rs->result();
     }
 
     return NULL;
   }
 
 
-  public function get_po_row($docEntry, $lineNum)
+  public function get_open_qty($baseType, $baseEntry, $baseLine)
   {
+
+    if($baseType === 'IV')
+    {
+      $this->ms->from('INV1');
+    }
+
+    if($baseType == 'DO')
+    {
+      $this->ms->from('DLN1');
+    }
+
     $rs = $this->ms
-    ->select('POR1.DocEntry, POR1.LineNum, POR1.CodeBars')
-    ->select('POR1.ItemCode, POR1.Dscription, POR1.Quantity, POR1.LineStatus')
-    ->select('POR1.OpenQty, POR1.Price, POR1.PriceBefDi, POR1.PriceAfVAT, POR1.DiscPrcnt')
-		->select('POR1.Currency, POR1.Rate, POR1.VatGroup, POR1.VatPrcnt')
-    ->from('POR1')
-    ->where('DocEntry', $docEntry)
-    ->where('LineNum', $lineNum)
+    ->select('OpenQty')
+    ->where('DocEntry', $baseEntry)
+    ->where('LineNum', $baseLine)
     ->get();
 
-    if($rs->num_rows() > 0)
+    if($rs->num_rows() == 1)
     {
-      return $rs->row();
-    }
-
-    return NULL;
-  }
-
-
-  public function get_po_data($po_code)
-  {
-    $rs = $this->ms
-    ->select('POR1.Currency, POR1.VatGroup, POR1.VatPrcnt')
-    ->from('POR1')
-    ->join('OPOR', 'POR1.DocEntry = OPOR.DocEntry', 'left')
-    ->where('OPOR.DocNum', $po_code)
-    ->limit(1)
-    ->get();
-
-    if($rs->num_rows() === 1)
-    {
-      return $rs->row();
-    }
-
-    return NULL;
-  }
-
-
-  public function get_on_order_qty($itemCode, $baseEntry, $baseLine, $code = NULL)
-  {
-    $this->db
-    ->select_sum('rd.ReceiveQty')
-    ->from('receive_po_details AS rd')
-    ->join('receive_po AS ro', 'rd.receive_code = ro.code', 'left')
-    ->where('ro.status !=', 'D')
-    ->where('ro.DocNum IS NULL', NULL, FALSE)
-    ->where('rd.baseEntry', $baseEntry)
-    ->where('rd.baseLine', $baseLine)
-    ->where('rd.ItemCode', $itemCode);
-
-    if( ! empty($code))
-    {
-      $this->db->where('rd.receive_code !=', $code);
-    }
-
-    $rs = $this->db->get();    
-
-    if($rs->num_rows() === 1)
-    {
-      return $rs->row()->ReceiveQty > 0 ? $rs->row()->ReceiveQty : 0;
+      return $rs->row()->OpenQty;
     }
 
     return 0;
   }
-
+  
 
   public function get_max_code($code)
   {
@@ -441,14 +325,14 @@ class Receive_po_model extends CI_Model
   }
 
 
-  public function get_sap_receive_doc($code)
+  public function get_sap_return_doc($code)
   {
     $rs = $this->ms
     ->select('DocEntry, DocStatus')
     ->where('U_WEBORDER', $code)
     ->where('CANCELED', 'N')
     ->order_by('DocEntry', 'DESC')
-    ->get('OPDN');
+    ->get('ORRR');
 
     if($rs->num_rows() > 0)
     {
@@ -461,7 +345,7 @@ class Receive_po_model extends CI_Model
 
   public function get_sap_doc_num($code)
   {
-    $rs = $this->ms->select('DocNum')->where('U_WEBORDER', $code)->where('CANCELED', 'N')->get('OPDN');
+    $rs = $this->ms->select('DocNum')->where('U_WEBORDER', $code)->where('CANCELED', 'N')->get('ORRR');
 
     if($rs->num_rows() === 1)
     {
@@ -477,7 +361,7 @@ class Receive_po_model extends CI_Model
     $rs = $this->mc
     ->select('DocEntry, U_WEBORDER, CardCode, CardName, F_WebDate, F_SapDate, F_Sap, Message')
     ->where('U_WEBORDER', $code)
-    ->get('OPDN');
+    ->get('ORRR');
 
     if($rs->num_rows() > 0)
     {
@@ -497,7 +381,7 @@ class Receive_po_model extends CI_Model
     ->where('F_Sap', 'N')
     ->or_where('F_Sap IS NULL', NULL, FALSE)
     ->group_end()
-    ->get('OPDN');
+    ->get('ORRR');
 
     if($rs->num_rows() > 0)
     {
@@ -514,7 +398,7 @@ class Receive_po_model extends CI_Model
     ->select('F_Sap, F_SapDate, Message')
     ->where('U_WEBORDER', $code)
     ->order_by('DocEntry', 'DESC')
-    ->get('OPDN');
+    ->get('ORRR');
 
     if($rs->num_rows() > 0)
     {
@@ -525,9 +409,9 @@ class Receive_po_model extends CI_Model
   }
 
 
-  public function add_sap_receive_po(array $ds = array())
+  public function add_sap_return_request(array $ds = array())
   {
-    $rs = $this->mc->insert('OPDN', $ds);
+    $rs = $this->mc->insert('ORRR', $ds);
 
     if($rs)
     {
@@ -538,23 +422,23 @@ class Receive_po_model extends CI_Model
   }
 
 
-  public function update_sap_receive_po($code, $ds)
+  public function update_sap_return_request($code, $ds)
   {
-    return $this->mc->where('U_WEBORDER', $code)->update('OPDN', $ds);
+    return $this->mc->where('U_WEBORDER', $code)->update('ORRR', $ds);
   }
 
 
-  public function add_sap_receive_po_detail(array $ds = array())
+  public function add_sap_return_request_detail(array $ds = array())
   {
-    return $this->mc->insert('PDN1', $ds);
+    return $this->mc->insert('RRR1', $ds);
   }
 
 
   public function drop_temp_data($docEntry)
   {
     $this->mc->trans_start();
-    $this->mc->where('DocEntry', $docEntry)->delete('PDN1');
-    $this->mc->where('DocEntry', $docEntry)->delete('OPDN');
+    $this->mc->where('DocEntry', $docEntry)->delete('RRR1');
+    $this->mc->where('DocEntry', $docEntry)->delete('ORRR');
     $this->mc->trans_complete();
     return $this->mc->trans_status();
   }
@@ -563,8 +447,8 @@ class Receive_po_model extends CI_Model
   public function drop_temp_exists_data($code)
   {
     $this->mc->trans_start();
-    $this->mc->where('U_WEBORDER', $code)->delete('PDN1');
-    $this->mc->where('U_WEBORDER', $code)->delete('OPDN');
+    $this->mc->where('U_WEBORDER', $code)->delete('RRR1');
+    $this->mc->where('U_WEBORDER', $code)->delete('ORRR');
     $this->mc->trans_complete();
 
     return $this->mc->trans_status();
@@ -577,7 +461,7 @@ class Receive_po_model extends CI_Model
     ->select('DocStatus')
     ->where('U_WEBORDER', $code)
     ->where('CANCELED', 'N')
-    ->get('OPDN');
+    ->get('ORRR');
 
     if($rs->num_rows() === 1)
     {
@@ -585,24 +469,6 @@ class Receive_po_model extends CI_Model
     }
 
     return 'O';
-  }
-
-
-  public function get_receive_codes_by_po_no($po_no)
-  {
-    $codes = ["xxx"];
-
-    $rs = $this->db->query("SELECT code FROM receive_po_ref WHERE po_code LIKE '%{$po_no}%' GROUP BY  code");
-
-    if($rs->num_rows() > 0)
-    {
-      foreach($rs->result() as $rd)
-      {
-        $codes[] = $rd->code;
-      }
-    }
-
-    return $codes;
   }
 
 
@@ -618,7 +484,7 @@ class Receive_po_model extends CI_Model
     ->where_in('tempStatus', ['P', 'F'])
     ->order_by('code', 'ASC')
     ->limit($limit)
-    ->get('receive_po');
+    ->get('return_request');
 
     if($rs->num_rows() > 0)
     {

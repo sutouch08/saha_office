@@ -60,11 +60,28 @@
 		<label>Rate</label>
 		<input type="number" class="width-100 text-center r" value="<?php echo $doc->DocRate; ?>"  readonly/>
 	</div>
+  <div class="col-lg-1 col-md-1 col-sm-1 col-xs-3 padding-5">
+		<label>DiscPrcnt</label>
+		<input type="number" class="width-100 text-center r" value="<?php echo $doc->DiscPrcnt; ?>"  readonly/>
+	</div>
+  <div class="col-lg-1 col-md-1 col-sm-1 col-xs-3 padding-5">
+		<label>DiscSum</label>
+		<input type="number" class="width-100 text-center r" value="<?php echo $doc->DiscSum; ?>"  readonly/>
+	</div>
+  <div class="col-lg-1 col-md-1 col-sm-1 col-xs-3 padding-5">
+		<label>DocTotal</label>
+		<input type="number" class="width-100 text-center r" value="<?php echo $doc->DocTotal; ?>"  readonly/>
+	</div>
+  <div class="col-lg-1 col-md-1 col-sm-1 col-xs-3 padding-5">
+		<label>VatSum</label>
+		<input type="number" class="width-100 text-center r" value="<?php echo $doc->VatSum; ?>"  readonly/>
+	</div>
+
 	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
 		<label>Whs</label>
 		<input type="text" class="width-100 text-center r" value="<?php echo $doc->ToWhsCode; ?>" readonly/>
 	</div>
-	<div class="col-lg-8-harf col-md-6-harf col-sm-5-harf col-xs-12 padding-5">
+	<div class="col-lg-4-harf col-md-6-harf col-sm-5-harf col-xs-12 padding-5">
 		<label>Comments</label>
 		<input type="text" class="width-100 r" value="<?php echo $doc->Comments; ?>" readonly/>
 	</div>

@@ -1,7 +1,25 @@
 <!--  Search Product -->
 <div class="row">
-	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 text-right">
-		<button type="button" class="btn btn-xs btn-danger" onclick="removeChecked()">ลบรายการ</button>
+	<div class="col-lg-1-harf col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
+		<label>ใบสั่งซื้อ</label>
+		<input type="text" class="form-control input-sm text-center"	id="po-code" value="<?php echo $doc->po_code; ?>" placeholder="ค้นหาใบสั่งซื้อ" />
+	</div>
+	<div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-3 padding-5">
+		<label class="display-block not-show">confirm</label>
+		<button type="button" class="btn btn-xs btn-primary btn-block" id="btn-get-po" onclick="getPoDetail()">Load</button>
+	</div>
+	<div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-3 padding-5">
+		<label class="display-block not-show">confirm</label>
+		<button type="button" class="btn btn-xs btn-warning btn-block" id="btn-clear-po" onclick="clearPo()">Clear</button>
+	</div>
+
+	<div class="divider visible-xs"></div>
+
+	<div class="col-lg-7-harf col-md-6 col-sm-5 col-xs-8">&nbsp;</div>
+
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+		<label class="display-block not-show hidden-xs">confirm</label>
+		<button type="button" class="btn btn-xs btn-danger btn-block" onclick="removeChecked()">ลบรายการ</button>
 	</div>
 </div>
 

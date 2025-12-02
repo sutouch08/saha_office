@@ -73,7 +73,7 @@ $('#input-qty').keydown(function(e) {
 
 
 function doReceive() {
-  let poNo = $('#po-code').val();
+  let poNo = $('#po-refs').val();
   let inputQty = parseDefaultFloat($('#input-qty').val(), 1);
   let barcode = $('#barcode').val().trim();
 

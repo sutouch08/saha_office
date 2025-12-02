@@ -1777,6 +1777,9 @@ input[type=number]::-webkit-outer-spin-button {
 	width:350px !important;
 }
 
+.fix-width-400 {
+  width:400px !important;
+}
 
 .bp-footer .bp-footer-inner .bp-footer-content {
     position: fixed;

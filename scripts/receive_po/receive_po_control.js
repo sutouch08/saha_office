@@ -37,7 +37,7 @@ function addPoItems() {
 					let vatPerQty = parseDefault(parseFloat(el.data('vatperqty')), 0.00);
 					let limit = parseDefault(parseFloat(el.data('limit')), 0.00);
 					let backlogs = parseDefault(parseFloat(el.data('backlogs')), 0);
-					let amount = roundNumber(qty * price, 2);
+					let amount = roundNumber((qty * price), 2);
 					let vatCode = el.data('vatcode');
 					let vatRate = parseDefault(parseFloat(el.data('vatrate')), 7);
 					let vatAmount = roundNumber(amount * (vatRate * 0.01), 2);
@@ -58,6 +58,7 @@ function addPoItems() {
 						'Price' : price,
 						'PriceLabel' : addCommas(price.toFixed(3)),
 						'PriceAfVAT' : priceAfVat,
+						'INMPrice' : el.data('inmprice'),
 						'VatPerQty' : vatPerQty,
 						'qty' : qty,
 						'qtyLabel' : addCommas(qty.toFixed(2)),
@@ -157,6 +158,7 @@ function removeRow(uid) {
 
 function getPoDetail() {
 	let poCode = $('#po-code').val().trim();
+	let code = $('#code').val();
 
 	if(poCode.length == 0) {
 		return false;
@@ -172,6 +174,7 @@ function getPoDetail() {
 		type:'GET',
 		cache:false,
 		data:{
+			'code' : code,
 			'po_code' : poCode
 		},
 		success:function(rs) {
@@ -186,6 +189,7 @@ function getPoDetail() {
 					$('#DocRate').val(ds.DocRate);
 					$('#vendor_code').val(ds.CardCode);
 					$('#vendorName').val(ds.CardName);
+					$('#disc-percent').val(roundNumber(ds.DiscPrcnt, 2).toFixed(2));
 
 					let source = $('#po-template').html();
 					let data = ds.details;
@@ -298,7 +302,26 @@ function clearAll() {
 
 
 function clearPo() {
-	$('#po-code').val('').focus();
+	if($('.row-qty').length) {
+		swal({
+			title:'Warning !',
+			text:'รายการปัจจุบันจะถูกลบ <br/>ต้องการดำเนินการต่อหรือไม่ ?',
+			type:'warning',
+			html:true,
+			showCancelButton:true,
+			cancelButtonText:'No',
+			confirmButtonText:'Yes',
+			closeOnConfirm:true
+		}, function() {
+			$('#receive-list').html('');
+			$('#disc-percent').val(0);
+			recalTotal();
+			$('#po-code').val('').removeAttr('disabled').focus();
+		});
+	}
+	else {
+		$('#po-code').val('').removeAttr('disabled').focus();
+	}
 }
 
 

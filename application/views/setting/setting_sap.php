@@ -68,6 +68,17 @@
       <div class="divider-hidden"></div>
 
 			<div class="col-sm-4">
+        <span class="form-control left-label">Return Warehouse</span>
+      </div>
+      <div class="col-sm-8">
+				<select class="input-xlarge" name="RETURN_WAREHOUSE" id="return-warehouse">
+					<option value="">Select</option>
+					<?php echo select_warehouse($RETURN_WAREHOUSE); ?>
+				</select>
+      </div>
+      <div class="divider-hidden"></div>
+
+			<div class="col-sm-4">
         <span class="form-control left-label">Buffer Warehouse</span>
       </div>
       <div class="col-sm-8">
@@ -147,6 +158,7 @@
 
 
 		$('#default-warehouse').select2();
+		$('#return-warehouse').select2();
 		$('#buffer-warehouse').select2();
 		$('#inbound-warehouse').select2();
 

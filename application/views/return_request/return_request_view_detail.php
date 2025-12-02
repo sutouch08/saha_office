@@ -91,6 +91,21 @@
 	<input type="hidden" id="purchase-vat-rate" value="<?php echo getConfig('PURCHASE_VAT_RATE'); ?>" />
 </div>
 <hr class="margin-top-10 margin-bottom-10"/>
+<?php $po_ref = $doc->po_code; ?>
+<?php if( ! empty($po_refs)) : ?>
+	<?php $po_ref = ""; ?>
+	<?php $p = 1; ?>
+	<?php foreach($po_refs as $ref) : ?>
+		<?php $po_ref .= $p == 1 ? $ref->po_code : ", {$ref->po_code}"; ?>
+		<?php $p++; ?>
+	<?php endforeach; ?>
+<?php endif; ?>
+<div class="row">
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5">
+		<b>Po reference : </b><?php echo $po_ref; ?>
+	</div>
+</div>
+<hr class="margin-top-10 margin-bottom-10"/>
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 border-1 table-responsive" id="receiveTable" style="padding-left:0; padding-right:0; max-height:400px; overflow:auto;">
 		<table class="table table-bordered" style="font-size:11px; min-width:1010px; margin-bottom:0;">
@@ -172,41 +187,28 @@
 
 	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
     <div class="form-horizontal">
-			<div class="form-group margin-bottom-5">
+			<div class="form-group" style="margin-bottom:5px;">
 				<label class="col-lg-3 col-md-3 col-sm-2 col-xs-6 control-label no-padding-right">จำนวนรวม</label>
         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-6 padding-5 last">
           <input type="text" class="form-control input-sm text-right" id="total-qty" value="<?php echo number($doc->TotalReceived, 2); ?>" disabled>
         </div>
         <label class="col-lg-2 col-md-2 col-sm-2 col-xs-6 control-label no-padding-right">มูลค่ารวม</label>
         <div class="col-lg-4 col-md-4 col-sm-5 col-xs-6 padding-5 last">
-          <input type="text" id="total-amount" class="form-control input-sm text-right" value="<?php echo number(($doc->DocTotal + $doc->DiscSum) - $doc->VatSum, 2); ?>" disabled/>
+          <input type="text" id="total-amount" class="form-control input-sm text-right" value="<?php echo number($doc->DocTotal, 2); ?>" disabled/>
         </div>
       </div>
 
-			<div class="form-group margin-bottom-5">
-				<label class="col-lg-6 col-md-6 col-sm-7 col-xs-6 control-label no-padding-right">ส่วนลด</label>
-        <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
-					<div class="input-group">
-						<input type="text" class="form-control input-sm text-right" id="disc-percent" value="<?php echo number($doc->DiscPrcnt, 2); ?>" disabled>
-						<span class="input-group-addon" style="padding:6px;">%</span>
-					</div>
-        </div>
-        <div class="col-lg-4 col-md-4 col-sm-5 col-xs-6 padding-5 last">
-          <input type="text" id="disc-sum" class="form-control input-sm text-right" value="<?php echo number($doc->DiscSum, 2); ?>" disabled/>
-        </div>
-      </div>
-
-      <div class="form-group margin-bottom-5">
+      <div class="form-group" style="margin-bottom:5px;">
         <label class="col-lg-8 col-md-8 col-sm-7 col-xs-6 control-label no-padding-right">ภาษีมูลค่าเพิ่ม</label>
         <div class="col-lg-4 col-md-4 col-sm-5 col-xs-6 padding-5 last">
           <input type="text" id="vat-sum" class="form-control input-sm text-right" value="<?php echo number($doc->VatSum, 2); ?>" disabled />
         </div>
       </div>
 
-      <div class="form-group margin-bottom-5">
+      <div class="form-group" style="margin-bottom:5px;">
         <label class="col-lg-8 col-md-8 col-sm-7 col-xs-6 control-label no-padding-right">รวมทั้งสิ้น</label>
         <div class="col-lg-4 col-md-4 col-sm-5 col-xs-6 padding-5 last">
-          <input type="text" id="doc-total" class="form-control input-sm text-right" value="<?php echo number($doc->DocTotal, 2); ?>" disabled/>
+          <input type="text" id="doc-total" class="form-control input-sm text-right" value="<?php echo number($doc->DocTotal + $doc->VatSum, 2); ?>" disabled/>
         </div>
       </div>
     </div>
@@ -223,7 +225,7 @@
 	<?php endif; ?>
 </div>
 
-<script src="<?php echo base_url(); ?>scripts/receive_po/receive_po.js?v=<?php echo date('Ymd'); ?>"></script>
-<script src="<?php echo base_url(); ?>scripts/receive_po/receive_po_add.js?v=<?php echo date('Ymd'); ?>"></script>
-<script src="<?php echo base_url(); ?>scripts/receive_po/receive_po_control.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/return_request/return_request.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/return_request/return_request_add.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/return_request/return_request_control.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

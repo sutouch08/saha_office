@@ -1,40 +1,38 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Receive_po extends PS_Controller
+class Return_request extends PS_Controller
 {
-	public $menu_code = 'GRPO';
+	public $menu_code = 'RTRQ';
 	public $menu_group_code = 'IC';
-	public $title = 'Goods Receipt PO';
+	public $title = 'Return Request';
 
   public function __construct()
   {
     parent::__construct();
-    $this->home = base_url().'receive_po';
-		$this->load->model('receive_po_model');
-		$this->load->model('vendor_model');
+    $this->home = base_url().'return_request';
+		$this->load->model('return_request_model');
+		$this->load->model('customers_model');
 		$this->load->model('item_model');
 		$this->load->model('zone_model');
 		$this->load->helper('currency');
 		$this->load->helper('warehouse');
-		$this->load->helper('receive_po');
+		$this->load->helper('return_request');
   }
 
 
 	public function index()
 	{
 		$filter = array(
-			'code' => get_filter('code', 'gr_code', ''),
-			'vendor' => get_filter('vendor', 'gr_vendor', ''),
-			'po_code' => get_filter('po_code', 'gr_po_code', ''),
-			'invoice' => get_filter('invoice', 'gr_invoice', ''),
-			'sap_no' => get_filter('sap_no', 'gr_sap_no', ''),
-			'warehouse' => get_filter('warehouse', 'gr_warehouse', 'all'),
-			'user' => get_filter('user', 'gr_user', 'all'),
-			'status' => get_filter('status', 'gr_status', 'all'),
-			'tempStatus' => get_filter('tempStatus', 'gr_tempStatus', 'all'),
-			'from_date' => get_filter('from_date', 'gr_from_date', ''),
-			'to_date' => get_filter('to_date', 'gr_to_date', '')
+			'code' => get_filter('code', 'rt_code', ''),
+			'customer' => get_filter('', 'rt_customer', ''),
+			'sap_no' => get_filter('sap_no', 'rt_sap_no', ''),
+			'warehouse' => get_filter('warehouse', 'rt_warehouse', 'all'),
+			'user' => get_filter('user', 'rt_user', 'all'),
+			'status' => get_filter('status', 'rt_status', 'all'),
+			'tempStatus' => get_filter('tempStatus', 'rt_tempStatus', 'all'),
+			'from_date' => get_filter('from_date', 'rt_from_date', ''),
+			'to_date' => get_filter('to_date', 'rt_to_date', '')
 		);
 
 		if($this->input->post('search'))
@@ -46,23 +44,18 @@ class Receive_po extends PS_Controller
 			//--- แสดงผลกี่รายการต่อหน้า
 			$perpage = get_rows();
 			$segment = 3;
-			$rows = $this->receive_po_model->count_rows($filter);
-			$filter['data'] = $this->receive_po_model->get_list($filter, $perpage, $this->uri->segment($segment));
+			$rows = $this->return_request_model->count_rows($filter);
+			$filter['data'] = $this->return_request_model->get_list($filter, $perpage, $this->uri->segment($segment));
 			$init	= pagination_config($this->home.'/index/', $rows, $perpage, $segment);
 			$this->pagination->initialize($init);
-			$this->load->view('receive_po/receive_po_list', $filter);
+			$this->load->view('return_request/return_request_list', $filter);
 		}
 	}
 
 
 	public function add_new()
 	{
-		$ds = [
-			'whsCode' => getConfig('INBOUND_WAREHOUSE'),
-			'binCode' => getConfig('INBOUND_ZONE')
-		];
-
-		$this->load->view('receive_po/receive_po_add', $ds);
+		$this->load->view('return_request/return_request_add');
 	}
 
 
@@ -73,9 +66,9 @@ class Receive_po extends PS_Controller
 
 		if( ! empty($ds))
 		{
-			$zone = $this->zone_model->get($ds->zone_code);
+			$customer = $this->customers_model->get($ds->customer_code);
 
-			if( ! empty($zone))
+			if( ! empty($customer))
 			{
 				$date_add = date('Y-m-d');
 				$posting_date = db_date($ds->posting_date);
@@ -85,19 +78,19 @@ class Receive_po extends PS_Controller
 					'code' => $code,
 					'date_add' => $date_add,
 					'posting_date' => $posting_date,
-					'vendor_code' => $ds->vendor_code,
-					'vendor_name' => $ds->vendor_name,
-					'po_code' => get_null($ds->po_code),
-					'invoice_code' => get_null($ds->invoice_code),
-					'warehouse_code' => $zone->warehouse_code,
-					'zone_code' => $zone->code,
+					'CardCode' => $customer->CardCode,
+					'CardName' => $customer->CardName,
+					'WhsCode' => $ds->warehouse_code,
+					'GroupNum' => $customer->GroupNum,
+					'SlpCode' => $customer->SlpCode,
+					'CntctCode' => $customer->CntctPrsn,
 					'Currency' => $ds->Currency,
 					'Rate' => $ds->Rate,
 					'remark' => get_null(trim($ds->remark)),
 					'user' => $this->user->uname
 				);
 
-				if( ! $this->receive_po_model->add($arr))
+				if( ! $this->return_request_model->add($arr))
 				{
 					$sc = FALSE;
 					$this->error = "Failed to create new document";
@@ -112,13 +105,13 @@ class Receive_po extends PS_Controller
 						'action' => 'add'
 					);
 
-					$this->receive_po_model->add_logs($logs);
+					$this->return_request_model->add_logs($logs);
 				}
 			}
 			else
 			{
 				$sc = FALSE;
-				$this->error = "Invalid Bin Location";
+				$this->error = "Invalid Customer";
 			}
 		}
 		else
@@ -139,32 +132,18 @@ class Receive_po extends PS_Controller
 
 	public function edit($code)
 	{
-		$doc = $this->receive_po_model->get($code);
+		$doc = $this->return_request_model->get($code);
 
 		if( ! empty($doc))
 		{
-			$details = $this->receive_po_model->get_details($code);
-			$rows = [];
+			$details = $this->return_request_model->get_details($code);
+			$baseRef = [];
 
 			if( ! empty($details))
 			{
-				$ro = getConfig('RECEIVE_OVER_PO');
-				$rate = ($ro * 0.01);
-
 				foreach($details as $rs)
 				{
-					$row = $this->receive_po_model->get_po_row($rs->baseEntry, $rs->baseLine);
-
-					if( ! empty($row))
-					{
-						$dif = $row->Quantity - $row->OpenQty;
-						$onOrder = $this->receive_po_model->get_on_order_qty($rs->ItemCode, $rs->baseEntry, $rs->baseLine);
-						$onOrder = $onOrder >= $rs->Qty ? $onOrder - $rs->Qty : 0;
-						$qty = $row->OpenQty - $onOrder;
-						$rs->backlogs = $qty;
-						$rs->limit = ($row->Quantity + ($row->Quantity * $rate)) - $dif;
-						$rs->LineTotal = $rs->Qty * $rs->Price;
-					}
+					$rs->OpenQty = ( ! empty($rs->BaseType) && ! empty($rs->BaseEntry) && $rs->BaseLine != NULL) ? $this->return_request_model->get_open_qty($rs->BaseType, $rs->BaseEntry, $rs->BaseLine) : -1;
 				}
 			}
 
@@ -173,7 +152,7 @@ class Receive_po extends PS_Controller
 				'details' => $details
 			);
 
-			$this->load->view('receive_po/receive_po_edit', $ds);
+			$this->load->view('return_request/return_request_edit', $ds);
 		}
 		else
 		{
@@ -182,105 +161,141 @@ class Receive_po extends PS_Controller
 	}
 
 
-	public function process($code)
+	public function get_base_ref($base_type, $customer_code)
 	{
-		$doc = $this->receive_po_model->get($code);
+		$sc = TRUE;
+		$ds = [];
 
-		if( ! empty($doc))
+		if( ! empty($base_type) && ! empty($base_type))
 		{
-			if($doc->status == 'O')
+			$customer = $this->customers_model->get($customer_code);
+
+			if(empty($customer))
 			{
-				$details = $this->receive_po_model->get_details($code);
+				$sc = FALSE;
+				$ds[] = "Invalid customer code";
+			}
 
-				$bc = [];
-				$items = [];
+			if($sc === TRUE)
+			{
+				$txt = trim($_REQUEST['term']);
+				$tb = $base_type == 'IV' ? 'OINV' : 'ODLN';
 
-				if( ! empty($details))
+				$this->ms
+				->select('DocDate, DocNum')
+				->where('CardCode', $customer_code);
+
+				if($txt != "*")
 				{
-					foreach($details as $rs)
-					{
-						if(empty($items[$rs->ItemCode]))
-						{
-							$bcList = $this->item_model->getBarcodeList($rs->ItemCode);
-
-							if( ! empty($bcList))
-							{
-								$arr = "";
-								$c = count($bcList);
-								$i = 1;
-								foreach($bcList as $bcd)
-								{
-									$arr .= "{\"barcode\" : \"{$bcd->Barcode}\", \"ItemCode\" : \"{$bcd->ItemCode}\", \"ItemName\" : \"{$bcd->ItemName}\", \"UomName\" : \"{$bcd->UomName}\", \"BaseQty\" : \"".round($bcd->BaseQty, 2)."\"}";
-									$arr .= $i == $c ? "" : ",";
-									$i++;
-
-									if( ! empty($bcd->Barcode))
-									{
-										$bc[] = $bcd; //-- list of barcode : Barcode, ItemCode, UomEntry, BaseQty;
-
-										if($rs->UomEntry == $bcd->UomEntry)
-										{
-											$rs->barcode = $bcd->Barcode;
-											$items[$rs->ItemCode]['barcode'] = $bcd->Barcode;
-										}
-									}
-								}
-
-								$items[$rs->ItemCode]['barcode'] = empty($items[$rs->ItemCode]['barcode']) ? NULL : $items[$rs->ItemCode]['barcode'];
-								$items[$rs->ItemCode]['data'] = htmlspecialchars("[".$arr."]");
-							}
-							else
-							{
-								$items[$rs->ItemCode]['data'] = NULL;
-								$items[$rs->ItemCode]['barcode'] = NULL;
-							}
-
-							$rs->barcode = $items[$rs->ItemCode]['barcode'];
-							$rs->item_data = $items[$rs->ItemCode]['data'];
-						}
-						else
-						{
-							$rs->barcode = $items[$rs->ItemCode]['barcode'];
-							$rs->item_data = $items[$rs->ItemCode]['data'];
-						}
-					}
+					$this->ms->like('DocNum', $txt);
 				}
 
-				$ds = array(
-				'doc' => $doc,
-				'details' => $details,
-				'po_refs' => $this->receive_po_model->get_po_refs($code),
-				'bcList' => $bc
-				);
+				$rs = $this->ms
+				->order_by('DocNum', 'DESC')
+				->limit(100)
+				->get($tb);
 
-				$this->load->view('receive_po/receive_po_process', $ds);
+				if($rs->num_rows() > 0)
+				{
+					foreach($rs->result() as $row)
+					{
+						$ds[] = thai_date($row->DocDate, FALSE, '.').' | '.$row->DocNum;
+					}
+				}
 			}
-			else
-			{
-				$this->view_detail($code);
-			}
+		}
+
+		echo json_encode($ds);
+	}
+
+
+	public function load_base_ref_details()
+	{
+		$sc = TRUE;
+		$ds = [];
+		$baseRef = $this->input->post('baseRef');
+		$baseType = $this->input->post('baseType');
+
+		$exists = $baseType == 'DO' ? $this->return_request_model->is_exists_do($baseRef) : $this->return_request_model->is_exists_inv($baseRef);
+
+		if( ! $exists)
+		{
+			$sc = FALSE;
+			$this->error = "Document Number '{$baseRef}' does not exists";
 		}
 		else
 		{
-			$this->page_error();
+			$details = $baseType == 'DO' ? $this->return_request_model->get_do_details($baseRef) : $this->return_request_model->get_invoice_details($baseRef);
+
+			if( ! empty($details))
+			{
+				$no = 1;
+
+				foreach($details as $rs)
+				{
+					$ds[] = array(
+						'no' => $no,
+						'uid' => $baseType.$rs->DocNum.'-'.$rs->LineNum,
+						"baseType" => $baseType,
+						"DocEntry" => $rs->DocEntry,
+						"LineNum" => $rs->LineNum,
+						"DocNum" => $rs->DocNum,
+						"ItemCode" => $rs->ItemCode,
+						"Dscription" => $rs->Dscription,
+						"PriceBefDi" => $rs->PriceBefDi,
+						"PriceAfVAT" => $rs->PriceAfVAT,
+						"Price" => $rs->Price,
+						"PriceLabel" => number($rs->PriceBefDi, 2),
+						"DiscPrcnt" => round($rs->DiscPrcnt, 2),
+						"Qty" => $rs->Qty,
+						"QtyLabel" => number($rs->Qty, 2),
+						"OpenQty" => $rs->OpenQty,
+						"OpenQtyLabel" => number($rs->OpenQty, 2),
+						"Currency" => $rs->Currency,
+						"Rate" => $rs->Rate,
+						"SlpCode" => $rs->SlpCode,
+						"VatGroup" => $rs->VatGroup,
+						"VatPrcnt" => $rs->VatPrcnt,
+						"VatSum" => $rs->VatSum,
+						"UomCode" => $rs->UomCode,
+						"UomCode2" => $rs->UomCode2,
+						"UomEntry" => $rs->UomEntry,
+						"UomEntry2" => $rs->UomEntry2,
+						"unitMsr" => $rs->unitMsr,
+						"unitMsr2" => $rs->unitMsr2,
+						"NumPerMsr" => $rs->NumPerMsr,
+						"NumPerMsr2" => $rs->NumPerMsr2
+					);
+
+					$no++;
+				}
+			}
 		}
+
+		$arr = array(
+			'status' => $sc === TRUE ? 'success' : 'failed',
+			'message' => $sc === TRUE ? 'success' : $this->error,
+			'data' => $sc === TRUE ? $ds : NULL
+		);
+
+		echo json_encode($arr);
 	}
 
 
 	public function view_detail($code)
 	{
-		$doc = $this->receive_po_model->get($code);
+		$doc = $this->return_request_model->get($code);
 
 		if( ! empty($doc))
 		{
 			$ds = array(
 				'doc' => $doc,
-				'details' => $this->receive_po_model->get_details($code),
-				'po_refs' => $this->receive_po_model->get_po_refs($code),
-				'logs' => $this->receive_po_model->get_logs($code)
+				'details' => $this->return_request_model->get_details($code),
+				'po_refs' => $this->return_request_model->get_po_refs($code),
+				'logs' => $this->return_request_model->get_logs($code)
 			);
 
-			$this->load->view('receive_po/receive_po_view_detail', $ds);
+			$this->load->view('return_request/return_request_view_detail', $ds);
 		}
 		else
 		{
@@ -297,15 +312,15 @@ class Receive_po extends PS_Controller
 
 		if( ! empty($ds))
 		{
-			$doc = $this->receive_po_model->get($ds->code);
+			// print_r($ds);
+			// exit();
+			$doc = $this->return_request_model->get($ds->code);
 
 			if( ! empty($doc))
 			{
 				if($doc->status == 'P')
 				{
-					$zone = $this->zone_model->get($ds->zone_code);
-
-					if( ! empty($zone))
+					if( ! empty($ds->rows))
 					{
 						$po_refs = [];
 
@@ -314,27 +329,21 @@ class Receive_po extends PS_Controller
 						//--- update header
 						$arr = array(
 							'posting_date' => db_date($ds->posting_date, FALSE),
-							'vendor_code' => trim($ds->vendor_code),
-							'vendor_name' => trim($ds->vendor_name),
-							'po_code' => trim($ds->po_code),
-							'invoice_code' => get_null(trim($ds->invoice_code)),
-							'warehouse_code' => $zone->warehouse_code,
-							'zone_code' => $zone->code,
+							'CardCode' => trim($ds->customer_code),
+							'CardName' => trim($ds->customer_name),
+							'WhsCode' => $ds->warehouse_code,
 							'Currency' => $ds->Currency,
 							'Rate' => $ds->Rate,
-							'DiscPrcnt' => $ds->DiscPrcnt,
-							'DiscSum' => $ds->DiscSum,
 							'DocTotal' => $ds->DocTotal,
 							'VatSum' => $ds->VatSum,
 							'TotalQty' => $ds->TotalQty,
-							'TotalReceived' => $ds->save_type == 'C' ? $ds->TotalReceived : 0,
 							'update_user' => $this->user->uname,
 							'date_upd' => now(),
 							'status' => $ds->save_type,
 							'remark' => get_null(trim($ds->remark))
 						);
 
-						if( ! $this->receive_po_model->update($ds->code, $arr))
+						if( ! $this->return_request_model->update($ds->code, $arr))
 						{
 							$sc = FALSE;
 							$this->error = "Failed to update document header";
@@ -342,7 +351,7 @@ class Receive_po extends PS_Controller
 
 						if($sc === TRUE)
 						{
-							if( ! $this->receive_po_model->delete_details($ds->code))
+							if( ! $this->return_request_model->delete_details($ds->code))
 							{
 								$sc = FALSE;
 								$this->error = "Failed to delete prevoius line items";
@@ -355,11 +364,14 @@ class Receive_po extends PS_Controller
 									if($sc === FALSE) { break; }
 
 									$arr = array(
-										'receive_id' => $doc->id,
-										'receive_code' => $doc->code,
-										'baseCode' => $rs->baseCode,
-										'baseEntry' => $rs->baseEntry,
-										'baseLine' => $rs->baseLine,
+										'return_id' => $doc->id,
+										'return_code' => $doc->code,
+										'BaseType' => $rs->BaseType,
+										'BaseRef' => $rs->BaseRef,
+										'BaseEntry' => $rs->BaseEntry,
+										'BaseLine' => $rs->BaseLine,
+										'uid' => $rs->uid,
+										'LineStatus' => $ds->save_type == 'C' ? 'C' : 'O',
 										'ItemCode' => $rs->ItemCode,
 										'ItemName' => $rs->ItemName,
 										'PriceBefDi' => $rs->PriceBefDi,
@@ -367,11 +379,9 @@ class Receive_po extends PS_Controller
 										'Price' => $rs->Price,
 										'DiscPrcnt' => $rs->DiscPrcnt,
 										'Qty' => $rs->Qty,
-										'ReceiveQty' => $ds->save_type == 'C' ? $rs->ReceiveQty : 0,
-										'LineTotal' => $ds->save_type == 'C' ? $rs->LineTotal : 0,
-										'INMPrice' => $rs->INMPrice,
-										'BinCode' => $zone->code,
-										'WhsCode' => $zone->warehouse_code,
+										'LineTotal' => $rs->LineTotal,
+										'WhsCode' => $ds->warehouse_code,
+										'SlpCode' => $rs->SlpCode,
 										'UomCode' => $rs->UomCode,
 										'UomCode2' => $rs->UomCode2,
 										'UomEntry' => $rs->UomEntry,
@@ -382,44 +392,18 @@ class Receive_po extends PS_Controller
 										'NumPerMsr2' => $rs->NumPerMsr2,
 										'VatGroup' => $rs->VatGroup,
 										'VatRate' => $rs->VatRate,
-										'VatAmount' => $rs->VatAmount,
-										'VatPerQty' => $rs->VatPerQty,
-										'Currency' => $ds->Currency,
-										'Rate' => $ds->Rate,
+										'VatSum' => $rs->VatSum,
+										'Currency' => $rs->Currency,
+										'Rate' => $rs->Rate,
 										'LineStatus' => $ds->save_type == 'C' ? 'C' : 'O'
 									);
 
-									if( ! $this->receive_po_model->add_detail($arr))
+									if( ! $this->return_request_model->add_detail($arr))
 									{
 										$sc = FALSE;
 										$this->error = "Failed to insert row item {$rs->ItemCode} : {$rs->baseCode}";
 									}
-
-									if( ! isset($po_refs[$rs->baseCode]))
-									{
-										$po_refs[$rs->baseCode] = $rs->baseCode;
-									}
 								}
-							}
-						}
-
-						if($sc === TRUE)
-						{
-							if($this->receive_po_model->delete_po_refs($doc->code))
-							{
-								if( ! empty($po_refs))
-								{
-									if( ! $this->receive_po_model->add_po_refs($doc->code, $po_refs))
-									{
-										$sc = FALSE;
-										$this->error = "Failed to insert po reference";
-									}
-								}
-							}
-							else
-							{
-								$sc = FALSE;
-								$this->error = "Failed to delete prevoius po reference";
 							}
 						}
 
@@ -442,7 +426,7 @@ class Receive_po extends PS_Controller
 								'action' => $ds->save_type == 'C' ? 'close' : 'edit'
 							);
 
-							$this->receive_po_model->add_logs($logs);
+							$this->return_request_model->add_logs($logs);
 						}
 
 						if($sc === TRUE && $ds->save_type == 'C')
@@ -456,7 +440,7 @@ class Receive_po extends PS_Controller
 									'tempStatus' => 'P'
 								);
 
-								$this->receive_po_model->update($doc->code, $arr);
+								$this->return_request_model->update($doc->code, $arr);
 							}
 							else
 							{
@@ -466,7 +450,7 @@ class Receive_po extends PS_Controller
 									'tempStatus' => 'N'
 								);
 
-								$this->receive_po_model->update($doc->code, $arr);
+								$this->return_request_model->update($doc->code, $arr);
 							}
 						}
 					}
@@ -512,7 +496,7 @@ class Receive_po extends PS_Controller
 
 		if( ! empty($ds))
 		{
-			$doc = $this->receive_po_model->get($ds->code);
+			$doc = $this->return_request_model->get($ds->code);
 
 			if( ! empty($doc))
 			{
@@ -537,8 +521,6 @@ class Receive_po extends PS_Controller
 							'zone_code' => $zone->code,
 							'Currency' => $ds->Currency,
 							'Rate' => $ds->Rate,
-							'DiscPrcnt' => $ds->DiscPrcnt,
-							'DiscSum' => $ds->DiscSum,
 							'DocTotal' => $ds->DocTotal,
 							'VatSum' => $ds->VatSum,
 							'TotalQty' => $ds->TotalQty,
@@ -549,7 +531,7 @@ class Receive_po extends PS_Controller
 							'remark' => get_null(trim($ds->remark))
 						);
 
-						if( ! $this->receive_po_model->update($ds->code, $arr))
+						if( ! $this->return_request_model->update($ds->code, $arr))
 						{
 							$sc = FALSE;
 							$this->error = "Failed to update document header";
@@ -557,7 +539,7 @@ class Receive_po extends PS_Controller
 
 						if($sc === TRUE)
 						{
-							if( ! $this->receive_po_model->delete_details($ds->code))
+							if( ! $this->return_request_model->delete_details($ds->code))
 							{
 								$sc = FALSE;
 								$this->error = "Failed to delete prevoius line items";
@@ -584,7 +566,6 @@ class Receive_po extends PS_Controller
 										'Qty' => $rs->Qty,
 										'ReceiveQty' => $rs->ReceiveQty,
 										'LineTotal' => $rs->LineTotal,
-										'INMPrice' => $rs->INMPrice,
 										'BinCode' => $zone->code,
 										'WhsCode' => $zone->warehouse_code,
 										'UomCode' => $rs->UomCode,
@@ -604,7 +585,7 @@ class Receive_po extends PS_Controller
 										'LineStatus' => 'C'
 									);
 
-									if( ! $this->receive_po_model->add_detail($arr))
+									if( ! $this->return_request_model->add_detail($arr))
 									{
 										$sc = FALSE;
 										$this->error = "Failed to insert row item {$rs->ItemCode} : {$rs->baseCode}";
@@ -615,26 +596,6 @@ class Receive_po extends PS_Controller
 										$po_refs[$rs->baseCode] = $rs->baseCode;
 									}
 								}
-							}
-						}
-
-						if($sc === TRUE)
-						{
-							if($this->receive_po_model->delete_po_refs($doc->code))
-							{
-								if( ! empty($po_refs))
-								{
-									if( ! $this->receive_po_model->add_po_refs($doc->code, $po_refs))
-									{
-										$sc = FALSE;
-										$this->error = "Failed to insert po reference";
-									}
-								}
-							}
-							else
-							{
-								$sc = FALSE;
-								$this->error = "Failed to delete prevoius po reference";
 							}
 						}
 
@@ -657,7 +618,7 @@ class Receive_po extends PS_Controller
 								'action' => 'close'
 							);
 
-							$this->receive_po_model->add_logs($logs);
+							$this->return_request_model->add_logs($logs);
 						}
 
 						if($sc === TRUE)
@@ -671,7 +632,7 @@ class Receive_po extends PS_Controller
 									'tempStatus' => 'P'
 								);
 
-								$this->receive_po_model->update($doc->code, $arr);
+								$this->return_request_model->update($doc->code, $arr);
 							}
 							else
 							{
@@ -681,7 +642,7 @@ class Receive_po extends PS_Controller
 									'tempStatus' => 'N'
 								);
 
-								$this->receive_po_model->update($doc->code, $arr);
+								$this->return_request_model->update($doc->code, $arr);
 							}
 						}
 					}
@@ -723,23 +684,23 @@ class Receive_po extends PS_Controller
 	{
 		$sc = TRUE;
 
-		$doc = $this->receive_po_model->get($code);
+		$doc = $this->return_request_model->get($code);
 
 		if( ! empty($doc))
 		{
-			$sap = $this->receive_po_model->get_sap_receive_doc($code);
+			$sap = $this->return_request_model->get_sap_receive_doc($code);
 
 			if(empty($sap))
 			{
 				if($doc->status == 'C')
 				{
-					$middle = $this->receive_po_model->get_temp_exists_data($code);
+					$middle = $this->return_request_model->get_temp_exists_data($code);
 
 					if(!empty($middle))
 					{
 						foreach($middle as $rows)
 						{
-							if( ! $this->receive_po_model->drop_temp_data($rows->DocEntry))
+							if( ! $this->return_request_model->drop_temp_data($rows->DocEntry))
 							{
 								$sc = FALSE;
 								$this->error = "ลบรายการที่ค้างใน temp ไม่สำเร็จ";
@@ -758,7 +719,7 @@ class Receive_po extends PS_Controller
 						'date_upd' => now()
 					);
 
-					if( ! $this->receive_po_model->update($doc->code, $arr))
+					if( ! $this->return_request_model->update($doc->code, $arr))
 					{
 						$sc = FALSE;
 						$this->error = "Failed to update document status";
@@ -770,7 +731,7 @@ class Receive_po extends PS_Controller
 							'LineStatus' => 'O'
 						);
 
-						if( ! $this->receive_po_model->update_details($doc->code, $arr))
+						if( ! $this->return_request_model->update_details($doc->code, $arr))
 						{
 							$sc = FALSE;
 							$this->error = "Failed to update row item status";
@@ -796,7 +757,7 @@ class Receive_po extends PS_Controller
 							'action' => 'rollback'
 						);
 
-						$this->receive_po_model->add_logs($logs);
+						$this->return_request_model->add_logs($logs);
 					}
 				}
 			}
@@ -824,7 +785,7 @@ class Receive_po extends PS_Controller
 
 		if( ! empty($code))
 		{
-			$doc = $this->receive_po_model->get($code);
+			$doc = $this->return_request_model->get($code);
 
 			if( ! empty($doc))
 			{
@@ -841,7 +802,7 @@ class Receive_po extends PS_Controller
 
 						$this->db->trans_begin();
 
-						if( ! $this->receive_po_model->update($doc->code, $arr))
+						if( ! $this->return_request_model->update($doc->code, $arr))
 						{
 							$sc = FALSE;
 							$this->error = "Failed to update document status";
@@ -853,7 +814,7 @@ class Receive_po extends PS_Controller
 								'LineStatus' => 'D'
 							);
 
-							if( ! $this->receive_po_model->update_details($doc->code, $arr))
+							if( ! $this->return_request_model->update_details($doc->code, $arr))
 							{
 								$sc = FALSE;
 								$this->error = "Failed to update line status";
@@ -879,7 +840,7 @@ class Receive_po extends PS_Controller
 								'action' => 'cancel'
 							);
 
-							$this->receive_po_model->add_logs($logs);
+							$this->return_request_model->add_logs($logs);
 						}
 					}
 					else
@@ -911,9 +872,8 @@ class Receive_po extends PS_Controller
 		$ds = array();
 
 		$po_code = $this->input->get('po_code');
-		$code = $this->input->get('code');
 
-		$po = $this->receive_po_model->get_po($po_code);
+		$po = $this->return_request_model->get_po($po_code);
 
 		if( ! empty($po))
 		{
@@ -921,7 +881,7 @@ class Receive_po extends PS_Controller
 
 			$rate = ($ro * 0.01);
 
-			$details = $this->receive_po_model->get_po_details($po_code);
+			$details = $this->return_request_model->get_po_details($po_code);
 
 			if( ! empty($details))
 			{
@@ -932,7 +892,7 @@ class Receive_po extends PS_Controller
 					if($rs->OpenQty > 0)
 					{
 						$dif = $rs->Quantity - $rs->OpenQty;
-						$onOrder = $this->receive_po_model->get_on_order_qty($rs->ItemCode, $rs->DocEntry, $rs->LineNum, $code);
+						$onOrder = $this->return_request_model->get_on_order_qty($rs->ItemCode, $rs->DocEntry, $rs->LineNum);
 						$qty = $rs->OpenQty - $onOrder;
 
 						$arr = array(
@@ -960,7 +920,6 @@ class Receive_po extends PS_Controller
 							'Price' => round($rs->Price, 4),
 							'PriceAfDiscLabel' => number($rs->Price, 4),
 							'PriceAfVAT' => round($rs->PriceAfVAT, 4),
-							'INMPrice' => round($rs->INMPrice, 4),
 							'VatPerQty' => round(($rs->PriceAfVAT - $rs->Price), 4),
 							'onOrder' => $onOrder,
 							'qty' => $qty,
@@ -995,7 +954,7 @@ class Receive_po extends PS_Controller
 			'DocRate' => $sc === TRUE ? $po->DocRate : NULL,
 			'CardCode' => $sc === TRUE ? $po->CardCode : NULL,
 			'CardName' => $sc === TRUE ? $po->CardName : NULL,
-			'DiscPrcnt' => $sc === TRUE ? $po->DiscPrcnt : 0,
+			'DiscPrcnt' => $sc === TRUE ? $po->DiscPrcnt : NULL,
 			'details' => $sc === TRUE ? $ds : NULL
 		);
 
@@ -1003,27 +962,11 @@ class Receive_po extends PS_Controller
 	}
 
 
-	public function is_exists_zone_code()
-	{
-		$sc = TRUE;
-
-		$code = $this->input->post('zone_code');
-		$whsCode = $this->input->post('warehouse_code');
-
-		$zone = $this->zone_model->get($code);
-
-		if( ! $this->zone_model->is_exists_bin_code($code))
-		{
-
-		}
-	}
-
-
 	public function do_export($code)
 	{
 		$sc = TRUE;
 
-		$doc = $this->receive_po_model->get($code);
+		$doc = $this->return_request_model->get($code);
 
 		if( ! empty($doc))
 		{
@@ -1041,7 +984,7 @@ class Receive_po extends PS_Controller
 						'tempStatus' => 'N'
 					);
 
-					$this->receive_po_model->update($doc->code, $arr);
+					$this->return_request_model->update($doc->code, $arr);
 				}
 				else
 				{
@@ -1050,7 +993,7 @@ class Receive_po extends PS_Controller
 						'tempStatus' => 'P'
 					);
 
-					$this->receive_po_model->update($doc->code, $arr);
+					$this->return_request_model->update($doc->code, $arr);
 				}
 			}
 			else
@@ -1073,7 +1016,7 @@ class Receive_po extends PS_Controller
 	{
 		$code = $this->input->get('code');
 
-		$data = $this->receive_po_model->get_temp_data($code);
+		$data = $this->return_request_model->get_temp_data($code);
 
 		if( ! empty($data))
 		{
@@ -1120,7 +1063,7 @@ class Receive_po extends PS_Controller
 		$sc = TRUE;
 		$code = $this->input->post('U_WEBORDER');
 
-		$temp = $this->receive_po_model->get_temp_data($code);
+		$temp = $this->return_request_model->get_temp_data($code);
 
 		if( ! empty($temp))
 		{
@@ -1133,7 +1076,7 @@ class Receive_po extends PS_Controller
 
 		if($sc === TRUE)
 		{
-			if(! $this->receive_po_model->drop_temp_exists_data($code))
+			if(! $this->return_request_model->drop_temp_exists_data($code))
 			{
 				$sc = FALSE;
 				$this->error = "Delete Failed : Delete Temp Failed";
@@ -1145,43 +1088,11 @@ class Receive_po extends PS_Controller
 					'DocNum' => NULL
 				);
 
-				$this->receive_po_model->update($code, $arr);
+				$this->return_request_model->update($code, $arr);
 			}
 		}
 
 		$this->_response($sc);
-	}
-
-
-	public function get_vendor_by_po_code()
-	{
-		$sc = TRUE;
-
-		$po_code = $this->input->post('po_code');
-
-		$po = $this->receive_po_model->get_po($po_code);
-
-		if(empty($po))
-		{
-			$sc = FALSE;
-			$this->error = "Not found !";
-		}
-
-		$arr = array(
-			'status' => $sc === TRUE ? 'success' : 'failed',
-			'message' => $sc === TRUE ? 'success' : $this->error,
-			'code' => $sc === TRUE ? $po->CardCode : NULL,
-			'name' => $sc === TRUE ? $po->CardName : NULL
-		);
-
-		echo json_encode($arr);
-	}
-
-
-	public function get_zone_list()
-	{
-		$whsCode = $this->input->post('whsCode');
-		echo select_zone(NULL, $whsCode);
 	}
 
 
@@ -1190,10 +1101,10 @@ class Receive_po extends PS_Controller
 		$date = empty($date) ? date('Y-m-d') : $date;
 		$Y = date('y', strtotime($date));
 		$M = date('m', strtotime($date));
-		$prefix = getConfig('PREFIX_GRPO');
-		$run_digit = getConfig('RUN_DIGIT_GRPO');
+		$prefix = getConfig('PREFIX_RETURN_REQUEST');
+		$run_digit = getConfig('RUN_DIGIT_RETURN_REQUEST');
 		$pre = $prefix .'-'.$Y.$M;
-		$code = $this->receive_po_model->get_max_code($pre);
+		$code = $this->return_request_model->get_max_code($pre);
 
 		if(! empty($code))
 		{
@@ -1213,17 +1124,15 @@ class Receive_po extends PS_Controller
 	{
 
 		$filter = array(
-			'gr_code',
-			'gr_vendor',
-			'gr_po_code',
-			'gr_invoice',
-			'gr_sap_no',
-			'gr_warehouse',
-			'gr_user',
-			'gr_status',
-			'gr_tempStatus',
-			'gr_from_date',
-			'gr_to_date'
+			'rt_code',
+			'rt_customer',
+			'rt_sap_no',
+			'rt_warehouse',
+			'rt_user',
+			'rt_status',
+			'rt_tempStatus',
+			'rt_from_date',
+			'rt_to_date'
 		);
 
 		return clear_filter($filter);

@@ -38,7 +38,7 @@
 	</div>
 	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
 		<label>PO No.</label>
-		<input type="text" class="width-100 text-center r" id="po-code" value="<?php echo $doc->po_code; ?>" disabled/>
+		<input type="text" class="width-100 text-center r" id="po-no" value="<?php echo $doc->po_code; ?>" disabled/>
 	</div>
 	<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-3 padding-5">
 		<label>Currency</label>
@@ -78,7 +78,7 @@
 </div>
 <hr class="margin-top-10 margin-bottom-10"/>
 
-<?php $this->load->view('receive_po/receive_process_control'); ?>
+<?php $this->load->view('return_request/receive_process_control'); ?>
 
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 border-1 table-responsive" id="receiveTable" style="min-height:200px; padding-left:0; padding-right:0;">
@@ -132,7 +132,6 @@
 							data-price="<?php echo $rs->Price; ?>"
 							data-bfprice="<?php echo $rs->PriceBefDi; ?>"
 							data-afprice="<?php echo $rs->PriceAfVAT; ?>"
-							data-inmprice="<?php echo $rs->INMPrice; ?>"
 							data-discprcnt="<?php echo $rs->DiscPrcnt; ?>"
 							data-basecode="<?php echo $rs->baseCode; ?>"
 							data-baseline="<?php echo $rs->baseLine; ?>"
@@ -202,18 +201,6 @@
           <input type="text" id="total-amount" class="form-control input-sm text-right" value="0.00" disabled/>
         </div>
       </div>
-			<div class="form-group margin-bottom-5">
-				<label class="col-lg-6 col-md-6 col-sm-7 col-xs-6 control-label no-padding-right">ส่วนลด</label>
-        <div class="col-lg-2 col-md-2 col-sm-2 col-xs-6 padding-5">
-					<div class="input-group">
-						<input type="text" class="form-control input-sm text-right" id="disc-percent" value="<?php echo number($doc->DiscPrcnt, 2); ?>" disabled>
-						<span class="input-group-addon" style="padding:6px;">%</span>
-					</div>
-        </div>
-        <div class="col-lg-4 col-md-4 col-sm-5 col-xs-6 padding-5 last">
-          <input type="text" id="disc-sum" class="form-control input-sm text-right" value="0.00" disabled/>
-        </div>
-      </div>
       <div class="form-group" style="margin-bottom:5px;">
         <label class="col-lg-8 col-md-8 col-sm-7 col-xs-6 control-label no-padding-right">ภาษีมูลค่าเพิ่ม</label>
         <div class="col-lg-4 col-md-4 col-sm-5 col-xs-6 padding-5 last">
@@ -277,7 +264,7 @@
 	{{/each}}
 </script>
 
-<script src="<?php echo base_url(); ?>scripts/receive_po/receive_po.js?v=<?php echo date('Ymd'); ?>"></script>
-<script src="<?php echo base_url(); ?>scripts/receive_po/receive_po_add.js?v=<?php echo date('Ymd'); ?>"></script>
-<script src="<?php echo base_url(); ?>scripts/receive_po/receive_process_control.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/return_request/return_request.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/return_request/return_request_add.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/return_request/receive_process_control.js?v=<?php echo date('Ymd'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

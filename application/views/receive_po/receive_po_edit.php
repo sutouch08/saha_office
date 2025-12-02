@@ -54,9 +54,14 @@
 		<label>ใบส่งสินค้า</label>
 		<input type="text" class="width-100 text-center r" id="invoice" placeholder="ใบส่งสินค้า" data-prev="<?php echo $doc->invoice_code; ?>" value="<?php echo $doc->invoice_code; ?>" />
 	</div>
-	<div class="col-lg-2 col-md-1-harf col-sm-2 col-xs-6 padding-5">
+	<div class="col-lg-1-harf col-md-1-harf col-sm-2 col-xs-6 padding-5">
 		<label>PO No.</label>
-		<input type="text" class="width-100 text-center r" id="po-no" placeholder="อ้างอิงใบสั่งซื้อ" data-prev="<?php echo $doc->po_code; ?>" value="<?php echo $doc->po_code; ?>" />
+		<input type="text" class="width-100 text-center r" id="po-code" placeholder="อ้างอิงใบสั่งซื้อ" data-prev="<?php echo $doc->po_code; ?>" value="<?php echo $doc->po_code; ?>" disabled/>
+	</div>
+	<div class="col-lg-1-harf col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
+		<label class="width-100 not-show">&nbsp;</label>
+		<button type="button" class="btn btn-xs btn-primary width-50" style="height:30px;" onclick="getPoDetail()">Load</button>
+		<button type="button" class="btn btn-xs btn-warning width-45" style="height:30px;" onclick="clearPo()">Clear</button>
 	</div>
 	<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-6 padding-5">
 		<label>Currency</label>
@@ -69,14 +74,14 @@
 		<input type="number" class="width-100 text-center r" data-prev="<?php echo $doc->Rate; ?>" id="DocRate" value="<?php echo $doc->Rate; ?>"  />
 	</div>
 
-	<div class="col-lg-4 col-md-3 col-sm-4 col-xs-12 padding-5">
+	<div class="col-lg-3-harf col-md-3 col-sm-4 col-xs-12 padding-5">
 		<label>คลัง</label>
 		<select class="width-100 r" id="warehouse" data-prev="<?php echo $doc->warehouse_code; ?>" onchange="changeWhs()">
 			<option value="">Select</option>
 			<?php echo select_warehouse($doc->warehouse_code); ?>
 		</select>
 	</div>
-	<div class="col-lg-4 col-md-3 col-sm-4 col-xs-12 padding-5">
+	<div class="col-lg-3-harf col-md-3 col-sm-4 col-xs-12 padding-5">
 		<label>Bin Location</label>
 		<select class="width-100 r" id="zone-code">
 			<option value="" data-whs="" data-name="">Select</option>

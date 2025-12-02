@@ -19,6 +19,15 @@ function go_to(page){
 }
 
 
+function reload() {
+  window.location.reload();
+}
+
+
+function refresh() {
+  window.location.reload();
+}
+
 function checkError(){
   if($('#error').length){
     swal({
@@ -284,7 +293,7 @@ function parseDefaultFloat(value, def) {
 
 
 function parseDefaultInt(value, def) {
-  return parseDefault(parseInt(value), def); 
+  return parseDefault(parseInt(value), def);
 }
 
 //--- return discount array
@@ -402,14 +411,10 @@ function uniqueId()
 
 function roundNumber(num, digit)
 {
-	if(digit === undefined) {
-		digit = 2;
-	}
-	else {
-		ditit = parseDefault(parseInt(digit), 2);
-	}
+	let n = parseDefaultFloat(num, 0);
+  let d = parseDefaultInt(digit, 2);
 
-	return Number(parseFloat(num).toFixed(digit));
+  return Number(n.toFixed(d));
 }
 
 

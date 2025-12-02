@@ -151,7 +151,7 @@ function changeHeader() {
       'vendor_code' : $('#vendor-code').val().trim(),
       'vendor_name' : $('#vendor-name').val().trim(),
       'invoice' : $('#invoice').val().trim(),
-      'po_code' : $('#po-no').val().trim(),
+      'po_code' : $('#po-code').val().trim(),
       'currency' : $('#DocCur').val(),
       'rate' : $('#DocRate').val(),
       'warehouse_code' : $('#warehouse').val(),
@@ -164,7 +164,7 @@ function changeHeader() {
       'vendor_code' : $('#vendor-code').data('prev'),
       'vendor_name' : $('#vendor-name').data('prev'),
       'invoice' : $('#invoice').data('prev'),
-      'po_code' : $('#po-no').data('prev'),
+      'po_code' : $('#po-code').data('prev'),
       'currency' : $('#DocCur').data('prev'),
       'rate' : $('#DocRate').data('prev'),
       'warehouse_code' : $('#warehouse').data('prev'),
@@ -210,7 +210,7 @@ function changeHeader() {
     }
 
     if(h.po_code.length == 0) {
-      $('#po-no').hasError();
+      $('#po-code').hasError();
       click = 0;
       return false;
     }
@@ -246,7 +246,7 @@ function changeHeader() {
           $('#vendor-code').val(prev.vendor_code);
           $('#vendor-name').val(prev.vendor_name);
           $('#invoice').val(prev.invoice);
-          $('#po-no').val(prev.po_code);
+          $('#po-code').val(prev.po_code);
           $('#DocCur').val(prev.currency);
           $('#DocRate').val(prev.rate);
           $('#warehouse').val(prev.warehouse_code).change();
@@ -318,7 +318,6 @@ function save(save_type) {
 
     let error = 0;
     let count = 0;
-    let is_ref_po = 0; //--- เช็คว่า PO ที่หัวเอกสาร ตรงกับ PO ในรายการ อย่างนี้อย 1 ใบหรือไม่
     let totalQty = 0;
     let totalReceived = 0;
 
@@ -330,12 +329,14 @@ function save(save_type) {
       'vendor_code' : $('#vendor-code').val(),
       'vendor_name' : $('#vendor-name').val(),
       'invoice_code' : $('#invoice').val().trim(),
-      'po_code' : $('#po-no').val(),
+      'po_code' : $('#po-code').val().trim(),
       'Currency' : $('#DocCur').val(),
       'Rate' : parseDefault(parseFloat($('#DocRate').val()), 1.00),
       'warehouse_code' : $('#warehouse').val(),
       'zone_code' : $('#zone-code').val(),
       'remark' : $('#remark').val().trim(),
+      'DiscPrcnt' : parseDefaultFloat($('#disc-percent').val(), 0),
+      'DiscSum' : parseDefaultFloat($('#disc-sum').val(), 0),
       'VatSum' : parseDefault(parseFloat(removeCommas($('#vat-sum').val())), 0),
       'DocTotal' : parseDefault(parseFloat(removeCommas($('#doc-total').val())), 0),
       'TotalQty' : 0,
@@ -360,7 +361,7 @@ function save(save_type) {
 
     if(h.po_code.length == 0) {
       swal("กรุณาระบุใบสั่งซื้อ");
-      $('#po-no').hasError();
+      $('#po-code').hasError();
       click = 0;
       return false;
     }
@@ -384,11 +385,6 @@ function save(save_type) {
           error++;
         }
         else {
-          if(h.po_code == el.data('basecode'))
-          {
-            is_ref_po = 1;
-          }
-
           let openQty = parseDefault(parseFloat(el.data('backlogs')), 0);
           let lineTotal = parseDefault(parseFloat(removeCommas($('#row-total-'+uid).val())), 0);
           let vatAmount = parseDefault(parseFloat($('#row-vat-amount-'+uid).val()), 0);
@@ -411,6 +407,7 @@ function save(save_type) {
             'LineTotal' : lineTotal,
             'VatAmount' : vatAmount,
             'VatPerQty' : el.data('vatperqty'),
+            'INMPrice' : el.data('inmprice'),
             'BinCode' : h.zone_code,
             'WhsCode' : h.warehouse_code,
             'UomEntry' : el.data('uomentry'),
@@ -431,17 +428,6 @@ function save(save_type) {
     }
     else {
       swal("ไม่พบรายการรับเข้า");
-      click = 0;
-      return false;
-    }
-
-    if(is_ref_po == 0) {
-      swal({
-        title:'Oops !',
-        text:'ใบสั่งซื้อบนหัวเอกสาร ไม่ตรงกับรายการรับเข้า',
-        type:'error'
-      });
-
       click = 0;
       return false;
     }
@@ -533,7 +519,6 @@ function closeReceive() {
 
     let error = 0;
     let count = 0;
-    let is_ref_po = 0; //--- เช็คว่า PO ที่หัวเอกสาร ตรงกับ PO ในรายการ อย่างนี้อย 1 ใบหรือไม่
     let totalQty = 0;
     let totalReceived = 0;
 
@@ -545,12 +530,14 @@ function closeReceive() {
       'vendor_code' : $('#vendor-code').val(),
       'vendor_name' : $('#vendor-name').val(),
       'invoice_code' : $('#invoice').val().trim(),
-      'po_code' : $('#po-no').val().trim(),
+      'po_code' : $('#po-code').val().trim(),
       'Currency' : $('#DocCur').val(),
       'Rate' : parseDefault(parseFloat($('#DocRate').val()), 1.00),
       'warehouse_code' : $('#warehouse').val(),
       'zone_code' : $('#zone-code').val(),
       'remark' : $('#remark').val().trim(),
+      'DiscPrcnt' : parseDefaultFloat($('#disc-percent').val(), 0),
+      'DiscSum' : parseDefaultFloat($('#disc-sum').val(), 0),
       'VatSum' : parseDefault(parseFloat(removeCommas($('#vat-sum').val())), 0),
       'DocTotal' : parseDefault(parseFloat(removeCommas($('#doc-total').val())), 0),
       'TotalQty' : 0,
@@ -575,7 +562,7 @@ function closeReceive() {
 
     if(h.po_code.length == 0) {
       swal("กรุณาระบุใบสั่งซื้อ");
-      $('#po-no').hasError();
+      $('#po-code').hasError();
       click = 0;
       return false;
     }
@@ -593,11 +580,6 @@ function closeReceive() {
         let uid = el.data('uid');
         let requestQty = parseDefault(parseFloat(el.data('limit')), 0); //-- จำนวนตั้ง
         let receiveQty = parseDefault(parseFloat(removeCommas(el.val())), 0); //-- จำนวนรับจริง
-
-        if(h.po_code == el.data('basecode'))
-        {
-          is_ref_po = 1;
-        }
 
         if(receiveQty != requestQty) {
           el.hasError();
@@ -623,6 +605,7 @@ function closeReceive() {
             'Qty' : requestQty,
             'ReceiveQty' : receiveQty,
             'LineTotal' : lineTotal,
+            'INMPrice' : el.data('inmprice'),
             'VatAmount' : vatAmount,
             'VatPerQty' : el.data('vatperqty'),
             'BinCode' : h.zone_code,
@@ -645,17 +628,6 @@ function closeReceive() {
     }
     else {
       swal("ไม่พบรายการรับเข้า");
-      click = 0;
-      return false;
-    }
-
-    if(is_ref_po == 0) {
-      swal({
-        title:'Oops !',
-        text:'ใบสั่งซื้อบนหัวเอกสาร ไม่ตรงกับรายการรับเข้า',
-        type:'error'
-      });
-
       click = 0;
       return false;
     }
@@ -819,7 +791,7 @@ function poInit() {
       var arr = $(this).val().split(' | ');
 
       if(arr.length > 2){
-        $(this).val(arr[0]);
+        $(this).val(arr[0]).attr('disabled');
       }
       else {
         $(this).val('');
@@ -990,26 +962,29 @@ function recalAmount(id) {
 function recalTotal() {
 	let totalAmount = 0;
 	let totalQty = 0;
-	let totalVat = 0;
+	let vatRate = parseDefaultFloat($('#purchase-vat-rate').val(), 0);
+  let discPrcnt = parseDefaultFloat($('#disc-percent').val(), 0);
 
 	$('.row-qty').each(function() {
 		let el = $(this);
 		let id = el.data('uid');
-		let qty = parseDefault(parseFloat(el.val()), 0);
-		let price = parseDefault(parseFloat(el.data('price')), 0);
-		let vatAmount = parseDefault(parseFloat($('#row-vat-amount-'+id).val()), 0);
+		let qty = parseDefaultFloat(removeCommas(el.val()), 0);
+		let price = parseDefaultFloat(el.data('price'), 0);
+		//let vatAmount = parseDefault(parseFloat($('#row-vat-amount-'+id).val()), 0);
 		let amount = qty * price;
 
 		totalQty += qty;
 		totalAmount += amount;
-		totalVat += vatAmount;
 	});
 
-	let vatSum = totalVat;
-	let docTotal = totalAmount + vatSum;
+  let discSum = totalAmount * (discPrcnt * 0.01);
+  let totalAfDisc = totalAmount - discSum;
+	let vatSum = totalAfDisc * (vatRate * 0.01);
+	let docTotal = totalAfDisc + vatSum;
 
 	$('#total-qty').val(addCommas(totalQty.toFixed(2)));
 	$('#total-amount').val(addCommas(totalAmount.toFixed(2)));
+  $('#disc-sum').val(addCommas(discSum.toFixed(2)));
 	$('#vat-sum').val(addCommas(vatSum.toFixed(2)));
 	$('#doc-total').val(addCommas(docTotal.toFixed(2)));
 }
