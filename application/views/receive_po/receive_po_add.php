@@ -85,6 +85,6 @@
 	$('#warehouse').select2();
 	$('#zone-code').select2();
 </script>
-<script src="<?php echo base_url(); ?>scripts/receive_po/receive_po.js?v=<?php echo date('Ymd'); ?>"></script>
-<script src="<?php echo base_url(); ?>scripts/receive_po/receive_po_add.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/receive_po/receive_po.js?v=<?php echo date('YmdH'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/receive_po/receive_po_add.js?v=<?php echo date('YmdH'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

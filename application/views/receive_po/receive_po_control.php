@@ -8,19 +8,20 @@
 <div class="divider-hidden">	</div>
 
 <div class="modal fade" id="poGrid" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog" style="width:900px; max-width:95vw;">
+  <div class="modal-dialog" style="width:1100px; max-width:95vw;">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
         <center style="margin-bottom:10px;"><h4 class="modal-title" id="po-title">ใบสั่งซื้อ</h4></center>
       </div>
       <div class="modal-body" style="max-width:94vw; min-height:300px; max-height:70vh; overflow:auto;">
-        <table class="table table-striped table-bordered" style="font-size:11px; table-layout: fixed; min-width:840px;">
+        <table class="table table-striped table-bordered" style="font-size:11px; table-layout: fixed; min-width:1020px;">
           <thead>
             <th class="fix-width-40 text-center">#</th>
             <th class="fix-width-100 text-center">รหัส</th>
             <th class="min-width-300 text-center">สินค้า</th>
 						<th class="fix-width-100 text-center">หน่วยนับ</th>
+						<th class="fix-width-80 text-center">VAT (%)</th>
 						<th class="fix-width-100 text-center">ราคา</th>
 						<th class="fix-width-100 text-center">ส่วนลด</th>
             <th class="fix-width-100 text-center">ค้างรับ</th>

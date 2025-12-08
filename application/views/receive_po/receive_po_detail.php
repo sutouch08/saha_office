@@ -14,6 +14,7 @@
 					<th class="fix-width-100 text-center">รหัสสินค้า</th>
 					<th class="min-width-250 text-center">ชื่อสินค้า</th>
 					<th class="fix-width-80 text-center">หน่วยนับ</th>
+					<th class="fix-width-80 text-center">VAT (%)</th>
 					<th class="fix-width-80 text-center">PO No.</th>
 					<th class="fix-width-80 text-center">ราคา</th>
 					<th class="fix-width-80 text-center">ส่วนลด</th>
@@ -39,6 +40,7 @@
 					<td class="middle"><?php echo $rs->ItemCode; ?></td>
 					<td class="middle"><?php echo $rs->ItemName; ?></td>
 					<td class="middle text-center"><?php echo $rs->unitMsr; ?></td>
+					<td class="middle text-center"><?php echo $rs->VatRate; ?></td>
 					<td class="middle text-center"><?php echo $rs->baseCode; ?></td>
 					<td class="middle text-center"><?php echo number($rs->PriceBefDi, 2); ?></td>
 					<td class="middle text-center"><?php echo number($rs->DiscPrcnt, 2); ?></td>
@@ -164,6 +166,7 @@
 			<td class="middle">{{product_code}}</td>
 			<td class="middle">{{product_name}}</td>
 			<td class="middle text-center">{{unitMsr}}</td>
+			<td class="middle text-center">{{vatRate}}</td>
 			<td class="middle text-center">{{baseCode}}</td>
 			<td class="middle text-center">{{PriceBefDiLabel}}</td>
 			<td class="middle text-center">{{DiscPrcnt}} %</td>
@@ -215,6 +218,7 @@
       <td class="middle">{{product_code}}</td>
       <td class="middle">{{product_name}}</td>
 			<td class="middle text-center">{{unitMsr}}</td>
+			<td class="middle text-center">{{vatRate}}</td>
 			<td class="middle text-center">{{PriceBefDiLabel}}</td>
 			<td class="middle text-center">{{DiscPrcnt}} %</td>
       <td class="middle text-center">{{qtyLabel}}</td>

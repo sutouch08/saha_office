@@ -934,6 +934,7 @@ class Receive_po extends PS_Controller
 						$dif = $rs->Quantity - $rs->OpenQty;
 						$onOrder = $this->receive_po_model->get_on_order_qty($rs->ItemCode, $rs->DocEntry, $rs->LineNum, $code);
 						$qty = $rs->OpenQty - $onOrder;
+						$vatPerQty = $rs->VatPrcnt > 0 ? ($rs->INMPrice * ($rs->VatPrcnt * 0.01)) : 0;
 
 						$arr = array(
 							'no' => $no,
@@ -944,7 +945,7 @@ class Receive_po extends PS_Controller
 							'baseEntry' => $rs->DocEntry,
 							'baseLine' => $rs->LineNum,
 							'vatCode' => $rs->VatGroup,
-							'vatRate' => $rs->VatPrcnt,
+							'vatRate' => round($rs->VatPrcnt, 2),
 							'unitCode' => $rs->unitMsr,
 							'unitMsr' => $rs->unitMsr,
 							'NumPerMsr' => $rs->NumPerMsr,
@@ -961,7 +962,7 @@ class Receive_po extends PS_Controller
 							'PriceAfDiscLabel' => number($rs->Price, 4),
 							'PriceAfVAT' => round($rs->PriceAfVAT, 4),
 							'INMPrice' => round($rs->INMPrice, 4),
-							'VatPerQty' => round(($rs->PriceAfVAT - $rs->Price), 4),
+							'VatPerQty' => $vatPerQty,
 							'onOrder' => $onOrder,
 							'qty' => $qty,
 							'qtyLabel' => number($qty, 2),

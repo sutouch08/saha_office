@@ -82,7 +82,7 @@
 
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 border-1 table-responsive" id="receiveTable" style="min-height:200px; padding-left:0; padding-right:0;">
-		<table class="table table-bordered" style="font-size:11px; min-width:1130px; margin-bottom:0;">
+		<table class="table table-bordered" style="font-size:11px; min-width:1170px; margin-bottom:0;">
 			<thead>
 				<tr>
 					<th class="fix-width-40 text-center">#</th>
@@ -90,6 +90,7 @@
 					<th class="fix-width-100 text-center">รหัสสินค้า</th>
 					<th class="min-width-250 text-center">ชื่อสินค้า</th>
 					<th class="fix-width-80 text-center">หน่วยนับ</th>
+					<th class="fix-width-80 text-center">VAT (%)</th>
 					<th class="fix-width-80 text-center">PO No.</th>
 					<th class="fix-width-80 text-center">ราคา</th>
 					<th class="fix-width-80 text-center">ส่วนลด</th>
@@ -111,6 +112,7 @@
 					<td class="middle"><a style="color:#0032e7;" href="javascript:viewItemData('<?php echo $rs->ItemName; ?>', '<?php echo $uid; ?>')"><?php echo $rs->ItemCode; ?></a></td>
 					<td class="middle"><?php echo $rs->ItemName; ?></td>
 					<td class="middle text-center"><?php echo $rs->unitMsr; ?></td>
+					<td class="middle text-center"><?php echo $rs->VatRate; ?></td>
 					<td class="middle text-center"><?php echo $rs->baseCode; ?></td>
 					<td class="middle text-center"><?php echo number($rs->PriceBefDi, 2); ?></td>
 					<td class="middle text-center"><?php echo number($rs->DiscPrcnt, 2); ?></td>

@@ -221,6 +221,6 @@
 $('#warehouse').select2();
 $('#user').select2();
 </script>
-<script src="<?php echo base_url(); ?>scripts/receive_po/receive_po.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/receive_po/receive_po.js?v=<?php echo date('YmdH'); ?>"></script>
 
 <?php $this->load->view('include/footer'); ?>

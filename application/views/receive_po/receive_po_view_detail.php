@@ -93,13 +93,14 @@
 <hr class="margin-top-10 margin-bottom-10"/>
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 border-1 table-responsive" id="receiveTable" style="padding-left:0; padding-right:0; max-height:400px; overflow:auto;">
-		<table class="table table-bordered" style="font-size:11px; min-width:1010px; margin-bottom:0;">
+		<table class="table table-bordered" style="font-size:11px; min-width:1090px; margin-bottom:0;">
 			<thead>
 				<tr>
 					<th class="fix-width-40 text-center">#</th>
 					<th class="fix-width-100 text-center">รหัสสินค้า</th>
 					<th class="min-width-250 text-center">ชื่อสินค้า</th>
 					<th class="fix-width-100 text-center">หน่วยนับ</th>
+					<th class="fix-width-80 text-center">PO No.</th>
 					<th class="fix-width-80 text-center">PO No.</th>
 					<th class="fix-width-100 text-center">ราคา</th>
 					<th class="fix-width-80 text-center">ส่วนลด</th>
@@ -121,6 +122,7 @@
 					<td class="middle"><?php echo $rs->ItemCode; ?></td>
 					<td class="middle"><?php echo $rs->ItemName; ?></td>
 					<td class="middle text-center"><?php echo $rs->unitMsr; ?></td>
+					<td class="middle text-center"><?php echo $rs->VatRate; ?></td>
 					<td class="middle text-center"><?php echo $rs->baseCode; ?></td>
 					<td class="middle text-center"><?php echo number($rs->PriceBefDi, 4); ?></td>
 					<td class="middle text-center"><?php echo number($rs->DiscPrcnt, 2); ?></td>
@@ -139,6 +141,7 @@
 				<td class="middle text-center no"><?php echo $no; ?></td>
 				<td class="middle"></td>
 				<td class="middle"></td>
+				<td class="middle text-center"></td>
 				<td class="middle text-center"></td>
 				<td class="middle text-center"></td>
 				<td class="middle text-center"></td>
@@ -223,7 +226,7 @@
 	<?php endif; ?>
 </div>
 
-<script src="<?php echo base_url(); ?>scripts/receive_po/receive_po.js?v=<?php echo date('Ymd'); ?>"></script>
-<script src="<?php echo base_url(); ?>scripts/receive_po/receive_po_add.js?v=<?php echo date('Ymd'); ?>"></script>
-<script src="<?php echo base_url(); ?>scripts/receive_po/receive_po_control.js?v=<?php echo date('Ymd'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/receive_po/receive_po.js?v=<?php echo date('YmdH'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/receive_po/receive_po_add.js?v=<?php echo date('YmdH'); ?>"></script>
+<script src="<?php echo base_url(); ?>scripts/receive_po/receive_po_control.js?v=<?php echo date('YmdH'); ?>"></script>
 <?php $this->load->view('include/footer'); ?>

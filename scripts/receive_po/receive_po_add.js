@@ -962,24 +962,26 @@ function recalAmount(id) {
 function recalTotal() {
 	let totalAmount = 0;
 	let totalQty = 0;
-	let vatRate = parseDefaultFloat($('#purchase-vat-rate').val(), 0);
+  let totalVat = 0;
   let discPrcnt = parseDefaultFloat($('#disc-percent').val(), 0);
+	// let vatRate = parseDefaultFloat($('#purchase-vat-rate').val(), 0);
 
 	$('.row-qty').each(function() {
 		let el = $(this);
 		let id = el.data('uid');
 		let qty = parseDefaultFloat(removeCommas(el.val()), 0);
 		let price = parseDefaultFloat(el.data('price'), 0);
-		//let vatAmount = parseDefault(parseFloat($('#row-vat-amount-'+id).val()), 0);
+		let vatAmount = parseDefaultFloat($('#row-vat-amount-'+id).val(), 0);
 		let amount = qty * price;
 
 		totalQty += qty;
 		totalAmount += amount;
+    totalVat += vatAmount;
 	});
 
   let discSum = totalAmount * (discPrcnt * 0.01);
   let totalAfDisc = totalAmount - discSum;
-	let vatSum = totalAfDisc * (vatRate * 0.01);
+	let vatSum = totalVat;
 	let docTotal = totalAfDisc + vatSum;
 
 	$('#total-qty').val(addCommas(totalQty.toFixed(2)));
