@@ -592,3 +592,78 @@ $('#customer-code').change(function() {
 
 
 $("#posting-date").datepicker({ dateFormat: 'dd-mm-yy'});
+
+
+function itemInit(uid) {
+  $('#item-code-'+uid).autocomplete({
+    source:BASE_URL + 'auto_complete/get_item_code_and_name',
+    autoFocus:true,
+    open:function(ev) {
+      var $ul = $(this).autocomplete('widget');
+      $ul.css('width', 'auto');
+    },
+    close:function() {
+      let ds = $(this).val().split(' | ');
+
+      if(ds.length === 2) {
+        $(this).val(ds[0]);
+        getItemData(ds[0], uid);
+      }
+      else {
+        $(this).val('');
+      }
+    }
+  })
+}
+
+
+function getItemData(code, uid) {
+  load_in();
+
+	let cardCode = $('#customer-code').val();
+
+	$.ajax({
+		url:HOME + "get_item_data",
+		type:"GET",
+		cache:false,
+		data:{
+			'code' : code,
+			'CardCode' : cardCode
+		},
+		success:function(rs) {
+      load_out();
+
+			if(isJson(rs)) {
+				let ds = JSON.parse(rs);
+        let taxRate = parseDefaultFloat(ds.taxRate, 0);
+				let price = parseDefaultFloat(ds.price, 0);
+        let bfPrice = price / (1 + taxRate);
+        let el = $('#'+uid);
+
+				$('#item-name-'+uid).val(ds.name);
+				$('#uom-'+uid).html(ds.uom);
+				$('#item-price-'+uid).val(addCommas(price.toFixed(2)));
+
+        el.data('code', ds.code);
+        el.data('name', ds.name);
+        el.data('price', price);
+        el.data('bfPrice', bfPrice);
+        el.data('afPrice', price);
+        el.data('vatcode', ds.taxCode);
+        el.data('vatrate', taxRate);
+
+        el.focus();
+			}
+			else {
+				swal({
+					title:'Error!',
+					text:rs,
+					type:'error'
+				})
+			}
+		},
+    error:function(rs) {
+      showError(rs);
+    }
+	})
+}

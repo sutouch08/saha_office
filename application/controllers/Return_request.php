@@ -866,233 +866,75 @@ class Return_request extends PS_Controller
 	}
 
 
-	public function get_po_detail()
+	function get_item_data()
 	{
 		$sc = TRUE;
-		$ds = array();
+		$code = trim($this->input->get('code'));
+		$card_code = trim($this->input->get('CardCode'));
 
-		$po_code = $this->input->get('po_code');
-
-		$po = $this->return_request_model->get_po($po_code);
-
-		if( ! empty($po))
+		if( ! empty($code))
 		{
-			$ro = getConfig('RECEIVE_OVER_PO');
+			$PriceList = $this->customers_model->get_list_num($card_code);
+			$PriceList = empty($PriceList) ? 1 : $PriceList;
 
-			$rate = ($ro * 0.01);
+			$customerTax = $this->customers_model->get_tax($card_code);
 
-			$details = $this->return_request_model->get_po_details($po_code);
+			$item = $this->item_model->get($code, $PriceList);
 
-			if( ! empty($details))
+			if(!empty($item))
 			{
-				$no = 1;
+				$DfUom = NULL;
+				$price = 0.00;
+				$discount = 0.00;
+				$priceAfDisc = 0.00;
 
-				foreach($details as $rs)
+				$price_list = $this->item_model->price_list($item->code, $PriceList);
+
+				if(!empty($price_list))
 				{
-					if($rs->OpenQty > 0)
+					$DfUom = $price_list->UomEntry;
+					$price = round($price_list->Price, 2);
+				}
+
+				$uom = "";
+				$UomList = $this->item_model->get_uom_list($item->UgpEntry);
+
+				if( ! empty($UomList))
+				{
+					foreach($UomList as $ls)
 					{
-						$dif = $rs->Quantity - $rs->OpenQty;
-						$onOrder = $this->return_request_model->get_on_order_qty($rs->ItemCode, $rs->DocEntry, $rs->LineNum);
-						$qty = $rs->OpenQty - $onOrder;
+						$uom .= '<option data-qty="'.$ls->BaseQty.'" data-code="'.$ls->UomCode.'" value="'.$ls->UomEntry.'" '.is_selected($ls->UomEntry, $DfUom).'>'.$ls->UomName.'</option>';
 
-						$arr = array(
-							'no' => $no,
-							'uid' => $rs->DocEntry."-".$rs->LineNum,
-							'product_code' => $rs->ItemCode,
-							'product_name' => $rs->Dscription.' '.$rs->Text,
-							'baseCode' => $po_code,
-							'baseEntry' => $rs->DocEntry,
-							'baseLine' => $rs->LineNum,
-							'vatCode' => $rs->VatGroup,
-							'vatRate' => $rs->VatPrcnt,
-							'unitCode' => $rs->unitMsr,
-							'unitMsr' => $rs->unitMsr,
-							'NumPerMsr' => $rs->NumPerMsr,
-							'unitMsr2' => $rs->unitMsr2,
-							'NumPerMsr2' => $rs->NumPerMsr2,
-							'UomEntry' => $rs->UomEntry,
-							'UomEntry2' => $rs->UomEntry2,
-							'UomCode' => $rs->UomCode,
-							'UomCode2' => $rs->UomCode2,
-							'PriceBefDi' => round($rs->PriceBefDi, 4),
-							'PriceBefDiLabel' => number($rs->PriceBefDi, 4),
-							'DiscPrcnt' => round($rs->DiscPrcnt, 2),
-							'Price' => round($rs->Price, 4),
-							'PriceAfDiscLabel' => number($rs->Price, 4),
-							'PriceAfVAT' => round($rs->PriceAfVAT, 4),
-							'VatPerQty' => round(($rs->PriceAfVAT - $rs->Price), 4),
-							'onOrder' => $onOrder,
-							'qty' => $qty,
-							'qtyLabel' => number($qty, 2),
-							'backlogs' => $rs->OpenQty,
-							'limit' => ($rs->Quantity + ($rs->Quantity * $rate)) - $dif,
-							'isOpen' => $rs->LineStatus === 'O' ? TRUE : FALSE
-						);
-
-						array_push($ds, $arr);
-						$no++;
+						if($ls->UomEntry == $DfUom)
+						{
+							$price = round($price * $ls->BaseQty);
+						}
 					}
 				}
-			}
-			else
-			{
-				$sc = FALSE;
-				$this->error = "ใบสั่งซื้อไม่ถูกต้อง หรือ ใบสั่งซื้อถูกปิดไปแล้ว";
-			}
-		}
-		else
-		{
-			$sc = FALSE;
-			$this->error = "ไม่พบใบสั่งซื้อ";
-		}
-
-		$arr = array(
-			'status' => $sc === TRUE ? 'success' : 'failed',
-			'message' => $sc === TRUE ? 'success' : $this->error,
-			'DocNum' => $sc === TRUE ? $po->DocNum : NULL,
-			'DocCur' => $sc === TRUE ? $po->DocCur : NULL,
-			'DocRate' => $sc === TRUE ? $po->DocRate : NULL,
-			'CardCode' => $sc === TRUE ? $po->CardCode : NULL,
-			'CardName' => $sc === TRUE ? $po->CardName : NULL,
-			'DiscPrcnt' => $sc === TRUE ? $po->DiscPrcnt : NULL,
-			'details' => $sc === TRUE ? $ds : NULL
-		);
-
-		echo json_encode($arr);
-	}
 
 
-	public function do_export($code)
-	{
-		$sc = TRUE;
-
-		$doc = $this->return_request_model->get($code);
-
-		if( ! empty($doc))
-		{
-			if($doc->status == 'C')
-			{
-				$this->load->library('export');
-
-				if( ! $this->export->export_receive($code))
-				{
-					$sc = FALSE;
-					$this->error = "Export Failed : ".$this->export->error;
-
-					$arr = array(
-						'DocNum' => NULL,
-						'tempStatus' => 'N'
-					);
-
-					$this->return_request_model->update($doc->code, $arr);
-				}
-				else
-				{
-					$arr = array(
-						'DocNum' => NULL,
-						'tempStatus' => 'P'
-					);
-
-					$this->return_request_model->update($doc->code, $arr);
-				}
-			}
-			else
-			{
-				$sc = FALSE;
-				$this->error = "Invalid document status";
-			}
-		}
-		else
-		{
-			$sc = FALSE;
-			$this->error = "Invalid document number";
-		}
-
-		$this->_response($sc);
-	}
-
-
-	public function get_temp_data()
-	{
-		$code = $this->input->get('code');
-
-		$data = $this->return_request_model->get_temp_data($code);
-
-		if( ! empty($data))
-		{
-			//$btn = "<button type='button' class='btn btn-sm btn-danger' onClick='removeTemp()'' ><i class='fa fa-trash'></i> Delete Temp</button>";
-
-			$status = 'Pending';
-
-			if($data->F_Sap === NULL)
-			{
-				$status = "Pending";
-			}
-			elseif($data->F_Sap === 'N')
-			{
-				$status = "Failed";
-			}
-			elseif($data->F_Sap === 'Y')
-			{
-				$status = "Success";
-			}
-
-			$arr = array(
-				'DocEntry' => $data->DocEntry,
-				'U_WEBORDER' => $data->U_WEBORDER,
-				'CardCode' => $data->CardCode,
-				'CardName' => $data->CardName,
-				'F_WebDate' => thai_date($data->F_WebDate, TRUE),
-				'F_SapDate' => empty($data->F_SapDate) ? '-' : thai_date($data->F_SapDate, TRUE),
-				'F_Sap' => $status,
-				'Message' => empty($data->Message) ? '' : $data->Message,
-				'del_btn' => ($status === "Pending" OR $status === "Failed") ? 'ok' : ''
-			);
-
-			echo json_encode($arr);
-		}
-		else
-		{
-			echo 'No data found';
-		}
-	}
-
-
-	public function remove_temp()
-	{
-		$sc = TRUE;
-		$code = $this->input->post('U_WEBORDER');
-
-		$temp = $this->return_request_model->get_temp_data($code);
-
-		if( ! empty($temp))
-		{
-			if($temp->F_Sap == 'Y')
-			{
-				$sc = FALSE;
-				$this->error = "Delete failed : Document already import to SAP cannot be delete";
-			}
-		}
-
-		if($sc === TRUE)
-		{
-			if(! $this->return_request_model->drop_temp_exists_data($code))
-			{
-				$sc = FALSE;
-				$this->error = "Delete Failed : Delete Temp Failed";
-			}
-			else
-			{
 				$arr = array(
-					'tempStatus' => 'N',
-					'DocNum' => NULL
+					'code' => $item->code,
+					'name' => $item->name,
+					'uom' => $uom,
+					'taxCode' => !empty($customerTax) ? $customerTax->taxCode : $item->taxCode,
+					'taxRate' => !empty($customerTax) ? $customerTax->taxRate : $item->taxRate,
+					'price' => $price
 				);
-
-				$this->return_request_model->update($code, $arr);
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "ItemCode incorrect! : {$code}";
 			}
 		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing required parameter : ItemCode";
+		}
 
-		$this->_response($sc);
+		echo $sc === TRUE ? json_encode($arr) : $this->error;
 	}
 
 

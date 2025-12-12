@@ -92,7 +92,7 @@ function addRow() {
 			success:function(rs) {
 				load_out();
 
-				
+
 			},
 			error:function(rs) {
 				showError(rs);
@@ -103,4 +103,16 @@ function addRow() {
 
 
 	}
+}
+
+
+function addBlankRow() {
+	let uid = generateUID();
+
+	let ds = {'uid' : uid};
+	let source = $('#new-row-template').html();
+	let output = $('#return-table');
+	render_append(source, ds, output);
+	reIndex();
+	itemInit(uid);
 }

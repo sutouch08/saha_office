@@ -1,26 +1,26 @@
 
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 border-1 table-responsive" id="receiveTable">
-		<table class="table table-bordered" style="font-size:11px; min-width:1110px; margin-bottom:0;">
+		<table class="table table-bordered tableFixHead" style="font-size:11px; min-width:1110px; margin-bottom:0;">
 			<thead>
 				<tr>
-					<th class="fix-width-40 text-center">
+					<th class="fix-width-40 text-center fix-header">
 						<label>
 							<input type="checkbox" class="ace" id="chk-all" onchange="toggleCheckAll($(this))">
 							<span class="lbl"></span>
 						</label>
 					</th>
-					<th class="fix-width-40 text-center">#</th>
-					<th class="fix-width-100 text-center">รหัสสินค้า</th>
-					<th class="min-width-250 text-center">ชื่อสินค้า</th>
-					<th class="fix-width-80 text-center">หน่วยนับ</th>
-					<th class="fix-width-80 text-center">เอกสาร</th>
-					<th class="fix-width-80 text-center">เลขที่</th>
-					<th class="fix-width-80 text-center">ราคา</th>
-					<th class="fix-width-80 text-center">ส่วนลด</th>
-					<th class="fix-width-80 text-center">Open</th>
-					<th class="fix-width-100 text-center">จำนวน</th>
-					<th class="fix-width-100 text-center">มูลค่า</th>
+					<th class="fix-width-40 text-center fix-header">#</th>
+					<th class="fix-width-100 text-center fix-header">รหัสสินค้า</th>
+					<th class="min-width-250 text-center fix-header">ชื่อสินค้า</th>
+					<th class="fix-width-80 text-center fix-header">หน่วยนับ</th>
+					<th class="fix-width-80 text-center fix-header">เอกสาร</th>
+					<th class="fix-width-80 text-center fix-header">เลขที่</th>
+					<th class="fix-width-80 text-center fix-header">ราคา</th>
+					<th class="fix-width-80 text-center fix-header">ส่วนลด</th>
+					<th class="fix-width-80 text-center fix-header">Open</th>
+					<th class="fix-width-100 text-center fix-header">จำนวน</th>
+					<th class="fix-width-100 text-center fix-header">มูลค่า</th>
 				</tr>
 			</thead>
 			<tbody id="return-table">
@@ -32,21 +32,38 @@
 		<?php $uid = $rs->uid; ?>
 		<?php $active = empty($rs->LineStatus) ? NULL : ($rs->LineStatus == 'O' ? NULL : 'disabled'); ?>
 		<?php $limit = empty($rs->limit) ? -1 : $rs->limit; ?>
+		<?php $readonly = empty($rs->BaseRef) ? "" : "readonly"; ?>
 				<tr id="row-<?php echo $uid; ?>" class="return-rows">
 					<td class="middle text-center">
 						<label><input type="checkbox" class="ace chk" value="<?php echo $uid; ?>" /><span class="lbl"></span></label>
 					</td>
 					<td class="middle text-center no"><?php echo $no; ?></td>
-					<td class="middle"><?php echo $rs->ItemCode; ?></td>
-					<td class="middle"><?php echo $rs->ItemName; ?></td>
+					<td class="middle">
+						<input type="text" class="form-control input-sm text-label item-code" id="item-code-<?php echo $uid; ?>"
+						data-prev="<?php echo $rs->ItemCode; ?>" data-uid="<?php echo $uid; ?>" data-id="<?php echo $rs->id; ?>"
+						value="<?php echo $rs->ItemCode; ?>" <?php echo $readonly; ?> />
+					</td>
+					<td class="middle">
+						<input type="text" class="form-control input-sm text-label" id="item-name-<?php echo $uid; ?>" value="<?php echo $rs->ItemName; ?>" readonly />
+					</td>
 					<td class="middle text-center"><?php echo $rs->UnitMsr; ?></td>
 					<td class="middle text-center"><?php echo $rs->BaseType; ?></td>
 					<td class="middle text-center"><?php echo $rs->BaseRef; ?></td>
-					<td class="middle text-center"><?php echo number($rs->PriceBefDi, 2); ?></td>
-					<td class="middle text-center"><?php echo number($rs->DiscPrcnt, 2); ?></td>
+					<td class="middle text-center">
+						<input type="text" class="form-control input-sm text-label text-center price"
+						id="item-price-<?php echo $uid; ?>"
+						onchange="recalAmount('<?php echo $uid; ?>')"
+						value="<?php echo number($rs->PriceBefDi, 2); ?>" <?php echo $readonly; ?> />
+					</td>
+					<td class="middle text-center">
+						<input type="text" class="form-control input-sm text-label text-center disc"
+						id="item-disc-<?php echo $uid; ?>"
+						onchange="recalAmount('<?php echo $uid; ?>')"
+						value="<?php echo number($rs->DiscPrcnt, 2); ?>" <?php echo $readonly; ?> />
+					</td>
 					<td class="middle text-center"><?php echo number($rs->OpenQty, 2); ?></td>
 					<td class="middle text-center">
-						<input type="text" class="form-control input-sm text-right row-qty"
+						<input type="text" class="form-control input-sm text-right text-label row-qty"
 							id="<?php echo $uid; ?>"
 							onchange="recalAmount('<?php echo $uid; ?>')"
 							data-uid="<?php echo $uid; ?>"
@@ -76,7 +93,7 @@
 							value="<?php echo number($rs->Qty, 2); ?>" <?php echo $active; ?>/>
 					</td>
 					<td class="middle text-right">
-						<input type="text" class="form-control input-sm text-right row-total" id="row-total-<?php echo $uid; ?>" value="<?php echo number($rs->LineTotal, 2); ?>" disabled />
+						<input type="text" class="form-control input-sm text-right text-label row-total" id="row-total-<?php echo $uid; ?>" value="<?php echo number($rs->LineTotal, 2); ?>" readonly />
 						<input type="hidden" id="row-vat-amount-<?php echo $uid; ?>" value="<?php echo $rs->VatSum; ?>" />
 					</td>
 				</tr>
@@ -90,7 +107,7 @@
   </div>
 
 	<div class="col-lg-12 col-md-12 col-xs-12 padding-5" style="padding-top:5px;">
-		<button type="button" class="btn btn-white btn-primary" onclick="addNewRow()">Add Row</button>
+		<button type="button" class="btn btn-white btn-primary" onclick="addBlankRow()">Add Row</button>
 		<button type="button" class="btn btn-white btn-warning" onclick="removeChecked()">Delete Row</button>
 	</div>
 
@@ -112,10 +129,6 @@
 
 	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
     <div class="form-horizontal">
-      <div class="form-group" style="margin-bottom:5px;">
-
-      </div>
-
 			<div class="form-group" style="margin-bottom:5px;">
 				<label class="col-lg-3 col-md-3 col-sm-2 col-xs-6 control-label no-padding-right">จำนวนรวม</label>
         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-6 padding-5 last">
@@ -126,13 +139,6 @@
           <input type="text" id="total-amount" class="form-control input-sm text-right" value="<?php echo number($doc->DocTotal - $doc->VatSum, 2); ?>" disabled/>
         </div>
       </div>
-
-			<!-- <div class="form-group" style="margin-bottom:5px;">
-        <label class="col-lg-8 col-md-8 col-sm-7 col-xs-6 control-label no-padding-right">มูลค่ารวม</label>
-        <div class="col-lg-4 col-md-4 col-sm-5 col-xs-6 padding-5 last">
-          <input type="text" id="total-amount" class="form-control input-sm text-right" value="0.00" disabled/>
-        </div>
-      </div> -->
 
       <div class="form-group" style="margin-bottom:5px;">
         <label class="col-lg-8 col-md-8 col-sm-7 col-xs-6 control-label no-padding-right">ภาษีมูลค่าเพิ่ม</label>
@@ -160,13 +166,23 @@
 				<label><input type="checkbox" class="ace chk" value="{{uid}}" /><span class="lbl"></span></label>
 			</td>
 			<td class="middle text-center no"></td>
+			<td class="middle">
+				<input type="text" class="form-control input-sm text-label item-code" id="item-code-{{uid}}" data-prev="{{ItemCode}}" data-uid="{{uid}}" value="{{ItemCode}}" />
+			</td>
+			<td class="middle">
+				<input type="text" class="form-control input-sm text-label" id="item-name-{{uid}}" value="{{ItemName}}" readonly />
+				</td>
 			<td class="middle">{{ItemCode}}</td>
 			<td class="middle">{{ItemName}}</td>
 			<td class="middle text-center">{{unitMsr}}</td>
 			<td class="middle text-center">{{baseType}}</td>
 			<td class="middle text-center">{{DocNum}}</td>
-			<td class="middle text-center">{{PriceLabel}}</td>
-			<td class="middle text-center">{{DiscPrcnt}} %</td>
+			<td class="middle text-center">
+				<input type="text" class="form-control input-sm text-label text-center price" id="item-price-{{uid}}" onchange="recalAmount('{{uid}}')" value="{{PriceLabel}}" readonly/>
+			</td>
+			<td class="middle text-center">
+				<input type="text" class="form-control input-sm text-label text-center disc" id="item-disc-{{uid}}" onchange="recalAmount('{{uid}}')" value="{{DiscPrcnt}}" readonly/>			 
+			</td>
 			<td class="middle text-center">{{OpenQtyLabel}}</td>
 			<td class="middle text-center">
 				<input type="text" class="form-control input-sm text-right row-qty"
@@ -198,55 +214,69 @@
           value="{{QtyLabel}}" />
 			</td>
 			<td class="middle text-right">
-				<input type="text" class="form-control input-sm text-right row-total" id="row-total-{{uid}}" value="{{LineTotal}}" disabled />
+				<input type="text" class="form-control input-sm text-right row-total" id="row-total-{{uid}}" value="{{LineTotal}}" readonly />
 				<input type="hidden" id="row-vat-amount-{{uid}}" value="{{VatAmount}}" />
 			</td>
 		</tr>
 	{{/each}}
 </script>
 
-<script id="po-template" type="text/x-handlebarsTemplate">
-  {{#each this}}
-    <tr id="row-{{uid}}">
-      <td class="middle text-center">{{no}}</td>
-      <td class="middle">{{product_code}}</td>
-      <td class="middle">{{product_name}}</td>
-			<td class="middle text-center">{{unitMsr}}</td>
-			<td class="middle text-center">{{PriceBefDiLabel}}</td>
-			<td class="middle text-center">{{DiscPrcnt}} %</td>
-      <td class="middle text-center">{{qtyLabel}}</td>
-      <td class="middle text-center">
-        <input type="text" class="form-control input-sm text-center po-qty"
-          id="po-qty-{{uid}}"
-          data-uid="{{uid}}"
-          data-code="{{product_code}}"
-          data-name="{{product_name}}"
-          data-basecode="{{baseCode}}"
-          data-baseline="{{baseLine}}"
-          data-baseentry="{{baseEntry}}"
-          data-limit="{{limit}}"
-          data-qty="{{qty}}"
-					data-backlogs="{{backlogs}}"
-          data-price="{{Price}}"
-					data-bfprice="{{PriceBefDi}}"
-					data-afprice="{{PriceAfVAT}}"
-					data-vatperqty="{{VatPerQty}}"
-					data-discprcnt="{{DiscPrcnt}}"
-          data-vatcode="{{vatCode}}"
-          data-vatrate="{{vatRate}}"
-					data-unit="{{unitCode}}"
-					data-unitmsr="{{unitMsr}}"
-					data-numpermsr="{{NumPerMsr}}"
-					data-unitmsr2="{{unitMsr2}}"
-					data-numpermsr2="{{NumPerMsr2}}"
-					data-uomentry="{{UomEntry}}"
-					data-uomentry2="{{UomEntry2}}"
-					data-uomcode="{{UomCode}}"
-					data-uomcode2="{{UomCode2}}"
-          data-no="{{no}}"
-          value="" />
-        <input type="hidden" id="uid-{{no}}" value="{{uid}}" />
-      </td>
-    </tr>
-  {{/each}}
+<script id="new-row-template" type="text/x-handlebarsTemplate">
+<tr id="row-{{uid}}" class="return-rows">
+	<td class="middle text-center">
+		<label><input type="checkbox" class="ace chk" value="{{uid}}" /><span class="lbl"></span></label>
+	</td>
+	<td class="middle text-center no"></td>
+	<td class="middle">
+		<input type="text" class="form-control input-sm text-label item-code" id="item-code-{{uid}}" data-prev="" data-uid="{{uid}}" value="" />
+	</td>
+	<td class="middle">
+		<input type="text" class="form-control input-sm text-label" id="item-name-{{uid}}" value="" readonly />
+	</td>
+	<td class="middle text-center">
+		<select class="form-control input-sm text-label uom" id="uom-{{uid}}" onchange="recalPrice($(this))"></select>
+	</td>
+	<td class="middle text-center"></td>
+	<td class="middle text-center"></td>
+	<td class="middle text-center">
+		<input type="text" class="form-control input-sm text-label text-center price" id="item-price-{{uid}}" onchange="recalAmount('{{uid}}')" value="0.00" />
+	</td>
+	<td class="middle text-center">
+		<input type="text" class="form-control input-sm text-label text-center disc" id="item-disc-{{uid}}" onchange="recalAmount('{{uid}}')" value="0.00" />
+	</td>
+	<td class="middle text-center"></td>
+	<td class="middle text-center">
+		<input type="text" class="form-control input-sm text-right text-label row-qty"
+			id="{{uid}}"
+			onchange="recalAmount('{{uid}}')"
+			data-uid="{{uid}}"
+			data-code=""
+			data-name=""
+			data-basetype=""
+			data-basecode=""
+			data-baseline=""
+			data-baseentry=""
+			data-price=""
+			data-discprcnt=""
+			data-bfprice=""
+			data-afprice=""
+			data-vatcode=""
+			data-vatrate=""
+			data-unitmsr=""
+			data-unitmsr2=""
+			data-numpermsr=""
+			data-numpermsr2=""
+			data-uomentry=""
+			data-uomentry2=""
+			data-uomcode=""
+			data-uomcode2=""
+			data-open=""
+			data-slp=""
+			value="" />
+	</td>
+	<td class="middle text-right">
+		<input type="text" class="form-control input-sm text-right text-label row-total" id="row-total-{{uid}}" value="" readonly />
+		<input type="hidden" id="row-vat-amount-{{uid}}" value="0.00" />
+	</td>
+</tr>
 </script>

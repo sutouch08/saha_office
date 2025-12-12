@@ -1,5 +1,5 @@
 <?php $this->load->view('include/header'); ?>
-<?php $this->load->view('report/delivery/style_sheet.php'); ?>
+<?php $this->load->view('report/sales_order/style.php'); ?>
 <div class="row hidden-print">
 	<div class="col-lg-8 col-md-8 col-sm-8 hidden-xs padding-5">
     <h3 class="title"><?php echo $this->title; ?></h3>
@@ -55,7 +55,7 @@
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 border-1"  style="padding:0px; min-height:300px; max-height:600px; overflow:auto;">
 		<table class="table table-bordered tableFixHead" style="min-width:1800px; margin-bottom:20px;">
-			<tr class="font-size-12 freez">
+			<tr class="font-size-11 freez">
 				<th class="fix-width-40 text-center">#</th>
 				<th class="fix-width-100 text-center">Doc Date</th>
 				<th class="fix-width-100 text-center">Due Date</th>
@@ -67,8 +67,8 @@
 				<th class="fix-width-100 text-center">Ordered</th>
 				<th class="fix-width-100 text-center">Open</th>
 				<th class="fix-width-100 text-center">Released</th>
-				<th class="fix-width-100 text-center">Balance</th>
-				<th class="fix-width-100 text-center">Available</th>
+				<th class="fix-width-100 text-center pointer" title="Open - Release">Available</th>
+				<th class="fix-width-100 text-center pointer" title="Instock - Commited">On Hand</th>
 				<th class="fix-width-100 text-center">Code</th>
 				<th class="fix-width-300 text-center">Name</th>
 			</tr>
@@ -93,12 +93,18 @@
 			<td class="text-right">{{Qty}}</td>
       <td class="text-right">{{OpenQty}}</td>
       <td class="text-right">{{Released}}</td>
+			<td class="text-right">{{Available}}</td>
       <td class="text-right">{{OnHand}}</td>
-      <td class="text-right">{{Available}}</td>
 			<td class="">{{CardCode}}</td>
 			<td class="">{{CardName}}</td>
     </tr>
 {{/each}}
+</script>
+
+<script>
+function popover_init(){
+	$('[data-toggle="popover"]').popover();
+}
 </script>
 
 <script src="<?php echo base_url(); ?>scripts/report/sales_order_backlogs.js?v=<?php echo date('YmdH'); ?>"></script>

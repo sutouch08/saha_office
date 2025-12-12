@@ -59,6 +59,8 @@ class Sales_order_backlogs extends PS_Controller
 							$AvailableQty = $AvailableQty > 0 ? $AvailableQty/$baseQty : 0;
 							$OnHand = $OnHand > 0 ? $OnHand/$baseQty : 0;
 
+							$color = $OnHand < $rs->OpenQty ? 'red' : ($AvailableQty == 0 ? 'green' : '');
+
 							$arr = array(
 								'no' => $no,
 								'DocNum' => $od->DocNum,
@@ -76,7 +78,7 @@ class Sales_order_backlogs extends PS_Controller
 								'OnHand' => number($OnHand, 2),
 								'Available' => number($AvailableQty, 2),
 								'unitMsr' => $rs->unitMsr,
-								'color' => ($AvailableQty <= 0 OR $AvailableQty > $OnHand) ? 'red' : ''
+								'color' => $color
 							);
 
 							array_push($ds, $arr);
@@ -163,8 +165,8 @@ class Sales_order_backlogs extends PS_Controller
 		$sheet->setCellValue("I{$row}", "Ordered");
 		$sheet->setCellValue("J{$row}", "Open");
 		$sheet->setCellValue("K{$row}", "Released");
-		$sheet->setCellValue("L{$row}", "Balance");
-		$sheet->setCellValue("M{$row}", "Available");
+		$sheet->setCellValue("L{$row}", "Available (Open - Released)");
+		$sheet->setCellValue("M{$row}", "On Hand (Instock - Commit)");
 		$sheet->setCellValue("N{$row}", "Customer Code");
 		$sheet->setCellValue("O{$row}", "Customer Name");
 
@@ -205,8 +207,8 @@ class Sales_order_backlogs extends PS_Controller
 						$sheet->setCellValue("I{$row}", $rs->Quantity);
 						$sheet->setCellValue("J{$row}", $rs->OpenQty);
 						$sheet->setCellValue("K{$row}", $PrevRelease);
-						$sheet->setCellValue("L{$row}", $OnHand);
-						$sheet->setCellValue("M{$row}", $AvailableQty);
+						$sheet->setCellValue("L{$row}", $AvailableQty);
+						$sheet->setCellValue("M{$row}", $OnHand);
 						$sheet->setCellValue("N{$row}", $od->CardCode);
 						$sheet->setCellValue("O{$row}", $od->CardName);
 
