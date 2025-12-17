@@ -981,7 +981,7 @@ function recalTotal() {
 
   let discSum = totalAmount * (discPrcnt * 0.01);
   let totalAfDisc = totalAmount - discSum;
-	let vatSum = totalVat;
+	let vatSum = totalVat * (1  - (discPrcnt * 0.01));
 	let docTotal = totalAfDisc + vatSum;
 
 	$('#total-qty').val(addCommas(totalQty.toFixed(2)));
