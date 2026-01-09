@@ -1,4 +1,5 @@
 <?php $this->load->view('include/header'); ?>
+<?php $this->load->view('receive_po/style'); ?>
 <div class="row">
 	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5">
     <h3 class="title" ><?php echo $this->title; ?></h3>

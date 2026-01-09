@@ -15,7 +15,7 @@
         <center style="margin-bottom:10px;"><h4 class="modal-title" id="po-title">ใบสั่งซื้อ</h4></center>
       </div>
       <div class="modal-body" style="max-width:94vw; min-height:300px; max-height:70vh; overflow:auto;">
-        <table class="table table-striped table-bordered" style="font-size:11px; table-layout: fixed; min-width:1020px;">
+        <table class="table table-striped table-bordered tableFixHead" style="font-size:11px; table-layout: fixed; min-width:1020px;">
           <thead>
             <th class="fix-width-40 text-center">#</th>
             <th class="fix-width-100 text-center">รหัส</th>

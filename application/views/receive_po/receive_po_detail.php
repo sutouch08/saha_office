@@ -1,7 +1,7 @@
 
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-5 border-1 table-responsive" id="receiveTable" style="min-height:200px; padding-left:0; padding-right:0;">
-		<table class="table table-bordered" style="font-size:11px; min-width:1030px; margin-bottom:0;">
+		<table class="table table-bordered tableFixHead" style="font-size:11px; min-width:1030px; margin-bottom:0;">
 			<thead>
 				<tr>
 					<th class="fix-width-40 text-center">
@@ -46,7 +46,7 @@
 					<td class="middle text-center"><?php echo number($rs->DiscPrcnt, 2); ?></td>
 					<td class="middle text-center"><?php echo number($rs->backlogs, 2); ?></td>
 					<td class="middle text-center">
-						<input type="text" class="form-control input-sm text-right row-qty"
+						<input type="text" class="form-control input-xs text-right row-qty"
 							id="row-qty-<?php echo $uid; ?>"
 							onchange="recalAmount('<?php echo $uid; ?>')"
 							data-uid="<?php echo $uid; ?>"
@@ -77,7 +77,7 @@
 							value="<?php echo number($rs->Qty, 2); ?>" <?php echo $active; ?>/>
 					</td>
 					<td class="middle text-right">
-						<input type="text" class="form-control input-sm text-right row-total" id="row-total-<?php echo $uid; ?>" value="<?php echo number($rs->LineTotal, 2); ?>" disabled />
+						<input type="text" class="form-control input-xs text-right row-total" id="row-total-<?php echo $uid; ?>" value="<?php echo number($rs->LineTotal, 2); ?>" disabled />
 						<input type="hidden" id="row-vat-amount-<?php echo $uid; ?>" value="<?php echo $rs->VatAmount; ?>" />
 					</td>
 				</tr>
@@ -172,7 +172,7 @@
 			<td class="middle text-center">{{DiscPrcnt}} %</td>
 			<td class="middle text-center">{{backlogs}}</td>
 			<td class="middle text-center">
-				<input type="text" class="form-control input-sm text-right row-qty"
+				<input type="text" class="form-control input-xs text-right row-qty"
 					id="row-qty-{{uid}}"
           onchange="recalAmount('{{uid}}')"
 					data-id=""
@@ -204,7 +204,7 @@
           value="{{qtyLabel}}" />
 			</td>
 			<td class="middle text-right">
-				<input type="text" class="form-control input-sm text-right row-total" id="row-total-{{uid}}" value="{{amountLabel}}" disabled />
+				<input type="text" class="form-control input-xs text-right row-total" id="row-total-{{uid}}" value="{{amountLabel}}" disabled />
 				<input type="hidden" id="row-vat-amount-{{uid}}" value="{{vatAmount}}" />
 			</td>
 		</tr>
@@ -216,14 +216,14 @@
     <tr id="row-{{uid}}">
       <td class="middle text-center">{{no}}</td>
       <td class="middle">{{product_code}}</td>
-      <td class="middle">{{product_name}}</td>
+      <td class="middle"><input type="text" class="form-control input-xs text-label" value="{{product_name}}" readonly /></td>
 			<td class="middle text-center">{{unitMsr}}</td>
 			<td class="middle text-center">{{vatRate}}</td>
 			<td class="middle text-center">{{PriceBefDiLabel}}</td>
 			<td class="middle text-center">{{DiscPrcnt}} %</td>
       <td class="middle text-center">{{qtyLabel}}</td>
       <td class="middle text-center">
-        <input type="text" class="form-control input-sm text-center po-qty"
+        <input type="text" class="form-control input-xs text-center po-qty"
           id="po-qty-{{uid}}"
           data-uid="{{uid}}"
           data-code="{{product_code}}"
