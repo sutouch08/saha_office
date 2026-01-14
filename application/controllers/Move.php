@@ -48,7 +48,7 @@ class Move extends PS_Controller
 		$rows = $this->move_model->count_rows($filter);
 
 		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
-		$init	= pagination_config($this->home.'/', $rows, $perpage, $segment);
+		$init	= pagination_config($this->home.'/index/', $rows, $perpage, $segment);
 
 		$rs = $this->move_model->get_list($filter, $perpage, $this->uri->segment($segment));
 
