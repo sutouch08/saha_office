@@ -280,6 +280,56 @@ class Return_request_model extends CI_Model
   }
 
 
+  public function get_invoice_item_detail($code, $ItemCode)
+  {
+    $rs = $this->ms
+    ->select('ivd.DocEntry, ivd.LineNum, iv.DocNum')
+    ->select('ivd.ItemCode, ivd.Dscription, ivd.PriceBefDi, ivd.PriceAfVAT, ivd.Price')
+    ->select('ivd.DiscPrcnt, ivd.Quantity AS Qty, ivd.OpenQty, ivd.Currency, ivd.Rate, ivd.SlpCode')
+    ->select('ivd.VatGroup, ivd.VatPrcnt, ivd.VatSum')
+    ->select('ivd.UomCode, ivd.UomCode2, ivd.UomEntry, ivd.UomEntry2')
+    ->select('ivd.unitMsr, ivd.unitMsr2, ivd.NumPerMsr, ivd.NumPerMsr2')
+    ->from('INV1 AS ivd')
+    ->join('OINV AS iv', 'ivd.DocEntry = iv.DocEntry', 'left')
+    ->where('iv.DocNum', $code)
+    ->where('iv.CANCELED', 'N')
+    ->where('ivd.ItemCode', $ItemCode)
+    ->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
+
+  public function get_do_item_detail($code, $ItemCode)
+  {
+    $rs = $this->ms
+    ->select('dd.DocEntry, dd.LineNum, do.DocNum')
+    ->select('dd.ItemCode, dd.Dscription, dd.PriceBefDi, dd.PriceAfVAT, dd.Price')
+    ->select('dd.DiscPrcnt, dd.Quantity AS Qty, dd.OpenQty, dd.Currency, dd.Rate, dd.SlpCode')
+    ->select('dd.VatGroup, dd.VatPrcnt, dd.VatSum')
+    ->select('dd.UomCode, dd.UomCode2, dd.UomEntry, dd.UomEntry2')
+    ->select('dd.unitMsr, dd.unitMsr2, dd.NumPerMsr, dd.NumPerMsr2')
+    ->from('DLN1 AS dd')
+    ->join('ODLN AS do', 'dd.DocEntry = do.DocEntry', 'left')
+    ->where('do.DocNum', $code)
+    ->where('do.CANCELED', 'N')
+    ->where('dd.ItemCode', $ItemCode)
+    ->get();
+
+    if($rs->num_rows() > 0)
+    {
+      return $rs->row();
+    }
+
+    return NULL;
+  }
+
+
   public function get_open_qty($baseType, $baseEntry, $baseLine)
   {
 
@@ -306,7 +356,7 @@ class Return_request_model extends CI_Model
 
     return 0;
   }
-  
+
 
   public function get_max_code($code)
   {

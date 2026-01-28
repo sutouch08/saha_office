@@ -189,7 +189,6 @@ function addToReturn() {
     let el = $(this);
     let qty = parseDefaultFloat(el.val(), 0);
 
-
     if(qty > 0) {
 
       let uid = el.data('uid');
@@ -318,6 +317,15 @@ function recalTotal() {
 	$('#total-amount').val(addCommas(totalAmount.toFixed(2)));
 	$('#vat-sum').val(addCommas(vatSum.toFixed(2)));
 	$('#doc-total').val(addCommas(docTotal.toFixed(2)));
+}
+
+
+function recalPrice(uid) {
+  let price = parseDefaultFloat(removeCommas($('#item-price-'+uid).val()), 0);
+
+  $('#'+uid).data('price', price);
+
+  recalAmount(uid);
 }
 
 
@@ -452,7 +460,7 @@ function save(save_type) {
               });
 
               setTimeout(() => {
-                reload();
+                viewDetail(h.code);
               }, 1200);
             }
             else {

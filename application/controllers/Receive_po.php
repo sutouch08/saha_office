@@ -1077,9 +1077,7 @@ class Receive_po extends PS_Controller
 		$data = $this->receive_po_model->get_temp_data($code);
 
 		if( ! empty($data))
-		{
-			//$btn = "<button type='button' class='btn btn-sm btn-danger' onClick='removeTemp()'' ><i class='fa fa-trash'></i> Delete Temp</button>";
-
+		{			
 			$status = 'Pending';
 
 			if($data->F_Sap === NULL)

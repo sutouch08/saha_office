@@ -8,8 +8,16 @@
     padding-right: 0;
   }
 
+  .tableFixHead {
+    margin-top: 0px;
+  }
+
   .tableFixHead > thead > tr > th {
-    padding:3px !important;
+    padding:3px 8px !important;
+  }
+
+  .table > thead > tr > th:last-child {
+    border-right-color: #dddddd;
   }
 
   .tableFixHead > tbody > tr > td {
@@ -18,6 +26,12 @@
 
   .text-label {
     font-size: 11px !important;
+    padding: 0px !important;
+    height: 22px;
+  }
+
+  label.search-label {
+    font-size: 12px;
   }
 
 

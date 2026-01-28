@@ -25,6 +25,9 @@
 				<li class="primary">
 					<a href="javascript:syncData('GR')">Sync GR</a>
 				</li>
+				<li class="primary">
+					<a href="javascript:syncData('RQ')">Sync RQ</a>
+				</li>
 			</ul>
 		</div>
 		<div class="btn-group">
@@ -40,7 +43,7 @@
 					<a href="javascript:clearAllLogs()">Clear all logs</a>
 				</li>
 			</ul>
-		</div>	
+		</div>
 	</div>
 </div><!-- End Row -->
 <hr class="padding-5"/>
@@ -65,6 +68,7 @@
 			<option value="TR" <?php echo is_selected('TR', $docType); ?>>TR</option>
 			<option value="MV" <?php echo is_selected('MV', $docType); ?>>MV</option>
 			<option value="GR" <?php echo is_selected('GR', $docType); ?>>GR</option>
+			<option value="RQ" <?php echo is_selected('RQ', $docType); ?>>RQ</option>
 			<option value="Logs" <?php echo is_selected('Logs', $docType); ?>>Logs</option>
 		</select>
   </div>

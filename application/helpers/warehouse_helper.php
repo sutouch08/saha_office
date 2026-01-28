@@ -37,4 +37,13 @@ function select_zone($binCode = NULL, $WhsCode = NULL)
   return $ds;
 }
 
+
+function warehouse_name($code)
+{
+  $ci =& get_instance();
+  $ci->load->model('warehouse_model');
+
+  return $ci->warehouse_model->get_name($code);
+}
+
  ?>

@@ -79,7 +79,7 @@ function doCancle() {
 
 	$('#cancle-modal').modal('hide');
 
-	return cancle_request(code);
+	return cancel_request(code);
 }
 
 
@@ -97,16 +97,6 @@ function addNew(){
 
 function edit(code){
 	window.location.href = HOME + 'edit/'+ code;
-}
-
-
-function process(code) {
-	window.location.href = HOME + 'process/'+code;
-}
-
-
-function processMobile(code) {
-	window.location.href = HOME + 'process_mobile/'+code;
 }
 
 

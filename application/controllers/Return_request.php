@@ -136,23 +136,30 @@ class Return_request extends PS_Controller
 
 		if( ! empty($doc))
 		{
-			$details = $this->return_request_model->get_details($code);
-			$baseRef = [];
-
-			if( ! empty($details))
+			if($doc->status == 'P')
 			{
-				foreach($details as $rs)
+				$details = $this->return_request_model->get_details($code);
+				$baseRef = [];
+
+				if( ! empty($details))
 				{
-					$rs->OpenQty = ( ! empty($rs->BaseType) && ! empty($rs->BaseEntry) && $rs->BaseLine != NULL) ? $this->return_request_model->get_open_qty($rs->BaseType, $rs->BaseEntry, $rs->BaseLine) : -1;
+					foreach($details as $rs)
+					{
+						$rs->OpenQty = ( ! empty($rs->BaseType) && ! empty($rs->BaseEntry) && $rs->BaseLine != NULL) ? $this->return_request_model->get_open_qty($rs->BaseType, $rs->BaseEntry, $rs->BaseLine) : -1;
+					}
 				}
+
+				$ds = array(
+					'doc' => $doc,
+					'details' => $details
+				);
+
+				$this->load->view('return_request/return_request_edit', $ds);
 			}
-
-			$ds = array(
-				'doc' => $doc,
-				'details' => $details
-			);
-
-			$this->load->view('return_request/return_request_edit', $ds);
+			else
+			{
+				redirect($this->home.'/view_detail/'.$code);
+			}
 		}
 		else
 		{
@@ -288,10 +295,10 @@ class Return_request extends PS_Controller
 
 		if( ! empty($doc))
 		{
+			$doc->WhsName = warehouse_name($doc->WhsCode);
 			$ds = array(
 				'doc' => $doc,
 				'details' => $this->return_request_model->get_details($code),
-				'po_refs' => $this->return_request_model->get_po_refs($code),
 				'logs' => $this->return_request_model->get_logs($code)
 			);
 
@@ -433,199 +440,7 @@ class Return_request extends PS_Controller
 						{
 							$this->load->library('export');
 
-							if($this->export->export_receive($doc->code))
-							{
-								$arr = array(
-									'DocNum' => NULL,
-									'tempStatus' => 'P'
-								);
-
-								$this->return_request_model->update($doc->code, $arr);
-							}
-							else
-							{
-								$ex = 0;
-								$arr = array(
-									'DocNum' => NULL,
-									'tempStatus' => 'N'
-								);
-
-								$this->return_request_model->update($doc->code, $arr);
-							}
-						}
-					}
-					else
-					{
-						$sc = FALSE;
-						$this->error = "Invalid Bin Location";
-					}
-				}
-				else
-				{
-					$sc = FALSE;
-					$this->error = "Invalid document status";
-				}
-			}
-			else
-			{
-				$sc = FALSE;
-				$this->error = "Invalid document number";
-			}
-		}
-		else
-		{
-			$sc = FALSE;
-			$this->error = "Missing required parameter";
-		}
-
-		$arr = array(
-			'status' => $sc === TRUE ? 'success' : 'failed',
-			'message' => $sc === TRUE ? 'success' : $this->error,
-			'ex' => $ex
-		);
-
-		echo json_encode($arr);
-	}
-
-
-	public function close_receive()
-	{
-		$sc = TRUE;
-		$ex = 1;
-		$ds = json_decode($this->input->post('data'));
-
-		if( ! empty($ds))
-		{
-			$doc = $this->return_request_model->get($ds->code);
-
-			if( ! empty($doc))
-			{
-				if($doc->status == 'O')
-				{
-					$zone = $this->zone_model->get($ds->zone_code);
-
-					if( ! empty($zone))
-					{
-						$po_refs = [];
-
-						$this->db->trans_begin();
-
-						//--- update header
-						$arr = array(
-							'posting_date' => db_date($ds->posting_date, FALSE),
-							'vendor_code' => trim($ds->vendor_code),
-							'vendor_name' => trim($ds->vendor_name),
-							'po_code' => trim($ds->po_code),
-							'invoice_code' => get_null(trim($ds->invoice_code)),
-							'warehouse_code' => $zone->warehouse_code,
-							'zone_code' => $zone->code,
-							'Currency' => $ds->Currency,
-							'Rate' => $ds->Rate,
-							'DocTotal' => $ds->DocTotal,
-							'VatSum' => $ds->VatSum,
-							'TotalQty' => $ds->TotalQty,
-							'TotalReceived' => $ds->TotalReceived,
-							'update_user' => $this->user->uname,
-							'date_upd' => now(),
-							'status' => $ds->save_type,
-							'remark' => get_null(trim($ds->remark))
-						);
-
-						if( ! $this->return_request_model->update($ds->code, $arr))
-						{
-							$sc = FALSE;
-							$this->error = "Failed to update document header";
-						}
-
-						if($sc === TRUE)
-						{
-							if( ! $this->return_request_model->delete_details($ds->code))
-							{
-								$sc = FALSE;
-								$this->error = "Failed to delete prevoius line items";
-							}
-
-							if($sc === TRUE && ! empty($ds->rows))
-							{
-								foreach($ds->rows as $rs)
-								{
-									if($sc === FALSE) { break; }
-
-									$arr = array(
-										'receive_id' => $doc->id,
-										'receive_code' => $doc->code,
-										'baseCode' => $rs->baseCode,
-										'baseEntry' => $rs->baseEntry,
-										'baseLine' => $rs->baseLine,
-										'ItemCode' => $rs->ItemCode,
-										'ItemName' => $rs->ItemName,
-										'PriceBefDi' => $rs->PriceBefDi,
-										'PriceAfVAT' => $rs->PriceAfVAT,
-										'Price' => $rs->Price,
-										'DiscPrcnt' => $rs->DiscPrcnt,
-										'Qty' => $rs->Qty,
-										'ReceiveQty' => $rs->ReceiveQty,
-										'LineTotal' => $rs->LineTotal,
-										'BinCode' => $zone->code,
-										'WhsCode' => $zone->warehouse_code,
-										'UomCode' => $rs->UomCode,
-										'UomCode2' => $rs->UomCode2,
-										'UomEntry' => $rs->UomEntry,
-										'UomEntry2' => $rs->UomEntry2,
-										'unitMsr' => $rs->unitMsr,
-										'unitMsr2' => $rs->unitMsr2,
-										'NumPerMsr' => $rs->NumPerMsr,
-										'NumPerMsr2' => $rs->NumPerMsr2,
-										'VatGroup' => $rs->VatGroup,
-										'VatRate' => $rs->VatRate,
-										'VatAmount' => $rs->VatAmount,
-										'VatPerQty' => $rs->VatPerQty,
-										'Currency' => $ds->Currency,
-										'Rate' => $ds->Rate,
-										'LineStatus' => 'C'
-									);
-
-									if( ! $this->return_request_model->add_detail($arr))
-									{
-										$sc = FALSE;
-										$this->error = "Failed to insert row item {$rs->ItemCode} : {$rs->baseCode}";
-									}
-
-									if( ! isset($po_refs[$rs->baseCode]))
-									{
-										$po_refs[$rs->baseCode] = $rs->baseCode;
-									}
-								}
-							}
-						}
-
-						if($sc === TRUE)
-						{
-							$this->db->trans_commit();
-						}
-						else
-						{
-							$this->db->trans_rollback();
-						}
-
-						if($sc === TRUE)
-						{
-							$logs = array(
-								'code' => $doc->code,
-								'user_id' => $this->user->id,
-								'uname' => $this->user->uname,
-								'emp_name' => $this->user->emp_name,
-								'action' => 'close'
-							);
-
-							$this->return_request_model->add_logs($logs);
-						}
-
-						if($sc === TRUE)
-						{
-							$this->load->library('export');
-
-							if($this->export->export_receive($doc->code))
+							if($this->export->export_return_request($doc->code))
 							{
 								$arr = array(
 									'DocNum' => NULL,
@@ -688,7 +503,7 @@ class Return_request extends PS_Controller
 
 		if( ! empty($doc))
 		{
-			$sap = $this->return_request_model->get_sap_receive_doc($code);
+			$sap = $this->return_request_model->get_sap_doc_num($code);
 
 			if(empty($sap))
 			{
@@ -791,43 +606,71 @@ class Return_request extends PS_Controller
 			{
 				if($doc->status != 'D')
 				{
-					if($doc->status == 'P' OR $doc->status == 'O')
+					if($doc->status == 'P' OR $doc->status == 'C')
 					{
-						$arr = array(
-							'status' => 'D',
-							'cancel_reason' => get_null($reason),
-							'update_user' => $this->user->uname,
-							'date_upd' => now()
-						);
+						$sap = $this->return_request_model->get_sap_doc_num($code);
 
-						$this->db->trans_begin();
-
-						if( ! $this->return_request_model->update($doc->code, $arr))
+						if( ! empty($sap))
 						{
 							$sc = FALSE;
-							$this->error = "Failed to update document status";
+							$this->error = "เอกสารถูกนำเข้า SAP แล้ว หากต้องการเปลี่ยนแปลงกรุณายกเลิกเอกสารใน SAP ก่อน";
 						}
 
-						if($sc === TRUE)
+						if($sc === TRUE && $doc->status == 'C')
 						{
-							$arr = array(
-								'LineStatus' => 'D'
-							);
+							$middle = $this->return_request_model->get_temp_exists_data($code);
 
-							if( ! $this->return_request_model->update_details($doc->code, $arr))
+							if(!empty($middle))
 							{
-								$sc = FALSE;
-								$this->error = "Failed to update line status";
+								foreach($middle as $rows)
+								{
+									if( ! $this->return_request_model->drop_temp_data($rows->DocEntry))
+									{
+										$sc = FALSE;
+										$this->error = "ลบรายการที่ค้างใน temp ไม่สำเร็จ";
+									}
+								}
 							}
 						}
 
 						if($sc === TRUE)
 						{
-							$this->db->trans_commit();
-						}
-						else
-						{
-							$this->db->trans_rollback();
+							$arr = array(
+								'status' => 'D',
+								'cancel_reason' => get_null($reason),
+								'update_user' => $this->user->uname,
+								'date_upd' => now()
+							);
+
+							$this->db->trans_begin();
+
+							if( ! $this->return_request_model->update($doc->code, $arr))
+							{
+								$sc = FALSE;
+								$this->error = "Failed to update document status";
+							}
+
+							if($sc === TRUE)
+							{
+								$arr = array(
+									'LineStatus' => 'D'
+								);
+
+								if( ! $this->return_request_model->update_details($doc->code, $arr))
+								{
+									$sc = FALSE;
+									$this->error = "Failed to update line status";
+								}
+							}
+
+							if($sc === TRUE)
+							{
+								$this->db->trans_commit();
+							}
+							else
+							{
+								$this->db->trans_rollback();
+							}
 						}
 
 						if($sc === TRUE)
@@ -860,6 +703,56 @@ class Return_request extends PS_Controller
 		{
 			$sc = FALSE;
 			$this->error = "Missing required parameter";
+		}
+
+		$this->_response($sc);
+	}
+
+
+	public function do_export($code)
+	{
+		$sc = TRUE;
+
+		$doc = $this->return_request_model->get($code);
+
+		if( ! empty($doc))
+		{
+			if($doc->status == 'C')
+			{
+				$this->load->library('export');
+
+				if( ! $this->export->export_return_request($code))
+				{
+					$sc = FALSE;
+					$this->error = "Export Failed : ".$this->export->error;
+
+					$arr = array(
+						'DocNum' => NULL,
+						'tempStatus' => 'N'
+					);
+
+					$this->return_request_model->update($doc->code, $arr);
+				}
+				else
+				{
+					$arr = array(
+						'DocNum' => NULL,
+						'tempStatus' => 'P'
+					);
+
+					$this->return_request_model->update($doc->code, $arr);
+				}
+			}
+			else
+			{
+				$sc = FALSE;
+				$this->error = "Invalid document status";
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Invalid document number";
 		}
 
 		$this->_response($sc);
@@ -935,6 +828,165 @@ class Return_request extends PS_Controller
 		}
 
 		echo $sc === TRUE ? json_encode($arr) : $this->error;
+	}
+
+
+	public function get_item_by_barcode()
+	{
+		$sc = TRUE;
+		$row = NULL;
+		$ds = json_decode($this->input->post('data'));
+
+		if( ! empty($ds))
+		{
+			if(empty($ds->barcode))
+			{
+				$sc = FALSE;
+				$this->error = "Barcode is required";
+			}
+
+			if($sc === TRUE && empty($ds->baseType))
+			{
+				$sc = FALSE;
+				$this->error = "กรุณาเลือกเอกสาร";
+			}
+
+			if($sc === TRUE && empty($ds->baseRef))
+			{
+				$sc = FALSE;
+				$this->error = "กรุณาระบุเลขที่เอกสาร";
+			}
+
+			if($sc === TRUE)
+			{
+				$pd = $this->item_model->getItemByBarcode($ds->barcode);
+
+				if(empty($pd))
+				{
+					$sc = FALSE;
+					$this->error = "Invalid barcode or barcode not found";
+				}
+			}
+
+			if($sc === TRUE)
+			{
+				if($ds->baseType == 'DO')
+				{
+					$row = $this->return_request_model->get_do_item_detail($ds->baseRef, $pd->ItemCode);
+				}
+
+				if($ds->baseType == 'IV')
+				{
+					$row = $this->return_request_model->get_invoice_item_detail($ds->baseRef, $pd->ItemCode);
+				}
+
+				if(empty($row))
+				{
+					$sc = FALSE;
+					$this->error = "ไม่พบรายการสินค้าในเอกสารที่กำหนด";
+				}
+
+				if($sc === TRUE)
+				{
+					$row->uid = $ds->baseType.$row->DocNum.'-'.$row->LineNum;
+					$row->Qty = ($pd->BaseQty / $row->NumPerMsr) * $ds->qty;
+				}
+			}
+		}
+		else
+		{
+			$sc = FALSE;
+			$this->error = "Missing required parameter";
+		}
+
+		$arr = array(
+			'status' => $sc === TRUE ? 'success' : 'failed',
+			'message' => $sc === TRUE ? 'success' : $this->error,
+			'data' => $row
+		);
+
+		echo json_encode($arr);
+	}
+
+	public function get_temp_data()
+	{
+		$code = $this->input->get('code');
+
+		$data = $this->return_request_model->get_temp_data($code);
+
+		if( ! empty($data))
+		{
+			$status = 'Pending';
+
+			if($data->F_Sap === NULL)
+			{
+				$status = "Pending";
+			}
+			elseif($data->F_Sap === 'N')
+			{
+				$status = "Failed";
+			}
+			elseif($data->F_Sap === 'Y')
+			{
+				$status = "Success";
+			}
+
+			$arr = array(
+				'DocEntry' => $data->DocEntry,
+				'U_WEBORDER' => $data->U_WEBORDER,
+				'CardCode' => $data->CardCode,
+				'CardName' => $data->CardName,
+				'F_WebDate' => thai_date($data->F_WebDate, TRUE),
+				'F_SapDate' => empty($data->F_SapDate) ? '-' : thai_date($data->F_SapDate, TRUE),
+				'F_Sap' => $status,
+				'Message' => empty($data->Message) ? '' : $data->Message,
+				'del_btn' => ($status === "Pending" OR $status === "Failed") ? 'ok' : ''
+			);
+
+			echo json_encode($arr);
+		}
+		else
+		{
+			echo 'No data found';
+		}
+	}
+
+
+	public function remove_temp()
+	{
+		$sc = TRUE;
+		$code = $this->input->post('U_WEBORDER');
+
+		$temp = $this->return_request_model->get_temp_data($code);
+
+		if( ! empty($temp))
+		{
+			if($temp->F_Sap == 'Y')
+			{
+				$sc = FALSE;
+				$this->error = "Delete failed : Document already import to SAP cannot be delete";
+			}
+		}
+
+		if($sc === TRUE)
+		{
+			if(! $this->return_request_model->drop_temp_exists_data($code))
+			{
+				$sc = FALSE;
+				$this->error = "Delete Failed : Delete Temp Failed";
+			}
+			else
+			{
+				$arr = array(
+					'tempStatus' => 'N',
+					'DocNum' => NULL
+				);
+
+				$this->return_request_model->update($code, $arr);
+			}
+		}
+
+		$this->_response($sc);
 	}
 
 

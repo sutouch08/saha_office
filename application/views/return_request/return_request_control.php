@@ -34,14 +34,7 @@
 	<div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-3">
 		<label class="not-show">OK</label>
 		<button type="button" class="btn btn-xs btn-primary btn-block" onclick="addRow()">OK</button>
-	</div>
-
-	<div class="col-lg-1 col-xs-12 visible-lg visible-xs">&nbsp;</div>
-
-	<div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-3 padding-5">
-		<label class="display-block not-show hidden-xs">confirm</label>
-		<button type="button" class="btn btn-xs btn-danger btn-block" onclick="removeChecked()">ลบ</button>
-	</div>
+	</div>	
 </div>
 
 <div class="divider-hidden">	</div>
