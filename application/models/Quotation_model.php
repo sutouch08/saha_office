@@ -425,7 +425,7 @@ class Quotation_model extends CI_Model
 
     $rs = $this->ms
     ->select('Series AS code, SeriesName AS name, BeginStr AS prefix')
-    ->where('ObjectCode', 23)
+    ->where('ObjectCode', '23')
     ->where('Indicator', $month)
     ->order_by('Series', 'ASC')
     ->get('NNM1');
@@ -461,7 +461,7 @@ class Quotation_model extends CI_Model
 
   public function get_prefix($series)
   {
-    $rs = $this->ms->select('BeginStr AS prefix')->where('ObjectCode', 23)->where('Series', $series)->get('NNM1');
+    $rs = $this->ms->select('BeginStr AS prefix')->where('ObjectCode', '23')->where('Series', $series)->get('NNM1');
 
     if($rs->num_rows() === 1)
     {

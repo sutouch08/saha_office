@@ -502,7 +502,7 @@ class Sales_order_model extends CI_Model
 
     $rs = $this->ms
     ->select('Series')
-    ->where('ObjectCode', 17)
+    ->where('ObjectCode', '17')
     ->where('Indicator', $month)
     ->where('BeginStr', $prefix)
     ->order_by('Series', 'ASC')
@@ -523,7 +523,7 @@ class Sales_order_model extends CI_Model
 
     $rs = $this->ms
     ->select('Series AS code, SeriesName AS name, BeginStr AS prefix')
-    ->where('ObjectCode', 17)
+    ->where('ObjectCode', '17')
     ->where('Indicator', $month)
     ->order_by('Series', 'ASC')
     ->get('NNM1');
@@ -543,7 +543,7 @@ class Sales_order_model extends CI_Model
     $month = date('Y-m');
     $rs = $this->ms
     ->select('Series AS code, SeriesName AS name, BeginStr AS prefix')
-    ->where('ObjectCode', 17)
+    ->where('ObjectCode', '17')
     ->where('Indicator', $month)
     ->where('BeginStr', $prefix)
     ->order_by('Series', 'ASC')
@@ -574,7 +574,7 @@ class Sales_order_model extends CI_Model
 
   public function get_prefix($series)
   {
-    $rs = $this->ms->select('BeginStr AS prefix')->where('ObjectCode', 17)->where('Series', $series)->get('NNM1');
+    $rs = $this->ms->select('BeginStr AS prefix')->where('ObjectCode', '17')->where('Series', $series)->get('NNM1');
 
     if($rs->num_rows() === 1)
     {
@@ -591,7 +591,7 @@ class Sales_order_model extends CI_Model
     $rs = $this->ms
     ->select('N.BeginStr')
     ->from('ORDR AS O')
-    ->join('NNM1 AS N', 'O.Series = N.Series AND N.ObjectCode = 17', 'left')
+    ->join('NNM1 AS N', "O.Series = N.Series AND N.ObjectCode = 17", 'left')
     ->where('O.DocNum', $docNum)
     ->get();
 
