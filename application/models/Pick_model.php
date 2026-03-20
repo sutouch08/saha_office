@@ -240,11 +240,13 @@ class Pick_model extends CI_Model
     $rs = $this->ms
     ->select('ORDR.DocNum, ORDR.DocDate, ORDR.CardName')
     ->select('RDR1.DocEntry, RDR1.LineNum, RDR1.ItemCode, RDR1.Quantity, RDR1.OpenQty, RDR1.InvQty, RDR1.OpenInvQty')
-    ->select('RDR1.UomEntry, RDR1.UomEntry2, RDR1.UomCode, RDR1.UomCode2, RDR1.unitMsr, RDR1.unitMsr2, RDR1.Price')
+    ->select('RDR1.UomEntry, RDR1.UomCode, RDR1.unitMsr, RDR1.Price')
+    ->select('OUOM.UomEntry AS UomEntry2, OUOM.UomCode AS UomCode2, OUOM.UomName AS unitMsr2')
     ->select('OITM.ItemName')
     ->from('RDR1')
     ->join('ORDR', 'RDR1.DocEntry = ORDR.DocEntry', 'left')
     ->join('OITM', 'RDR1.ItemCode = OITM.ItemCode', 'left')
+    ->join('OUOM', 'OITM.IUomEntry = OUOM.UomEntry', 'left')
     ->where('RDR1.DocEntry', $DocEntry)
     ->where('RDR1.LineNum', $LineNum)
     ->get();
@@ -258,30 +260,57 @@ class Pick_model extends CI_Model
   }
 
 
-
   public function getOpenRows($DocEntry)
   {
     $rs = $this->ms
-    ->select('RDR1.DocEntry, RDR1.LineNum, RDR1.LineStatus, RDR1.ItemCode, OITM.ItemName')
-    ->select('RDR1.Quantity, RDR1.OpenQty, RDR1.InvQty, RDR1.OpenInvQty, RDR1.Price')
-    ->select('RDR1.UomEntry, RDR1.UomEntry2, RDR1.UomCode, RDR1.UomCode2, RDR1.unitMsr, RDR1.unitMsr2')
-    ->select('ORDR.DocNum, ORDR.CardCode, ORDR.CardName, ORDR.DocDate')
-    ->from('RDR1', 'RDR1.DocEntry = ORDR.DocEntry')
-    ->join('ORDR', 'RDR1.DocEntry = ORDR.DocEntry', 'left')
-    ->join('OITM', 'RDR1.ItemCode = OITM.ItemCode', 'left')
-    ->where('RDR1.DocEntry', $DocEntry)
-    ->where('ORDR.DocStatus', 'O')
-    ->where('ORDR.CANCELED', 'N')
-    ->where('RDR1.OpenQty >', 0)
-    ->get();
+      ->select('RDR1.DocEntry, RDR1.LineNum, RDR1.LineStatus, RDR1.ItemCode, OITM.ItemName')
+      ->select('RDR1.Quantity, RDR1.OpenQty, RDR1.InvQty, RDR1.OpenInvQty, RDR1.Price')
+      ->select('RDR1.UomEntry, RDR1.UomCode, RDR1.unitMsr')
+      ->select('OUOM.UomEntry AS UomEntry2, OUOM.UomCode AS UomCode2, OUOM.UomName AS unitMsr2')
+      ->select('ORDR.DocNum, ORDR.CardCode, ORDR.CardName, ORDR.DocDate')
+      ->from('RDR1', 'RDR1.DocEntry = ORDR.DocEntry')
+      ->join('ORDR', 'RDR1.DocEntry = ORDR.DocEntry', 'left')
+      ->join('OITM', 'RDR1.ItemCode = OITM.ItemCode', 'left')
+      ->join('OUOM', 'OITM.IUomEntry = OUOM.UomEntry', 'left')
+      ->where('RDR1.DocEntry', $DocEntry)
+      ->where('ORDR.DocStatus', 'O')
+      ->where('ORDR.CANCELED', 'N')
+      ->where('RDR1.OpenQty >', 0)
+      ->get();
 
-    if($rs->num_rows() > 0)
+    if ($rs->num_rows() > 0)
     {
       return $rs->result();
     }
 
     return NULL;
   }
+
+
+
+  // public function getOpenRows($DocEntry)
+  // {
+  //   $rs = $this->ms
+  //   ->select('RDR1.DocEntry, RDR1.LineNum, RDR1.LineStatus, RDR1.ItemCode, OITM.ItemName')
+  //   ->select('RDR1.Quantity, RDR1.OpenQty, RDR1.InvQty, RDR1.OpenInvQty, RDR1.Price')
+  //   ->select('RDR1.UomEntry, RDR1.UomEntry2, RDR1.UomCode, RDR1.UomCode2, RDR1.unitMsr, RDR1.unitMsr2')
+  //   ->select('ORDR.DocNum, ORDR.CardCode, ORDR.CardName, ORDR.DocDate')
+  //   ->from('RDR1', 'RDR1.DocEntry = ORDR.DocEntry')
+  //   ->join('ORDR', 'RDR1.DocEntry = ORDR.DocEntry', 'left')
+  //   ->join('OITM', 'RDR1.ItemCode = OITM.ItemCode', 'left')
+  //   ->where('RDR1.DocEntry', $DocEntry)
+  //   ->where('ORDR.DocStatus', 'O')
+  //   ->where('ORDR.CANCELED', 'N')
+  //   ->where('RDR1.OpenQty >', 0)
+  //   ->get();
+
+  //   if($rs->num_rows() > 0)
+  //   {
+  //     return $rs->result();
+  //   }
+
+  //   return NULL;
+  // }
 
 
   public function get_prev_release_qty($OrderEntry, $OrderLine)

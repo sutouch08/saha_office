@@ -336,7 +336,7 @@ class Pick extends PS_Controller
 				$rs = $this->pick_model->getOrderRow($row->DocEntry, $row->LineNum);
 
 				if(!empty($rs))
-				{
+				{					
 					$PrevRelease = $this->pick_model->get_prev_release_qty($rs->DocEntry, $rs->LineNum);
 					$baseQty = ($rs->UomEntry == $rs->UomEntry2) ? 1 : $this->item_model->get_base_qty($rs->ItemCode, $rs->UomEntry);
 					$invQty = $rs->InvQty;
@@ -714,7 +714,6 @@ class Pick extends PS_Controller
 									$details[$key]->RelQtty += $rs->BaseRelQty;
 									$details[$key]->BaseRelQty += $rs->BaseRelQty;
 								}
-
 							}
 
 							//--- if not any error

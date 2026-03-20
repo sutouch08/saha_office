@@ -44,6 +44,16 @@ class Transfer extends PS_Controller
 		}
 
 		$segment = 3; //-- url segment
+
+		$ids = ['0'];
+
+		if( ! empty($filter['orderCode']) OR ! empty($filter['packCode']))
+		{
+			$ids = $this->transfer_model->get_transfer_id_in($filter['orderCode'], $filter['packCode']);
+		}
+
+		$filter['ids'] = $ids;
+
 		$rows = $this->transfer_model->count_rows($filter);
 
 		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
@@ -672,7 +682,6 @@ class Transfer extends PS_Controller
 	}
 
 
-
 	public function get_item_in_pallet()
 	{
 		$sc = TRUE;
@@ -1067,7 +1076,6 @@ class Transfer extends PS_Controller
 	}
 
 
-
 	public function get_new_code($date = NULL)
   {
     $date = empty($date) ? date('Y-m-d') : $date;
@@ -1091,8 +1099,6 @@ class Transfer extends PS_Controller
   }
 
 
-
-
 	public function clear_filter()
 	{
 		$filter = array(
@@ -1113,7 +1119,6 @@ class Transfer extends PS_Controller
 
 		echo 'done';
 	}
-
 
 }//--- end class
 

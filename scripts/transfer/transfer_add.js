@@ -182,7 +182,6 @@ $('#toBinCode').keyup(function(e) {
 })
 
 
-
 function addToList() {
   let palletCode = $('#pallet-code').val();
 
@@ -238,7 +237,6 @@ function addToList() {
 }
 
 
-
 function changePallet() {
   $('#transfer-table').html('');
   $('#total-qty').text('0');
@@ -248,6 +246,7 @@ function changePallet() {
   $('#btn-save').attr('disabled', 'disabled');
   $('#pallet-code').val('').focus();
 }
+
 
 function recalTotal() {
   let totalQty = 0;
@@ -259,10 +258,6 @@ function recalTotal() {
 
   $('#total-qty').text(addCommas(totalQty.toFixed(2)));
 }
-
-
-
-
 
 
 $('#docDate').datepicker({

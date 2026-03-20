@@ -30,24 +30,21 @@ class Main extends PS_Controller
 		$txt = trim($this->input->post('search_text'));
 		$warehouse_code = trim($this->input->post('warehouse_code'));
 
-		$this->ms
-    ->select('OITM.ItemCode, OITM.ItemName, OIBQ.WhsCode')
-    ->select_sum('OIBQ.OnHandQty')
-    ->from('OIBQ')
-    ->join('OITM', 'OIBQ.ItemCode = OITM.ItemCode', 'left');
+		$qr  = "SELECT I.ItemCode, I.ItemName, Q.WhsCode, Q.OnHandQty, B.BinCode ";
+		$qr .= "FROM OIBQ AS Q ";
+		$qr .= "LEFT JOIN OITM AS I ON Q.ItemCode = I.ItemCode ";
+		$qr .= "LEFT JOIN OBIN AS B ON Q.BinAbs = B.AbsEntry "; 
+		$qr .= "WHERE Q.BinAbs > 0 ";
 
-    if(!empty($warehouse_code))
-    {
-      $this->ms->where('OIBQ.WhsCode', $warehouse_code);
-    }
+		if( ! empty($warehouse_code))
+		{
+			$qr .= "AND Q.WhsCode = '{$warehouse_code}' ";			
+		}
 
-		$this->ms->where('OIBQ.OnHandQty >', 0);
-		$this->ms->like('OIBQ.ItemCode', $txt);
-		$this->ms->group_by('OITM.ItemCode, OITM.ItemName, OIBQ.WhsCode');
-		$this->ms->order_by('OITM.ItemCode', 'ASC');
-		$this->ms->order_by('OIBQ.WhsCode', 'ASC');
+		$qr .= "AND (I.ItemCode LIKE N'%{$txt}%' OR I.ItemName LIKE N'%{$txt}%') ";
+		$qr .= "ORDER BY I.ItemCode ASC, Q.WhsCode ASC";		
 
-		$stock = $this->ms->get();
+		$stock = $this->ms->query($qr);
 
 		if(!empty($stock->num_rows() > 0))
 		{
@@ -63,9 +60,10 @@ class Main extends PS_Controller
 					'ItemCode' => $rs->ItemCode,
 					'ItemName' => $rs->ItemName,
 					'WhsCode' => $rs->WhsCode,
-					'Qty' => round($rs->OnHandQty, 2),
-					'Committed' => round($committed, 2),
-					'Balance' => round($balance, 2)
+					'BinCode' => $rs->BinCode,
+					'Qty' => ac_format($rs->OnHandQty, 2),
+					'Committed' => ac_format($committed, 2),
+					'Balance' => ac_format($balance, 2)
 				);
 
 				array_push($sc, $arr);

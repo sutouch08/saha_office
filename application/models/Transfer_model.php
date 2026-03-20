@@ -255,22 +255,234 @@ class Transfer_model extends CI_Model
   }
 
 
-
   public function get_pallet_items($pallet_id)
   {
     $rs = $this->db
-    ->select('ps.*')
-    ->select('pr.UomEntry, pr.UomCode, pr.unitMsr, pr.UomEntry2, pr.UomCode2, pr.unitMsr2, pr.BaseQty')
-    ->select('pl.OrderDate')
-    ->from('pack_result AS ps')
-    ->join('pack_row AS pr', 'ps.packCode = pr.packCode AND ps.pickCode = pr.pickCode AND ps.orderCode = pr.orderCode AND ps.ItemCode = pr.ItemCode ', 'left')
-    ->join('pack_list AS pl', 'pr.packCode = pl.code', 'left')
-    ->where_in('pr.Status', array('Y', 'C'))
-    ->where('ps.pallet_id', $pallet_id)
-    ->get();
+      ->select('ps.*')
+      ->select('pr.UomEntry, pr.UomCode, pr.unitMsr, pr.UomEntry2, pr.UomCode2, pr.unitMsr2, pr.BaseQty')
+      ->select('pl.OrderDate')
+      ->from('pack_result AS ps')
+      ->join('pack_row AS pr', 'ps.packCode = pr.packCode AND ps.pickCode = pr.pickCode AND ps.orderCode = pr.orderCode AND ps.ItemCode = pr.ItemCode ', 'left')
+      ->join('pack_list AS pl', 'pr.packCode = pl.code', 'left')
+      ->where_in('pr.Status', array('Y', 'C'))
+      ->where('ps.pallet_id', $pallet_id)
+      ->get();
 
 
-    if($rs->num_rows() > 0)
+    if ($rs->num_rows() > 0)
+    {
+      return $rs->result();
+    }
+
+    return NULL;
+  }
+
+  public function count_rows(array $ds = array())
+  {
+    
+    if (!empty($ds['code']))
+    {
+      $this->db->like('code', $ds['code']);
+    }    
+
+    if (!empty($ds['palletCode']))
+    {
+      $this->db->like('palletCode', $ds['palletCode']);
+    }
+
+    if (!empty($ds['uname']))
+    {
+      $this->db->like('uname', $ds['uname']);
+    }
+
+    if ($ds['Status'] != 'all')
+    {
+      $this->db->where('Status', $ds['Status']);
+    }
+
+    if (!empty($ds['fromDate']) && !empty($ds['toDate']))
+    {
+      $this->db->where('DocDate >=', from_date($ds['fromDate']));
+      $this->db->where('DocDate <=', to_date($ds['toDate']));
+    }
+
+    if (! empty($ds['orderCode']) or ! empty($ds['packCode']))
+    {
+      $ids = $ds['ids'];
+
+      if (! empty($ids))
+      {
+        $this->db->where_in('id', $ids);
+      }
+    }
+
+    return $this->db->count_all_results('transfer');
+  }
+
+
+  // public function count_rows(array $ds = array())
+  // {
+  //   $this->db
+  //   ->select('tr.*')
+  //   ->from('transfer_details AS td')
+  //   ->join('transfer AS tr', 'td.transfer_id = tr.id', 'left');
+
+  //   if(!empty($ds['code']))
+  //   {
+  //     $this->db->like('tr.code', $ds['code']);
+  //   }
+
+  //   if(!empty($ds['orderCode']))
+  //   {
+  //     $this->db->like('td.orderCode', $ds['orderCode']);
+  //   }
+
+  //   if(!empty($ds['pickCode']))
+  //   {
+  //     $this->db->like('td.pickCode', $ds['pickCode']);
+  //   }
+
+  //   if(!empty($ds['packCode']))
+  //   {
+  //     $this->db->like('td.packCode', $ds['packCode']);
+  //   }
+
+  //   if(!empty($ds['palletCode']))
+  //   {
+  //     $this->db->like('tr.palletCode', $ds['palletCode']);
+  //   }
+
+  //   if(!empty($ds['uname']))
+  //   {
+  //     $this->db->like('uname', $ds['uname']);
+  //   }
+
+  //   if($ds['Status'] != 'all')
+  //   {
+  //     $this->db->where('Status', $ds['Status']);
+  //   }
+
+  //   if(!empty($ds['fromDate']) && !empty($ds['toDate']))
+  //   {
+  //     $this->db->where('DocDate >=', from_date($ds['fromDate']));
+  //     $this->db->where('DocDate <=', to_date($ds['toDate']));
+  //   }
+
+  //   return $this->db->group_by('td.transfer_id')->count_all_results();
+  // }
+
+
+  // public function get_list(array $ds = array(), $perpage = 20, $offset = 0)
+  // {
+  //   $order_by = empty($ds['order_by']) ? 'code' : $ds['order_by'];
+  //   $sort_by = empty($ds['sort_by']) ? 'DESC' : $ds['sort_by'];
+
+  //   $this->db
+  //   ->select('tr.*')
+  //   ->from('transfer_details AS td')
+  //   ->join('transfer AS tr', 'td.transfer_id = tr.id', 'left')
+  //   ->where('tr.id IS NOT NULL', NULL, FALSE);
+
+  //   if(!empty($ds['code']))
+  //   {
+  //     $this->db->like('tr.code', $ds['code']);
+  //   }
+
+  //   if(!empty($ds['orderCode']))
+  //   {
+  //     $this->db->like('td.orderCode', $ds['orderCode']);
+  //   }
+
+  //   if(!empty($ds['pickCode']))
+  //   {
+  //     $this->db->like('td.pickCode', $ds['pickCode']);
+  //   }
+
+  //   if(!empty($ds['packCode']))
+  //   {
+  //     $this->db->like('td.packCode', $ds['packCode']);
+  //   }
+
+  //   if(!empty($ds['palletCode']))
+  //   {
+  //     $this->db->like('tr.palletCode', $ds['palletCode']);
+  //   }
+
+  //   if(!empty($ds['uname']))
+  //   {
+  //     $this->db->like('uname', $ds['uname']);
+  //   }
+
+  //   if($ds['Status'] != 'all')
+  //   {
+  //     $this->db->where('Status', $ds['Status']);
+  //   }
+
+  //   if(!empty($ds['fromDate']) && !empty($ds['toDate']))
+  //   {
+  //     $this->db->where('DocDate >=', from_date($ds['fromDate']));
+  //     $this->db->where('DocDate <=', to_date($ds['toDate']));
+  //   }
+
+  //   $rs = $this->db
+  //   ->group_by('td.transfer_id')
+  //   ->order_by($order_by, $sort_by)
+  //   ->limit($perpage, $offset)
+  //   ->get();
+
+  //   if($rs->num_rows() > 0)
+  //   {
+  //     return $rs->result();
+  //   }
+
+  //   return NULL;
+  // }
+
+
+  public function get_list(array $ds = array(), $perpage = 20, $offset = 0)
+  {
+    $order_by = empty($ds['order_by']) ? 'code' : $ds['order_by'];
+    $sort_by = empty($ds['sort_by']) ? 'DESC' : $ds['sort_by'];    
+
+    if (!empty($ds['code']))
+    {
+      $this->db->like('code', $ds['code']);
+    }
+
+    if (!empty($ds['palletCode']))
+    {
+      $this->db->like('palletCode', $ds['palletCode']);
+    }
+
+    if (!empty($ds['uname']))
+    {
+      $this->db->like('uname', $ds['uname']);
+    }
+
+    if ($ds['Status'] != 'all')
+    {
+      $this->db->where('Status', $ds['Status']);
+    }
+
+    if (!empty($ds['fromDate']) && !empty($ds['toDate']))
+    {
+      $this->db->where('DocDate >=', from_date($ds['fromDate']));
+      $this->db->where('DocDate <=', to_date($ds['toDate']));
+    }
+
+    if( ! empty($ds['orderCode']) OR ! empty($ds['packCode']))
+    {
+      $ids = $ds['ids'];
+      
+      if( ! empty($ids))
+      {
+        $this->db->where_in('id', $ids);
+      }
+    }
+
+    $rs = $this->db->order_by($order_by, $sort_by)->limit($perpage, $offset)->get('transfer');
+
+    if ($rs->num_rows() > 0)
     {
       return $rs->result();
     }
@@ -279,121 +491,35 @@ class Transfer_model extends CI_Model
   }
 
 
-
-  public function count_rows(array $ds = array())
+  public function get_transfer_id_in($orderCode, $packCode)
   {
-    $this->db
-    ->select('tr.*')
-    ->from('transfer_details AS td')
-    ->join('transfer AS tr', 'td.transfer_id = tr.id', 'left');
+    $qr  = "SELECT transfer_id FROM transfer_details ";
+    $qr .= "WHERE transfer_id > 0 ";
 
-    if(!empty($ds['code']))
+    if( ! empty($orderCode))
     {
-      $this->db->like('tr.code', $ds['code']);
+      $qr .= "AND orderCode LIKE '%{$orderCode}%' ";
     }
 
-    if(!empty($ds['orderCode']))
+    if( ! empty($packCode))
     {
-      $this->db->like('td.orderCode', $ds['orderCode']);
+      $qr .= "AND packCode LIKE '%{$packCode}%' ";
     }
 
-    if(!empty($ds['pickCode']))
-    {
-      $this->db->like('td.pickCode', $ds['pickCode']);
-    }
+    $qr .= "GROUP BY transfer_id";
 
-    if(!empty($ds['packCode']))
-    {
-      $this->db->like('td.packCode', $ds['packCode']);
-    }
-
-    if(!empty($ds['palletCode']))
-    {
-      $this->db->like('tr.palletCode', $ds['palletCode']);
-    }
-
-    if(!empty($ds['uname']))
-    {
-      $this->db->like('uname', $ds['uname']);
-    }
-
-    if($ds['Status'] != 'all')
-    {
-      $this->db->where('Status', $ds['Status']);
-    }
-
-    if(!empty($ds['fromDate']) && !empty($ds['toDate']))
-    {
-      $this->db->where('DocDate >=', from_date($ds['fromDate']));
-      $this->db->where('DocDate <=', to_date($ds['toDate']));
-    }
-
-    return $this->db->group_by('td.transfer_id')->count_all_results();
-  }
-
-
-
-  public function get_list(array $ds = array(), $perpage = 20, $offset = 0)
-  {
-    $order_by = empty($ds['order_by']) ? 'code' : $ds['order_by'];
-    $sort_by = empty($ds['sort_by']) ? 'DESC' : $ds['sort_by'];
-
-    $this->db
-    ->select('tr.*')
-    ->from('transfer_details AS td')
-    ->join('transfer AS tr', 'td.transfer_id = tr.id', 'left')
-    ->where('tr.id IS NOT NULL', NULL, FALSE);
-
-    if(!empty($ds['code']))
-    {
-      $this->db->like('tr.code', $ds['code']);
-    }
-
-    if(!empty($ds['orderCode']))
-    {
-      $this->db->like('td.orderCode', $ds['orderCode']);
-    }
-
-    if(!empty($ds['pickCode']))
-    {
-      $this->db->like('td.pickCode', $ds['pickCode']);
-    }
-
-    if(!empty($ds['packCode']))
-    {
-      $this->db->like('td.packCode', $ds['packCode']);
-    }
-
-    if(!empty($ds['palletCode']))
-    {
-      $this->db->like('tr.palletCode', $ds['palletCode']);
-    }
-
-    if(!empty($ds['uname']))
-    {
-      $this->db->like('uname', $ds['uname']);
-    }
-
-    if($ds['Status'] != 'all')
-    {
-      $this->db->where('Status', $ds['Status']);
-    }
-
-    if(!empty($ds['fromDate']) && !empty($ds['toDate']))
-    {
-      $this->db->where('DocDate >=', from_date($ds['fromDate']));
-      $this->db->where('DocDate <=', to_date($ds['toDate']));
-    }
-
-    $rs = $this->db
-    ->group_by('td.transfer_id')
-    ->order_by($order_by, $sort_by)
-    ->limit($perpage, $offset)
-    ->get();
+    $rs = $this->db->query($qr);
 
     if($rs->num_rows() > 0)
     {
-      return $rs->result();
+      $ids = [];
+
+      foreach($rs->result() as $ro)
+      {
+        $ids[] = $ro->transfer_id;
+      }
+
+      return $ids;
     }
 
     return NULL;
