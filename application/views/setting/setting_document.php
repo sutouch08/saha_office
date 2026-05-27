@@ -185,6 +185,29 @@
 		</div>
 
 		<div class="row">
+			<div class="col-lg-3 col-md-3 col-sm-3 padding-5 hidden-xs">
+				<span class="form-control left-label width-100 text-right">Prefix Return Request</span>
+			</div>
+			<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-8 padding-5">
+				<label class="visible-xs">Prefix Return Request</label>
+				<input type="text" class="form-control input-sm input-small text-center prefix" name="PREFIX_RETURN_REQUEST" required value="<?php echo $PREFIX_RETURN_REQUEST; ?>" />
+			</div>
+			<div class="col-lg-1-harf col-md-2 col-sm-2 padding-5 hidden-xs">
+				<span class="form-control left-label width-100 text-right">Run digit</span>
+			</div>
+      <div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-4 padding-5">
+				<label class="visible-xs">Run digit</label>
+				<select class="form-control input-sm input-small digit" name="RUN_DIGIT_RETURN_REQUEST">
+					<option value="3" <?php echo is_selected('3', $RUN_DIGIT_RETURN_REQUEST); ?>>&nbsp;&nbsp;&nbsp; 3 &nbsp;&nbsp;&nbsp;</option>
+					<option value="4" <?php echo is_selected('4', $RUN_DIGIT_RETURN_REQUEST); ?>>&nbsp;&nbsp;&nbsp; 4 &nbsp;&nbsp;&nbsp;</option>
+					<option value="5" <?php echo is_selected('5', $RUN_DIGIT_RETURN_REQUEST); ?>>&nbsp;&nbsp;&nbsp; 5 &nbsp;&nbsp;&nbsp;</option>
+					<option value="6" <?php echo is_selected('6', $RUN_DIGIT_RETURN_REQUEST); ?>>&nbsp;&nbsp;&nbsp; 6 &nbsp;&nbsp;&nbsp;</option>
+				</select>
+			</div>
+			<div class="divider-hidden"></div>
+		</div>
+
+		<div class="row">
       <div class="divider-hidden"></div>
 			<div class="divider-hidden"></div>
       <div class="col-lg-6-harf col-md-8 col-sm-8 col-xs-12 padding-5 text-right">
