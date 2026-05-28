@@ -80,6 +80,7 @@ class Return_request extends PS_Controller
 					'posting_date' => $posting_date,
 					'CardCode' => $customer->CardCode,
 					'CardName' => $customer->CardName,
+					'NumAtCard' => get_null($ds->NumAtCard),
 					'WhsCode' => $ds->warehouse_code,
 					'GroupNum' => $customer->GroupNum,
 					'SlpCode' => $customer->SlpCode,
@@ -338,6 +339,7 @@ class Return_request extends PS_Controller
 							'posting_date' => db_date($ds->posting_date, FALSE),
 							'CardCode' => trim($ds->customer_code),
 							'CardName' => trim($ds->customer_name),
+							'NumAtCard' => get_null($ds->NumAtCard),
 							'WhsCode' => $ds->warehouse_code,
 							'Currency' => $ds->Currency,
 							'Rate' => $ds->Rate,
@@ -377,8 +379,7 @@ class Return_request extends PS_Controller
 										'BaseRef' => $rs->BaseRef,
 										'BaseEntry' => $rs->BaseEntry,
 										'BaseLine' => $rs->BaseLine,
-										'uid' => $rs->uid,
-										'LineStatus' => $ds->save_type == 'C' ? 'C' : 'O',
+										'uid' => $rs->uid,										
 										'ItemCode' => $rs->ItemCode,
 										'ItemName' => $rs->ItemName,
 										'PriceBefDi' => $rs->PriceBefDi,
@@ -402,13 +403,14 @@ class Return_request extends PS_Controller
 										'VatSum' => $rs->VatSum,
 										'Currency' => $rs->Currency,
 										'Rate' => $rs->Rate,
-										'LineStatus' => $ds->save_type == 'C' ? 'C' : 'O'
+										'LineStatus' => $ds->save_type == 'C' ? 'C' : 'O',
+										'NoInvtryMv' => $rs->NoInvtryMv
 									);
 
 									if( ! $this->return_request_model->add_detail($arr))
 									{
 										$sc = FALSE;
-										$this->error = "Failed to insert row item {$rs->ItemCode} : {$rs->baseCode}";
+										$this->error = "Failed to insert row item {$rs->ItemCode} : {$rs->BaseRef}";
 									}
 								}
 							}

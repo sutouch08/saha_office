@@ -21,25 +21,29 @@
 		<input type="text" class="width-100 text-center r" id="posting-date" value="<?php echo date('d-m-Y'); ?>" readonly/>
 	</div>
 	<div class="col-lg-1-harf col-md-2 col-sm-2 col-xs-4 padding-5">
-		<label>รหัสลูกค้า</label>
+		<label>Customer</label>
 		<input type="text" class="width-100 text-center r" id="customer-code" placeholder="รหัสลูกค้า" value=""/>
 	</div>
-	<div class="col-lg-5-harf col-md-5-harf col-sm-5-harf col-xs-8 padding-5">
-		<label>ชื่อลูกค้า</label>
+	<div class="col-lg-5-harf col-md-7 col-sm-7 col-xs-12 padding-5">
+		<label>Name</label>
 		<input type="text" class="width-100 r" id="customer-name" placeholder="ชื่อลูกค้า" readonly/>
 	</div>
-	<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-3 padding-5">
+	<div class="col-lg-2 col-md-3 col-sm-3 col-xs-6 padding-5">
+		<label>Customer Ref. No.</label>
+		<input type="text" id="NumAtCard" class="width-100" maxlength="100">
+	</div>
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
 		<label>Currency</label>
 		<select class="width-100" id="DocCur" onchange="changeRate()">
 			<?php echo select_currency("THB"); ?>
 		</select>
 	</div>
-	<div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-3 padding-5">
+	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-3 padding-5">
 		<label>Rate</label>
 		<input type="number" class="width-100 text-center r" id="DocRate" value="1.00" />
 	</div>
 
-	<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 padding-5">
+	<div class="col-lg-3 col-md-6 col-sm-6 col-xs-12 padding-5">
 		<label>คลัง</label>
 		<select class="width-100 r" id="warehouse">
 			<option value="">เลือก</option>
@@ -47,7 +51,7 @@
 		</select>
 	</div>
 
-	<div class="col-lg-8 col-md-7-harf col-sm-3-harf col-xs-12 padding-5">
+	<div class="col-lg-6 col-md-10-harf col-sm-10-harf col-xs-12 padding-5">
 		<label>หมายเหตุ</label>
 		<input type="text" class="width-100" id="remark" />
 	</div>

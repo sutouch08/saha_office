@@ -8,6 +8,20 @@ function toggleCheckAll(el) {
 	}
 }
 
+function toggleCheck(uid) {
+	const chk = $(`#chk-${uid}`);
+	const row = $(`#row-${uid}`);
+
+	if( ! chk.is(':checked')) {
+		chk.prop('checked', true);
+		row.addClass('selected');
+	}
+	else {
+		chk.prop('checked', false);
+		row.removeClass('selected');
+	}
+}
+
 
 function removeChecked() {
 	if($('.chk:checked').length) {

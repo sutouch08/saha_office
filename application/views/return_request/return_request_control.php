@@ -1,6 +1,6 @@
 <!--  Search Product -->
 <div class="row">
-	<div class="col-lg-1 col-md-1-harf col-sm-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1 col-md-1-harf col-sm-1 col-xs-6 padding-5">
 		<label>เอกสาร</label>
 		<select class="form-control input-sm c" id="base-type">
 			<option value="">เลือก</option>
@@ -12,26 +12,26 @@
 		<label>เลขที่</label>
 		<input type="text" class="form-control input-sm text-center c"	id="base-ref" value="" placeholder="เลขที่เอกสาร" />
 	</div>
-	<div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1 col-md-1 col-sm-1 col-xs-6 padding-5">
 		<label class="display-block not-show">confirm</label>
 		<button type="button" class="btn btn-xs btn-primary btn-block" id="btn-get-po" onclick="getBaseRefDetails()">Load</button>
 	</div>
-	<div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-6 padding-5">
+	<div class="col-lg-1 col-md-1 col-sm-1 col-xs-6 padding-5">
 		<label class="display-block not-show">confirm</label>
 		<button type="button" class="btn btn-xs btn-warning btn-block" id="btn-clear-po" onclick="clearBaseRef()">Clear</button>
 	</div>
 
-	<div class="col-lg-1 col-sm-12 visible-lg visible-sm">&nbsp;</div>
+	<div class="col-lg-1 col-md-1-harf col-sm-2 col-xs-12">&nbsp;</div>
 
-	<div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-3 padding-5">
+	<div class="col-lg-1 col-md-1 col-sm-1 col-xs-3 padding-5">
 		<label>Qty</label>
 		<input type="number" class="form-control input-sm text-center c" id="item-qty" value="1" />
 	</div>
-	<div class="col-lg-2-harf col-md-3 col-sm-3 col-xs-6 padding-5">
+	<div class="col-lg-2-harf col-md-2-harf col-sm-2-harf col-xs-6 padding-5">
 		<label>Barcode</label>
 		<input type="text" class="form-control input-sm text-center c" id="barcode-item" placeholder="สแกนบาร์โค้ดสินค้า" />
 	</div>
-	<div class="col-lg-1 col-md-1 col-sm-1-harf col-xs-3">
+	<div class="col-lg-1 col-md-1 col-sm-1 col-xs-3">
 		<label class="not-show">OK</label>
 		<button type="button" class="btn btn-xs btn-primary btn-block" onclick="addRow()">OK</button>
 	</div>	

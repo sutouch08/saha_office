@@ -378,6 +378,7 @@ class Export
               'TaxDate' => sap_date($doc->posting_date, TRUE),
               'CardCode' => $doc->CardCode,
               'CardName' => $doc->CardName,
+              'NumAtCard' => $doc->NumAtCard,
               'VatSum' => $doc->VatSum,
               'DiscPrcnt' => $doc->DiscPrcnt,
               'DiscSum' => $doc->DiscSum,
@@ -436,7 +437,8 @@ class Export
                       'UomEntry2' => $rs->UomEntry2,
                       'unitMsr2' => $rs->UnitMsr2,
                       'NumPerMsr2' => $rs->NumPerMsr2,
-                      'WhsCode' => $rs->WhsCode
+                      'WhsCode' => $rs->WhsCode,
+                      'NoInvtryMv' => $rs->NoInvtryMv
                     );
 
                     if( ! $this->ci->return_request_model->add_sap_return_request_detail($arr))

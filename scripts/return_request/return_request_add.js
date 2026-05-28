@@ -14,6 +14,7 @@ function add() {
       'posting_date' : $('#posting-date').val().trim(),
       'customer_code' : $('#customer-code').val().trim(),
       'customer_name' : $('#customer-name').val().trim(),
+      'NumAtCard' : $('#NumAtCard').val().trim(),
       'Currency' : $('#DocCur').val(),
       'Rate' : $('#DocRate').val(),
       'warehouse_code' : $('#warehouse').val(),
@@ -342,6 +343,7 @@ function save(save_type) {
       'posting_date' : $('#posting-date').val(),
       'customer_code' : $('#customer-code').val().trim(),
       'customer_name' : $('#customer-name').val().trim(),
+      'NumAtCard' : $('#NumAtCard').val().trim(),
       'Currency' : $('#DocCur').val(),
       'Rate' : $('#DocRate').val(),
       'warehouse_code' : $('#warehouse').val(),
@@ -390,6 +392,7 @@ function save(save_type) {
         let uid = el.data('uid');
         let lineTotal = parseDefaultFloat(removeCommas($('#row-total-'+uid).val()), 0);
         let vatSum = parseDefaultFloat($('#row-vat-amount-'+uid).val(), 0);
+        let noInvtryMv = $(`#wqp-${uid}`).is(':checked') ? 'Y' : 'N';
 
         h.rows.push({
           'uid' : el.data('uid'),
@@ -418,7 +421,8 @@ function save(save_type) {
           'unitMsr' : el.data('unitmsr'),
           'unitMsr2' : el.data('unitmsr2'),
           'NumPerMsr' : el.data('numpermsr'),
-          'NumPerMsr2' : el.data('numpermsr2')
+          'NumPerMsr2' : el.data('numpermsr2'),
+          'NoInvtryMv' : noInvtryMv
         });
       }
     })
