@@ -82,7 +82,7 @@
 					<th class="fix-width-80 text-center fix-header">เอกสาร</th>
 					<th class="fix-width-80 text-center fix-header">เลขที่</th>
 					<th class="fix-width-80 text-center fix-header">ราคา</th>
-					<th class="fix-width-80 text-center fix-header">ส่วนลด</th>
+					<th class="fix-width-80 text-center fix-header">ส่วนลด (%)</th>
 					<th class="fix-width-100 text-center fix-header">จำนวน</th>
 					<th class="fix-width-100 text-center fix-header">มูลค่า</th>
 				</tr>
@@ -143,17 +143,6 @@
 					<input type="text" class="form-control input-sm" value="<?php echo $doc->DocNum; ?>" disabled />
 				</div>
 			</div>
-			<div class="form-group">
-				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-0">
-					<?php if (!empty($logs)) : ?>
-						<p class="log-text">
-							<?php foreach ($logs as $log) : ?>
-								<?php echo "* " . logs_action_name($log->action) . " &nbsp;&nbsp; {$log->uname} &nbsp;&nbsp; {$log->emp_name}  &nbsp;&nbsp; " . thai_date($log->date_upd, TRUE) . "<br/>"; ?>
-							<?php endforeach; ?>
-						</p>
-					<?php endif; ?>
-				</div>
-			</div>
 		</div>
 	</div>
 
@@ -161,30 +150,54 @@
 	<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 padding-5 padding-right-0">
 		<div class="form-horizontal">
 			<div class="form-group" style="margin-bottom:5px;">
-				<label class="col-lg-3 col-md-3 col-sm-2 col-xs-6 control-label no-padding-right">จำนวนรวม</label>
-				<div class="col-lg-3 col-md-3 col-sm-3 col-xs-6 padding-5 last">
+				<label class="col-lg-4 col-md-2-harf col-sm-2 col-xs-12 control-label no-padding-right">จำนวนรวม</label>
+				<div class="col-lg-2 col-md-2-harf col-sm-3 col-xs-12 padding-5">
 					<input type="text" class="form-control input-sm text-right" id="total-qty" value="<?php echo number($doc->TotalQty, 2); ?>" disabled>
 				</div>
-				<label class="col-lg-2 col-md-2 col-sm-2 col-xs-6 control-label no-padding-right">มูลค่ารวม</label>
-				<div class="col-lg-4 col-md-4 col-sm-5 col-xs-6 padding-5 last">
+				<label class="col-lg-2 col-md-3 col-sm-2 col-xs-12 control-label no-padding-right">มูลค่ารวม</label>
+				<div class="col-lg-4 col-md-4 col-sm-5 col-xs-12 padding-5 last">
 					<input type="text" id="total-amount" class="form-control input-sm text-right" value="<?php echo number($doc->DocTotal - $doc->VatSum, 2); ?>" disabled />
 				</div>
 			</div>
 
 			<div class="form-group" style="margin-bottom:5px;">
-				<label class="col-lg-8 col-md-8 col-sm-7 col-xs-6 control-label no-padding-right">ภาษีมูลค่าเพิ่ม</label>
-				<div class="col-lg-4 col-md-4 col-sm-5 col-xs-6 padding-5 last">
+				<label class="col-lg-6 col-md-5 col-sm-4 col-xs-12 control-label no-padding-right">ส่วนลด</label>
+				<div class="col-lg-2 col-md-3 col-sm-3 col-xs-4 padding-5">
+					<div class="input-group">
+						<input type="number" class="form-control input-sm text-right" id="discPrcnt" value="<?php echo number($doc->DiscPrcnt, 2); ?>" onchange="recalTotal()" disabled />
+						<span class="input-group-addon" style="padding-left:5px; padding-right:1px; background:none; border:none;">%</span>
+					</div>
+				</div>
+				<div class="col-lg-4 col-md-4 col-sm-5 col-xs-8 padding-5 last">
+					<input type="text" id="discSum" class="form-control input-sm text-right" value="<?php echo number($doc->DiscSum, 2); ?>" disabled />
+				</div>
+			</div>
+
+			<div class="form-group" style="margin-bottom:5px;">
+				<label class="col-lg-8 col-md-8 col-sm-7 col-xs-12 control-label no-padding-right">ภาษีมูลค่าเพิ่ม</label>
+				<div class="col-lg-4 col-md-4 col-sm-5 col-xs-12 padding-5 last">
 					<input type="text" id="vat-sum" class="form-control input-sm text-right" value="<?php echo number($doc->VatSum, 2); ?>" disabled />
 				</div>
 			</div>
 
 			<div class="form-group" style="margin-bottom:5px;">
-				<label class="col-lg-8 col-md-8 col-sm-7 col-xs-6 control-label no-padding-right">รวมทั้งสิ้น</label>
-				<div class="col-lg-4 col-md-4 col-sm-5 col-xs-6 padding-5 last">
+				<label class="col-lg-8 col-md-8 col-sm-7 col-xs-12 control-label no-padding-right">รวมทั้งสิ้น</label>
+				<div class="col-lg-4 col-md-4 col-sm-5 col-xs-12 padding-5 last">
 					<input type="text" id="doc-total" class="form-control input-sm text-right" value="<?php echo number($doc->DocTotal, 2); ?>" disabled />
 				</div>
 			</div>
 		</div>
+	</div>
+
+	<div class="divider-hidden"></div>
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 padding-0">
+		<?php if (!empty($logs)) : ?>
+			<p class="log-text">
+				<?php foreach ($logs as $log) : ?>
+					<?php echo "* " . logs_action_name($log->action) . " &nbsp;&nbsp; {$log->uname} &nbsp;&nbsp; {$log->emp_name}  &nbsp;&nbsp; " . thai_date($log->date_upd, TRUE) . "<br/>"; ?>
+				<?php endforeach; ?>
+			</p>
+		<?php endif; ?>
 	</div>
 </div> <!-- row -->
 

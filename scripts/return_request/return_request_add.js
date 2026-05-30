@@ -272,59 +272,98 @@ function addToReturn() {
 
 
 function recalAmount(uid) {
-	let el = $('#'+uid);
+  const el = $(`#${uid}`); //-- row qty
   el.clearError();
-	let price = parseDefault(parseFloat(el.data('price')), 0);
-	let qty = parseDefaultFloat(removeCommas(el.val()), 0);
-  let limit = parseDefaultFloat(el.data('open'), 0);
-	let vatRate = parseDefault(parseFloat(el.data('vatrate')), 0);
 
-	let lineTotal = qty * price;
-	let vatSum = roundNumber((lineTotal * (vatRate * 0.01)), 2);
+  //-- vat rate 
+  const vatRate = parseDefaultFloat(el.data('vatrate'), 0) * 0.01;
+  //-- input discount
+  const discPrcnt = parseDefaultFloat($(`#item-disc-${uid}`).val(), 0);
+  //--- for calculate price befor discount
+  const discRate = discPrcnt == 0 ? 1 : ( 1 - (discPrcnt * 0.01));
+  //--- qty from row-qty
+  const qty = parseDefaultFloat(removeCommas(el.val()), 0);
+  //-- price befor disc before tax
+  const priceBefDi = parseDefaultFloat(removeCommas($(`#item-price-${uid}`).val().replace(/[A-Za-z!@#$%^&*()]/g, '')), 0);
+  //-- price after disc
+  const priceAfDisc = priceBefDi * discRate;
+  //-- price after vat
+  const priceAfVat = priceAfDisc * (1 + vatRate);
+  //-- line total 
+  const lineTotal = priceAfDisc * qty;
+  //--- vat amount 
+  const vatSum = roundNumber((lineTotal * vatRate), 2);
+  //-- open qty : available to return
+  const limit = parseDefaultFloat(el.data('open'), 0);
 
   if(qty > limit) {
     el.hasError();
   }
 
-	$('#row-total-'+uid).val(addCommas(lineTotal.toFixed(2)));
-	$('#row-vat-amount-'+uid).val(vatSum);
+  el.data('price', priceAfDisc);
+  el.data('bfprice', priceBefDi);
+  el.data('afprice', priceAfVat);
+  el.data('discprcnt', discPrcnt);
 
-	recalTotal();
+  $(`#row-total-${uid}`).val(addCommas(lineTotal.toFixed(2)));
+  $(`#row-vat-amount-${uid}`).val(vatSum);
+  
+  recalTotal();
 }
-
 
 function recalTotal() {
-	let totalAmount = 0;
-	let totalQty = 0;
-	let totalVat = 0;
+  let totalAmount = 0; //--- total amount   
+  let totalQty = 0;
+  let vatSum = 0; //--- total vat amount
+  const DiscPrcnt = parseDefaultFloat($(`#discPrcnt`).val(), 0) * 0.01; //--- bill discount
 
-	$('.row-qty').each(function() {
-		let el = $(this);
-		let id = el.data('uid');
-		let qty = parseDefault(parseFloat(el.val()), 0);
-		let price = parseDefault(parseFloat(el.data('price')), 0);
-		let vatAmount = parseDefault(parseFloat($('#row-vat-amount-'+id).val()), 0);
-		let amount = qty * price;
+  $(`.row-qty`).each(function () {
+    const el = $(this);
+    const uid = el.data('uid');
+    const qty = parseDefaultFloat(el.val(), 0);
+    const amount = parseDefaultFloat(removeCommas($(`#row-total-${uid}`).val()), 0);
+    const vatRate = parseDefaultFloat(el.data('vatrate'), 0) * 0.01;
+    const vatAmount = parseDefaultFloat($(`#row-vat-amount-${uid}`).val(), 0);
 
-		totalQty += qty;
-		totalAmount += amount;
-		totalVat += vatAmount;
-	});
+    if(DiscPrcnt > 0) {
+      vatSum += (vatAmount * (1 - DiscPrcnt));      
+    }
+    else {
+      vatSum += vatAmount;
+    }    
 
-	let vatSum = totalVat;
-	let docTotal = totalAmount + vatSum;
+    totalQty += qty;
+    totalAmount += amount;        
+  });
 
-	$('#total-qty').val(addCommas(totalQty.toFixed(2)));
-	$('#total-amount').val(addCommas(totalAmount.toFixed(2)));
-	$('#vat-sum').val(addCommas(vatSum.toFixed(2)));
-	$('#doc-total').val(addCommas(docTotal.toFixed(2)));
+  const discAmount = totalAmount * DiscPrcnt;
+  const docTotal = (totalAmount - discAmount) + vatSum;
+
+  $(`#total-qty`).val(addCommas(totalQty.toFixed(2)));
+  $(`#total-amount`).val(addCommas(totalAmount.toFixed(2)));
+  $(`#discSum`).val(addCommas(discAmount.toFixed(2)));
+  $(`#vat-sum`).val(addCommas(vatSum.toFixed(2)));
+  $(`#doc-total`).val(addCommas(docTotal.toFixed(2)));
 }
 
 
-function recalPrice(uid) {
-  let price = parseDefaultFloat(removeCommas($('#item-price-'+uid).val()), 0);
+function updatePrice(uid) {
+  const el = $(`#${uid}`);
+  const uom = $(`#uom-${uid} option:selected`);
+  const basePrice = parseDefaultFloat(el.data('baseprice'), 0);
+  const baseQty = parseDefaultFloat(uom.data('qty'), 1);
+  const price = baseQty * basePrice;
 
-  $('#'+uid).data('price', price);
+  $(`#item-price-${uid}`).val(addCommas(price.toFixed(2)));
+    
+  el.data('uomentry', uom.data('uomentry'));
+  el.data('uomcode', uom.data('uomcode'));
+  el.data('unitmsr', uom.data('unitmsr'));
+  el.data('numpermsr', uom.data('numpermsr'));
+  el.data('uomentry2', uom.data('uomentry2'));
+  el.data('uomcode2', uom.data('uomcode2'));
+  el.data('unitmsr2', uom.data('unitmsr2'));
+  el.data('numpermsr2', uom.data('numpermsr2'));
 
   recalAmount(uid);
 }
@@ -348,9 +387,11 @@ function save(save_type) {
       'Rate' : $('#DocRate').val(),
       'warehouse_code' : $('#warehouse').val(),
       'remark' : $('#remark').val().trim(),
-      'TotalQty' : parseDefaultFloat(removeCommas($('#total-qty').val()), 2),
-      'DocTotal' : parseDefaultFloat(removeCommas($('#doc-total').val()), 2),
-      'VatSum' : parseDefaultFloat(removeCommas($('#vat-sum').val()), 2),
+      'TotalQty' : parseDefaultFloat(removeCommas($('#total-qty').val()), 0),
+      'DiscPrcnt' : parseDefaultFloat($('#discPrcnt').val(), 0),
+      'DiscSum' : parseDefaultFloat(removeCommas($('#discSum').val()), 0),
+      'DocTotal' : parseDefaultFloat(removeCommas($('#doc-total').val()), 0),
+      'VatSum' : parseDefaultFloat(removeCommas($('#vat-sum').val()), 0),
       'rows' : []
     };
 
@@ -368,6 +409,12 @@ function save(save_type) {
 
     if(h.customer_name.length == 0) {
       $('#customer-name').hasError();
+      click = 0;
+      return false;
+    }
+
+    if(h.NumAtCard.length == 0) {
+      $('#NumAtCard').hasError();
       click = 0;
       return false;
     }
@@ -404,7 +451,7 @@ function save(save_type) {
           'BaseLine' : el.data('baseline'),
           'PriceBefDi' : el.data('bfprice'),
           'PriceAfVAT' : el.data('afprice'),
-          'Price' : el.data('price'),
+          'Price' : el.data('price'), //-- price after disc
           'DiscPrcnt' : el.data('discprcnt'),
           'Qty' : qty,
           'LineTotal' : lineTotal,
@@ -646,24 +693,34 @@ function getItemData(code, uid) {
       load_out();
 
 			if(isJson(rs)) {
-				let ds = JSON.parse(rs);
-        let taxRate = parseDefaultFloat(ds.taxRate, 0);
-				let price = parseDefaultFloat(ds.price, 0);
-        let bfPrice = price / (1 + taxRate);
-        let el = $('#'+uid);
+				const ds = JSON.parse(rs);
+        const taxRate = parseDefaultFloat(ds.taxRate, 0);
+				const price = parseDefaultFloat(ds.price, 0);
+        const basePrice = parseDefaultFloat(ds.basePrice, 0);
+        const bfPrice = price / (1 + taxRate);
+        const el = $(`#${uid}`);
 
-				$('#item-name-'+uid).val(ds.name);
-				$('#uom-'+uid).html(ds.uom);
-				$('#item-price-'+uid).val(addCommas(price.toFixed(2)));
-
-        el.data('code', ds.code);
-        el.data('name', ds.name);
+        $(`#item-name-${uid}`).val(ds.name);
+        $(`#uom-${uid}`).html(ds.uom);
+        $(`#item-price-${uid}`).val(addCommas(price.toFixed(2)));                
+        el.data('uomentry', ds.uomEntry);
+        el.data('uomcode', ds.uomCode);
+        el.data('unitmsr', ds.unitMsr);
+        el.data('numpermsr', ds.numPerMsr);
+        el.data('uomentry2', ds.uomEntry2);
+        el.data('uomcode2', ds.uomCode2);
+        el.data('unitmsr2', ds.unitMsr2);
+        el.data('numpermsr2', ds.numPerMsr2);
+        el.data('baseprice', basePrice);
         el.data('price', price);
         el.data('bfPrice', bfPrice);
         el.data('afPrice', price);
         el.data('vatcode', ds.taxCode);
         el.data('vatrate', taxRate);
+        el.data('open', 1000000);
+        el.val(1);
 
+        recalAmount(uid);
         el.focus();
 			}
 			else {

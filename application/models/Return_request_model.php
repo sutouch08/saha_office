@@ -215,6 +215,8 @@ class Return_request_model extends CI_Model
     $count = $this->ms
     ->where('DocNum', $code)
     ->where('CANCELED', 'N')
+    ->where('DocStatus', 'O')
+    ->where('InvntSttus', 'O')
     ->count_all_results('OINV');
 
     return $count === 1 ? TRUE : FALSE;
@@ -226,6 +228,8 @@ class Return_request_model extends CI_Model
     $count = $this->ms
     ->where('DocNum', $code)
     ->where('CANCELED', 'N')
+    ->where('DocStatus', 'O')
+    ->where('InvntSttus', 'O')
     ->count_all_results('ODLN');
 
     return $count === 1 ? TRUE : FALSE;
@@ -245,6 +249,9 @@ class Return_request_model extends CI_Model
     ->join('OINV AS iv', 'ivd.DocEntry = iv.DocEntry', 'left')
     ->where('iv.DocNum', $code)
     ->where('iv.CANCELED', 'N')
+    ->where('iv.DocStatus', 'O')
+    ->where('iv.InvntSttus', 'O')
+    ->where('ivd.LineStatus', 'O')
     ->get();
 
     if($rs->num_rows() > 0)
@@ -269,6 +276,9 @@ class Return_request_model extends CI_Model
     ->join('ODLN AS do', 'dd.DocEntry = do.DocEntry', 'left')
     ->where('do.DocNum', $code)
     ->where('do.CANCELED', 'N')
+    ->where('do.DocStatus', 'O')
+    ->where('do.InvntSttus', 'O')
+    ->where('dd.LineStatus', 'O')
     ->get();
 
     if($rs->num_rows() > 0)
@@ -280,7 +290,7 @@ class Return_request_model extends CI_Model
   }
 
 
-  public function get_invoice_item_detail($code, $ItemCode)
+  public function get_invoice_item_detail($ItemCode, $baseRef)
   {
     $rs = $this->ms
     ->select('ivd.DocEntry, ivd.LineNum, iv.DocNum')
@@ -291,7 +301,7 @@ class Return_request_model extends CI_Model
     ->select('ivd.unitMsr, ivd.unitMsr2, ivd.NumPerMsr, ivd.NumPerMsr2')
     ->from('INV1 AS ivd')
     ->join('OINV AS iv', 'ivd.DocEntry = iv.DocEntry', 'left')
-    ->where('iv.DocNum', $code)
+    ->where('iv.DocNum', $baseRef)
     ->where('iv.CANCELED', 'N')
     ->where('ivd.ItemCode', $ItemCode)
     ->get();
@@ -305,7 +315,7 @@ class Return_request_model extends CI_Model
   }
 
 
-  public function get_do_item_detail($code, $ItemCode)
+  public function get_do_item_detail($ItemCode, $baseRef)
   {
     $rs = $this->ms
     ->select('dd.DocEntry, dd.LineNum, do.DocNum')
@@ -316,7 +326,7 @@ class Return_request_model extends CI_Model
     ->select('dd.unitMsr, dd.unitMsr2, dd.NumPerMsr, dd.NumPerMsr2')
     ->from('DLN1 AS dd')
     ->join('ODLN AS do', 'dd.DocEntry = do.DocEntry', 'left')
-    ->where('do.DocNum', $code)
+    ->where('do.DocNum', $baseRef)
     ->where('do.CANCELED', 'N')
     ->where('dd.ItemCode', $ItemCode)
     ->get();
