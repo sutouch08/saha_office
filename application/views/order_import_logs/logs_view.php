@@ -73,7 +73,7 @@
 			</thead>
 			<tbody>
         <?php if( ! empty($logs)) : ?>
-          <?php $no = $this->uri->segment(5) + 1; ?>
+          <?php $no = $this->uri->segment($this->segment) + 1; ?>
           <?php foreach($logs as $rs) : ?>
             <tr>
               <td class="middle text-center"><?php echo $no; ?></td>

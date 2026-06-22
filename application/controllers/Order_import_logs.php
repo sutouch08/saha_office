@@ -8,6 +8,7 @@ class Order_import_logs extends PS_Controller
 	public $menu_group_code = 'AR';
   public $menu_sub_group_code = '';
   public $filter;
+	public $segment = 3;
 
   public function __construct()
   {
@@ -33,15 +34,11 @@ class Order_import_logs extends PS_Controller
 			redirect($this->home);
 		}
 		else
-		{
-			//--- แสดงผลกี่รายการต่อหน้า
-			$perpage = get_rows();
-
-			$segment = 4; //-- url segment
-			$rows = $this->order_import_logs_model->count_rows($filter);
-			//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
-			$init	= pagination_config($this->home.'/index/', $rows, $perpage, $segment);
-			$logs = $this->order_import_logs_model->get_list($filter, $perpage, $this->uri->segment($segment));
+		{			
+			$perpage = get_rows();			
+			$rows = $this->order_import_logs_model->count_rows($filter);			
+			$init	= pagination_config($this->home.'/index/', $rows, $perpage, $this->segment);
+			$logs = $this->order_import_logs_model->get_list($filter, $perpage, $this->uri->segment($this->segment));
 
 			$filter['logs'] = $logs;
 
