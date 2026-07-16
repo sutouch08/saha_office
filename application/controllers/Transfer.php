@@ -26,8 +26,8 @@ class Transfer extends PS_Controller
 			'orderCode' => get_filter('orderCode', 'trOrderCode', ''),
 			'pickCode' => get_filter('pickCode', 'trPickCode', ''),
 			'packCode' => get_filter('packCode', 'trPackCode', ''),
-			'palletCode' => get_filter('palletCode', 'trPalletCode'),
-			'uname' => get_filter('uname', 'trUname', ''),
+			'palletCode' => get_filter('palletCode', 'trPalletCode', ''),			
+			'uname' => get_filter('uname', 'trUname', 'all'),
 			'Status' => get_filter('Status', 'trStatus', 'all'),
 			'fromDate' => get_filter('fromDate', 'trFromDate', ''),
 			'toDate' => get_filter('toDate', 'trToDate', ''),
@@ -45,14 +45,19 @@ class Transfer extends PS_Controller
 
 		$segment = 3; //-- url segment
 
-		$ids = ['0'];
+		$filter['ids'] = NULL;
 
-		if( ! empty($filter['orderCode']) OR ! empty($filter['packCode']))
+		if( ! empty($filter['orderCode']) OR ! empty($filter['packCode']) OR ! empty($filter['pickCode']))
 		{
-			$ids = $this->transfer_model->get_transfer_id_in($filter['orderCode'], $filter['packCode']);
-		}
+			$ds = array(
+				'orderCode' => $filter['orderCode'],
+				'packCode' => $filter['packCode'],
+				'pickCode' => $filter['pickCode']
+			);
 
-		$filter['ids'] = $ids;
+			$ids = $this->transfer_model->get_transfer_id_in($ds);
+			$filter['ids'] = empty($ids) ? ['x'] : $ids;
+		}		
 
 		$rows = $this->transfer_model->count_rows($filter);
 

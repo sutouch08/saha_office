@@ -395,43 +395,69 @@ class Pick_model extends CI_Model
   }
 
 
+  public function get_ids_by_order_code($orderCode)
+  {
+    $rs = $this->db
+    ->select('AbsEntry')
+    ->where('OrderCode', $orderCode)
+    ->group_by('AbsEntry')
+    ->get('pick_row');
+
+    if($rs->num_rows() > 0)
+    {
+      $ids = array();
+
+      foreach($rs->result() as $row)
+      {
+        $ids[] = $row->AbsEntry;
+      }
+
+      return $ids;
+    }
+
+    return [];
+  }
+
 
   public function get_list($ds = array(), $perpage = 20, $offset = 0)
   {
     $order_by = empty($ds['order_by']) ? 'DocNum' : $ds['order_by'];
-    $sort_by = empty($ds['sort_by']) ? 'DESC' : $ds['sort_by'];
-    // $offset = empty($offset) ? 0 : $offset;
-
-    $qr = "SELECT * FROM pick_list WHERE AbsEntry > 0 ";
+    $sort_by = empty($ds['sort_by']) ? 'DESC' : $ds['sort_by'];        
 
     if(!empty($ds['WebCode']))
     {
-      $qr .= "AND DocNum LIKE '%{$ds['WebCode']}%' ";
+      $this->db->like('DocNum', $ds['WebCode']);      
     }
 
     if(!empty($ds['Uname']))
     {
-      $qr .= "AND uname LIKE '%{$ds['Uname']}%' ";
+      $this->db->like('uname', $ds['Uname']);     
     }
 
     if($ds['Status'] != 'all')
     {
-      $qr .= "AND Status LIKE '{$ds['Status']}' ";
+      $this->db->where('Status', $ds['Status']);      
     }
 
-    if(isset($ds['SoNo']) && $ds['SoNo'] != "")
+    if(isset($ds['ids']) && !empty($ds['ids']))
     {
-      $qr .= "AND AbsEntry IN((SELECT DISTINCT AbsEntry FROM pick_row WHERE OrderCode LIKE '%{$ds['SoNo']}%')) ";
-    }
+      $this->db->where_in('AbsEntry', $ds['ids']);     
+    }    
 
-    if(!empty($ds['fromDate']) && !empty($ds['toDate']))
+    if(!empty($ds['fromDate']))
     {
-      $qr .= "AND CreateDate >= '".from_date($ds['fromDate'])."' AND CreateDate <= '".to_date($ds['toDate'])."' ";
+      $this->db->where('CreateDate >=', from_date($ds['fromDate']));
     }
 
-    $qr .= "ORDER BY {$order_by} {$sort_by} LIMIT {$perpage} OFFSET ".get_zero($offset);
+    if(!empty($ds['toDate']))
+    {
+      $this->db->where('CreateDate <=', to_date($ds['toDate']));
+    }
 
-    $rs = $this->db->query($qr);
+    $rs = $this->db
+    ->order_by($order_by, $sort_by)
+    ->limit($perpage, $offset)
+    ->get('pick_list');    
 
     if($rs->num_rows() > 0)
     {
@@ -445,36 +471,37 @@ class Pick_model extends CI_Model
 
   public function count_rows($ds = array())
   {
-    $qr = "SELECT COUNT(*) AS rows FROM pick_list WHERE AbsEntry > 0 ";
-
-    if(!empty($ds['WebCode']))
+    if (!empty($ds['WebCode']))
     {
-      $qr .= "AND DocNum LIKE '%{$ds['WebCode']}%' ";
+      $this->db->like('DocNum', $ds['WebCode']);
     }
 
-    if(!empty($ds['Uname']))
+    if (!empty($ds['Uname']))
     {
-      $qr .= "AND uname LIKE '%{$ds['Uname']}%' ";
+      $this->db->like('uname', $ds['Uname']);
     }
 
-    if($ds['Status'] != 'all')
+    if ($ds['Status'] != 'all')
     {
-      $qr .= "AND Status LIKE '{$ds['Status']}' ";
+      $this->db->where('Status', $ds['Status']);
     }
 
-    if(isset($ds['SoNo']) && $ds['SoNo'] != "")
+    if (isset($ds['ids']) && !empty($ds['ids']))
     {
-      $qr .= "AND AbsEntry IN((SELECT DISTINCT AbsEntry FROM pick_row WHERE OrderCode LIKE '%{$ds['SoNo']}%')) ";
+      $this->db->where_in('AbsEntry', $ds['ids']);
     }
 
-    if(!empty($ds['fromDate']) && !empty($ds['toDate']))
+    if (!empty($ds['fromDate']))
     {
-      $qr .= "AND CreateDate >= '".from_date($ds['fromDate'])."' AND CreateDate <= '".to_date($ds['toDate'])."' ";
+      $this->db->where('CreateDate >=', from_date($ds['fromDate']));
     }
 
-    $rs = $this->db->query($qr);
+    if (!empty($ds['toDate']))
+    {
+      $this->db->where('CreateDate <=', to_date($ds['toDate']));
+    }
 
-    return $rs->row()->rows;
+    return $this->db->count_all_results('pick_list');
   }
 
 

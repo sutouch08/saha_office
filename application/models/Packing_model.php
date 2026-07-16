@@ -352,7 +352,7 @@ class Packing_model extends CI_Model
 
     if(!empty($ds['orderCode']))
     {
-      $this->db->like('orderCode', $ds['orderCode']);
+      $this->db->where('orderCode', $ds['orderCode']);
     }
 
     if(!empty($ds['pickCode']))
@@ -402,7 +402,7 @@ class Packing_model extends CI_Model
 
     if(!empty($ds['orderCode']))
     {
-      $this->db->like('orderCode', $ds['orderCode']);
+      $this->db->where('orderCode', $ds['orderCode']);
     }
 
     if(!empty($ds['pickCode']))

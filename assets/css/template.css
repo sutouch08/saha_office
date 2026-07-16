@@ -2047,10 +2047,50 @@ input[type=number]::-webkit-outer-spin-button {
 	background-color: #cff1f1 !important;
 }
 
+.tableNarrow thead > tr > th, .tableNarrow tbody > tr > td {
+	font-size: 12px;
+	padding: 5px !important;
+}
+
+input[type=checkbox].ace.ace-switch.ace-switch-6:checked + .lbl::before {
+	background-color: #4CAF50 !important;
+}
+
+.text-label {
+  border:0px !important;
+  background-color: transparent !important;
+  color:#333333 !important;
+}
+
 .select2-container.has-error {
   border:0 !important;
 }
 
 .select2-container.has-error > .select2-choice {
   border:solid 1px red !important;
+}
+
+.select2-container.select2-container-disabled .select2-choice {
+  background-color: #eee !important;
+  background-image: none;
+  border: 1px solid #ddd;
+  cursor: default;
+}
+
+.select2-container.select2-container-disabled .select2-choice .select2-arrow {
+  background-color: #eee !important;
+  background-image: none;
+  border-left: 0;
+}
+
+.select2-container.input-sm {
+  padding:0;
+  border:none;
+}
+
+.select2-container.input-sm .select2-choice {
+  height: 30px;
+  line-height: 30px;
+  border:solid 1px #d5d5d5;
+  background:#ffffff none;	
 }

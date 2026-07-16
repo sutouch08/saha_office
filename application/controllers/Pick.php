@@ -42,6 +42,14 @@ class Pick extends PS_Controller
 		}
 
 		$segment = 3; //-- url segment
+		$filter['ids'] = NULL;
+
+		if( ! empty($filter['SoNo']) && $filter['SoNo'] != "")
+		{
+			$ids = $this->pick_model->get_ids_by_order_code($filter['SoNo']);
+			$filter['ids'] = empty($ids) ? array('-1') : $ids;
+		}
+
 		$rows = $this->pick_model->count_rows($filter);
 
 		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3

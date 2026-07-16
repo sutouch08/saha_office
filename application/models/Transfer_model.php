@@ -277,6 +277,7 @@ class Transfer_model extends CI_Model
     return NULL;
   }
 
+
   public function count_rows(array $ds = array())
   {
     
@@ -288,11 +289,11 @@ class Transfer_model extends CI_Model
     if (!empty($ds['palletCode']))
     {
       $this->db->like('palletCode', $ds['palletCode']);
-    }
+    }    
 
-    if (!empty($ds['uname']))
+    if(isset($ds['uname']) && $ds['uname'] !== 'all')
     {
-      $this->db->like('uname', $ds['uname']);
+      $this->db->where('uname', $ds['uname']);
     }
 
     if ($ds['Status'] != 'all')
@@ -300,143 +301,23 @@ class Transfer_model extends CI_Model
       $this->db->where('Status', $ds['Status']);
     }
 
-    if (!empty($ds['fromDate']) && !empty($ds['toDate']))
+    if( ! empty($ds['fromDate']))
     {
       $this->db->where('DocDate >=', from_date($ds['fromDate']));
-      $this->db->where('DocDate <=', to_date($ds['toDate']));
     }
 
-    if (! empty($ds['orderCode']) or ! empty($ds['packCode']))
+    if( ! empty($ds['toDate']))
     {
-      $ids = $ds['ids'];
-
-      if (! empty($ids))
-      {
-        $this->db->where_in('id', $ids);
-      }
+      $this->db->where('DocDate <=', to_date($ds['toDate']));
+    }
+    
+    if (isset($ds['ids']) && !empty($ds['ids']))
+    {
+      $this->db->where_in('id', $ds['ids']);
     }
 
     return $this->db->count_all_results('transfer');
   }
-
-
-  // public function count_rows(array $ds = array())
-  // {
-  //   $this->db
-  //   ->select('tr.*')
-  //   ->from('transfer_details AS td')
-  //   ->join('transfer AS tr', 'td.transfer_id = tr.id', 'left');
-
-  //   if(!empty($ds['code']))
-  //   {
-  //     $this->db->like('tr.code', $ds['code']);
-  //   }
-
-  //   if(!empty($ds['orderCode']))
-  //   {
-  //     $this->db->like('td.orderCode', $ds['orderCode']);
-  //   }
-
-  //   if(!empty($ds['pickCode']))
-  //   {
-  //     $this->db->like('td.pickCode', $ds['pickCode']);
-  //   }
-
-  //   if(!empty($ds['packCode']))
-  //   {
-  //     $this->db->like('td.packCode', $ds['packCode']);
-  //   }
-
-  //   if(!empty($ds['palletCode']))
-  //   {
-  //     $this->db->like('tr.palletCode', $ds['palletCode']);
-  //   }
-
-  //   if(!empty($ds['uname']))
-  //   {
-  //     $this->db->like('uname', $ds['uname']);
-  //   }
-
-  //   if($ds['Status'] != 'all')
-  //   {
-  //     $this->db->where('Status', $ds['Status']);
-  //   }
-
-  //   if(!empty($ds['fromDate']) && !empty($ds['toDate']))
-  //   {
-  //     $this->db->where('DocDate >=', from_date($ds['fromDate']));
-  //     $this->db->where('DocDate <=', to_date($ds['toDate']));
-  //   }
-
-  //   return $this->db->group_by('td.transfer_id')->count_all_results();
-  // }
-
-
-  // public function get_list(array $ds = array(), $perpage = 20, $offset = 0)
-  // {
-  //   $order_by = empty($ds['order_by']) ? 'code' : $ds['order_by'];
-  //   $sort_by = empty($ds['sort_by']) ? 'DESC' : $ds['sort_by'];
-
-  //   $this->db
-  //   ->select('tr.*')
-  //   ->from('transfer_details AS td')
-  //   ->join('transfer AS tr', 'td.transfer_id = tr.id', 'left')
-  //   ->where('tr.id IS NOT NULL', NULL, FALSE);
-
-  //   if(!empty($ds['code']))
-  //   {
-  //     $this->db->like('tr.code', $ds['code']);
-  //   }
-
-  //   if(!empty($ds['orderCode']))
-  //   {
-  //     $this->db->like('td.orderCode', $ds['orderCode']);
-  //   }
-
-  //   if(!empty($ds['pickCode']))
-  //   {
-  //     $this->db->like('td.pickCode', $ds['pickCode']);
-  //   }
-
-  //   if(!empty($ds['packCode']))
-  //   {
-  //     $this->db->like('td.packCode', $ds['packCode']);
-  //   }
-
-  //   if(!empty($ds['palletCode']))
-  //   {
-  //     $this->db->like('tr.palletCode', $ds['palletCode']);
-  //   }
-
-  //   if(!empty($ds['uname']))
-  //   {
-  //     $this->db->like('uname', $ds['uname']);
-  //   }
-
-  //   if($ds['Status'] != 'all')
-  //   {
-  //     $this->db->where('Status', $ds['Status']);
-  //   }
-
-  //   if(!empty($ds['fromDate']) && !empty($ds['toDate']))
-  //   {
-  //     $this->db->where('DocDate >=', from_date($ds['fromDate']));
-  //     $this->db->where('DocDate <=', to_date($ds['toDate']));
-  //   }
-
-  //   $rs = $this->db
-  //   ->group_by('td.transfer_id')
-  //   ->order_by($order_by, $sort_by)
-  //   ->limit($perpage, $offset)
-  //   ->get();
-
-  //   if($rs->num_rows() > 0)
-  //   {
-  //     return $rs->result();
-  //   }
-
-  //   return NULL;
-  // }
 
 
   public function get_list(array $ds = array(), $perpage = 20, $offset = 0)
@@ -453,10 +334,10 @@ class Transfer_model extends CI_Model
     {
       $this->db->like('palletCode', $ds['palletCode']);
     }
-
-    if (!empty($ds['uname']))
+    
+    if(isset($ds['uname']) && $ds['uname'] !== 'all')
     {
-      $this->db->like('uname', $ds['uname']);
+      $this->db->where('uname', $ds['uname']);
     }
 
     if ($ds['Status'] != 'all')
@@ -464,20 +345,19 @@ class Transfer_model extends CI_Model
       $this->db->where('Status', $ds['Status']);
     }
 
-    if (!empty($ds['fromDate']) && !empty($ds['toDate']))
+    if (! empty($ds['fromDate']))
     {
       $this->db->where('DocDate >=', from_date($ds['fromDate']));
+    }
+
+    if (! empty($ds['toDate']))
+    {
       $this->db->where('DocDate <=', to_date($ds['toDate']));
     }
 
-    if( ! empty($ds['orderCode']) OR ! empty($ds['packCode']))
+    if(isset($ds['ids']) && !empty($ds['ids']))
     {
-      $ids = $ds['ids'];
-      
-      if( ! empty($ids))
-      {
-        $this->db->where_in('id', $ids);
-      }
+      $this->db->where_in('id', $ds['ids']);
     }
 
     $rs = $this->db->order_by($order_by, $sort_by)->limit($perpage, $offset)->get('transfer');
@@ -491,24 +371,26 @@ class Transfer_model extends CI_Model
   }
 
 
-  public function get_transfer_id_in($orderCode, $packCode)
+  public function get_transfer_id_in(array $ds = array())
   {
-    $qr  = "SELECT transfer_id FROM transfer_details ";
-    $qr .= "WHERE transfer_id > 0 ";
+    $this->db->select('transfer_id');
 
-    if( ! empty($orderCode))
+    if( ! empty($ds['orderCode']))
     {
-      $qr .= "AND orderCode LIKE '%{$orderCode}%' ";
+      $this->db->where('orderCode', $ds['orderCode']);
     }
 
-    if( ! empty($packCode))
+    if( ! empty($ds['packCode']))
     {
-      $qr .= "AND packCode LIKE '%{$packCode}%' ";
+      $this->db->where('packCode', $ds['packCode']);
     }
 
-    $qr .= "GROUP BY transfer_id";
+    if( ! empty($ds['pickCode']))
+    {
+      $this->db->where('pickCode', $ds['pickCode']);
+    }   
 
-    $rs = $this->db->query($qr);
+    $rs = $this->db->group_by('transfer_id')->get('transfer_details');
 
     if($rs->num_rows() > 0)
     {

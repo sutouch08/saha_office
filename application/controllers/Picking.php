@@ -25,13 +25,13 @@ class Picking extends PS_Controller
 		$this->title = "รอจัด";
 
 		$filter = array(
-			'WebCode' => get_filter('WebCode', 'pick_WebCode', ''),
-			'SoNo' => get_filter('SoNo', 'pick_SoNo', ''),
-			'Uname' => get_filter('Uname', 'pick_Uname', ''),
-			'fromDate' => get_filter('fromDate', 'pick_fromDate', ''),
-			'toDate' => get_filter('toDate', 'pick_toDate', ''),
-			'order_by' => get_filter('order_by', 'pick_order_by', 'DocNum'),
-			'sort_by' => get_filter('sort_by', 'pick_sort_by', 'DESC')
+			'WebCode' => get_filter('WebCode', 'picking_WebCode', ''),
+			'SoNo' => get_filter('SoNo', 'picking_SoNo', ''),
+			'Uname' => get_filter('Uname', 'picking_Uname', ''),
+			'fromDate' => get_filter('fromDate', 'picking_fromDate', ''),
+			'toDate' => get_filter('toDate', 'picking_toDate', ''),
+			'order_by' => get_filter('order_by', 'picking_order_by', 'DocNum'),
+			'sort_by' => get_filter('sort_by', 'picking_sort_by', 'DESC')
 		);
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -43,6 +43,14 @@ class Picking extends PS_Controller
 		}
 
 		$segment = 3; //-- url segment
+		$filter['ids'] = NULL;
+
+		if (! empty($filter['SoNo']) && $filter['SoNo'] != "")
+		{
+			$ids = $this->pick_model->get_ids_by_order_code($filter['SoNo']);
+			$filter['ids'] = empty($ids) ? array('-1') : $ids;
+		}
+
 		$rows = $this->picking_model->count_rows($filter);
 
 		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
@@ -71,13 +79,13 @@ class Picking extends PS_Controller
 		$this->title = "กำลังจัด";
 
 		$filter = array(
-			'WebCode' => get_filter('WebCode', 'pick_WebCode', ''),
-			'SoNo' => get_filter('SoNo', 'pick_SoNo', ''),
-			'Uname' => get_filter('Uname', 'pick_Uname', ''),
-			'fromDate' => get_filter('fromDate', 'pick_fromDate', ''),
-			'toDate' => get_filter('toDate', 'pick_toDate', ''),
-			'order_by' => get_filter('order_by', 'pick_order_by', 'DocNum'),
-			'sort_by' => get_filter('sort_by', 'pick_sort_by', 'DESC')
+			'WebCode' => get_filter('WebCode', 'picking_WebCode', ''),
+			'SoNo' => get_filter('SoNo', 'picking_SoNo', ''),
+			'Uname' => get_filter('Uname', 'picking_Uname', ''),
+			'fromDate' => get_filter('fromDate', 'picking_fromDate', ''),
+			'toDate' => get_filter('toDate', 'picking_toDate', ''),
+			'order_by' => get_filter('order_by', 'picking_order_by', 'DocNum'),
+			'sort_by' => get_filter('sort_by', 'picking_sort_by', 'DESC')
 		);
 
 		//--- แสดงผลกี่รายการต่อหน้า
@@ -89,10 +97,18 @@ class Picking extends PS_Controller
 		}
 
 		$segment = 4; //-- url segment
+		$filter['ids'] = NULL;
+
+		if (! empty($filter['SoNo']) && $filter['SoNo'] != "")
+		{
+			$ids = $this->pick_model->get_ids_by_order_code($filter['SoNo']);
+			$filter['ids'] = empty($ids) ? array('-1') : $ids;
+		}
+
 		$rows = $this->picking_model->count_rows($filter);
 
 		//--- ส่งตัวแปรเข้าไป 4 ตัว base_url ,  total_row , perpage = 20, segment = 3
-		$init	= pagination_config($this->home.'/index/', $rows, $perpage, $segment);
+		$init	= pagination_config($this->home.'/process_list/', $rows, $perpage, $segment);
 
 		$rs = $this->picking_model->get_list($filter, $perpage, $this->uri->segment($segment), 'P');
 
@@ -1436,14 +1452,14 @@ class Picking extends PS_Controller
 	public function clear_filter()
 	{
 		$filter = array(
-			'pick_WebCode',
-			'pick_SoNo',
-			'pick_Uname',
-			'pick_Status',
-			'pick_fromDate',
-			'pick_toDate',
-			'pick_order_by',
-			'pick_sort_by'
+			'picking_WebCode',
+			'picking_SoNo',
+			'picking_Uname',
+			'picking_Status',
+			'picking_fromDate',
+			'picking_toDate',
+			'picking_order_by',
+			'picking_sort_by'
 		);
 
 		clear_filter($filter);
