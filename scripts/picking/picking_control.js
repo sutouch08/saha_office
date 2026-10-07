@@ -1,75 +1,128 @@
+var autoFocus = 1;
+
+const focusInitInterval = setInterval(() => {
+  if (autoFocus == 1) {
+    let zoneCode = $('#BinCode').val().trim();
+    if (zoneCode.length == 0) {
+      zoneFocus();
+    }
+    else {
+      barcodeFocus();
+    }
+  }
+}, 1000);
+
+$('.focus').focusout(function () {
+  autoFocus = 1
+});
+
+$('.focus').focusin(function () {
+  autoFocus = 0;
+});
+
+function barcodeFocus() {
+  $('#barcode-item').focus();
+}
+
+function zoneFocus() {
+  $('#zoneCode').focus();
+}
+
 setInterval(() => {
   let absEntry = $('#AbsEntry').val();
-  let uuid = localStorage.getItem('ix_uuid'); 
+  let uuid = localStorage.getItem('ix_uuid');
   $.ajax({
-    url:HOME + 'update_uuid',
-    type:'POST',
-    cache:false,
-    data:{
-      'AbsEntry' : absEntry,
-      'uuid' : uuid
+    url: HOME + 'update_uuid',
+    type: 'POST',
+    cache: false,
+    data: {
+      'AbsEntry': absEntry,
+      'uuid': uuid
     }
   })
 }, 30000);
 
 
-$('#zoneCode').autocomplete({
-  source:HOME + 'find_bin_code',
-  autoFocus:true
-});
-
-
-
-$('#zoneCode').keyup(function(e) {
-  if(e.keyCode === 13) {
-    if($(this).val() != "") {
+$('#zoneCode').keyup(function (e) {
+  if (e.keyCode === 13) {
+    if ($(this).val() != "") {
       setZone();
     }
   }
 });
 
+function toggleZoneInputMode() {
+  let currentInputMode = $('#zoneCode').attr('inputmode');
+  if (currentInputMode === 'none') {
+    $('#zoneCode').attr('inputmode', 'text');
+    $('#zone-keyboard').addClass('hide');
+    $('#zone-qr').removeClass('hide');
+  }
+  else {
+    $('#zoneCode').attr('inputmode', 'none');
+    $('#zone-keyboard').removeClass('hide');
+    $('#zone-qr').addClass('hide');
+  }
 
-$('#qty').focus(function() {
+  $('#zoneCode').focus();
+}
+
+function toggleBarcodeInputMode() {
+  let currentInputMode = $('#barcode-item').attr('inputmode');
+  if (currentInputMode === 'none') {
+    $('#barcode-item').attr('inputmode', 'text');
+    $('#barcode-keyboard').addClass('hide');
+    $('#barcode-qr').removeClass('hide');
+  }
+  else {
+    $('#barcode-item').attr('inputmode', 'none');
+    $('#barcode-keyboard').removeClass('hide');
+    $('#barcode-qr').addClass('hide');
+  }
+
+  $('#barcode-item').focus();
+}
+
+
+$('#qty').focus(function () {
   $(this).select();
 });
 
 
-$('#qty').keyup(function(e) {
-  if(e.keyCode === 13) {
+$('#qty').keyup(function (e) {
+  if (e.keyCode === 13) {
     $('#barcode-item').focus();
   }
-})
-
-
+});
 
 function setZone() {
   let code = $.trim($('#zoneCode').val());
-  if(code.length) {
+  if (code.length) {
     $.ajax({
-      url:HOME + 'check_bin_code',
-      type:'GET',
-      cache:false,
-      data:{
-        "binCode" : code
+      url: HOME + 'check_bin_code',
+      type: 'GET',
+      cache: false,
+      data: {
+        "binCode": code
       },
-      success:function(rs) {
-        if(rs === 'success') {
+      success: function (rs) {
+        if (rs === 'success') {
           $('#BinCode').val(code);
           $('#zoneCode').attr('disabled', 'disabled');
           $('#btn-submit-zone').addClass('hide');
           $('#btn-change-zone').removeClass('hide');
-          $('#qty').removeAttr('disabled');
-          $('#barcode-item').removeAttr('disabled');
-          $('#btn-submit-item').removeAttr('disabled');
           $('#barcode-item').focus();
         }
         else {
           $('#BinCode').val('');
+
           swal({
-            title:'Error',
-            text:rs,
-            type:'error'
-          })
+            title: 'Error',
+            text: rs,
+            type: 'error'
+          });
+
+          focusInit();
         }
       }
     })
@@ -79,9 +132,7 @@ function setZone() {
 
 function changeZone() {
   $('#qty').val(1);
-  $('#qty').attr('disabled', 'disabled');
   $('#barcode-item').val('');
-  $('#barcode-item').attr('disabled', 'disabled');
 
   $('#BinCode').val('');
   $('#zoneCode').val('');
@@ -94,7 +145,6 @@ function changeZone() {
 }
 
 
-
 function clearSO() {
   $('#soNo').val('');
   $('.order-btn').removeClass('btn-primary');
@@ -104,8 +154,8 @@ function clearSO() {
 
 
 
-$('#barcode-item').keyup(function(e) {
-  if(e.keyCode == 13) {
+$('#barcode-item').keyup(function (e) {
+  if (e.keyCode == 13) {
     pickItem();
   }
 });
@@ -113,7 +163,7 @@ $('#barcode-item').keyup(function(e) {
 
 function addToBarcode(itemCode) {
   let binCode = $('#BinCode').val();
-  if(binCode.length) {
+  if (binCode.length) {
     $('#barcode-item').val(itemCode).focus();
   }
 }
@@ -123,23 +173,23 @@ function showPickOption(itemCode, uomEntry) {
   let binCode = $('#BinCode').val();
   let orderCode = $('#soNo').val();
 
-  if(binCode.length == 0) {
+  if (binCode.length == 0) {
     swal("กรุณาระบุ Location");
     return false;
   }
 
 
-  if(binCode.length) {
+  if (binCode.length) {
     $.ajax({
-      url:HOME + 'get_item_uom_list',
-      type:'GET',
-      cache:false,
-      data:{
-        "ItemCode" : itemCode,
-        "UomEntry" : uomEntry
+      url: HOME + 'get_item_uom_list',
+      type: 'GET',
+      cache: false,
+      data: {
+        "ItemCode": itemCode,
+        "UomEntry": uomEntry
       },
-      success:function(rs) {
-        if(isJson(rs)) {
+      success: function (rs) {
+        if (isJson(rs)) {
           let ds = $.parseJSON(rs);
           $('#option-title').text(itemCode);
           $('#option-item').val(itemCode);
@@ -149,9 +199,9 @@ function showPickOption(itemCode, uomEntry) {
         }
         else {
           swal({
-            title:'Error',
-            text:rs,
-            type:'error'
+            title: 'Error',
+            text: rs,
+            type: 'error'
           });
         }
       }
@@ -160,7 +210,7 @@ function showPickOption(itemCode, uomEntry) {
 }
 
 
-$('#pickOptionModal').on('shown.bs.modal', function() {
+$('#pickOptionModal').on('shown.bs.modal', function () {
   $('#option-qty').focus().select();
 })
 
@@ -177,31 +227,31 @@ function pickWithOption() {
 
   $('#pickOptionModal').modal('hide');
 
-  if(binCode.length == 0) {
+  if (binCode.length == 0) {
     swal("กรุณาระบุ Location");
     return false;
   }
 
-  if(qty <= 0) {
+  if (qty <= 0) {
     swal("จำนวนไม่ถูกต้อง");
     return false;
   }
 
-  if(itemCode.length == 0) {
+  if (itemCode.length == 0) {
     swal({
-      title:'Error!',
-      text:'ไม่พบรหัสสินค้า',
-      type:'error'
+      title: 'Error!',
+      text: 'ไม่พบรหัสสินค้า',
+      type: 'error'
     });
 
     return false;
   }
 
-  if(uom == "") {
+  if (uom == "") {
     swal({
-      title:'Error',
-      text:'หน่วยนับไม่ถูกต้อง',
-      type:'error'
+      title: 'Error',
+      text: 'หน่วยนับไม่ถูกต้อง',
+      type: 'error'
     });
 
     return false;
@@ -210,34 +260,34 @@ function pickWithOption() {
   load_in();
 
   $.ajax({
-    url:HOME + 'pick_with_option',
-    type:'POST',
-    cache:false,
-    data:{
-      'AbsEntry' : absEntry,
-      'DocNum' : docNum,
-      'BinCode' : binCode,
-      'orderCode' : orderCode,
-      'ItemCode' : itemCode,
-      'UomEntry' : uom,
-      'qty' : qty
+    url: HOME + 'pick_with_option',
+    type: 'POST',
+    cache: false,
+    data: {
+      'AbsEntry': absEntry,
+      'DocNum': docNum,
+      'BinCode': binCode,
+      'orderCode': orderCode,
+      'ItemCode': itemCode,
+      'UomEntry': uom,
+      'qty': qty
     },
-    success:function(rs) {
+    success: function (rs) {
       load_out();
-      if(isJson(rs)) {
+      if (isJson(rs)) {
         let data = $.parseJSON(rs);
 
-        for(let i = 0; i < data.length; i++) {
+        for (let i = 0; i < data.length; i++) {
           let ds = data[i];
-          $('#pick-'+ds.id).text(ds.picked);
-          $('#balance-'+ds.id).text(ds.balance);
+          $('#pick-' + ds.id).text(ds.picked);
+          $('#balance-' + ds.id).text(ds.balance);
 
           $('.row-tr').removeClass('blue');
-          $('#row-'+ds.id).addClass('blue');
+          $('#row-' + ds.id).addClass('blue');
 
-          if(ds.balance == 0) {
-            $('#row-'+ds.id).addClass('bg-green');
-            $('#btn-cancle-pick-'+ds.id).addClass('hide');
+          if (ds.balance == 0) {
+            $('#row-' + ds.id).addClass('bg-green');
+            $('#btn-cancle-pick-' + ds.id).addClass('hide');
             changeZone();
           }
         }
@@ -247,9 +297,9 @@ function pickWithOption() {
       else {
         beep();
         swal({
-          title:'Error!',
-          text:rs,
-          type:'error'
+          title: 'Error!',
+          text: rs,
+          type: 'error'
         });
       }
     }
@@ -264,7 +314,7 @@ function pickItem() {
   let qty = parseDefault(parseFloat($('#qty').val()), 0);
   let orderCode = $('#soNo').val();
 
-  if(barcode.length && qty != 0) {
+  if (barcode.length && qty != 0) {
     $('#barcode-item').val('');
     $('#qty').val(1);
 
@@ -272,38 +322,38 @@ function pickItem() {
     let docNum = $('#DocNum').val();
     let binCode = $('#BinCode').val();
 
-    if(binCode.length == 0) {
+    if (binCode.length == 0) {
       swal("กรุณาระบุ Location");
       return false;
     }
 
     $.ajax({
-      url:HOME + 'pick_item',
-      type:'POST',
-      cache:false,
-      data:{
-        'AbsEntry' : absEntry,
-        'DocNum' : docNum,
-        'BinCode' : binCode,
-        'orderCode' : orderCode,
-        'barcode' : barcode,
-        'qty' : qty
+      url: HOME + 'pick_item',
+      type: 'POST',
+      cache: false,
+      data: {
+        'AbsEntry': absEntry,
+        'DocNum': docNum,
+        'BinCode': binCode,
+        'orderCode': orderCode,
+        'barcode': barcode,
+        'qty': qty
       },
-      success:function(rs) {
-        if(isJson(rs)) {
+      success: function (rs) {
+        if (isJson(rs)) {
           let data = $.parseJSON(rs);
 
-          for(let i = 0; i < data.length; i++) {
+          for (let i = 0; i < data.length; i++) {
             let ds = data[i];
-            $('#pick-'+ds.id).text(ds.picked);
-            $('#balance-'+ds.id).text(ds.balance);
+            $('#pick-' + ds.id).text(ds.picked);
+            $('#balance-' + ds.id).text(ds.balance);
 
             $('.row-tr').removeClass('blue');
-            $('#row-'+ds.id).addClass('blue');
+            $('#row-' + ds.id).addClass('blue');
 
-            if(ds.balance == 0) {
-              $('#row-'+ds.id).addClass('bg-green');
-              $('#btn-cancle-pick-'+ds.id).addClass('hide');
+            if (ds.balance == 0) {
+              $('#row-' + ds.id).addClass('bg-green');
+              $('#btn-cancle-pick-' + ds.id).addClass('hide');
               changeZone();
             }
           }
@@ -313,9 +363,9 @@ function pickItem() {
         else {
           beep();
           swal({
-            title:'Error!',
-            text:rs,
-            type:'error'
+            title: 'Error!',
+            text: rs,
+            type: 'error'
           });
         }
       }
@@ -330,39 +380,39 @@ function closePick() {
   var docNum = $.trim($('#DocNum').val());
   var balance = 0;
 
-  $('.row-tr').each(function() {
+  $('.row-tr').each(function () {
     let no = $(this).data('id');
-    let relqty = parseDefault(parseFloat($('#release-'+no).text()), 0);
-    let picked = parseDefault(parseFloat($('#pick-'+no).text()), 0);
+    let relqty = parseDefault(parseFloat($('#release-' + no).text()), 0);
+    let picked = parseDefault(parseFloat($('#pick-' + no).text()), 0);
 
-    if(relqty > picked) {
+    if (relqty > picked) {
       balance++;
     }
   });
 
-  if(balance == 0) {
+  if (balance == 0) {
     finishPick();
   }
   else {
-    if(force_close) {
+    if (force_close) {
       swal({
-    		title: "คุณแน่ใจ?",
-    		text: "จัดสินค้าไม่ครบ ต้องการบังคับจบหรือไม่ ?",
-    		//type: "warning",
-    		showCancelButton: true,
-    		confirmButtonColor: "#DD6B55",
-    		confirmButtonText: 'บังคับจบ',
-    		cancelButtonText: 'ไม่ใช่',
-    		closeOnConfirm: false
-      }, function() {
+        title: "คุณแน่ใจ?",
+        text: "จัดสินค้าไม่ครบ ต้องการบังคับจบหรือไม่ ?",
+        //type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6B55",
+        confirmButtonText: 'บังคับจบ',
+        cancelButtonText: 'ไม่ใช่',
+        closeOnConfirm: false
+      }, function () {
         finishPick();
       });
     }
     else {
       swal({
-        title:"Error!",
-        text:"พบรายการที่จัดไม่ครบ",
-        type:"error"
+        title: "Error!",
+        text: "พบรายการที่จัดไม่ครบ",
+        type: "error"
       });
     }
   }
@@ -374,41 +424,41 @@ function finishPick() {
   var docNum = $.trim($('#DocNum').val());
 
   $.ajax({
-    url:HOME + 'finish_pick',
-    type:'POST',
-    cache:false,
-    data:{
-      'AbsEntry' : absEntry,
-      'DocNum' : docNum
+    url: HOME + 'finish_pick',
+    type: 'POST',
+    cache: false,
+    data: {
+      'AbsEntry': absEntry,
+      'DocNum': docNum
     },
-    success:function(rs) {
+    success: function (rs) {
       var rs = $.trim(rs);
-      if(rs === 'success') {
+      if (rs === 'success') {
         swal({
-          title:'Success',
-          type:'success',
-          timer:1000
+          title: 'Success',
+          type: 'success',
+          timer: 1000
         });
 
-        setTimeout(function() {
+        setTimeout(function () {
           goBack();
         }, 1200);
       }
       else {
         swal({
-          title:'Error!',
-          text:rs,
-          type:'error'
+          title: 'Error!',
+          text: rs,
+          type: 'error'
         });
       }
     },
-    error:function(xhr) {
+    error: function (xhr) {
       load_out();
       swal({
-        title:'Error!',
+        title: 'Error!',
         text: xhr.responseText,
-        type:'error',
-        html:true
+        type: 'error',
+        html: true
       });
     }
   });
@@ -418,18 +468,18 @@ function finishPick() {
 function is_all_picked() {
   var balance = 0;
 
-  $('.row-tr').each(function() {
+  $('.row-tr').each(function () {
     let id = $(this).data('id');
-    let relqty = parseDefault(parseFloat($('#release-'+id).text()), 0);
-    let picked = parseDefault(parseFloat($('#pick-'+id).text()), 0);
+    let relqty = parseDefault(parseFloat($('#release-' + id).text()), 0);
+    let picked = parseDefault(parseFloat($('#pick-' + id).text()), 0);
 
-    if(relqty > picked) {
+    if (relqty > picked) {
 
       balance++;
     }
   });
 
-  if(balance == 0) {
+  if (balance == 0) {
     $('#finish-row').removeClass('hide');
   }
   else {
@@ -443,11 +493,11 @@ function toggleOrderCode(id, orderCode) {
   let binCode = $('#BinCode').val();
   $('#soNo').val(orderCode);
   $('.order-btn').removeClass('btn-primary');
-  $('#order-'+id).addClass('btn-primary');
+  $('#order-' + id).addClass('btn-primary');
 
   //$('#details-table').prepend($('#row-'+id));
 
-  if(binCode.length > 0) {
+  if (binCode.length > 0) {
     $('#barcode-item').focus();
   }
   else {
@@ -457,10 +507,34 @@ function toggleOrderCode(id, orderCode) {
 }
 
 
+function increase() {
+  let qty = parseDefaultFloat($('#qty').val(), 1);
+
+  if (qty <= 0) {
+    qty = 0;
+  }
+
+  qty++;
+
+  $('#qty').val(qty);
+}
+
+function decrease() {
+  let qty = parseDefaultFloat($('#qty').val(), 1);
+
+  if (qty <= 1) {
+    return;
+  }
+
+  qty--;
+
+  $('#qty').val(qty);
+}
+
 
 function increseQty() {
   let qty = parseDefault(parseInt($('#option-qty').val()), 0);
-  if(qty >= 1) {
+  if (qty >= 1) {
     qty++;
   }
   else {
@@ -473,7 +547,7 @@ function increseQty() {
 
 function decreseQty() {
   let qty = parseDefault(parseInt($('#option-qty').val()), 0);
-  if(qty > 1) {
+  if (qty > 1) {
     qty--;
   }
   else {
@@ -509,10 +583,10 @@ function decreseQty() {
 
 
 function showInfo(id) {
-  let code = $('#info-code-'+id).val();
-  let name = $('#info-name-'+id).val();
-  let price = $('#info-price-'+id).val();
-  let barcode = $('#info-barcode-'+id).val();
+  let code = $('#info-code-' + id).val();
+  let name = $('#info-name-' + id).val();
+  let price = $('#info-price-' + id).val();
+  let barcode = $('#info-barcode-' + id).val();
 
   $('#info-code').html(code);
   $('#info-name').html(name);
@@ -525,10 +599,10 @@ function showInfo(id) {
 
 
 function showCancleOption(itemCode, orderCode, id) {
-  let balance = parseDefault(parseFloat($('#balance-'+id).text()), 0);
+  let balance = parseDefault(parseFloat($('#balance-' + id).text()), 0);
 
-  if(balance <= 0) {
-    $('#btn-cancle-pick-'+id).addClass('hide');
+  if (balance <= 0) {
+    $('#btn-cancle-pick-' + id).addClass('hide');
     return false;
   }
 
@@ -536,15 +610,15 @@ function showCancleOption(itemCode, orderCode, id) {
   $('#pick-id').val(id);
 
   $.ajax({
-    url:BASE_URL + 'cancle/get_items_list',
-    type:'POST',
-    cache:false,
-    data:{
-      "itemCode" : itemCode,
-      "orderCode" : orderCode
+    url: BASE_URL + 'cancle/get_items_list',
+    type: 'POST',
+    cache: false,
+    data: {
+      "itemCode": itemCode,
+      "orderCode": orderCode
     },
-    success:function(rs) {
-      if(isJson(rs)) {
+    success: function (rs) {
+      if (isJson(rs)) {
         var ds = $.parseJSON(rs);
         var source = $('#cancle-option-template').html();
         var output = $('#cancle-option-table');
@@ -555,9 +629,9 @@ function showCancleOption(itemCode, orderCode, id) {
       }
       else {
         swal({
-          title:'Error!',
-          text:rs,
-          type:'error'
+          title: 'Error!',
+          text: rs,
+          type: 'error'
         });
       }
     }
@@ -570,14 +644,14 @@ function addToPick(id) {
   let packCode = $('#DocNum').val();
   let pickId = $('#pick-id').val();
   let limit = parseDefault(parseFloat($('#limit').val()), 0);
-  let qty = parseDefault(parseFloat($('#pick-qty-'+id).val()), 0);
+  let qty = parseDefault(parseFloat($('#pick-qty-' + id).val()), 0);
 
 
-  if(qty <= 0) {
+  if (qty <= 0) {
     return false;
   }
 
-  if(limit < qty) {
+  if (limit < qty) {
     swal("จำนวนเกิน");
     return false;
   }
@@ -587,31 +661,31 @@ function addToPick(id) {
   load_in();
 
   $.ajax({
-    url:HOME + 'pick_from_cancle',
-    type:'POST',
-    cache:false,
-    data:{
-      'AbsEntry' : absEntry,
-      'DocNum' : packCode,
-      'pick_detail_id' : pickId,
-      'cancle_id' : id,
-      'qty' : qty
+    url: HOME + 'pick_from_cancle',
+    type: 'POST',
+    cache: false,
+    data: {
+      'AbsEntry': absEntry,
+      'DocNum': packCode,
+      'pick_detail_id': pickId,
+      'cancle_id': id,
+      'qty': qty
     },
-    success:function(rs) {
+    success: function (rs) {
       load_out();
-      if(isJson(rs)) {
+      if (isJson(rs)) {
         let data = $.parseJSON(rs);
 
-        for(let i = 0; i < data.length; i++) {
+        for (let i = 0; i < data.length; i++) {
           let ds = data[i];
-          $('#pick-'+ds.id).text(ds.picked);
-          $('#balance-'+ds.id).text(ds.balance);
+          $('#pick-' + ds.id).text(ds.picked);
+          $('#balance-' + ds.id).text(ds.balance);
           $('.row-tr').removeClass('blue');
-          $('#row-'+ds.id).addClass('blue');
+          $('#row-' + ds.id).addClass('blue');
 
-          if(ds.balance == 0) {
-            $('#row-'+ds.id).css('background-color', '#ebf1e2');
-            $('#btn-cancle-pick-'+ds.id).addClass('hide');
+          if (ds.balance == 0) {
+            $('#row-' + ds.id).css('background-color', '#ebf1e2');
+            $('#btn-cancle-pick-' + ds.id).addClass('hide');
             changeZone();
           }
         }
@@ -620,9 +694,9 @@ function addToPick(id) {
       }
       else {
         swal({
-          title:"Error!",
-          text:rs,
-          type:'error'
+          title: "Error!",
+          text: rs,
+          type: 'error'
         })
       }
     }
@@ -632,23 +706,23 @@ function addToPick(id) {
 
 
 function showPickedOption(id) {
-  let picked = parseDefault(parseFloat($('#pick-'+id).text()), 0);
+  let picked = parseDefault(parseFloat($('#pick-' + id).text()), 0);
 
-  if(picked <= 0) {
+  if (picked <= 0) {
     return false;
   }
 
   $('#picked-id').val(id);
 
   $.ajax({
-    url:HOME + 'get_picking_details',
-    type:'POST',
-    cache:false,
-    data:{
-      "pick_detail_id" : id
+    url: HOME + 'get_picking_details',
+    type: 'POST',
+    cache: false,
+    data: {
+      "pick_detail_id": id
     },
-    success:function(rs) {
-      if(isJson(rs)) {
+    success: function (rs) {
+      if (isJson(rs)) {
         var ds = $.parseJSON(rs);
         var source = $('#picked-option-template').html();
         var output = $('#picked-option-table');
@@ -659,9 +733,9 @@ function showPickedOption(id) {
       }
       else {
         swal({
-          title:'Error!',
-          text:rs,
-          type:'error'
+          title: 'Error!',
+          text: rs,
+          type: 'error'
         });
       }
     }
@@ -672,49 +746,49 @@ function showPickedOption(id) {
 
 function updatePicked(id) {
   const pick_detail_id = $('#picked-id').val();
-  let qty = parseDefault(parseFloat($('#picked-qty-'+id).val()), 0);
-  let limit = parseDefault(parseFloat($('#picked-limit-'+id).val()), 0);
-  let released = parseDefault(parseFloat($('#release-'+pick_detail_id).text()), 0);
-  let picked = parseDefault(parseFloat($('#pick-'+pick_detail_id).text()), 0);
+  let qty = parseDefault(parseFloat($('#picked-qty-' + id).val()), 0);
+  let limit = parseDefault(parseFloat($('#picked-limit-' + id).val()), 0);
+  let released = parseDefault(parseFloat($('#release-' + pick_detail_id).text()), 0);
+  let picked = parseDefault(parseFloat($('#pick-' + pick_detail_id).text()), 0);
 
-  if(qty <= 0 || qty > limit) {
-    $('#picked-qty-'+id).addClass('has-error');
+  if (qty <= 0 || qty > limit) {
+    $('#picked-qty-' + id).addClass('has-error');
     return false;
   }
   else {
-    $('#picked-qty-'+id).removeClass('has-error');
+    $('#picked-qty-' + id).removeClass('has-error');
   }
 
   $.ajax({
-    url:HOME + 'update_picking_qty',
-    type:'POST',
-    cache:false,
-    data:{
-      'pick_detail_id' : pick_detail_id,
-      'picking_id' : id,
-      'qty' : qty
+    url: HOME + 'update_picking_qty',
+    type: 'POST',
+    cache: false,
+    data: {
+      'pick_detail_id': pick_detail_id,
+      'picking_id': id,
+      'qty': qty
     },
-    success:function(rs) {
-      if(rs === 'success') {
+    success: function (rs) {
+      if (rs === 'success') {
         remain = limit - qty;
         picked = picked - qty;
         balance = released - picked;
 
-        $('#picked-label-'+id).text(addCommas(remain));
-        $('#picked-limit-'+id).val(remain);
+        $('#picked-label-' + id).text(addCommas(remain));
+        $('#picked-limit-' + id).val(remain);
         $('#pick-' + pick_detail_id).text(picked);
-        $('#balance-'+ pick_detail_id).text(balance);
-        $('#picked-qty-'+id).val('').focus();
+        $('#balance-' + pick_detail_id).text(balance);
+        $('#picked-qty-' + id).val('').focus();
 
-        $('#row-'+pick_detail_id).removeClass('blue');
-        $('#row-'+pick_detail_id).removeClass('bg-green');
+        $('#row-' + pick_detail_id).removeClass('blue');
+        $('#row-' + pick_detail_id).removeClass('bg-green');
         is_all_picked();
       }
       else {
         swal({
-          title:"Error!",
-          text:rs,
-          type:"error"
+          title: "Error!",
+          text: rs,
+          type: "error"
         });
       }
     }
@@ -725,44 +799,44 @@ function updatePicked(id) {
 
 function removePickRow(id, orderCode, itemCode) {
   swal({
-		title: "คุณแน่ใจ ?",
-		text: "ต้องการลบ '"+itemCode+" : "+orderCode+"' หรือไม่?",
-		type: "warning",
-		showCancelButton: true,
-		confirmButtonColor: "#DD6B55",
-		confirmButtonText: 'ยืนยัน',
-		cancelButtonText: 'ยกเลิก',
-		closeOnConfirm: false
-		}, function() {
-			load_in();
+    title: "คุณแน่ใจ ?",
+    text: "ต้องการลบ '" + itemCode + " : " + orderCode + "' หรือไม่?",
+    type: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#DD6B55",
+    confirmButtonText: 'ยืนยัน',
+    cancelButtonText: 'ยกเลิก',
+    closeOnConfirm: false
+  }, function () {
+    load_in();
 
-			$.ajax({
-				url: HOME + 'remove_pick_row',
-				type:"POST",
-        cache:"false",
-				data:{
-          'pick_detail_id' : id
-				},
-				success: function(rs) {
-					load_out();
-					var rs = $.trim(rs);
-					if( rs == 'success' ) {
-						swal({
-							title:'Success',
-							type:'success',
-							timer:1000
-						});
+    $.ajax({
+      url: HOME + 'remove_pick_row',
+      type: "POST",
+      cache: "false",
+      data: {
+        'pick_detail_id': id
+      },
+      success: function (rs) {
+        load_out();
+        var rs = $.trim(rs);
+        if (rs == 'success') {
+          swal({
+            title: 'Success',
+            type: 'success',
+            timer: 1000
+          });
 
-						$('#row-'+id).remove();
+          $('#row-' + id).remove();
 
-            is_all_picked();
-					}
-          else {
-						swal("Error !", rs , "error");
-					}
-				}
-			});
-	});
+          is_all_picked();
+        }
+        else {
+          swal("Error !", rs, "error");
+        }
+      }
+    });
+  });
 }
 
 
@@ -772,61 +846,61 @@ function deleteOrder() {
   let absEntry = $('#AbsEntry').val();
   let orderCode = $('#soList').val();
 
-  if(absEntry == "") {
+  if (absEntry == "") {
     swal("Error", "Missing AbsEntry", "error");
     return false;
   }
 
-  if(orderCode == "") {
+  if (orderCode == "") {
     swal("กรุณาเลือก SO");
     return false;
   }
 
 
   swal({
-		title: "คุณแน่ใจ ?",
-		text: "ต้องการลบ SO :"+orderCode+"  ทั้งใบหรือไม่?",
-		type: "warning",
-		showCancelButton: true,
-		confirmButtonColor: "#DD6B55",
-		confirmButtonText: 'ยืนยัน',
-		cancelButtonText: 'ยกเลิก',
-		closeOnConfirm: false
-		}, function() {
-			load_in();
+    title: "คุณแน่ใจ ?",
+    text: "ต้องการลบ SO :" + orderCode + "  ทั้งใบหรือไม่?",
+    type: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#DD6B55",
+    confirmButtonText: 'ยืนยัน',
+    cancelButtonText: 'ยกเลิก',
+    closeOnConfirm: false
+  }, function () {
+    load_in();
 
-			$.ajax({
-				url: HOME + 'remove_pick_order',
-				type:"POST",
-        cache:"false",
-				data:{
-          'absEntry' : absEntry,
-          'orderCode' : orderCode
-				},
-				success: function(rs) {
-					load_out();
-					var rs = $.trim(rs);
-					if( rs == 'success' ) {
-						swal({
-							title:'Success',
-							type:'success',
-							timer:1000
-						});
+    $.ajax({
+      url: HOME + 'remove_pick_order',
+      type: "POST",
+      cache: "false",
+      data: {
+        'absEntry': absEntry,
+        'orderCode': orderCode
+      },
+      success: function (rs) {
+        load_out();
+        var rs = $.trim(rs);
+        if (rs == 'success') {
+          swal({
+            title: 'Success',
+            type: 'success',
+            timer: 1000
+          });
 
-						window.location.reload();
-					}
-          else {
-						swal("Error !", rs , "error");
-					}
-				}
-			});
-	});
+          window.location.reload();
+        }
+        else {
+          swal("Error !", rs, "error");
+        }
+      }
+    });
+  });
 }
 
 
 
 function toggleFinishPick() {
-  if($('#force_close').is(':checked')) {
+  if ($('#force_close').is(':checked')) {
     $('#finish-row').removeClass('hide');
   }
   else {
