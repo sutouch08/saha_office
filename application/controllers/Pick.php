@@ -656,6 +656,7 @@ class Pick extends PS_Controller
 		$onhand = array();
 		$error = array();
 		$details = array();
+		$so = [];
 
 		if(!empty($absEntry))
 		{
@@ -672,6 +673,11 @@ class Pick extends PS_Controller
 						{
 							foreach($rows as $rs)
 							{
+								if( ! in_arr($rs->OrderCode, $so))
+								{
+									$so[] = $rs->OrderCode;
+								}
+
 								$key = $rs->AbsEntry.$rs->OrderCode.$rs->ItemCode;
 
 								if(! isset($onhand[$rs->ItemCode]))
@@ -787,6 +793,12 @@ class Pick extends PS_Controller
 								if($sc === TRUE)
 								{
 									$this->db->trans_commit();
+
+									//--- update SAP PL_Release
+									if(! empty($so))
+									{
+										$this->ms->set('U_PL_Release', 'Y')->where_in('DocNum', $so)->update('ORDR');
+									}
 								}
 								else
 								{
