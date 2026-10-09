@@ -673,7 +673,7 @@ class Pick extends PS_Controller
 						{
 							foreach($rows as $rs)
 							{
-								if( ! in_arr($rs->OrderCode, $so))
+								if( ! in_array($rs->OrderCode, $so))
 								{
 									$so[] = $rs->OrderCode;
 								}
@@ -866,6 +866,20 @@ class Pick extends PS_Controller
 				{
 					if($doc->Status == 'R')
 					{
+						$so = [];
+						$rows = $this->pick_model->get_pick_rows($absEntry);
+
+						if(!empty($rows))
+						{
+							foreach($rows as $rs)
+							{
+								if( ! in_array($rs->OrderCode, $so))
+								{
+									$so[] = $rs->OrderCode;
+								}
+							}
+						}
+
 						//--- drop pick details
 						$this->db->trans_begin();
 
@@ -892,6 +906,11 @@ class Pick extends PS_Controller
 						if($sc === TRUE)
 						{
 							$this->db->trans_commit();
+
+							if(!empty($so))
+							{
+								$this->ms->set('U_PL_Release', NULL, FALSE)->where_in('DocNum', $so)->update('ORDR');
+							}
 						}
 						else
 						{
