@@ -224,7 +224,7 @@
 					<div class="col-lg-4 col-md-4 col-sm-4 col-xs-6">
 						<div class="input-group">
 							<span class="input-group-addon">Qty</span>
-							<input type="number" class="form-control input-sm text-center" id="option-qty" value="1" />
+							<input type="number" class="form-control input-sm text-center focus" id="option-qty" value="1" />
 						</div>
 						<input type="hidden" id="option-item" value="" />
 					</div>
@@ -238,7 +238,7 @@
 					<div class="col-lg-6 col-md-6 col-sm-6 col-xs-10">
 						<div class="input-group">
 							<span class="input-group-addon">Uom</span>
-							<select class="form-control input-sm" id="option-uom">
+							<select class="form-control input-sm focus" id="option-uom">
 								<option value="">Select Uom</option>
 							</select>
 						</div>
